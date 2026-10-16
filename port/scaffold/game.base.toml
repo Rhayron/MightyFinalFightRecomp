@@ -1158,9 +1158,9 @@ addr = 0xC8A6   # flow_screen.c
 [[replace_func]]
 addr = 0xC8B4   # flow_area.c
 [[replace_func]]
-addr = 0xC987   # lifted, lifted_c.c
+addr = 0xC987   # flow_gameplay.c
 [[replace_func]]
-addr = 0xC99D   # lifted, lifted_c.c
+addr = 0xC99D   # flow_gameplay.c
 [[replace_func]]
 addr = 0xC9B6   # lifted, lifted_c.c
 [[replace_func]]
