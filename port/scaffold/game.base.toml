@@ -618,46 +618,46 @@ bank = 5
 addr = 0xBFAF   # lifted, lifted_b5.c
 [[replace_func]]
 bank = 6
-addr = 0x8000   # lifted, lifted_b6.c
+addr = 0x8000   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x8003   # lifted, lifted_b6.c
+addr = 0x8003   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x800B   # lifted, lifted_b6.c
+addr = 0x800B   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x80D0   # lifted, lifted_b6.c
+addr = 0x80D0   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x819A   # lifted, lifted_b6.c
+addr = 0x819A   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x81B8   # lifted, lifted_b6.c
+addr = 0x81B8   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x81F0   # lifted, lifted_b6.c
+addr = 0x81F0   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x822F   # lifted, lifted_b6.c
+addr = 0x822F   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x8244   # lifted, lifted_b6.c
+addr = 0x8244   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x8256   # lifted, lifted_b6.c
+addr = 0x8256   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x827D   # lifted, lifted_b6.c
+addr = 0x827D   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x8347   # lifted, lifted_b6.c
+addr = 0x8347   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x83A8   # lifted, lifted_b6.c
+addr = 0x83A8   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x84EF   # lifted, lifted_b6.c
+addr = 0x84EF   # obj_update.c
 [[replace_func]]
 bank = 6
 addr = 0x84F0   # lifted, lifted_b6.c
