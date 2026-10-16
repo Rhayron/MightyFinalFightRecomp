@@ -39,3 +39,12 @@ runs/
 # python
 __pycache__/
 *.pyc
+
+# P3 scaffold: legacy backend output is ROM-derived
+port/scaffold/generated/
+port/scaffold/build*/
+port/scaffold/smoke/
+port/scaffold/shots/
+port/scaffold/*.log
+port/scaffold/proposal.toml
+port/scaffold/mff_*.csv

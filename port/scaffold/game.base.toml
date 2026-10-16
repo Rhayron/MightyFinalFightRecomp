@@ -1,0 +1,13 @@
+[game]
+name = "Mighty Final Fight"
+output_prefix = "mff"
+# the P0 map gives the entry points; the finder's pointer and secondary scans decode data as code
+disable_ptr_scan = true
+disable_secondary = true
+# JSR pushes its return address like the 6502: the task scheduler resumes a
+# task by popping the yield routine's return (S += 2), and tasks own stacks
+push_all_jsr = true
+
+# nmi_tail: the NMI's hijacked return target; body in extras.c (func_C119)
+[[replace_func]]
+addr = 0xC119
