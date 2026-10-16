@@ -43,6 +43,34 @@
 #define BANKS_STAGE         0x08    /* 08/09: stage_spawns, stage_events, palette cycling */
 #define BANK_SPRITE_SETS    0x09    /* at $A000: the sprite sets ($A000, A = set) and the palette
                                      * animations ($A300); also round 3's data */
+#define BANK_HUD_TEXT       0x0A    /* at $8000: objects' animations (0F:EB93), and at 0A:9C00
+                                     * the code that queues the HUD's fixed text */
+
+/* ---- bank 04's screens: screen_draw (04:8000) draws screen X from the
+ * pointer tables at 04:8100/810E; each screen's setup routine in bank 04
+ * then loads its palette, CHR banks and sprites ---- */
+#define SCREEN_CAPCOM       0x00    /* CAPCOM PRESENTS (setup 04:8900) */
+#define SCREEN_TITLE        0x01    /* setup 04:8940 */
+#define SCREEN_SELECT       0x02    /* run by 04:9100 */
+#define SCREEN_LICENSE      0x04    /* LICENSED BY NINTENDO (setup 04:89C0) */
+#define SCREEN_STORY_1      0x06    /* the picture of story page 1 (setup 04:8B40) */
+#define SCREEN_STORY_2      0x07    /* the picture of story page 3 (setup 04:8AC0) */
+#define SCREEN_ROUND_MAP    0x08    /* run by 04:8D00 */
+
+/* ---- main_task (flow_main_task.c) ---- */
+#define RNG_SEED            0x88    /* rng at power-on */
+#define BOOT_SCREEN_FRAMES  0xB4    /* 180: the licence screen, and the CAPCOM one at most */
+#define ROUND_MAP_FRAMES    0x2D    /* 45 */
+#define TITLE_FLASH_AT      0xF0    /* the title flashes when its first timer gets here */
+#define TITLE_FLASH_COLOR   0x12    /* put in palette_buf +3/+7/+$0F/+$1F by the flash */
+#define START_LIVES         5
+#define START_CREDITS       3
+/* the title's three countdowns, kept in slot 0's object fields: the first
+ * counts $FF frames (flashing the title at $F0), then the second $FF and
+ * the third $8B; when all are 0 the game restarts */
+#define TITLE_TIMER_1       OBJ_TIMER
+#define TITLE_TIMER_2       OBJ_TIMER2
+#define TITLE_TIMER_3       OBJ_GROUND_Y
 
 /* ---- the fixed-bank tables flow_*.c reads (banks 0E and 0F) ---- */
 #define ROUND_BANK_TABLE    0xC1F8  /* round_bank: the $A000 bank of each round (by round_tables) */
@@ -52,10 +80,15 @@
 #define PLAYER_CHR_STAND    0xE22B  /* per player_id: that pose's sprite CHR bank for chr_banks+2
                                      * (0, 4, 8) */
 
+#define ROUND_MUSIC_TABLE   0xC83C  /* round_music: the music command of each round (by round_tables) */
+#define START_HEALTH_TABLE  0xC841  /* start_health: per player_id, $40, $30, $50 */
+
 /* ---- the round's data bank at $A000 (round_bank[round_tables]) starts with
  * three area records of $30 bytes, one per sub_area (docs/assets.md, "Area
  * record") ---- */
 #define AREA_RECORD(k)      (0xAE60 + 0x30 * (k))
+#define AREA_REC_HEADER     0x08    /* bits 0-4 the last screen (area_screen_count), bits 5-7
+                                     * area_flags */
 #define AREA_REC_SETS       0x10    /* 4 (sprite set, palette set) pairs; area_palette picks one */
 #define AREA_REC_BG_CHR     0x18    /* CHR R0/R1: the background's banks */
 #define AREA_REC_BG_PALETTE 0x1C    /* palette set n at +20n: 16 colors, then 4 palette animation
@@ -68,11 +101,14 @@
 #define OAM_Y_HIDDEN        0xF8
 
 /* ---- routines flow_*.c reach through mff_call_fn or by falling into them ---- */
+void func_E521(void);   /* 0F:E521: the column writer, one nametable column toward $10 */
 void func_E9BC(void);   /* objects_draw */
+void func_F26E(void);   /* 0F:F26E: slot X's starting fall speed */
 void func_F294(void);   /* player_set_anim */
 void func_F34A(void);   /* sound_queue_push (music) */
 void func_F34C(void);   /* sound_queue_push_sfx */
 void func_F440(void);   /* 0F:F440: chr_banks+2 = A */
+void func_FE00(void);   /* reset */
 void func_FF2A(void);   /* task_wait_frames */
 void func_FF31(void);   /* task_wait_frame */
 void func_FF4C(void);   /* 0F:FF4C: an RTS that code reaches by JMP */

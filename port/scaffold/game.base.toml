@@ -1138,15 +1138,15 @@ addr = 0xC4BD   # flow_area.c
 [[replace_func]]
 addr = 0xC527   # flow_area.c
 [[replace_func]]
-addr = 0xC556   # lifted, lifted_c.c
+addr = 0xC556   # flow_main_task.c
 [[replace_func]]
-addr = 0xC5A3   # lifted, lifted_c.c
+addr = 0xC5A3   # flow_main_task.c
 [[replace_func]]
-addr = 0xC5CE   # lifted, lifted_c.c
+addr = 0xC5CE   # flow_main_task.c
 [[replace_func]]
-addr = 0xC681   # lifted, lifted_c.c
+addr = 0xC681   # flow_main_task.c
 [[replace_func]]
-addr = 0xC6D2   # lifted, lifted_c.c
+addr = 0xC6D2   # flow_main_task.c
 [[replace_func]]
 addr = 0xC85C   # flow_screen.c
 [[replace_func]]

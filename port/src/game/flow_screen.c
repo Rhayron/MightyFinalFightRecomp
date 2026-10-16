@@ -32,8 +32,7 @@
  * Callers: screen_clear_now (0E:C881, page $20), player_state_continue
  * (0E:DC9A) and reset (0F:FE9D, FEA6: both nametables).
  */
-void func_C2D1(void)
-{
+void func_C2D1(void) {
     REGS_IN;
 
     mff_cycles(0xC2D1, 13);
@@ -123,8 +122,7 @@ void func_C2D1(void)
  * (0E:DC8E, DC9D), player_state_transition (0E:DE79, DEDB, DF13), the
  * scenes' redraw (0F:F412) and reset (0F:FE94).
  */
-void func_C31D(void)
-{
+void func_C31D(void) {
     REGS_IN;
 
     mff_cycles(0xC31D, 7);
@@ -158,8 +156,7 @@ void func_C31D(void)
  * TMP13 to TMP15; stop when TMP15 reaches $50 (out) or goes negative (in).
  * Returns (RTS) with Y = $FF, A = TMP15.
  */
-static void palette_fade_steps(void)
-{
+static void palette_fade_steps(void) {
     REGS_IN;
 
     for (;;) {
@@ -254,8 +251,7 @@ static void palette_fade_steps(void)
  * Callers: bank 04's CAPCOM PRESENTS setup (04:8920), the new game's round
  * start (0E:C7A4) and player_state_transition's area start (0F:E055).
  */
-void func_C362(void)
-{
+void func_C362(void) {
     REGS_IN;
 
     mff_cycles(0xC362, 6);
@@ -287,8 +283,7 @@ void func_C362(void)
  * player_state_continue (0E:DC75) and player_state_transition (0E:DE72,
  * DED4, DF0C).
  */
-void func_C36E(void)
-{
+void func_C36E(void) {
     REGS_IN;
 
     mff_cycles(0xC36E, 15);
@@ -309,8 +304,7 @@ void func_C36E(void)
  * player_state_continue (0E:DCC4) and player_state_transition's area start
  * (0E:DF92, DFD3).
  */
-void func_C85C(void)
-{
+void func_C85C(void) {
     REGS_IN;
 
     mff_cycles(0xC85C, 6);
@@ -330,8 +324,7 @@ void func_C85C(void)
  * Callers: screen_clear (by falling in), screen_clear_banks (0E:C8A6) and
  * player_state_transition's area start (0E:DF7A, DFB2).
  */
-void func_C85F(void)
-{
+void func_C85F(void) {
     REGS_IN;
 
     mff_cycles(0xC85F, 6);
@@ -384,8 +377,7 @@ void func_C85F(void)
  * Callers: main_task's story, before intro pages 0, 2 and 4 (0E:C5CE, C60E,
  * C649).
  */
-void func_C888(void)
-{
+void func_C888(void) {
     REGS_IN;
 
     mff_cycles(0xC888, 6);
@@ -429,8 +421,7 @@ void func_C888(void)
  * Out: X = 5, bank_switch's A and flags.
  * Callers: player_state_transition (0E:DEB1, DEE4, DF1C).
  */
-void func_C8A6(void)
-{
+void func_C8A6(void) {
     REGS_IN;
 
     mff_cycles(0xC8A6, 6);
