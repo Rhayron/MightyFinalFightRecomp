@@ -660,37 +660,37 @@ bank = 6
 addr = 0x84EF   # obj_update.c
 [[replace_func]]
 bank = 6
-addr = 0x84F0   # lifted, lifted_b6.c
+addr = 0x84F0   # obj_hits.c
 [[replace_func]]
 bank = 6
-addr = 0x8593   # lifted, lifted_b6.c
+addr = 0x8593   # obj_hits.c
 [[replace_func]]
 bank = 6
-addr = 0x85C8   # lifted, lifted_b6.c
+addr = 0x85C8   # obj_hits.c
 [[replace_func]]
 bank = 6
-addr = 0x85F0   # lifted, lifted_b6.c
+addr = 0x85F0   # obj_hits.c
 [[replace_func]]
 bank = 6
-addr = 0x8618   # lifted, lifted_b6.c
+addr = 0x8618   # obj_hits.c
 [[replace_func]]
 bank = 6
-addr = 0x89E3   # lifted, lifted_b6.c
+addr = 0x89E3   # obj_hits.c
 [[replace_func]]
 bank = 6
-addr = 0x89F2   # lifted, lifted_b6.c
+addr = 0x89F2   # obj_hits.c
 [[replace_func]]
 bank = 6
-addr = 0x89F8   # lifted, lifted_b6.c
+addr = 0x89F8   # obj_hits.c
 [[replace_func]]
 bank = 6
-addr = 0x8A08   # lifted, lifted_b6.c
+addr = 0x8A08   # obj_hits.c
 [[replace_func]]
 bank = 6
-addr = 0x8A1E   # lifted, lifted_b6.c
+addr = 0x8A1E   # obj_hits.c
 [[replace_func]]
 bank = 6
-addr = 0x8A31   # lifted, lifted_b6.c
+addr = 0x8A31   # obj_hits.c
 [[replace_func]]
 bank = 6
 addr = 0x8AEE   # lifted, lifted_b6.c

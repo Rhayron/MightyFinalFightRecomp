@@ -62,6 +62,22 @@
         call_by_address_tail(target, 6); \
         return; \
     } while (0)
+/* JMP at `pc` to a bank-0F routine, which then returns for this one.
+ * Returns. */
+#define JMP_FIXED(pc, target, fn) do { \
+        mff_cycles(pc, 3); \
+        SYNC_OUT; \
+        nes_cpu_instruction_boundary(target, 2); \
+        { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; fn(); g_code_window_base = swb; } \
+        return; \
+    } while (0)
+/* JMP ($zp), charged before: 2 more cycles at the target, which the
+ * dispatcher runs. Returns. */
+#define JMP_INDIRECT(zp) do { \
+        SYNC_OUT; \
+        { uint16_t jt = nes_read16zp(zp); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); } \
+        return; \
+    } while (0)
 /* A branch into code that is no function of the scaffold (an RTS or JMP in
  * the middle of another routine): the dispatcher hands it to the
  * interpreter. The branch is charged before. Returns. */
@@ -192,7 +208,7 @@ void func_FB72(void);
 void func_FBD9(void);
 void func_FF4D(void);   /* bank_switch */
 
-/* ---- bank-6 routines reached by falling into them from another file ---- */
+/* ---- bank-6 routines other code falls into (called directly) ---- */
 void func_800B_b6(void);
 void func_81F0_b6(void);
 void func_819A_b6(void);
@@ -200,5 +216,7 @@ void func_8256_b6(void);
 void func_827D_b6(void);
 void func_8347_b6(void);
 void func_83A8_b6(void);
+void func_8593_b6(void);
+void func_8A31_b6(void);
 
 #endif
