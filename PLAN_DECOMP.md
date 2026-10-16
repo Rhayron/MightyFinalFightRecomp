@@ -1,0 +1,343 @@
+# Plano — Mighty Final Fight decompilado e portado (sem hardware simulado)
+
+> Continuação do [PLAN_WINDOWS.md](PLAN_WINDOWS.md). O recomp cycle-accurate deste repo está pronto
+> (100% nativo, igual ao TriCNES bit a bit) e passa a ser o **oráculo** do port. Escrito em 2026-10-16
+> sobre nesrecomp `2b4fcdb`.
+
+## 0. Objetivo e decisões
+
+Hoje o `.exe` é o código 6502 traduzido mecanicamente, rodando sobre um modelo ciclo a ciclo da CPU,
+PPU, APU e MMC3. O objetivo é um **port**: a lógica do jogo em C legível e com nomes, desenhando e tocando
+som por APIs próprias, **sem** modelo de barramento, sem PPU por ciclo e sem a ROM em tempo de execução.
+
+| Decisão | Escolha |
+|---|---|
+| Ponto de chegada | **Em etapas**: etapa 1 = port fiel com renderizador por quadro; etapa 2 = renderizador de alto nível com extras (widescreen, sem sprite piscando) |
+| ROM | **Extrair no build**: o usuário fornece o dump uma vez, um extrator gera os assets; repo e binário só têm código |
+| Plataformas | **Windows + macOS + Linux** (CMake + SDL2) |
+| Onde | Pasta **`port/`** neste repo, ao lado do recomp (que vira o oráculo dos testes) |
+| Slowdown | **Fiel por padrão + opção de desligar** |
+| Áudio | **Driver de som da Capcom reimplementado + síntese 2A03** (pulso, triângulo, ruído, DMC) |
+
+**O que "sem simulação" quer dizer aqui.** Sai do caminho: CPU 6502, barramento, registradores
+`$2000`–`$4017` como interface, PPU ponto a ponto, IRQ do MMC3 e troca de bancos. Fica: um renderizador
+que desenha tiles e sprites a partir do estado do jogo, e um sintetizador que gera as ondas do 2A03. As
+ondas são o próprio som do jogo, não um detalhe do hardware.
+
+**Por que o port é viável agora.** Três coisas que um decomp normalmente não tem:
+
+1. **Mapa completo de código.** As 15.548 seeds de `cyc_seeds.txt` são todos os pontos de entrada que o
+   jogo executa (banco + endereço), dos 5 rounds até os créditos.
+2. **Oráculo exato.** O recomp bate com o TriCNES em trace, memória, imagem e ciclos, e o `--frame-log`
+   grava RAM, nametables, OAM, paleta e imagem de cada frame.
+3. **Rotas replayáveis.** `inputs/*.txt` e as sessões do `tools/bot.py` reproduzem jogatinas inteiras
+   byte a byte. Viram testes de regressão de graça.
+
+### Status (2026-10-16)
+
+- **P0 concluída.** CDL no runner (`--cdl-out`, branch local `feat/cyc-cdl` do nesrecomp, commit
+  `24e7462`; o superprojeto ainda aponta para `2b4fcdb`). 104 logs (rotas replayáveis, sessões god,
+  varreduras por round e os "tours" com skip a cada 1.200/3.000 frames, que passam por todas as áreas).
+  **PRG 80,45% classificado, CHR 81,2% desenhado.** Mapa em `docs/prg_map.md`. O resto precisa de
+  entendimento (fim do banco `08` com bytes de lixo, dado sem referência, caminhos raros).
+- **P1 no critério principal.** `disasm/tools/disasm.py` gera ca65 a partir do dump + mapa;
+  `disasm/tools/verify.py` remonta com ca65/ld65 (cc65 `a6530f4`, compilado em `build_cc65/`) e
+  **os 16 bancos saem byte a byte iguais**. Tabelas de ponteiros tipadas (`.lobytes/.hibytes/.word`),
+  nomes de hardware e de RAM, `labels.toml` com 64 rótulos com evidência.
+- **P2 começada.** `docs/engine.md`: escalonador de 4 tarefas cooperativas com pilhas próprias, NMI com
+  retorno sequestrado (`nmi_tail` roda o som), IRQ por ponteiro em RAM, troca de bancos reentrante,
+  fluxo do jogo (attract = `JMP reset`), laço de gameplay, despacho de estados do jogador e de
+  comportamento de objetos (160 ids, banco por id: `tools/mff_dispatch.py`), desenho com rotação de
+  ordem (o piscar). Mudanças de plano que isso traz: a P4 precisa de **corrotinas** para as tarefas.
+
+---
+
+## 1. Estrutura
+
+```
+MightyFinalFightRecomp/
+├── PLAN_DECOMP.md
+├── (recomp atual: CMakeLists.txt, game.toml, cyc_seeds.txt, tools/, inputs/ ...)  ← oráculo
+├── disasm/
+│   ├── labels.toml          ← nomes, comentários, regiões de dado, tipos (versionado)
+│   ├── tools/disasm.py      ← gera build/disasm/bankNN.s a partir do SEU dump
+│   └── tools/verify.py      ← remonta com ca65/ld65 e exige PRG byte a byte igual
+└── port/
+    ├── CMakeLists.txt
+    ├── include/mff/state.h  ← struct que espelha os 2 KB de RAM do jogo (mesmos offsets)
+    ├── src/game/            ← lógica decompilada, por sistema
+    │   ├── main_loop.c  nmi.c  input.c  rng.c
+    │   ├── objects.c  player_*.c  enemy_*.c  boss_*.c  items.c  collision.c
+    │   ├── stage.c  scroll.c  hud.c  title.c  select.c  map.c  cutscene.c  ending.c
+    │   └── sound_driver.c
+    ├── src/engine/
+    │   ├── render_frame.c   ← etapa 1: nametables/OAM/paleta por quadro + split da barra de status
+    │   ├── render_hd.c      ← etapa 2: desenho direto do estado (widescreen, sem limite de sprites)
+    │   ├── synth_2a03.c  timing.c  platform_sdl.c  savestate.c  config.c
+    ├── tools/extract_assets.py  ← dump → assets/ (PNG/JSON/bin), com verificação de CRC
+    └── tests/
+        ├── lockstep/        ← roda port e oráculo frame a frame e compara a RAM
+        └── routes/          ← as rotas de inputs/ como casos de teste
+```
+
+O `build/` continua ignorado. O disassembly gerado e os assets extraídos **nunca** entram no repo.
+
+---
+
+## 2. Estratégias por camada
+
+### 2.1 Código vs. dado
+
+- As **seeds** já dão os inícios de instrução executados. Falta o outro lado: quais bytes são **lidos
+  como dado**, e de que banco.
+- **Estratégia:** adicionar um **CDL** (code/data log) ao runner cycle do nesrecomp, num branch do
+  submódulo: a cada leitura de PRG, marcar o offset físico como `CODE`, `DATA`, `INDIRECT` (lido via
+  ponteiro) ou `JUMP_TABLE`. Formato compatível com o CDL do Mesen. Vira contribuição upstream.
+- Rodar o CDL com as rotas e as sessões do bot (as mesmas que deram a cobertura) e cruzar com as seeds.
+  O que não for nem código nem dado lido aparece como **"não visto"**, para investigar à mão (dado de
+  trecho raro, lixo de padding ou código morto).
+- Alternativa se o patch no runner travar: CDL do Mesen2 com as rotas via Lua.
+
+### 2.2 Disassembly
+
+- `disasm/tools/disasm.py` lê o dump, o CDL e o `labels.toml` e gera um `.s` por banco de 8 KB em
+  sintaxe **ca65**, com tabelas de ponteiros como `.word label` e não como bytes soltos.
+- **Critério de verdade:** `verify.py` remonta com `ca65`/`ld65` e o PRG resultante tem de ser **byte a
+  byte igual** ao do dump. Isso garante que nenhum rótulo ou tabela está errado.
+- O repo guarda só o `labels.toml` (nomes, comentários e tipos), nunca o `.s` gerado.
+- Antes de nomear rotinas com truques de pilha (PHA/PLA mexendo no endereço de retorno, RTS como goto,
+  dados inline depois de JSR), ler `nesrecomp/PATTERNS.md`.
+
+### 2.3 Entendimento (nomes e estruturas)
+
+- **Fontes:** Ghidra headless + GhidraNes via MCP (`nesrecomp/.mcp.json.example`), `docs/ram_map.md` (já
+  corrigido em execução), `tools/state_ram.py` para experimentos ("o que acontece se...") e o
+  `--frame-log` para ver quem escreve onde.
+- **Primeiro o esqueleto:** reset, NMI, loop principal, máquina de estados do jogo (`$0030`), leitura do
+  controle, RNG, tabela de objetos (`$0300`+), despacho por id de objeto.
+- **Depois por sistema:** jogador (cada personagem), cada inimigo, chefes, itens, colisão, rolagem,
+  carregamento de fase, HUD, telas (título, seleção, mapa, cutscenes, final) e o driver de som.
+- Cada descoberta vai para o `labels.toml` com a evidência (frame, rota, endereço). A regra é a mesma do
+  recomp: não adivinhar comportamento do 6502.
+
+### 2.4 Da tradução ao C legível (estratégia "estrangulamento")
+
+Reescrever 15 mil instruções de uma vez é inviável de testar. Em vez disso:
+
+1. **Andaime.** Gerar o jogo no **backend legacy** do NESRecomp (uma função C por sub-rotina 6502, JSR =
+   chamada de função, PPU por quadro do `runner/src/ppu_renderer.c`). O MFF vai pedir `game.toml` com
+   trampolins de banco e despacho inline, achados no disassembly (o `game.toml` do YoshisCookieRecomp é o
+   modelo). O andaime precisa bater com o oráculo nos frames sem lag.
+2. **Ejeção.** Copiar a saída do andaime para `port/src/game/` **uma única vez**. A partir daí o código é
+   mantido à mão: é o ponto em que o projeto deixa de ser recomp (a regra "nunca editar o gerado" do
+   nesrecomp vale para o recomp na raiz, não para o `port/`).
+3. **Limpeza função por função.** Cada função passa de `cpu.a = ram[0x320 + x]` para
+   `obj[i].id`, com tipos e nomes. Toda função limpa precisa manter o teste lockstep verde.
+4. **RAM compatível durante a etapa 1.** O estado do jogo continua nos mesmos 2 KB, só que acessado por
+   `state.h` (structs sobrepostos aos endereços originais). É isso que permite comparar a RAM com o
+   oráculo frame a frame. A troca para estruturas livres só acontece na etapa 2.
+5. **Fim dos registradores.** Escritas em `$2006/$2007` (nametable), `$4014` (OAM DMA),
+   `$2000/$2005` (scroll) e `$4000`–`$4017` (som) viram chamadas de API (`gfx_put_tiles`,
+   `gfx_set_scroll`, `snd_*`). O MMC3 some: dados de banco viram ponteiros comuns para os assets.
+
+### 2.5 Assets (extrair no build)
+
+- `port/tools/extract_assets.py` confere o CRC32 (`15EB0BEE`) e gera em `build/assets/`:
+  - CHR → folhas PNG de 8×8 com metadados de banco (o jogo troca bancos de CHR; o extrator registra cada
+    conjunto);
+  - paletas; metasprites (como cada personagem e inimigo é montado por sprites);
+  - mapas de fase e blocos (o formato vem do disassembly; provavelmente comprimido);
+  - textos (intro, diálogos, final) e as sequências de música e efeitos.
+- O port lê só `build/assets/`. Sem os assets, mostra uma tela pedindo o dump e roda o extrator.
+- O formato dos assets fica documentado e estável: é a base para pacotes HD na etapa 2.
+
+### 2.6 Renderização
+
+**Etapa 1, `render_frame.c` (fiel):**
+- Mantém nametables, OAM e paleta como estruturas comuns e compõe a imagem 256×240 uma vez por quadro.
+- A barra de status, que no NES é um split por IRQ do MMC3 numa linha fixa, vira **duas regiões com
+  scroll próprio** na composição.
+- Reproduz o limite de 8 sprites por linha e a ordem de prioridade, porque o jogo depende disso (o
+  piscar é intencional).
+- **Critério:** imagem idêntica ao `--frame-log` do oráculo em todas as rotas, com divergências de
+  efeitos no meio da linha (se houver) listadas e explicadas.
+
+**Etapa 2, `render_hd.c` (alto nível):**
+- Desenha direto do estado: camadas de fundo a partir dos mapas da fase, sprites a partir dos objetos
+  vivos e dos metasprites, sem nametable e sem OAM.
+- Opções: sem limite de sprites (acaba o piscar), widescreen 16:9 (a câmera mostra mais; o gatilho de
+  spawn dos inimigos continua na borda original, para não mudar o jogo), filtros e escala inteira,
+  pacotes de texturas.
+- **Critério:** com tudo desligado, a imagem é igual à da etapa 1, tirando o piscar.
+
+### 2.7 Áudio
+
+- `sound_driver.c` reimplementa o driver de som da Capcom a partir do disassembly: interpretador de
+  sequências, envelopes, vibrato e prioridade entre música e efeitos. Ele roda uma vez por quadro, como
+  no NMI original.
+- O driver gera **estado de canal** (período, volume, duty, ruído, amostra DMC), e não escritas em
+  registrador. `synth_2a03.c` transforma isso em ondas a 48 kHz, com os mesmos filtros de saída do runner
+  cycle (front-loader do NES).
+- **Critério:** o estado de canal por frame bate com o do oráculo (derivado do `--frame-log` e do trace
+  da APU), e o WAV fica perceptualmente igual ao `--wav-out` do recomp. Diferença de amostra é aceitável,
+  porque o oráculo atualiza no meio do quadro.
+
+### 2.8 Timing e slowdown
+
+- O slowdown do NES vem de **lag frames**: o loop principal não termina antes do próximo NMI, e o frame
+  repete a lógica anterior. O RNG e muita coisa dependem disso, então o port fiel precisa reproduzir.
+- **Modelo:** custo em ciclos 6502 por rotina, medido no próprio recomp (os blocos compilados sabem
+  quantos ciclos gastam). `timing.c` soma o custo do quadro e, se passar do orçamento de um frame NTSC,
+  marca lag.
+- **Desacoplamento para teste:** no modo lockstep, o port pode **pegar a decisão de lag do oráculo**.
+  Assim a lógica é testada separadamente do modelo de tempo, e o modelo tem a própria métrica: lag frames
+  iguais aos do oráculo nas rotas.
+- Opção do usuário: "sem slowdown" (sempre 60 fps). Esse modo sai do lockstep por definição.
+
+### 2.9 Testes (o coração do plano)
+
+- **Lockstep offline:** o oráculo grava `--frame-log` de cada rota; o port roda a mesma rota e compara
+  RAM, OAM, nametables e paleta a cada frame. Ao primeiro desvio, reporta frame, endereço, valor esperado
+  e obtido, e as últimas funções do port que escreveram ali.
+- **Lockstep em processo** (mais rápido para depurar): um binário de teste linka o port e o runtime cycle
+  e avança os dois juntos.
+- **Rotas:** `inputs/10_cody_poweron.txt`, as sessões do bot por personagem e por round, e rotas novas
+  geradas pelo bot para cada sistema reescrito.
+- **Imagem e som:** comparação por frame contra o oráculo (seções 2.6 e 2.7).
+- **CI:** GitHub Actions compila nos três sistemas sem ROM (só build e testes que não precisam do dump).
+  Os testes contra o oráculo rodam localmente, onde o dump existe.
+
+### 2.10 Plataformas e build
+
+- CMake, C11, SDL2 (SDL3 quando valer a pena). Sem dependência de MSVC no `port/`: MSVC no Windows,
+  Clang no macOS, GCC/Clang no Linux.
+- `cmake -DMFF_ROM=<dump>` roda o extrator; depois disso o build não precisa mais da ROM.
+- Save states nativos (serialização do estado do jogo, não da máquina), config, remapeamento, gamepads,
+  tela cheia. O launcher do `recomp-ui` pode ser reaproveitado se encaixar sem o runtime cycle.
+
+---
+
+## 3. Fases
+
+Estimativas em dedicação parcial, com agentes fazendo o grosso.
+
+### Fase P0 — Mapa de código e dado (≈1 semana)
+
+1. CDL no runner cycle (branch do nesrecomp), com teste próprio.
+2. Rodar CDL com todas as rotas e sessões do bot; cruzar com as seeds.
+3. Relatório por banco: código, dado, indireto e "não visto".
+
+**Pronto quando:** cada byte dos 128 KiB de PRG tem uma classificação, e os "não vistos" estão listados.
+
+### Fase P1 — Disassembly remontável (≈1–2 semanas)
+
+1. `disasm.py` + `labels.toml` inicial (vetores, NMI, reset, RAM map já verificado).
+2. Tabelas de ponteiros e de saltos tipadas.
+3. `verify.py` com ca65/ld65.
+
+**Pronto quando:** o disassembly gerado remonta para um PRG **byte a byte igual** ao do dump.
+
+### Fase P2 — Entendimento do esqueleto (≈2 semanas)
+
+Reset, NMI, loop principal, estados do jogo, input, RNG, objetos, despacho por id, carregamento de fase,
+troca de banco. Tudo nomeado no `labels.toml`, com `docs/` explicando cada sistema.
+
+**Pronto quando:** dá para seguir um frame inteiro do jogo no disassembly só lendo nomes.
+
+### Fase P3 — Andaime legacy + lockstep (≈2 semanas)
+
+1. `game.toml` legacy (trampolins, despacho inline, regiões de dado) e geração por função.
+2. Harness lockstep (offline e em processo).
+3. Andaime batendo com o oráculo nos frames sem lag, nas rotas do Round 1.
+
+**Pronto quando:** o andaime roda o Round 1 inteiro com RAM igual à do oráculo, tirando os lag frames
+conhecidos.
+
+### Fase P4 — Ejeção e limpeza (≈2–4 meses; a fase longa)
+
+Ejetar para `port/src/game/` e limpar sistema por sistema, na ordem do esqueleto: loop, input e RNG →
+objetos → jogador (Cody, Guy, Haggar) → inimigos → chefes → fase/rolagem → HUD → telas → final. Cada
+sistema limpo vai com a sua rota de teste.
+
+**Pronto quando:** nenhum acesso a `ram[0x....]` cru fora do `state.h`, nenhum registrador de hardware
+no código do jogo, e todas as rotas em lockstep verde (com lag tirado do oráculo).
+
+### Fase P5 — Assets e renderizador por quadro (≈3 semanas)
+
+Extrator completo; `render_frame.c`; o port passa a ler só `build/assets/`.
+
+**Pronto quando:** imagem igual ao oráculo em todas as rotas, rodando **sem a ROM**.
+
+### Fase P6 — Driver de som + 2A03 (≈2–3 semanas)
+
+**Pronto quando:** estado de canal igual ao oráculo por frame, e o WAV aprovado no ouvido nas 5 fases,
+nos chefes e no final.
+
+### Fase P7 — Timing e slowdown (≈2 semanas)
+
+**Pronto quando:** lag frames iguais aos do oráculo em ≥ 99% dos frames das rotas, e o toggle "sem
+slowdown" funcionando. O lockstep passa a usar o modelo próprio, sem consultar o oráculo.
+
+### Fase P8 — Três plataformas e polimento (≈2 semanas)
+
+CI nos três sistemas, save states nativos, config, gamepads, empacotamento sem assets.
+
+**Pronto quando:** num Windows, macOS e Linux limpos dá para compilar, apontar o dump uma vez e zerar o
+jogo. **Fim da etapa 1.**
+
+### Fase P9 — Renderizador de alto nível (etapa 2, ≈1–2 meses)
+
+`render_hd.c`, estado livre dos 2 KB (a sobreposição de RAM sai), widescreen, sem piscar, pacotes de
+textura. Os testes passam a comparar a imagem da etapa 2 (sem extras) com a da etapa 1.
+
+**Pronto quando:** o jogo inteiro roda em 16:9 sem cortes, sem inimigos surgindo na tela, e com as
+opções desligadas igual à etapa 1.
+
+---
+
+## 4. Regras para o agente
+
+- **O recomp da raiz é o oráculo e não muda** para acomodar o port. Correções no motor vão para um
+  branch do submódulo (como o CDL), nunca para o código gerado.
+- **No `port/`, código ejetado é código-fonte.** Editar à mão é o trabalho; regenerar por cima de código
+  limpo é proibido.
+- **Nenhum commit no `port/` com lockstep vermelho.** Se uma limpeza quebra o teste, a limpeza está
+  errada, mesmo que o jogo "pareça" certo.
+- **Evidência antes de nome:** cada rótulo e cada struct cita frame, rota ou endereço onde foi
+  confirmado.
+- Nunca commitar ROM, disassembly gerado, assets extraídos, states ou frame-logs.
+- Ferramentas nativas rodam ocultas; a janela do jogo só abre quando o dono pede.
+
+### Prompts prontos
+
+- **P0:** "Adicione um CDL ao runner cycle do nesrecomp num branch (`--cdl-out FILE`, formato Mesen),
+  com teste. Rode com todas as rotas de `inputs/` e as sessões do bot e gere o relatório por banco."
+- **P3:** "Monte o andaime legacy do MFF seguindo o PLAN_DECOMP.md §2.4: `game.toml` com os trampolins
+  do disassembly, harness lockstep, e faça o Round 1 bater com o oráculo fora dos lag frames."
+- **P4:** "Limpe o sistema X no `port/`: nomes, tipos e `state.h`, mantendo o lockstep verde nas rotas
+  Y. Cite no `labels.toml` a evidência de cada nome novo."
+
+---
+
+## 5. Riscos
+
+| Risco | Mitigação |
+|---|---|
+| Truques de pilha e despacho por RTS confundem a tradução por função | `PATTERNS.md`; o despacho inline do `game.toml` legacy; testes lockstep pegam o erro no primeiro frame |
+| Formato de fase comprimido e desconhecido | Começar pelo descompressor no disassembly; validar comparando nametables com o `--frame-log` |
+| Lag frames muito sensíveis ao custo exato | Lag tirado do oráculo durante a P4; o modelo próprio é uma fase separada com métrica própria |
+| Efeitos no meio da linha além da barra de status | O `--frame-log` mostra onde o scroll muda por linha; modelar como regiões, não como pontos |
+| A fase P4 cansar (meses de limpeza) | Cada sistema limpo é uma entrega com teste; o jogo roda em toda etapa |
+| Widescreen mudando o jogo (inimigos visíveis antes do gatilho) | Gatilhos de spawn e de câmera continuam na geometria original |
+| Diferenças de compilador nos três sistemas | CI desde a P8; aritmética de 8 bits explícita (`uint8_t`) no estado |
+
+## 6. Legal
+
+- O repo não terá ROM, disassembly gerado nem assets: o extrator e o gerador rodam sobre o dump do
+  usuário.
+- **Atenção:** o **código C do `port/` é uma obra derivada do código da Capcom**, mesmo reescrito com
+  nomes novos. Projetos como os decomps de *Super Mario 64* e *Zelda: A Link to the Past* publicam o
+  código assim e aceitam esse risco, mas a decisão é do dono do repo. **Até essa decisão, o `port/` não
+  vai para o GitHub público** (branch local, ou um repo privado).
+- Binários distribuídos, se um dia houver, só com código: na primeira execução pedem o dump e extraem os
+  assets.
