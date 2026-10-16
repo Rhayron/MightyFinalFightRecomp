@@ -6,6 +6,8 @@
 #   port/tests/run_routes.sh check [ROUTE...]
 # Routes: NAME.keyed (MFF_INPUT, nmi_input.py) or NAME.bot (one line:
 # "MFF_BOT-value frames", see port/scaffold/bot.c). Routes run in parallel.
+# Both modes also fail when the runtime's interpreter ran any ROM code (a
+# routine with no function; port/tests/interp_report.py).
 # Environment (for a worktree or a second build; defaults are this checkout):
 #   MFF_EXE   the candidate (default port/scaffold/build/Release/MffScaffold.exe)
 #   MFF_ROM   the dump (default rom/Mighty Final Fight (USA).nes)
@@ -44,8 +46,9 @@ run_one() {
     read -r bot frames < "$route"
     env=(MFF_BOT="$bot")
   fi
+  rm -f "${out%.flog}.interp.jsonl"
   env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "${env[@]}" MFF_FRAMELOG="$out" \
-    MFF_PICLOG="${out%.flog}.pic" \
+    MFF_PICLOG="${out%.flog}.pic" NESRECOMP_FALLBACK_LOG="${out%.flog}.interp.jsonl" \
     timeout --kill-after=10 600 "$EXE" "$ROM" --smoke "$frames" --smoke-interval 1000000 --smoke-output "$OUT" \
     > "$OUT/$name.log" 2>&1 || echo "$name: exit $?" >> "$OUT/$name.log"
 }
@@ -60,8 +63,10 @@ for r in "${routes[@]}"; do
     echo "== $name"
     py -3 -I port/tests/selfcheck.py "$BASE/base_$name.flog" "$OUT/cand_$name.flog" --max 5 \
       --pics "$BASE/base_$name.pic" "$OUT/cand_$name.pic" || status=1
+    py -3 -I port/tests/interp_report.py "$OUT/cand_$name.interp.jsonl" || status=1
   else
     echo "$name: baseline $(( $(stat -c %s "$BASE/base_$name.flog") / 2340 )) frames"
+    py -3 -I port/tests/interp_report.py "$BASE/base_$name.interp.jsonl" || status=1
   fi
   grep -h "MISMATCH\|TRAP\|exit [0-9]\|reached data" "$OUT/$name.log" | head -3 || true
 done

@@ -33,6 +33,49 @@ def groups(bank):
     return [(f"lifted_b{bank}.c", 0x8000, 0xC000)]
 
 
+def lift_into(a, rom, base, keep, hand, extra, skip, gen, names):
+    """--into: the --extra entries of a.banks that are neither lifted nor
+    hand-written yet go to one file, after the routines it already has."""
+    have = set()
+    for m in re.finditer(r"\[\[replace_func\]\]\n(?:bank = (\d+)\n)?addr = 0x([0-9A-F]{4})", base):
+        have.add((int(m.group(1)) if m.group(1) else lift.FIXED, int(m.group(2), 16)))
+    todo = sorted(e for e in extra if e not in have and e[0] in a.banks and e[1] not in skip)
+    chunks, protos, done = [], set(), []
+    for bank in sorted({b for b, _ in todo}):
+        lf = lift.Lifter(rom, bank, gen, names)
+        lf.stops = {addr for b, addr in hand if b == bank}
+        for b, addr in todo:
+            if b != bank:
+                continue
+            try:
+                chunks.append(lf.lift(addr))
+                done.append((bank, addr))
+            except lift.Refuse as e:
+                print(f"bank {bank} ${addr:04X}: refused: {e}", file=sys.stderr)
+        protos |= lf.calls
+    path = os.path.join(GAME, a.into)
+    old = ""
+    if os.path.exists(path):
+        text = open(path).read()
+        protos |= set(re.findall(r"^void (func_\w+)\(void\);$", text, re.M))
+        first = re.search(r"^/\* .*\*/\nvoid func_", text, re.M)
+        old = text[first.start():].rstrip("\n") + "\n\n" if first else ""
+    head = (f"/*\n * {a.into} - routines found after the bank lifts (table entries no route\n"
+            f" * used, continuation points), lifted by port/tools/lift_bank.py --into from\n"
+            f" * the pure scaffold: exact, still to be tidied and moved into their\n"
+            f" * systems' files.\n */\n"
+            f"#include \"mff.h\"\n#include \"state.h\"\n#include \"coroutine.h\"\n\n")
+    protos -= {f"func_{addr:04X}" if b == lift.FIXED else f"func_{addr:04X}_b{b}" for b, addr in done}
+    open(path, "w", newline="\n").write(head + "".join(f"void {f}(void);\n" for f in sorted(protos)) +
+                                        "\n" + old + "\n\n".join(chunks) + "\n")
+    for bank, addr in done:
+        keep.append("[[replace_func]]\n" + (f"bank = {bank}\n" if bank != lift.FIXED else "") +
+                    f"addr = 0x{addr:04X}   # lifted, {a.into}\n")
+    print(f"{a.into}: {len(done)} of {len(todo)} lifted", file=sys.stderr)
+    body = re.sub(LIFTED, "", base).rstrip("\n") + "\n"
+    open(BASE, "w", newline="\n").write(body + "".join(keep))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("rom")
@@ -40,6 +83,9 @@ def main():
     ap.add_argument("--skip", default="")
     ap.add_argument("--extra", help="file of generated function names (func_XXXX[_bN]) to lift too: "
                     "entries the map does not list but runs reach (NESRECOMP_FUNC_COUNTS)")
+    ap.add_argument("--into", help="lift only the --extra entries the port does not have yet, all "
+                    "into this file of port/src/game (added to what it has), and leave every other "
+                    "lifted entry alone (port/tools/find_entries.py --names-out lists them)")
     a = ap.parse_args()
     skip = {int(s, 16) for s in a.skip.split(",") if s}
     extra = set()
@@ -60,6 +106,9 @@ def main():
     names = lift.Names()
     keep = [m.group(0) for m in LIFTED.finditer(base)]
     entries = []
+    if a.into:
+        lift_into(a, rom, base, keep, hand, extra, skip, gen, names)
+        return
     for bank in a.banks:
         # drop the old lifted entries of this bank
         keep = [k for k in keep if not (("bank = %d\n" % bank) in k if bank != lift.FIXED

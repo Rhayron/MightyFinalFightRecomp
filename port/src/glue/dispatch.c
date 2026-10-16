@@ -34,6 +34,7 @@ void func_C3B4(void);
 void func_C3DD(void);
 void func_C44F(void);
 void func_C47D(void);
+void func_C4A5(void);
 void func_C4BD(void);
 void func_C527(void);
 void func_C556(void);
@@ -48,19 +49,23 @@ void func_C888(void);
 void func_C8A6(void);
 void func_C8B4(void);
 void func_C8ED(void);
+void func_C93B(void);
 void func_C987(void);
 void func_C99D(void);
 void func_C9A7(void);
 void func_C9B6(void);
 void func_C9B9(void);
 void func_CA20(void);
+void func_CA39(void);
 void func_CA3C(void);
 void func_CAA2(void);
 void func_CAC8(void);
 void func_CAE5(void);
+void func_CAF5(void);
 void func_CB07(void);
 void func_CB22(void);
 void func_CB99(void);
+void func_CBA0(void);
 void func_CBA3(void);
 void func_CC85(void);
 void func_CCA2(void);
@@ -75,6 +80,7 @@ void func_CE11(void);
 void func_CEA4(void);
 void func_CEAA(void);
 void func_CED1(void);
+void func_CF33(void);
 void func_CF88(void);
 void func_CFD1(void);
 void func_D00E(void);
@@ -290,19 +296,27 @@ void func_8016_b2(void);
 void func_8023_b3(void);
 void func_8038_b4(void);
 void func_803A_b3(void);
+void func_805E_b6(void);
 void func_8065_b0(void);
 void func_8066_b0(void);
 void func_806C_b3(void);
 void func_807E_b0(void);
 void func_8080_b4(void);
 void func_8090_b0(void);
+void func_80AE_b0(void);
 void func_80C2_b4(void);
+void func_80C5_b0(void);
 void func_80D0_b6(void);
+void func_80D3_b6(void);
 void func_80D8_b3(void);
+void func_80E3_b4(void);
 void func_80E4_b4(void);
 void func_80EC_b3(void);
 void func_80FE_b3(void);
 void func_8106_b3(void);
+void func_8118_b3(void);
+void func_8177_b0(void);
+void func_817E_b0(void);
 void func_8193_b0(void);
 void func_819A_b6(void);
 void func_81AE_b3(void);
@@ -315,11 +329,14 @@ void func_81F0_b6(void);
 void func_81F1_b3(void);
 void func_821D_b0(void);
 void func_821E_b3(void);
+void func_821E_b6(void);
 void func_8226_b3(void);
 void func_822F_b6(void);
+void func_8241_b6(void);
 void func_8244_b6(void);
 void func_8252_b3(void);
 void func_8256_b6(void);
+void func_825B_b3(void);
 void func_827D_b6(void);
 void func_82AF_b0(void);
 void func_82DE_b3(void);
@@ -373,11 +390,27 @@ void func_85F9_b0(void);
 void func_85FE_b0(void);
 void func_8618_b6(void);
 void func_8636_b3(void);
+void func_8638_b6(void);
+void func_863D_b6(void);
 void func_863E_b0(void);
+void func_8642_b6(void);
 void func_8643_b0(void);
 void func_8644_b3(void);
+void func_8647_b6(void);
+void func_864C_b6(void);
+void func_8651_b6(void);
+void func_8656_b6(void);
 void func_865A_b3(void);
+void func_865B_b6(void);
+void func_8660_b6(void);
+void func_8665_b6(void);
+void func_866A_b6(void);
 void func_866F_b3(void);
+void func_866F_b6(void);
+void func_8674_b6(void);
+void func_8679_b6(void);
+void func_867E_b6(void);
+void func_8683_b6(void);
 void func_8684_b3(void);
 void func_86A1_b3(void);
 void func_86A7_b3(void);
@@ -385,6 +418,7 @@ void func_86AD_b3(void);
 void func_86BA_b3(void);
 void func_86D1_b3(void);
 void func_86E6_b3(void);
+void func_86FF_b0(void);
 void func_8702_b3(void);
 void func_871A_b3(void);
 void func_8720_b3(void);
@@ -400,21 +434,30 @@ void func_88AA_b0(void);
 void func_8900_b2(void);
 void func_8900_b4(void);
 void func_8914_b3(void);
+void func_891B_b0(void);
+void func_892C_b4(void);
+void func_893C_b4(void);
 void func_8940_b2(void);
+void func_8955_b4(void);
+void func_8956_b4(void);
+void func_8992_b0(void);
 void func_89C0_b2(void);
 void func_89D2_b4(void);
 void func_89D7_b4(void);
 void func_89E3_b6(void);
 void func_89F2_b6(void);
+void func_89F6_b0(void);
 void func_89F8_b6(void);
 void func_8A08_b6(void);
 void func_8A1E_b6(void);
 void func_8A2C_b4(void);
+void func_8A31_b0(void);
 void func_8A31_b6(void);
 void func_8A40_b2(void);
 void func_8A43_b4(void);
 void func_8A44_b4(void);
 void func_8A53_b4(void);
+void func_8A55_b0(void);
 void func_8A62_b4(void);
 void func_8A76_b4(void);
 void func_8A8D_b4(void);
@@ -423,6 +466,7 @@ void func_8AAB_b4(void);
 void func_8AAC_b4(void);
 void func_8ABF_b4(void);
 void func_8AC0_b2(void);
+void func_8AD3_b0(void);
 void func_8AD3_b4(void);
 void func_8AEA_b4(void);
 void func_8AEE_b6(void);
@@ -445,12 +489,14 @@ void func_8BB1_b0(void);
 void func_8BB6_b4(void);
 void func_8BC2_b6(void);
 void func_8BC5_b4(void);
+void func_8BD4_b4(void);
 void func_8BD6_b6(void);
 void func_8BE8_b4(void);
 void func_8BED_b6(void);
 void func_8BFF_b4(void);
 void func_8C00_b2(void);
 void func_8C00_b6(void);
+void func_8C08_b6(void);
 void func_8C0E_b4(void);
 void func_8C1C_b6(void);
 void func_8C1E_b4(void);
@@ -466,6 +512,7 @@ void func_8C8C_b4(void);
 void func_8C98_b6(void);
 void func_8CA5_b4(void);
 void func_8CBD_b4(void);
+void func_8CC4_b0(void);
 void func_8CD2_b4(void);
 void func_8CE1_b4(void);
 void func_8CF5_b4(void);
@@ -475,6 +522,7 @@ void func_8D0C_b4(void);
 void func_8D1B_b4(void);
 void func_8D2A_b4(void);
 void func_8D3A_b4(void);
+void func_8D4B_b6(void);
 void func_8D51_b4(void);
 void func_8D60_b4(void);
 void func_8D6F_b4(void);
@@ -486,6 +534,7 @@ void func_8DA8_b4(void);
 void func_8DD1_b0(void);
 void func_8DD8_b2(void);
 void func_8DEC_b2(void);
+void func_8DEE_b6(void);
 void func_8DEF_b6(void);
 void func_8E3E_b0(void);
 void func_8E43_b6(void);
@@ -495,59 +544,76 @@ void func_8E65_b2(void);
 void func_8EB4_b6(void);
 void func_8ED4_b2(void);
 void func_8EE5_b6(void);
+void func_8EEA_b0(void);
 void func_8EED_b2(void);
 void func_8F07_b2(void);
 void func_8F45_b6(void);
+void func_8F82_b0(void);
 void func_8F8D_b6(void);
 void func_8FA5_b6(void);
 void func_8FAF_b0(void);
 void func_8FC6_b6(void);
+void func_8FF8_b0(void);
 void func_8FF9_b6(void);
 void func_9000_b2(void);
 void func_9000_b4(void);
+void func_9011_b4(void);
 void func_9036_b6(void);
 void func_9038_b4(void);
+void func_9043_b0(void);
+void func_9072_b0(void);
 void func_9078_b6(void);
 void func_90AC_b0(void);
 void func_90BA_b6(void);
 void func_90CB_b0(void);
 void func_9100_b2(void);
 void func_9128_b6(void);
+void func_914D_b0(void);
+void func_916E_b0(void);
 void func_917E_b6(void);
 void func_9181_b2(void);
 void func_9199_b6(void);
+void func_91B2_b0(void);
 void func_91B7_b6(void);
+void func_91BE_b0(void);
 void func_91BF_b2(void);
 void func_921C_b4(void);
 void func_9276_b6(void);
 void func_9297_b0(void);
+void func_92BA_b0(void);
 void func_92E1_b0(void);
 void func_92F0_b6(void);
 void func_9300_b2(void);
 void func_930B_b6(void);
 void func_931D_b4(void);
+void func_932E_b6(void);
 void func_9332_b6(void);
 void func_9357_b6(void);
 void func_938A_b2(void);
 void func_9398_b2(void);
+void func_93AF_b0(void);
 void func_93B0_b2(void);
 void func_93D1_b6(void);
 void func_93EF_b0(void);
 void func_9410_b0(void);
 void func_9413_b2(void);
 void func_942A_b2(void);
+void func_942E_b6(void);
 void func_942F_b6(void);
 void func_943F_b0(void);
 void func_9457_b6(void);
 void func_945E_b0(void);
+void func_94B4_b6(void);
 void func_94B5_b6(void);
 void func_94D4_b6(void);
 void func_94F2_b0(void);
 void func_94F7_b0(void);
+void func_9531_b6(void);
 void func_9532_b6(void);
 void func_9551_b6(void);
 void func_9565_b0(void);
 void func_958B_b0(void);
+void func_95AE_b6(void);
 void func_95AF_b6(void);
 void func_95BA_b0(void);
 void func_95CE_b6(void);
@@ -574,6 +640,7 @@ void func_9788_b4(void);
 void func_979F_b4(void);
 void func_97A6_b4(void);
 void func_97A9_b0(void);
+void func_97AD_b4(void);
 void func_97B4_b4(void);
 void func_97C7_b4(void);
 void func_97C8_b0(void);
@@ -581,6 +648,7 @@ void func_97CE_b4(void);
 void func_97E4_b6(void);
 void func_97E5_b4(void);
 void func_97EC_b4(void);
+void func_97F3_b4(void);
 void func_97FA_b4(void);
 void func_9800_b2(void);
 void func_980F_b2(void);
@@ -590,17 +658,21 @@ void func_9819_b0(void);
 void func_981A_b4(void);
 void func_981B_b6(void);
 void func_9821_b4(void);
+void func_9828_b4(void);
 void func_982F_b4(void);
 void func_983B_b6(void);
 void func_9842_b4(void);
 void func_9849_b4(void);
 void func_984F_b0(void);
 void func_9860_b4(void);
+void func_9867_b4(void);
+void func_986E_b4(void);
 void func_986E_b6(void);
 void func_9875_b4(void);
 void func_987A_b0(void);
 void func_988C_b4(void);
 void func_9893_b4(void);
+void func_989A_b4(void);
 void func_98A1_b4(void);
 void func_98AF_b2(void);
 void func_98B4_b4(void);
@@ -630,6 +702,7 @@ void func_9998_b4(void);
 void func_999B_b2(void);
 void func_999F_b4(void);
 void func_99B4_b4(void);
+void func_99BB_b4(void);
 void func_99D6_b2(void);
 void func_99DD_b2(void);
 void func_99FC_b6(void);
@@ -652,10 +725,13 @@ void func_9AF4_b2(void);
 void func_9B04_b6(void);
 void func_9B07_b6(void);
 void func_9B16_b0(void);
+void func_9B18_b2(void);
 void func_9B1F_b6(void);
 void func_9B62_b6(void);
 void func_9B6B_b6(void);
 void func_9B74_b6(void);
+void func_9B7E_b2(void);
+void func_9BA4_b2(void);
 void func_9BE1_b6(void);
 void func_9BFC_b6(void);
 void func_9C00_b5(void);
@@ -673,14 +749,18 @@ void func_9DAA_b6(void);
 void func_9E20_b6(void);
 void func_9E24_b6(void);
 void func_9E28_b6(void);
+void func_9E2E_b6(void);
 void func_9E32_b6(void);
 void func_9E36_b6(void);
+void func_9E3C_b6(void);
 void func_9E40_b6(void);
 void func_9E44_b6(void);
 void func_9EC5_b6(void);
+void func_9EC9_b6(void);
 void func_9ECD_b6(void);
 void func_9EF4_b6(void);
 void func_9EF8_b6(void);
+void func_9F01_b6(void);
 void func_9F05_b6(void);
 void func_9F0E_b6(void);
 void func_9F12_b6(void);
@@ -739,14 +819,17 @@ void func_A473_b0(void);
 void func_A494_b6(void);
 void func_A512_b6(void);
 void func_A53B_b0(void);
+void func_A54C_b0(void);
 void func_A54F_b6(void);
 void func_A557_b0(void);
+void func_A592_b6(void);
 void func_A5CF_b0(void);
 void func_A5DA_b6(void);
 void func_A633_b0(void);
 void func_A651_b0(void);
 void func_A652_b6(void);
 void func_A6D6_b0(void);
+void func_A6FC_b0(void);
 void func_A700_b2(void);
 void func_A700_b4(void);
 void func_A703_b2(void);
@@ -763,6 +846,7 @@ void func_A71B_b2(void);
 void func_A71D_b4(void);
 void func_A71E_b2(void);
 void func_A721_b2(void);
+void func_A724_b2(void);
 void func_A727_b2(void);
 void func_A72A_b2(void);
 void func_A72D_b2(void);
@@ -776,10 +860,14 @@ void func_A788_b4(void);
 void func_A78E_b4(void);
 void func_A7A5_b2(void);
 void func_A7AD_b6(void);
+void func_A7BB_b0(void);
 void func_A7D0_b4(void);
 void func_A7E1_b0(void);
+void func_A82A_b2(void);
 void func_A82C_b6(void);
 void func_A83A_b0(void);
+void func_A850_b2(void);
+void func_A851_b2(void);
 void func_A882_b0(void);
 void func_A89C_b6(void);
 void func_A8A8_b2(void);
@@ -825,13 +913,18 @@ void func_ABC4_b2(void);
 void func_ABD0_b4(void);
 void func_ABDF_b4(void);
 void func_ABE1_b2(void);
+void func_AC13_b6(void);
 void func_AC20_b4(void);
 void func_AC34_b6(void);
+void func_AC4B_b6(void);
 void func_AC4E_b0(void);
 void func_AC58_b2(void);
+void func_AC60_b6(void);
 void func_AC75_b4(void);
+void func_AC75_b6(void);
 void func_AC7D_b2(void);
 void func_AC81_b4(void);
+void func_AC8E_b6(void);
 void func_ACB3_b6(void);
 void func_ACB7_b4(void);
 void func_ACC1_b0(void);
@@ -891,6 +984,7 @@ void func_B403_b5(void);
 void func_B411_b5(void);
 void func_B46F_b5(void);
 void func_B512_b5(void);
+void func_B543_b5(void);
 void func_B546_b1(void);
 void func_B57B_b1(void);
 void func_B581_b5(void);
@@ -927,12 +1021,14 @@ void func_BA88_b1(void);
 void func_BA9A_b5(void);
 void func_BAD0_b1(void);
 void func_BAD0_b5(void);
+void func_BAE8_b5(void);
 void func_BB05_b5(void);
 void func_BB0A_b5(void);
 void func_BB29_b1(void);
 void func_BB53_b5(void);
 void func_BB8C_b5(void);
 void func_BB91_b1(void);
+void func_BBAC_b5(void);
 void func_BBCB_b1(void);
 void func_BBE1_b5(void);
 void func_BBEC_b5(void);
@@ -953,6 +1049,7 @@ void func_BE72_b1(void);
 void func_BE79_b5(void);
 void func_BE9B_b1(void);
 void func_BECE_b5(void);
+void func_BED2_b1(void);
 void func_BF2B_b5(void);
 void func_BF38_b1(void);
 void func_BF48_b1(void);
@@ -997,6 +1094,7 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0xC3DD: func_C3DD(); break;
     case 0xC44F: func_C44F(); break;
     case 0xC47D: func_C47D(); break;
+    case 0xC4A5: func_C4A5(); break;
     case 0xC4BD: func_C4BD(); break;
     case 0xC527: func_C527(); break;
     case 0xC556: func_C556(); break;
@@ -1011,19 +1109,23 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0xC8A6: func_C8A6(); break;
     case 0xC8B4: func_C8B4(); break;
     case 0xC8ED: func_C8ED(); break;
+    case 0xC93B: func_C93B(); break;
     case 0xC987: func_C987(); break;
     case 0xC99D: func_C99D(); break;
     case 0xC9A7: func_C9A7(); break;
     case 0xC9B6: func_C9B6(); break;
     case 0xC9B9: func_C9B9(); break;
     case 0xCA20: func_CA20(); break;
+    case 0xCA39: func_CA39(); break;
     case 0xCA3C: func_CA3C(); break;
     case 0xCAA2: func_CAA2(); break;
     case 0xCAC8: func_CAC8(); break;
     case 0xCAE5: func_CAE5(); break;
+    case 0xCAF5: func_CAF5(); break;
     case 0xCB07: func_CB07(); break;
     case 0xCB22: func_CB22(); break;
     case 0xCB99: func_CB99(); break;
+    case 0xCBA0: func_CBA0(); break;
     case 0xCBA3: func_CBA3(); break;
     case 0xCC85: func_CC85(); break;
     case 0xCCA2: func_CCA2(); break;
@@ -1038,6 +1140,7 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0xCEA4: func_CEA4(); break;
     case 0xCEAA: func_CEAA(); break;
     case 0xCED1: func_CED1(); break;
+    case 0xCF33: func_CF33(); break;
     case 0xCF88: func_CF88(); break;
     case 0xCFD1: func_CFD1(); break;
     case 0xD00E: func_D00E(); break;
@@ -1293,6 +1396,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x805E:
+        switch (bank) {
+        case 6: func_805E_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x8065:
         switch (bank) {
         case 0: func_8065_b0(); break;
@@ -1329,9 +1438,21 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x80AE:
+        switch (bank) {
+        case 0: func_80AE_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x80C2:
         switch (bank) {
         case 4: func_80C2_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x80C5:
+        switch (bank) {
+        case 0: func_80C5_b0(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -1341,9 +1462,21 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x80D3:
+        switch (bank) {
+        case 6: func_80D3_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x80D8:
         switch (bank) {
         case 3: func_80D8_b3(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x80E3:
+        switch (bank) {
+        case 4: func_80E3_b4(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -1368,6 +1501,24 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x8106:
         switch (bank) {
         case 3: func_8106_b3(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8118:
+        switch (bank) {
+        case 3: func_8118_b3(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8177:
+        switch (bank) {
+        case 0: func_8177_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x817E:
+        switch (bank) {
+        case 0: func_817E_b0(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -1440,6 +1591,7 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x821E:
         switch (bank) {
         case 3: func_821E_b3(); break;
+        case 6: func_821E_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -1452,6 +1604,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x822F:
         switch (bank) {
         case 6: func_822F_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8241:
+        switch (bank) {
+        case 6: func_8241_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -1470,6 +1628,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x8256:
         switch (bank) {
         case 6: func_8256_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x825B:
+        switch (bank) {
+        case 3: func_825B_b3(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -1786,9 +1950,27 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x8638:
+        switch (bank) {
+        case 6: func_8638_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x863D:
+        switch (bank) {
+        case 6: func_863D_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x863E:
         switch (bank) {
         case 0: func_863E_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8642:
+        switch (bank) {
+        case 6: func_8642_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -1804,15 +1986,88 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x8647:
+        switch (bank) {
+        case 6: func_8647_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x864C:
+        switch (bank) {
+        case 6: func_864C_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8651:
+        switch (bank) {
+        case 6: func_8651_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8656:
+        switch (bank) {
+        case 6: func_8656_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x865A:
         switch (bank) {
         case 3: func_865A_b3(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x865B:
+        switch (bank) {
+        case 6: func_865B_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8660:
+        switch (bank) {
+        case 6: func_8660_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8665:
+        switch (bank) {
+        case 6: func_8665_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x866A:
+        switch (bank) {
+        case 6: func_866A_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x866F:
         switch (bank) {
         case 3: func_866F_b3(); break;
+        case 6: func_866F_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8674:
+        switch (bank) {
+        case 6: func_8674_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8679:
+        switch (bank) {
+        case 6: func_8679_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x867E:
+        switch (bank) {
+        case 6: func_867E_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8683:
+        switch (bank) {
+        case 6: func_8683_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -1855,6 +2110,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x86E6:
         switch (bank) {
         case 3: func_86E6_b3(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x86FF:
+        switch (bank) {
+        case 0: func_86FF_b0(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -1943,9 +2204,45 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x891B:
+        switch (bank) {
+        case 0: func_891B_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x892C:
+        switch (bank) {
+        case 4: func_892C_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x893C:
+        switch (bank) {
+        case 4: func_893C_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x8940:
         switch (bank) {
         case 2: func_8940_b2(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8955:
+        switch (bank) {
+        case 4: func_8955_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8956:
+        switch (bank) {
+        case 4: func_8956_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8992:
+        switch (bank) {
+        case 0: func_8992_b0(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -1979,6 +2276,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x89F6:
+        switch (bank) {
+        case 0: func_89F6_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x89F8:
         switch (bank) {
         case 6: func_89F8_b6(); break;
@@ -2005,6 +2308,7 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         break;
     case 0x8A31:
         switch (bank) {
+        case 0: func_8A31_b0(); break;
         case 6: func_8A31_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
@@ -2030,6 +2334,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x8A53:
         switch (bank) {
         case 4: func_8A53_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8A55:
+        switch (bank) {
+        case 0: func_8A55_b0(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -2083,6 +2393,7 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         break;
     case 0x8AD3:
         switch (bank) {
+        case 0: func_8AD3_b0(); break;
         case 4: func_8AD3_b4(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
@@ -2213,6 +2524,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x8BD4:
+        switch (bank) {
+        case 4: func_8BD4_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x8BD6:
         switch (bank) {
         case 6: func_8BD6_b6(); break;
@@ -2241,6 +2558,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         switch (bank) {
         case 2: func_8C00_b2(); break;
         case 6: func_8C00_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8C08:
+        switch (bank) {
+        case 6: func_8C08_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -2334,6 +2657,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x8CC4:
+        switch (bank) {
+        case 0: func_8CC4_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x8CD2:
         switch (bank) {
         case 4: func_8CD2_b4(); break;
@@ -2380,6 +2709,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x8D3A:
         switch (bank) {
         case 4: func_8D3A_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8D4B:
+        switch (bank) {
+        case 6: func_8D4B_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -2449,6 +2784,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x8DEE:
+        switch (bank) {
+        case 6: func_8DEE_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x8DEF:
         switch (bank) {
         case 6: func_8DEF_b6(); break;
@@ -2503,6 +2844,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x8EEA:
+        switch (bank) {
+        case 0: func_8EEA_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x8EED:
         switch (bank) {
         case 2: func_8EED_b2(); break;
@@ -2518,6 +2865,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x8F45:
         switch (bank) {
         case 6: func_8F45_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8F82:
+        switch (bank) {
+        case 0: func_8F82_b0(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -2545,6 +2898,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x8FF8:
+        switch (bank) {
+        case 0: func_8FF8_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x8FF9:
         switch (bank) {
         case 6: func_8FF9_b6(); break;
@@ -2558,6 +2917,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x9011:
+        switch (bank) {
+        case 4: func_9011_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x9036:
         switch (bank) {
         case 6: func_9036_b6(); break;
@@ -2567,6 +2932,18 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x9038:
         switch (bank) {
         case 4: func_9038_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x9043:
+        switch (bank) {
+        case 0: func_9043_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x9072:
+        switch (bank) {
+        case 0: func_9072_b0(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -2606,6 +2983,18 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x914D:
+        switch (bank) {
+        case 0: func_914D_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x916E:
+        switch (bank) {
+        case 0: func_916E_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x917E:
         switch (bank) {
         case 6: func_917E_b6(); break;
@@ -2624,9 +3013,21 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x91B2:
+        switch (bank) {
+        case 0: func_91B2_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x91B7:
         switch (bank) {
         case 6: func_91B7_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x91BE:
+        switch (bank) {
+        case 0: func_91BE_b0(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -2651,6 +3052,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x9297:
         switch (bank) {
         case 0: func_9297_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x92BA:
+        switch (bank) {
+        case 0: func_92BA_b0(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -2684,6 +3091,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x932E:
+        switch (bank) {
+        case 6: func_932E_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x9332:
         switch (bank) {
         case 6: func_9332_b6(); break;
@@ -2705,6 +3118,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x9398:
         switch (bank) {
         case 2: func_9398_b2(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x93AF:
+        switch (bank) {
+        case 0: func_93AF_b0(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -2744,6 +3163,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x942E:
+        switch (bank) {
+        case 6: func_942E_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x942F:
         switch (bank) {
         case 6: func_942F_b6(); break;
@@ -2765,6 +3190,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x945E:
         switch (bank) {
         case 0: func_945E_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x94B4:
+        switch (bank) {
+        case 6: func_94B4_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -2792,6 +3223,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x9531:
+        switch (bank) {
+        case 6: func_9531_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x9532:
         switch (bank) {
         case 6: func_9532_b6(); break;
@@ -2813,6 +3250,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x958B:
         switch (bank) {
         case 0: func_958B_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x95AE:
+        switch (bank) {
+        case 6: func_95AE_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -2972,6 +3415,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x97AD:
+        switch (bank) {
+        case 4: func_97AD_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x97B4:
         switch (bank) {
         case 4: func_97B4_b4(); break;
@@ -3011,6 +3460,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x97EC:
         switch (bank) {
         case 4: func_97EC_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x97F3:
+        switch (bank) {
+        case 4: func_97F3_b4(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -3068,6 +3523,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x9828:
+        switch (bank) {
+        case 4: func_9828_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x982F:
         switch (bank) {
         case 4: func_982F_b4(); break;
@@ -3104,8 +3565,15 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x9867:
+        switch (bank) {
+        case 4: func_9867_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x986E:
         switch (bank) {
+        case 4: func_986E_b4(); break;
         case 6: func_986E_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
@@ -3131,6 +3599,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x9893:
         switch (bank) {
         case 4: func_9893_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x989A:
+        switch (bank) {
+        case 4: func_989A_b4(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -3308,6 +3782,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x99BB:
+        switch (bank) {
+        case 4: func_99BB_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x99D6:
         switch (bank) {
         case 2: func_99D6_b2(); break;
@@ -3440,6 +3920,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x9B18:
+        switch (bank) {
+        case 2: func_9B18_b2(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x9B1F:
         switch (bank) {
         case 6: func_9B1F_b6(); break;
@@ -3461,6 +3947,18 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x9B74:
         switch (bank) {
         case 6: func_9B74_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x9B7E:
+        switch (bank) {
+        case 2: func_9B7E_b2(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x9BA4:
+        switch (bank) {
+        case 2: func_9BA4_b2(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -3566,6 +4064,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x9E2E:
+        switch (bank) {
+        case 6: func_9E2E_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x9E32:
         switch (bank) {
         case 6: func_9E32_b6(); break;
@@ -3575,6 +4079,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x9E36:
         switch (bank) {
         case 6: func_9E36_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x9E3C:
+        switch (bank) {
+        case 6: func_9E3C_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -3596,6 +4106,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x9EC9:
+        switch (bank) {
+        case 6: func_9EC9_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x9ECD:
         switch (bank) {
         case 6: func_9ECD_b6(); break;
@@ -3611,6 +4127,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x9EF8:
         switch (bank) {
         case 6: func_9EF8_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x9F01:
+        switch (bank) {
+        case 6: func_9F01_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -3957,6 +4479,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0xA54C:
+        switch (bank) {
+        case 0: func_A54C_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0xA54F:
         switch (bank) {
         case 6: func_A54F_b6(); break;
@@ -3966,6 +4494,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0xA557:
         switch (bank) {
         case 0: func_A557_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0xA592:
+        switch (bank) {
+        case 6: func_A592_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -4002,6 +4536,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0xA6D6:
         switch (bank) {
         case 0: func_A6D6_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0xA6FC:
+        switch (bank) {
+        case 0: func_A6FC_b0(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -4096,6 +4636,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0xA724:
+        switch (bank) {
+        case 2: func_A724_b2(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0xA727:
         switch (bank) {
         case 2: func_A727_b2(); break;
@@ -4174,6 +4720,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0xA7BB:
+        switch (bank) {
+        case 0: func_A7BB_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0xA7D0:
         switch (bank) {
         case 4: func_A7D0_b4(); break;
@@ -4186,6 +4738,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0xA82A:
+        switch (bank) {
+        case 2: func_A82A_b2(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0xA82C:
         switch (bank) {
         case 6: func_A82C_b6(); break;
@@ -4195,6 +4753,18 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0xA83A:
         switch (bank) {
         case 0: func_A83A_b0(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0xA850:
+        switch (bank) {
+        case 2: func_A850_b2(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0xA851:
+        switch (bank) {
+        case 2: func_A851_b2(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -4463,6 +5033,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0xAC13:
+        switch (bank) {
+        case 6: func_AC13_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0xAC20:
         switch (bank) {
         case 4: func_AC20_b4(); break;
@@ -4472,6 +5048,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0xAC34:
         switch (bank) {
         case 6: func_AC34_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0xAC4B:
+        switch (bank) {
+        case 6: func_AC4B_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -4487,9 +5069,16 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0xAC60:
+        switch (bank) {
+        case 6: func_AC60_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0xAC75:
         switch (bank) {
         case 4: func_AC75_b4(); break;
+        case 6: func_AC75_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -4502,6 +5091,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0xAC81:
         switch (bank) {
         case 4: func_AC81_b4(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0xAC8E:
+        switch (bank) {
+        case 6: func_AC8E_b6(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -4759,6 +5354,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0xB543:
+        switch (bank) {
+        case 5: func_B543_b5(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0xB546:
         switch (bank) {
         case 1: func_B546_b1(); break;
@@ -4970,6 +5571,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0xBAE8:
+        switch (bank) {
+        case 5: func_BAE8_b5(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0xBB05:
         switch (bank) {
         case 5: func_BB05_b5(); break;
@@ -5003,6 +5610,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0xBB91:
         switch (bank) {
         case 1: func_BB91_b1(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0xBBAC:
+        switch (bank) {
+        case 5: func_BBAC_b5(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -5123,6 +5736,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0xBECE:
         switch (bank) {
         case 5: func_BECE_b5(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0xBED2:
+        switch (bank) {
+        case 1: func_BED2_b1(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;

@@ -12,6 +12,74 @@ push_all_jsr = true
 [[replace_func]]
 addr = 0xC119
 
+# entries the P0 map misses (port/tools/find_entries.py): targets of jump tables
+# no run used whole, and a return address pushed before a jump; without a
+# function the runtime interprets them from the ROM
+[[extra_func]]   # 0C:805A
+bank = 6
+addr = 0x805E
+
+[[extra_func]]   # 0C:85ED
+bank = 6
+addr = 0x8638
+
+[[extra_func]]   # 0C:85ED
+bank = 6
+addr = 0x863D
+
+[[extra_func]]   # 0C:85ED
+bank = 6
+addr = 0x8642
+
+[[extra_func]]   # 0C:8615
+bank = 6
+addr = 0x8656
+
+[[extra_func]]   # 0C:8615
+bank = 6
+addr = 0x865B
+
+[[extra_func]]   # 0C:8615
+bank = 6
+addr = 0x8660
+
+[[extra_func]]   # 0C:8635
+bank = 6
+addr = 0x8674
+
+[[extra_func]]   # 0C:83AF
+bank = 2
+addr = 0xA724
+
+[[extra_func]]   # 0D:AC48
+bank = 6
+addr = 0xAC4B
+
+[[extra_func]]   # 0D:AC48
+bank = 6
+addr = 0xAC60
+
+[[extra_func]]   # 0D:AC48
+bank = 6
+addr = 0xAC75
+
+[[extra_func]]   # 0D:AC48
+bank = 6
+addr = 0xAC8E
+
+# the IRQ handlers, reached through the RAM vector $9C/$9D (JMP ($009C) at $C147)
+[[extra_func]]
+bank = 7
+addr = 0xC14A
+
+[[extra_func]]
+bank = 7
+addr = 0xC194
+
+[[extra_func]]
+bank = 7
+addr = 0xC1B1
+
 # P4: hand-written routines in port/src/game/
 [[replace_func]]
 addr = 0xC3B4   # rng_step, rng.c
@@ -2600,6 +2668,291 @@ addr = 0xACE1   # lifted, lifted_b4.c
 [[replace_func]]
 bank = 4
 addr = 0xAD0B   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 0
+addr = 0x80AE   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x80C5   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x817E   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x86FF   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x891B   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x8A31   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x8CC4   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x8EEA   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x8FF8   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x9072   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x914D   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x91BE   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x92BA   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x93AF   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0xA54C   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0xA6FC   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0xA7BB   # lifted, lifted_late.c
+[[replace_func]]
+bank = 1
+addr = 0xBED2   # lifted, lifted_late.c
+[[replace_func]]
+bank = 2
+addr = 0x9B18   # lifted, lifted_late.c
+[[replace_func]]
+bank = 2
+addr = 0x9B7E   # lifted, lifted_late.c
+[[replace_func]]
+bank = 2
+addr = 0x9BA4   # lifted, lifted_late.c
+[[replace_func]]
+bank = 2
+addr = 0xA724   # lifted, lifted_late.c
+[[replace_func]]
+bank = 2
+addr = 0xA82A   # lifted, lifted_late.c
+[[replace_func]]
+bank = 2
+addr = 0xA851   # lifted, lifted_late.c
+[[replace_func]]
+bank = 3
+addr = 0x8118   # lifted, lifted_late.c
+[[replace_func]]
+bank = 3
+addr = 0x825B   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x80E3   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x8956   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x8BD4   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x9011   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x97AD   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x97F3   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x9828   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x9867   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x986E   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x989A   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x99BB   # lifted, lifted_late.c
+[[replace_func]]
+bank = 5
+addr = 0xB543   # lifted, lifted_late.c
+[[replace_func]]
+bank = 5
+addr = 0xBAE8   # lifted, lifted_late.c
+[[replace_func]]
+bank = 5
+addr = 0xBBAC   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x805E   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x80D3   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x821E   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8241   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8638   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x863D   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8642   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8647   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x864C   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8651   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8656   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x865B   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8660   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8665   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x866A   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x866F   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8674   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8679   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x867E   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8683   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8C08   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8D4B   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x8DEE   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x932E   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x942E   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x94B4   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x9531   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x95AE   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x9E2E   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x9E3C   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x9EC9   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0x9F01   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0xA592   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0xAC13   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0xAC4B   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0xAC60   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0xAC75   # lifted, lifted_late.c
+[[replace_func]]
+bank = 6
+addr = 0xAC8E   # lifted, lifted_late.c
+[[replace_func]]
+addr = 0xC4A5   # lifted, lifted_late.c
+[[replace_func]]
+addr = 0xC93B   # lifted, lifted_late.c
+[[replace_func]]
+addr = 0xCA39   # lifted, lifted_late.c
+[[replace_func]]
+addr = 0xCAF5   # lifted, lifted_late.c
+[[replace_func]]
+addr = 0xCBA0   # lifted, lifted_late.c
+[[replace_func]]
+addr = 0xCF33   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x8177   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x8992   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x89F6   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x8A55   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x8AD3   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x8F82   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x9043   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x916E   # lifted, lifted_late.c
+[[replace_func]]
+bank = 0
+addr = 0x91B2   # lifted, lifted_late.c
+[[replace_func]]
+bank = 2
+addr = 0xA850   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x892C   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x893C   # lifted, lifted_late.c
+[[replace_func]]
+bank = 4
+addr = 0x8955   # lifted, lifted_late.c
 
 # ---- generated by port/tools/legacy_config.py from the P0 map; do not edit below ----
 
