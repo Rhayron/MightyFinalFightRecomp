@@ -1660,6 +1660,141 @@ L_E5FE:;
     goto L_E560;
 }
 
+/*  $E53F - lifted by port/tools/lift.py */
+void func_E53F(void) {
+    REGS_IN;
+L_E53F:;
+    mff_cycles(0xE53F, 9);
+    a = RAM(BG_SCREEN);
+    c = 0;
+    m = nes_read((uint16_t)(0xE601 + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    mff_cycles(0xE545, 10);
+    RAM(BG_SCREEN) = a;
+    y = RAM(ROUND_TABLES);
+    a = nes_read((uint16_t)(0xC1F8 + y));
+    n = (a) >> 7;
+    z = (a) == 0;
+    mff_cycles(0xE54C, 9);
+    RAM(BANK_REQUEST + 1) = a;
+    SYNC_OUT;
+    if (!mff_call_fn(0x0550, func_FF4D, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xE551, 19);
+    a = RAM(BG_COLUMN);
+    t = a; c = t & 1; t >>= 1; a = t;
+    t = a; c = t & 1; t >>= 1; a = t;
+    RAM(MAP_CELL) = a;
+    y = RAM(BG_SCREEN);
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x055B, func_E66E, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xE55C, 5);
+    a = 0x00;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(0x03) = a;
+L_E560:;
+    mff_cycles(0xE560, 6);
+    SYNC_OUT;
+    if (!mff_call_fn(0x0562, func_E60F, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xE563, 45);
+    y = RAM(MAP_CELL);
+    a = RAM(ATTR_SHADOW + y);
+    RAM(0x11) = a;
+    a = RAM(BG_COLUMN);
+    a &= 0x03;
+    y = a;
+    x = RAM(0x03);
+    a = RAM(TILE_BLOCK + y);
+    RAM(VRAM_BUFFER + 3 + x) = a;
+    a = RAM(TILE_BLOCK + 4 + y);
+    RAM(VRAM_BUFFER + 4 + x) = a;
+    a = RAM(MAP_CELL);
+    m = 0x38; c = a >= m;
+    if (c) { mff_cycles(0xE581, 1); goto L_E58F; }
+    mff_cycles(0xE583, 18);
+    a = RAM(TILE_BLOCK + 8 + y);
+    RAM(VRAM_BUFFER + 5 + x) = a;
+    a = RAM(TILE_BLOCK + 12 + y);
+    RAM(VRAM_BUFFER + 6 + x) = a;
+L_E58F:;
+    mff_cycles(0xE58F, 7);
+    a = RAM(BG_COLUMN);
+    a &= 0x01;
+    z = (a) == 0;
+    if (z) { mff_cycles(0xE593, 1); goto L_E5BE; }
+    mff_cycles(0xE595, 7);
+    a = RAM(0x10);
+    a &= nes_read((uint16_t)(0xE603 + y));
+    mff_cycles(0xE59A, 10);
+    RAM(0x10) = a;
+    a = RAM(0x11);
+    a &= nes_read((uint16_t)(0xE607 + y));
+    mff_cycles(0xE5A1, 43);
+    a |= RAM(0x10);
+    RAM(VRAM_BUFFER + 27 + x) = a;
+    y = RAM(MAP_CELL);
+    RAM(ATTR_SHADOW + y) = a;
+    a = 0x23;
+    RAM(VRAM_BUFFER + 24 + x) = a;
+    a = y;
+    a |= 0xC0;
+    c = 0;
+    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(VRAM_BUFFER + 25 + x) = a;
+    a = 0x00;
+    RAM(VRAM_BUFFER + 26 + x) = a;
+L_E5BE:;
+    mff_cycles(0xE5BE, 34);
+    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+    a = RAM(MAP_CELL);
+    c = 0;
+    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(MAP_CELL) = a;
+    m = 0x28; c = a >= m;
+    n = ((uint8_t)(a - m)) >> 7;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!c) { mff_cycles(0xE5CF, 1); goto L_E5FE; }
+    mff_cycles(0xE5D1, 32);
+    a = 0x20;
+    RAM(VRAM_BUFFER) = a;
+    a = RAM(BG_COLUMN);
+    c = 0;
+    m = 0x80; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(VRAM_BUFFER + 1) = a;
+    a = 0x14;
+    RAM(VRAM_BUFFER + 2) = a;
+    y = 0x00;
+    a = RAM(BG_COLUMN);
+    a &= 0x01;
+    z = (a) == 0;
+    if (z) { mff_cycles(0xE5E9, 1); goto L_E5ED; }
+    mff_cycles(0xE5EB, 2);
+    y = 0x14;
+L_E5ED:;
+    mff_cycles(0xE5ED, 28);
+    a = 0xFF;
+    RAM(VRAM_BUFFER + 24 + y) = a;
+    RAM(VRAM_COLUMN_REQUEST) = a;
+    a = 0x00;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(VRAM_BUFFER + 3) = a;
+    RAM(VRAM_BUFFER + 23) = a;
+    c = 0;
+    SYNC_OUT;
+    mff_rts(); return;
+L_E5FE:;
+    mff_cycles(0xE5FE, 3);
+    goto L_E560;
+}
+
 /*  $E560 - lifted by port/tools/lift.py */
 void func_E560(void) {
     REGS_IN;
@@ -2413,6 +2548,26 @@ void func_E853(void) {
 L_E853:;
     mff_cycles(0xE853, 9);
     RAM(VRAM_BUFFER_LEN) = x;
+    SYNC_OUT;
+    mff_rts(); return;
+}
+
+/*  $E856 - lifted by port/tools/lift.py */
+void func_E856(void) {
+    REGS_IN;
+L_E856:;
+    mff_cycles(0xE856, 33);
+    a = 0x78;
+    RAM(VRAM_BUFFER + x) = a;
+    x++;
+    a = 0x78;
+    RAM(VRAM_BUFFER + x) = a;
+    x++;
+    a = 0x78;
+    RAM(VRAM_BUFFER + x) = a;
+    x++;
+    n = (x) >> 7;
+    z = (x) == 0;
     SYNC_OUT;
     mff_rts(); return;
 }

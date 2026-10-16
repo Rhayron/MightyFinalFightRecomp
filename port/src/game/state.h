@@ -9,7 +9,7 @@
 #define VRAM_COLUMN_REQUEST      0x001A  /* same as vram_list_request but written with the +32 increment (PPUCTRL bit 2, 0E:C046-C057) */
 #define MAP_SCREEN_PTR           0x0020  /* pointer to the current screen's 64-byte metatile map in the round's $A000 bank: screen num ($0020-$0021) */
 #define ROUND_TABLES             0x0022  /* round index for the per-round tables (music $C83C, $A000 bank $C1F8); follows round ($61)  */
-#define SCROLL_MODE              0x0023  /* low 2 bits pick stage_scroll's mode; mode 2 never ran in coverage */
+#define SCROLL_MODE              0x0023  /* camera direction of the last streamed column, written by the column writer (0F:E521); its  */
 #define BG_COLUMN                0x0024  /* nametable column (0-$1F) the column streamer writes next: $1F at round start (0E:C766), +1 */
 #define SCROLL_X_PREV            0x0025  /* scroll_x saved after the camera update (0E:C953-C955); the streamer queues a new column wh */
 #define PLAYER_X_PREV            0x0027  /* player obj_x saved after the camera update (0E:C94E-C951); the camera follows the player's */
@@ -152,7 +152,7 @@
 #define OBJ_ID                   0x0320  /*  ($0320-$032F) */
 #define OBJ_SAVED_ID             0x0330  /* obj_id to resume: spawners write it with obj_id (08:813D, 08:91B3, 0F:F46D), the pit fall  ($0330-$033F) */
 #define OBJ_X_FRAC               0x0340  /* x sub-pixel: 0F:F183 adds obj_vx_frac/obj_vx into obj_x_frac/obj_x/obj_x_hi, 0F:F1A1 subtr ($0340-$034F) */
-#define OBJ_X                    0x0360  /*  ($0360-$036F) */
+#define OBJ_X                    0x0360  /* world x, low byte (obj_x_hi $0380 is the high byte); object_draw subtracts the scroll when ($0360-$036F) */
 #define OBJ_X_HI                 0x0380  /* world x high byte (object_draw subtracts $F9) ($0380-$038F) */
 #define OBJ_Y_FRAC               0x03A0  /* y sub-pixel: 0F:F1BF adds obj_vy_frac/obj_vy into obj_y_frac/obj_y, 0F:F1DF/F20E/F22E subt ($03A0-$03AF) */
 #define OBJ_Y                    0x03C0  /*  ($03C0-$03CF) */
@@ -181,7 +181,7 @@
 #define OBJ_LAND_Y               0x0530  /* line a knocked-back object lands on: objects_update sets it when a hit connects (0C:80FD-8 ($0530-$053F) */
 #define OBJ_TIMER3               0x0540  /* third per-behaviour counter: frames before a thrown body starts hitting others (8 at 0C:8F ($0540-$054F) */
 #define OBJ_DOWN_TIMER           0x0550  /* knockdown recovery: frames lying ($2D) and getting up ($17) before obj_saved_id/obj_saved_ ($0550-$055F) */
-#define OBJ_FLAGS                0x0560  /* bit 4 = world coordinates: object_draw subtracts the scroll; slots with it clear are drawn ($0560-$056F) */
+#define OBJ_FLAGS                0x0560  /* bit 7 on screen, 6 flip, 5 priority, 4 world coordinates (object_draw subtracts the scroll ($0560-$056F) */
 #define OBJ_ANIM_FRAME           0x0570  /* frame index in the animation script (bits 0-6): object_draw advances it each time obj_anim ($0570-$057F) */
 #define OBJ_ANIM                 0x0580  /* animation id, 0 = nothing drawn: object_draw reads the script pointer at $8000/$8080 + (id ($0580-$058F) */
 #define OBJ_ANIM_TIMER           0x0590  /* frames shown of the current animation frame (bits 0-6, INC per draw at 0F:EAA9); bit 7 mak ($0590-$059F) */

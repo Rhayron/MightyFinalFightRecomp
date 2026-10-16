@@ -75,7 +75,7 @@ runs it when it finishes (that path was never hit in coverage).
 
 Banks start with an entry point at `$8000` that dispatches on a register or
 RAM: bank `$00` is `player_action_dispatch` (on `game_action`, `$30`, through
-a 39-entry split pointer table); bank `$04` takes X as a function index; bank
+a 42-entry split pointer table); bank `$04` takes X as a function index; bank
 `$06` starts with a jump table (`sound_tick`, `sound_play`).
 
 ## Sound
@@ -129,7 +129,7 @@ Once a frame, in task 0:
    throw...; every special move from `$0F` up goes to `player_state_default`
    and is handled per character in bank `$00`), then
    `player_action_dispatch` (bank `$00`), `$E2A3`, banks `$08/$09`
-   (`stage_scroll` `$8080`, `stage_events` `$8900`, `$A300`), bank `$0C`
+   (`stage_spawns` `$8080`, `stage_events` `$8900`, `$A300`), bank `$0C`
    `objects_update` (every live slot: map the id's behaviour bank into `$A000`,
    dispatch through `obj_behavior_lo/hi`, 160 ids, 101 distinct routines -
    see `tools/mff_dispatch.py`), `$E6AB`.

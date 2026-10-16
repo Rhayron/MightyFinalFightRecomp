@@ -51,7 +51,7 @@ so; Data Crystal = their word only.
 | Address | Name | Meaning | Status |
 |---|---|---|---|
 | `$0022` | `round_tables` | Round index for the per-round tables; follows `$0061` (changes a few hundred frames after it at round ends) | **Verified** (bot runs) |
-| `$0023` | `scroll_mode` | Direction of the last streamed column (1 right, 2 left); picks `stage_scroll`'s mode | Code |
+| `$0023` | `scroll_mode` | Direction of the last streamed column (1 right, 2 left); picks `stage_spawns`'s mode | Code |
 | `$0024` | `bg_column` | Next nametable column to stream (0-`$1F`) | Code |
 | `$0025` | `scroll_x_prev` | `scroll_x` after the camera update (column streaming) | Code |
 | `$0027` | `player_x_prev` | Player x after the camera update (the camera follows the difference) | Code |

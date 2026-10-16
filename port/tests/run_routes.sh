@@ -13,7 +13,7 @@ shift || true
 if [ "$MODE" = baseline ]; then
   EXE=runs/p4/pure/build/Release/MffScaffold.exe
 else
-  EXE=port/scaffold/build/Release/MffScaffold.exe
+  EXE=${MFF_EXE:-port/scaffold/build/Release/MffScaffold.exe}   # MFF_EXE: another candidate build
 fi
 ROM="$(pwd -W)/rom/Mighty Final Fight (USA).nes"
 mkdir -p runs/p4

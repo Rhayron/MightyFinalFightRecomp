@@ -105,7 +105,7 @@ get the HUD life bar ahead of anyone else (`0F:E89D`); kind 3 can block
 Every spawn path finds a slot whose `obj_state` bit 7 is clear and then writes
 the fields it cares about. The ones that matter:
 
-- **Stage object list** (`08:80A7`, reached from `stage_scroll` in scroll mode
+- **Stage object list** (`08:80A7`, reached from `stage_spawns` in scroll mode
   1). The round's list gives, per entry, x, x high, y, y page and a type
   (pointers `$72/$74/$76/$78/$7A`). As the scroll reaches an entry (`08:80C2`
   compares it with `scroll_x`), `08:80E4` skips it if a slot already carries

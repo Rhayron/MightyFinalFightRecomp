@@ -80,6 +80,7 @@ name = "obj_id"
 addr = 0x0360
 size = 16
 name = "obj_x"
+comment = "world x, low byte (obj_x_hi $0380 is the high byte); object_draw subtracts the scroll when obj_flags bit 4 is set"
 
 [[ram]]
 addr = 0x03C0
@@ -214,7 +215,7 @@ comment = "JMP $80FE; A = command from the queue"
 bank = 0x00
 addr = 0x8000
 name = "player_action_dispatch"
-comment = "dispatches on game_action ($30) through the split table lo $8011 / hi $803B (39 entries)"
+comment = "dispatches on game_action ($30) through the split table lo $8011 / hi $803B (42 entries: $803B - $8011)"
 
 [[label]]
 bank = 0x0E
@@ -325,7 +326,7 @@ comment = "joy_pressed & START -> select (bank 04 fn 2, $9100), round map (fn 8,
 bank = 0x0E
 addr = 0xC768
 name = "round_start_wait"
-comment = "loops until $29 is set, then maps the round's bank ($C1F8[$22]) and reads its header at $AE68"
+comment = "draws the area's first 33 columns, one per frame, until $29 is set, then maps the round's bank ($C1F8[$22]) and reads its header at $AE68 (docs/assets.md)"
 
 [[label]]
 bank = 0x0E
@@ -538,13 +539,13 @@ comment = "area within the round: stage_events acts at round 2/sub_area 2 and ro
 [[ram]]
 addr = 0x0023
 name = "scroll_mode"
-comment = "low 2 bits pick stage_scroll's mode; mode 2 never ran in coverage"
+comment = "camera direction of the last streamed column, written by the column writer (0F:E521); its low 2 bits pick stage_spawns' mode, mode 2 never ran (docs/assets.md)"
 
 [[label]]
 bank = 0x08
 addr = 0x8080
-name = "stage_scroll"
-comment = "by scroll_mode & 3: 0 nothing, 1 -> $80A7, 2 -> $808E (unseen in every run)"
+name = "stage_spawns"
+comment = "does not scroll (it used to be called stage_scroll): spawns the stage list's objects as the camera reaches them; by scroll_mode & 3: 0 nothing, 1 -> stage_list_spawner $80A7, 2 -> $808E (unseen in every run)"
 
 [[label]]
 bank = 0x08
@@ -556,7 +557,7 @@ comment = "per-frame round-specific work, only for round 2 sub_area 2 and round 
 bank = 0x0F
 addr = 0xE9BC
 name = "objects_draw"
-comment = "slots 15, 14, then 0..15 or 13..0 alternating each frame ($95): the order rotation that makes sprites flicker instead of vanish past 8 per line"
+comment = "slot 15, then the slot below what object_draw returned for it (14 only if slot 15 drew nothing; docs/assets.md), then 0..15 or 13..0 alternating each frame ($95): the order rotation that makes sprites flicker instead of vanish past 8 per line; slots $0E/$0F are drawn twice on even passes (docs/objects.md)"
 
 [[label]]
 bank = 0x0F
@@ -579,7 +580,7 @@ comment = "world x high byte (object_draw subtracts $F9)"
 addr = 0x0560
 size = 16
 name = "obj_flags"
-comment = "bit 4 = world coordinates: object_draw subtracts the scroll; slots with it clear are drawn in screen coordinates (docs/objects.md)"
+comment = "bit 7 on screen, 6 flip, 5 priority, 4 world coordinates (object_draw subtracts the scroll; clear = screen coordinates), 2 skip drawing (docs/objects.md, docs/assets.md)"
 
 [[ram]]
 addr = 0x00FC

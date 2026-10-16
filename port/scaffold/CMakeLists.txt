@@ -19,9 +19,16 @@ find_package(SDL2 REQUIRED)
 # points this at its own copy, generated without the hand-written routines
 set(MFF_GENERATED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/generated" CACHE PATH "NESRecomp --legacy output for this build")
 option(MFF_PURE "Build without port/src/game (the unrefactored scaffold)" OFF)
-file(GLOB MFF_GENERATED CONFIGURE_DEPENDS
-    "${MFF_GENERATED_DIR}/mff_full*.c"
-    "${MFF_GENERATED_DIR}/mff_dispatch.c")
+# the port alone: port/src/game plus port/src/glue (port/tools/dispatch_gen.py),
+# no generated code at all
+option(MFF_EJECTED "Build without generated/ (every routine in port/src/game)" OFF)
+if(MFF_EJECTED)
+    set(MFF_GENERATED "${CMAKE_CURRENT_SOURCE_DIR}/../src/glue/dispatch.c")
+else()
+    file(GLOB MFF_GENERATED CONFIGURE_DEPENDS
+        "${MFF_GENERATED_DIR}/mff_full*.c"
+        "${MFF_GENERATED_DIR}/mff_dispatch.c")
+endif()
 # P4: the hand-written routines that replace generated ones ([[replace_func]])
 set(MFF_GAME "")
 if(NOT MFF_PURE)
