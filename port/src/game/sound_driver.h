@@ -176,5 +176,9 @@ void func_81C8_b3(void);
 void func_81D4_b3(void);
 void func_81F1_b3(void);
 void func_8326_b3(void);
+void func_83CD_b3(void);
+void func_847E_b3(void);
+void func_8491_b3(void);
+void func_855A_b3(void);
 
 #endif

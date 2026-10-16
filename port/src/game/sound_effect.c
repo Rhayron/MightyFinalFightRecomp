@@ -257,8 +257,9 @@ void func_8252_b3(void) {
  *    in $0710), key off, unless the envelope is already off;
  *  - in the frame a row was read ($C0 bit 0): parses the channel's entry
  *    (06:830A): the field mask, each field through the table at $8329
- *    ($8326: 0 instrument, 1 duty, 2 volume, 3 slide speed, 4 detune; the
- *    byte in $C3, the field number in $C4), then the note ($8333).
+ *    (snd_effect_field: 0 instrument, 1 duty, 2 volume, 3 slide speed,
+ *    4 detune; the byte in $C3, the field number in $C4), then the note
+ *    (snd_effect_note).
  * Out: from the routine it ends in.
  * Caller: snd_tick_body, with $CF bit 7 set. */
 void func_82DE_b3(void) {
@@ -385,7 +386,7 @@ void func_82DE_b3(void) {
     func_8326_b3();
 }
 
-/* the effect field dispatch, $8326: A = the field number (0-4), $C3 = its
+/* snd_effect_field, $8326: A = the field number (0-4), $C3 = its
  * byte. Jumps through the table at $8329: snd_set_instrument,
  * snd_set_duty, snd_set_volume, snd_set_slide, snd_set_detune, which
  * return to snd_effect_channel.
@@ -396,7 +397,7 @@ void func_8326_b3(void) {
     mff_unreachable(SND_TBL_FIELDS);            /* the JSR never comes back */
 }
 
-/* the effect note, $8333: the note byte of channel X's entry.
+/* snd_effect_note, $8333: the note byte of channel X's entry.
  *  - 0: off: level 0, envelope phase 4, the channel silenced at once
  *    (snd_silence);
  *  - otherwise the channel slides (env bit 5) toward the end of the range:
@@ -498,7 +499,7 @@ void func_8333_b3(void) {
 /* snd_effect_read, $8386: the next byte of the effect's stream at $D0/$D1
  * (incremented), through snd_read (JMP).
  * Out: A = the byte, N, Z from it; Y = 0.
- * Callers: snd_effect_row, snd_effect_channel and the effect note. */
+ * Callers: snd_effect_row, snd_effect_channel and snd_effect_note. */
 void func_8386_b3(void) {
     REGS_IN;
     mff_cycles(0x8386, 13);

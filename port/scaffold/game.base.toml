@@ -300,70 +300,70 @@ bank = 3
 addr = 0x8386   # snd_effect_read, sound_effect.c
 [[replace_func]]
 bank = 3
-addr = 0x8393   # lifted, lifted_b3.c
+addr = 0x8393   # snd_music_channel, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x83CD   # lifted, lifted_b3.c
+addr = 0x83CD   # snd_music_next, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x847E   # lifted, lifted_b3.c
+addr = 0x847E   # snd_music_tie_next, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x8491   # lifted, lifted_b3.c
+addr = 0x8491   # snd_music_gate_open, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x8497   # lifted, lifted_b3.c
+addr = 0x8497   # snd_music_command, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x84D9   # lifted, lifted_b3.c
+addr = 0x84D9   # snd_music_triplet, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x84DD   # lifted, lifted_b3.c
+addr = 0x84DD   # snd_music_tie, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x84E1   # lifted, lifted_b3.c
+addr = 0x84E1   # snd_music_dot, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x84E8   # lifted, lifted_b3.c
+addr = 0x84E8   # snd_music_octave_up2, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x84F1   # lifted, lifted_b3.c
+addr = 0x84F1   # snd_music_tempo, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x84FF   # lifted, lifted_b3.c
+addr = 0x84FF   # snd_music_gate_ratio, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x8505   # lifted, lifted_b3.c
+addr = 0x8505   # snd_music_octave, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x8510   # lifted, lifted_b3.c
+addr = 0x8510   # snd_music_transpose, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x8515   # lifted, lifted_b3.c
+addr = 0x8515   # snd_music_ch_transpose, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x851B   # lifted, lifted_b3.c
+addr = 0x851B   # snd_music_loop0, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x851F   # lifted, lifted_b3.c
+addr = 0x851F   # snd_music_loop1, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x8523   # lifted, lifted_b3.c
+addr = 0x8523   # snd_music_loop2, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x8527   # lifted, lifted_b3.c
+addr = 0x8527   # snd_music_loop3, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x855A   # lifted, lifted_b3.c
+addr = 0x855A   # snd_music_jump, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x8575   # lifted, lifted_b3.c
+addr = 0x8575   # snd_music_set_flags, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x8580   # lifted, lifted_b3.c
+addr = 0x8580   # snd_music_end, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x8592   # lifted, lifted_b3.c
+addr = 0x8592   # snd_music_read, sound_music.c
 [[replace_func]]
 bank = 3
 addr = 0x85A3   # lifted, lifted_b3.c
