@@ -75,17 +75,23 @@ L_803A:;
     mff_cycles(0x803A, 5);
     a = mem_read((uint16_t)(RAM16(SPAWN_LIST_Y_HI) + y));
     mff_cycles(0x803C, 5);
-    m = RAM(SCROLL_Y_HI); c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0x803E, 1); goto L_804B; }
+    m = RAM(SCROLL_Y_HI);
+    c = a >= m;
+    if (a != m) { mff_cycles(0x803E, 1); goto L_804B; }
     mff_cycles(0x8040, 5);
     a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X) + y));
     mff_cycles(0x8042, 10);
     c = 1;
-    m = RAM(SCROLL_X); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(SCROLL_X);
+    w = a - m - !c;
+    c = w >= 0;
     a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X_HI) + y));
     mff_cycles(0x8047, 5);
-    m = RAM(AREA_SCREEN); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(AREA_SCREEN);
+    w = a - m - !c;
+    v = ((a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w >= 0;
+    a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     if (c) { mff_cycles(0x8049, 1); goto L_8073; }
@@ -100,27 +106,39 @@ L_804B:;
     mff_cycles(0x8050, 20);
     a = RAM(SCROLL_X);
     c = 0;
-    m = 0xFF; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = 0xFF;
+    w = a + m + c;
+    c = w > 0xFF;
+    a = (uint8_t)w;
     RAM(TMP0) = a;
     a = RAM(AREA_SCREEN);
-    m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = 0x00;
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    a = (uint8_t)w;
     RAM(TMP1) = a;
     y = 0x00;
 L_805F:;
     mff_cycles(0x805F, 5);
     a = mem_read((uint16_t)(RAM16(SPAWN_LIST_Y_HI) + y));
     mff_cycles(0x8061, 5);
-    m = RAM(SCROLL_Y_HI); c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0x8063, 1); goto L_8070; }
+    m = RAM(SCROLL_Y_HI);
+    c = a >= m;
+    if (a != m) { mff_cycles(0x8063, 1); goto L_8070; }
     mff_cycles(0x8065, 5);
     a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X) + y));
     mff_cycles(0x8067, 10);
     c = 1;
-    m = RAM(TMP0); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(TMP0);
+    w = a - m - !c;
+    c = w >= 0;
     a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X_HI) + y));
     mff_cycles(0x806C, 5);
-    m = RAM(TMP1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(TMP1);
+    w = a - m - !c;
+    v = ((a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w >= 0;
+    a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     if (!c) { mff_cycles(0x806E, 1); goto L_8073; }
@@ -148,13 +166,13 @@ void func_8080_b4(void) {
     z = (a) == 0;
     if (z) { mff_cycles(0x8084, 1); goto L_80A6; }
     mff_cycles(0x8086, 4);
-    m = 0x01; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x8088, 1); goto L_80A7; }
+    m = 0x01;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x8088, 1); goto L_80A7; }
     mff_cycles(0x808A, 4);
-    m = 0x02; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) {
+    m = 0x02;
+    c = a >= m;
+    if (a == m) {
         mff_cycles(0x808C, 1);
     }
 L_808E:;
@@ -172,9 +190,9 @@ L_808E:;
     if (!mff_call_at(0x0097, 0x80E4, 4)) return;
     SYNC_IN;
     mff_cycles(0x8098, 7);
-    t = (uint8_t)(RAM(SPAWN_LIST_PREV) - 1); RAM(SPAWN_LIST_PREV) = t;
-    z = (t) == 0;
-    if (!z) { mff_cycles(0x808E, 1); goto L_808E; }
+    t = (uint8_t)(RAM(SPAWN_LIST_PREV) - 1);
+    RAM(SPAWN_LIST_PREV) = t;
+    if (t != 0) { mff_cycles(0x808E, 1); goto L_808E; }
 L_809C:;
     mff_cycles(0x809C, 3);
     y = RAM(SPAWN_LIST_PREV);
@@ -211,9 +229,9 @@ L_80A7:;
     if (!mff_call_at(0x00B0, 0x80E4, 4)) return;
     SYNC_IN;
     mff_cycles(0x80B1, 7);
-    t = (uint8_t)(RAM(SPAWN_LIST_NEXT) + 1); RAM(SPAWN_LIST_NEXT) = t;
-    z = (t) == 0;
-    if (!z) { mff_cycles(0x80A7, 1); goto L_80A7; }
+    t = (uint8_t)(RAM(SPAWN_LIST_NEXT) + 1);
+    RAM(SPAWN_LIST_NEXT) = t;
+    if (t != 0) { mff_cycles(0x80A7, 1); goto L_80A7; }
 L_80B5:;
     mff_cycles(0x80B5, 5);
     y = RAM(SPAWN_LIST_NEXT);
@@ -249,11 +267,17 @@ void func_80C2_b4(void) {
     mff_cycles(0x80C4, 13);
     RAM(TMP0) = a;
     c = 1;
-    m = RAM(SCROLL_X); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(SCROLL_X);
+    w = a - m - !c;
+    c = w >= 0;
     a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X_HI) + y));
     mff_cycles(0x80CB, 8);
     RAM(TMP1) = a;
-    m = RAM(AREA_SCREEN); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(AREA_SCREEN);
+    w = a - m - !c;
+    v = ((a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w >= 0;
+    a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     if (z) {
@@ -262,10 +286,11 @@ void func_80C2_b4(void) {
         mff_cycles(0x80D3, 10);
         RAM(TMP2) = a;
         c = 1;
-        m = RAM(SCROLL_Y); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+        m = RAM(SCROLL_Y);
+        w = a - m - !c;
+        c = w >= 0;
         if (!c) {
             mff_cycles(0x80DA, 4);
-            m = 0x0F; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
             c = 0;
         } else {
             mff_cycles(0x80D8, 1);
@@ -274,7 +299,11 @@ void func_80C2_b4(void) {
         a = mem_read((uint16_t)(RAM16(SPAWN_LIST_Y_HI) + y));
         mff_cycles(0x80DF, 6);
         RAM(TMP3) = a;
-        m = RAM(SCROLL_Y_HI); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+        m = RAM(SCROLL_Y_HI);
+        w = a - m - !c;
+        v = ((a ^ m) & (a ^ w) & 0x80) != 0;
+        c = w >= 0;
+        a = (uint8_t)w;
         n = (a) >> 7;
         z = (a) == 0;
     } else {
@@ -293,12 +322,13 @@ void func_80E4_b4(void) {
     a = y;
 L_80E7:;
     mff_cycles(0x80E7, 6);
-    m = RAM(OBJ_SPAWN_INDEX + x); c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x80EA, 1); goto L_80F3; }
+    m = RAM(OBJ_SPAWN_INDEX + x);
+    c = a >= m;
+    if (a == m) { mff_cycles(0x80EA, 1); goto L_80F3; }
     mff_cycles(0x80EC, 6);
     x--;
-    m = 0x02; c = x >= m;
+    m = 0x02;
+    c = x >= m;
     z = ((uint8_t)(x - m)) == 0;
     if (!z) { mff_cycles(0x80E7, 1); goto L_80E7; }
     mff_cycles(0x80F1, 2);
@@ -315,11 +345,11 @@ L_80F8:;
 L_80FA:;
     mff_cycles(0x80FA, 6);
     a = RAM(OBJ_STATE + x);
-    n = (a) >> 7;
-    if (!n) { mff_cycles(0x80FD, 2); goto L_8105; }
+    if (!(a & 0x80)) { mff_cycles(0x80FD, 2); goto L_8105; }
     mff_cycles(0x80FF, 6);
     x--;
-    m = 0x02; c = x >= m;
+    m = 0x02;
+    c = x >= m;
     n = ((uint8_t)(x - m)) >> 7;
     z = ((uint8_t)(x - m)) == 0;
     if (!z) { mff_cycles(0x80FA, 2); goto L_80FA; }
@@ -345,11 +375,18 @@ L_8105:;
     a = mem_read((uint16_t)(RAM16(SPAWN_LIST_TYPE) + y));
     mff_cycles(0x8127, 22);
     RAM(TMP6) = y;
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
+    t = a;
+    t = (uint8_t)(t << 1);
+    a = t;
+    t = a;
+    c = t >> 7;
+    t = (uint8_t)(t << 1);
+    a = t;
     y = a;
     a = RAM(TMP5);
-    m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = 0x00;
+    w = a + m + c;
+    a = (uint8_t)w;
     RAM(TMP5) = a;
     a = mem_read((uint16_t)(RAM16(TMP4) + y));
     mff_cycles(0x8134, 12);
@@ -374,11 +411,20 @@ L_8105:;
     RAM(TMP8) = a;
     a = mem_read((uint16_t)(RAM16(SPAWN_LIST_TYPE) + y));
     mff_cycles(0x8158, 19);
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
+    t = a;
+    t = (uint8_t)(t << 1);
+    a = t;
+    t = a;
+    c = t >> 7;
+    t = (uint8_t)(t << 1);
+    a = t;
     y = a;
     a = RAM(TMP8);
-    m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = 0x00;
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w > 0xFF;
+    a = (uint8_t)w;
     RAM(TMP8) = a;
     a = mem_read((uint16_t)(RAM16(TMP7) + y));
     mff_cycles(0x8163, 17);
@@ -432,26 +478,28 @@ L_8105:;
     SYNC_IN;
     mff_cycles(0x81C1, 8);
     a = RAM(OBJ_ID + x);
-    m = 0x69; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) {
+    if (a != 0x69) {
         mff_cycles(0x81C8, 4);
-        m = 0x10; c = a >= m;
+        m = 0x10;
+        c = a >= m;
         n = ((uint8_t)(a - m)) >> 7;
         z = ((uint8_t)(a - m)) == 0;
         if (!z) {
             mff_cycles(0x81CC, 4);
-            m = 0x11; c = a >= m;
+            m = 0x11;
+            c = a >= m;
             n = ((uint8_t)(a - m)) >> 7;
             z = ((uint8_t)(a - m)) == 0;
             if (!z) {
                 mff_cycles(0x81D0, 4);
-                m = 0x12; c = a >= m;
+                m = 0x12;
+                c = a >= m;
                 n = ((uint8_t)(a - m)) >> 7;
                 z = ((uint8_t)(a - m)) == 0;
                 if (!z) {
                     mff_cycles(0x81D4, 4);
-                    m = 0x13; c = a >= m;
+                    m = 0x13;
+                    c = a >= m;
                     n = ((uint8_t)(a - m)) >> 7;
                     z = ((uint8_t)(a - m)) == 0;
                     if (z) {
@@ -474,15 +522,16 @@ L_8105:;
     }
     mff_cycles(0x81D9, 7);
     a = RAM(PLAYER_ID);
-    m = 0x00; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x81DD, 1); goto L_81E8; }
+    m = 0x00;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x81DD, 1); goto L_81E8; }
     mff_cycles(0x81DF, 4);
-    m = 0x01; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x81E1, 1); goto L_81EC; }
+    m = 0x01;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x81E1, 1); goto L_81EC; }
     mff_cycles(0x81E3, 4);
-    m = 0x02; c = a >= m;
+    m = 0x02;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0x81E5, 1); goto L_81F0; }
@@ -521,15 +570,13 @@ void func_8900_b4(void) {
     REGS_IN;
     mff_cycles(0x8900, 5);
     a = RAM(SCROLL_X_HI);
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x8902, 1); goto L_8924; }
+    if (a != 0) { mff_cycles(0x8902, 1); goto L_8924; }
     mff_cycles(0x8904, 7);
     a = RAM(ROUND);
-    m = 0x02; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x8908, 1); goto L_890F; }
+    if (a == 0x02) { mff_cycles(0x8908, 1); goto L_890F; }
     mff_cycles(0x890A, 4);
-    m = 0x03; c = a >= m;
+    m = 0x03;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0x890C, 1); goto L_8916; }
@@ -539,7 +586,8 @@ void func_8900_b4(void) {
 L_890F:;
     mff_cycles(0x890F, 7);
     a = RAM(SUB_AREA);
-    m = 0x02; c = a >= m;
+    m = 0x02;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0x8913, 1); goto L_891D; }
@@ -549,7 +597,8 @@ L_890F:;
 L_8916:;
     mff_cycles(0x8916, 7);
     a = RAM(SUB_AREA);
-    m = 0x01; c = a >= m;
+    m = 0x01;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -571,8 +620,7 @@ L_891D:;
 L_8924:;
     mff_cycles(0x8924, 5);
     a = RAM(AREA_CLEAR);
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x8926, 1); goto L_8956; }
+    if (a != 0) { mff_cycles(0x8926, 1); goto L_8956; }
     mff_cycles(0x8928, 5);
     a = RAM(CAMERA_LOCK);
     n = (a) >> 7;
@@ -610,16 +658,17 @@ L_8938:;
 L_893C:;
     mff_cycles(0x893C, 7);
     a = RAM(GAME_ACTION);
-    m = 0x19; c = a >= m;
+    m = 0x19;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0x8940, 1); goto L_8955; }
     mff_cycles(0x8942, 5);
     a = RAM(GAME_ACTION);
-    z = (a) == 0;
-    if (z) { mff_cycles(0x8944, 1); goto L_894C; }
+    if (a == 0) { mff_cycles(0x8944, 1); goto L_894C; }
     mff_cycles(0x8946, 4);
-    m = 0x03; c = a >= m;
+    m = 0x03;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0x8948, 1); goto L_894C; }
@@ -645,9 +694,9 @@ L_8956:;
     if (!n) { mff_cycles(0x8955, 1); goto L_8955; }
     mff_cycles(0x895A, 8);
     a = RAM(AREA_SCREEN);
-    m = RAM(AREA_SCREEN_COUNT); c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x893C, 1); goto L_893C; }
+    m = RAM(AREA_SCREEN_COUNT);
+    c = a >= m;
+    if (a == m) { mff_cycles(0x893C, 1); goto L_893C; }
     mff_cycles(0x8960, 5);
     a = RAM(GAME_ACTION);
     n = (a) >> 7;
@@ -788,7 +837,8 @@ void func_8A44_b4(void) {
     REGS_IN;
     mff_cycles(0x8A44, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DC4 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DC4 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8A49, 2);
@@ -817,7 +867,8 @@ void func_8A53_b4(void) {
     REGS_IN;
     mff_cycles(0x8A53, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DC4 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DC4 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8A58, 2);
@@ -846,7 +897,8 @@ void func_8A62_b4(void) {
     REGS_IN;
     mff_cycles(0x8A62, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DC4 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DC4 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8A67, 2);
@@ -897,7 +949,8 @@ void func_8A8D_b4(void) {
     REGS_IN;
     mff_cycles(0x8A8D, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DC8 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DC8 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8A92, 2);
@@ -928,7 +981,8 @@ void func_8A9D_b4(void) {
     REGS_IN;
     mff_cycles(0x8A9D, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DC8 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DC8 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8AA2, 2);
@@ -984,7 +1038,8 @@ void func_8ABF_b4(void) {
     a = 0xFF;
     RAM(KEEP_ON_SCREEN) = a;
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DCC + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DCC + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8AC8, 2);
@@ -1032,7 +1087,8 @@ void func_8AEA_b4(void) {
     REGS_IN;
     mff_cycles(0x8AEA, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DCE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DCE + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8AEF, 2);
@@ -1061,7 +1117,8 @@ void func_8AF9_b4(void) {
     REGS_IN;
     mff_cycles(0x8AF9, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DCE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DCE + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8AFE, 2);
@@ -1090,7 +1147,8 @@ void func_8B08_b4(void) {
     REGS_IN;
     mff_cycles(0x8B08, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DCE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DCE + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B0D, 2);
@@ -1141,7 +1199,8 @@ void func_8B35_b4(void) {
     REGS_IN;
     mff_cycles(0x8B35, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DD2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD2 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B3A, 2);
@@ -1170,7 +1229,8 @@ void func_8B44_b4(void) {
     REGS_IN;
     mff_cycles(0x8B44, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DD2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD2 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B49, 2);
@@ -1204,7 +1264,8 @@ void func_8B58_b4(void) {
     REGS_IN;
     mff_cycles(0x8B58, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DD2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD2 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B5D, 2);
@@ -1235,7 +1296,8 @@ void func_8B68_b4(void) {
     REGS_IN;
     mff_cycles(0x8B68, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DD2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD2 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B6D, 2);
@@ -1286,7 +1348,8 @@ void func_8B8F_b4(void) {
     REGS_IN;
     mff_cycles(0x8B8F, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DD7 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD7 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B94, 2);
@@ -1334,7 +1397,8 @@ void func_8BB6_b4(void) {
     REGS_IN;
     mff_cycles(0x8BB6, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DD9 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD9 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8BBB, 2);
@@ -1363,7 +1427,8 @@ void func_8BC5_b4(void) {
     REGS_IN;
     mff_cycles(0x8BC5, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DD9 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD9 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8BCA, 2);
@@ -1409,7 +1474,8 @@ void func_8BFF_b4(void) {
     REGS_IN;
     mff_cycles(0x8BFF, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DDD + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DDD + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C04, 2);
@@ -1438,7 +1504,8 @@ void func_8C0E_b4(void) {
     REGS_IN;
     mff_cycles(0x8C0E, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DDD + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DDD + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C13, 2);
@@ -1469,7 +1536,8 @@ void func_8C1E_b4(void) {
     REGS_IN;
     mff_cycles(0x8C1E, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DDD + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DDD + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C23, 2);
@@ -1522,7 +1590,8 @@ void func_8C43_b4(void) {
     a = 0xFF;
     RAM(KEEP_ON_SCREEN) = a;
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DE1 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DE1 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C4C, 2);
@@ -1570,7 +1639,8 @@ void func_8C6E_b4(void) {
     REGS_IN;
     mff_cycles(0x8C6E, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DE2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DE2 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C73, 2);
@@ -1599,7 +1669,8 @@ void func_8C7D_b4(void) {
     REGS_IN;
     mff_cycles(0x8C7D, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DE2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DE2 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C82, 2);
@@ -1655,7 +1726,8 @@ void func_8CA5_b4(void) {
     a = 0xFF;
     RAM(KEEP_ON_SCREEN) = a;
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DE6 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DE6 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8CAE, 2);
@@ -1706,7 +1778,8 @@ void func_8CD2_b4(void) {
     REGS_IN;
     mff_cycles(0x8CD2, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DEB + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DEB + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8CD7, 2);
@@ -1737,7 +1810,8 @@ void func_8CE1_b4(void) {
     a = 0xFF;
     RAM(KEEP_ON_SCREEN) = a;
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DEB + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DEB + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8CEA, 2);
@@ -1785,7 +1859,8 @@ void func_8D0C_b4(void) {
     REGS_IN;
     mff_cycles(0x8D0C, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DEE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DEE + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D11, 2);
@@ -1814,7 +1889,8 @@ void func_8D1B_b4(void) {
     REGS_IN;
     mff_cycles(0x8D1B, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DEE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DEE + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D20, 2);
@@ -1843,7 +1919,8 @@ void func_8D2A_b4(void) {
     REGS_IN;
     mff_cycles(0x8D2A, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DEE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DEE + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D2F, 2);
@@ -1891,7 +1968,8 @@ void func_8D51_b4(void) {
     REGS_IN;
     mff_cycles(0x8D51, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DF2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DF2 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D56, 2);
@@ -1920,7 +1998,8 @@ void func_8D60_b4(void) {
     REGS_IN;
     mff_cycles(0x8D60, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DF2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DF2 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D65, 2);
@@ -1951,7 +2030,8 @@ void func_8D6F_b4(void) {
     a = 0xFF;
     RAM(KEEP_ON_SCREEN) = a;
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DF2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DF2 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D78, 2);
@@ -1999,7 +2079,8 @@ void func_8D98_b4(void) {
     REGS_IN;
     mff_cycles(0x8D98, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(0x8DF6 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DF6 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D9D, 2);
@@ -2035,12 +2116,13 @@ void func_8DA8_b4(void) {
 L_8DAE:;
     mff_cycles(0x8DAE, 8);
     a = RAM(OBJ_ID + y);
-    m = 0x74; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x8DB3, 1); goto L_8DBB; }
+    m = 0x74;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x8DB3, 1); goto L_8DBB; }
     mff_cycles(0x8DB5, 6);
     y--;
-    m = 0x03; c = y >= m;
+    m = 0x03;
+    c = y >= m;
     n = ((uint8_t)(y - m)) >> 7;
     z = ((uint8_t)(y - m)) == 0;
     if (!z) { mff_cycles(0x8DAE, 1); goto L_8DAE; }
@@ -2070,11 +2152,11 @@ void func_9000_b4(void) {
     REGS_IN;
     mff_cycles(0x9000, 5);
     a = RAM(CAMERA_LOCK);
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x9002, 1); goto L_9012; }
+    if (a != 0) { mff_cycles(0x9002, 1); goto L_9012; }
     mff_cycles(0x9004, 7);
     a = RAM(ROUND);
-    m = 0x03; c = a >= m;
+    m = 0x03;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -2086,7 +2168,8 @@ void func_9000_b4(void) {
     }
     mff_cycles(0x900B, 7);
     a = RAM(SUB_AREA);
-    m = 0x01; c = a >= m;
+    m = 0x01;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0x900F, 1); goto L_9012; }
@@ -2107,9 +2190,11 @@ L_9012:;
     mff_cycles(0x9019, 2);
     if (!z) { mff_cycles(0x9011, 1); goto L_9011; }
     mff_cycles(0x901B, 12);
-    t = (uint8_t)(RAM(SPAWN_TIMER) - 1); RAM(SPAWN_TIMER) = t;
+    t = (uint8_t)(RAM(SPAWN_TIMER) - 1);
+    RAM(SPAWN_TIMER) = t;
     a = RAM(SPAWN_TIMER);
-    m = 0x01; c = a >= m;
+    m = 0x01;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!c) { mff_cycles(0x9021, 1); SYNC_OUT; call_by_address_tail((uint16_t)(g_code_window_base + 0x1038), 4); return; }
@@ -2124,7 +2209,10 @@ void func_9038_b4(void) {
     mff_cycles(0x9038, 19);
     a = RAM(RNG);
     c = 0;
-    m = RAM(RNG + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(RNG + 1);
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    a = (uint8_t)w;
     RAM(RNG) = a;
     a &= 0x0F;
     y = a;
@@ -2132,13 +2220,15 @@ void func_9038_b4(void) {
     mff_cycles(0x9045, 10);
     RAM(SPAWN_TIMER) = a;
     a = RAM(ROUND);
-    m = 0x03; c = a >= m;
+    m = 0x03;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) {
         mff_cycles(0x904D, 7);
         a = RAM(SUB_AREA);
-        m = 0x01; c = a >= m;
+        m = 0x01;
+        c = a >= m;
         n = ((uint8_t)(a - m)) >> 7;
         z = ((uint8_t)(a - m)) == 0;
         if (z) {
@@ -2187,10 +2277,14 @@ void func_9038_b4(void) {
     a = 0xFF;
     RAM(OBJ_VY + y) = a;
     a = RAM(RNG);
-    m = RAM(RNG + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(RNG + 1);
+    w = a + m + c;
+    a = (uint8_t)w;
     RAM(RNG) = a;
     c = 1;
-    m = RAM(RNG + 2); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(RNG + 2);
+    w = a - m - !c;
+    a = (uint8_t)w;
     RAM(RNG + 1) = a;
     a &= 0x1F;
     x = a;
@@ -2199,49 +2293,50 @@ void func_9038_b4(void) {
     RAM(OBJ_X + y) = a;
     a = RAM(SCROLL_X_HI);
     c = 0;
-    m = prg_read((uint16_t)(0x966B + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x966B + x));
+    w = a + m + c;
+    a = (uint8_t)w;
     mff_cycles(0x90C4, 9);
     RAM(OBJ_X_HI + y) = a;
     a = prg_read((uint16_t)(0x968B + x));
     mff_cycles(0x90CA, 10);
     RAM(OBJ_Y + y) = a;
     a = RAM(ROUND);
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x90CF, 1); goto L_90EF; }
+    if (a != 0) { mff_cycles(0x90CF, 1); goto L_90EF; }
     mff_cycles(0x90D1, 7);
     a = RAM(SUB_AREA);
-    m = 0x01; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0x90D5, 1); goto L_90EF; }
+    if (a != 0x01) { mff_cycles(0x90D5, 1); goto L_90EF; }
     mff_cycles(0x90D7, 8);
     a = RAM(OBJ_Y + y);
-    m = 0x98; c = a >= m;
+    m = 0x98;
+    c = a >= m;
     if (!c) { mff_cycles(0x90DC, 2); goto L_910A; }
     mff_cycles(0x90DE, 17);
     a = RAM(RNG + 2);
-    m = RAM(RNG + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(RNG + 1);
+    w = a + m + c;
+    a = (uint8_t)w;
     RAM(RNG + 2) = a;
     a &= 0x07;
     x = a;
     a = prg_read((uint16_t)(0x96AB + x));
-    z = (a) == 0;
     mff_cycles(0x90EA, 7);
     RAM(OBJ_Y + y) = a;
-    if (!z) { mff_cycles(0x90ED, 2); goto L_910A; }
+    if (a != 0) { mff_cycles(0x90ED, 2); goto L_910A; }
 L_90EF:;
     mff_cycles(0x90EF, 7);
     a = RAM(ROUND);
-    m = 0x01; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) {
+    if (a == 0x01) {
         mff_cycles(0x90F5, 7);
         a = RAM(SUB_AREA);
-        m = 0x01; c = a >= m;
-        z = ((uint8_t)(a - m)) == 0;
-        if (z) {
+        m = 0x01;
+        c = a >= m;
+        if (a == m) {
             mff_cycles(0x90FB, 17);
             a = RAM(RNG + 2);
-            m = RAM(RNG + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            m = RAM(RNG + 1);
+            w = a + m + c;
+            a = (uint8_t)w;
             RAM(RNG + 2) = a;
             a &= 0x07;
             x = a;
@@ -2261,12 +2356,10 @@ L_910A:;
     for (;;) {
         mff_cycles(0x910E, 6);
         a = RAM(OBJ_STATE + x);
-        n = (a) >> 7;
-        if (n) {
+        if (a & 0x80) {
             mff_cycles(0x9113, 6);
             a = RAM(OBJ_SPAWN_GROUP + x);
-            n = (a) >> 7;
-            if (!n) {
+            if (!(a & 0x80)) {
                 mff_cycles(0x9118, 7);
                 RAM(SPAWN_GROUPS + y) = a;
                 y--;
@@ -2278,48 +2371,35 @@ L_910A:;
         }
         mff_cycles(0x911C, 6);
         x--;
-        m = 0x02; c = x >= m;
-        z = ((uint8_t)(x - m)) == 0;
-        if (z) break;
+        if (x == 0x02) break;
         mff_cycles(0x910E, 1);
     }
     mff_cycles(0x9121, 19);
     x = 0x02;
     a = RAM(SPAWN_GROUPS);
     c = 0;
-    m = RAM(SPAWN_GROUPS + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SPAWN_GROUPS + 1);
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    a = (uint8_t)w;
     RAM(TMP1) = a;
-    m = 0x07; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x912E, 1); goto L_9174; }
+    if (a == 0x07) { mff_cycles(0x912E, 1); goto L_9174; }
     mff_cycles(0x9130, 4);
-    m = 0x08; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x9132, 1); goto L_9174; }
+    if (a == 0x08) { mff_cycles(0x9132, 1); goto L_9174; }
     mff_cycles(0x9134, 4);
-    m = 0x09; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x9136, 1); goto L_9174; }
+    if (a == 0x09) { mff_cycles(0x9136, 1); goto L_9174; }
     mff_cycles(0x9138, 4);
-    m = 0x00; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x913A, 1); goto L_9158; }
+    if (a == 0x00) { mff_cycles(0x913A, 1); goto L_9158; }
     mff_cycles(0x913C, 4);
-    m = 0x03; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x913E, 1); goto L_915E; }
+    if (a == 0x03) { mff_cycles(0x913E, 1); goto L_915E; }
     mff_cycles(0x9140, 4);
-    m = 0x04; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x9142, 1); goto L_9164; }
+    if (a == 0x04) { mff_cycles(0x9142, 1); goto L_9164; }
     mff_cycles(0x9144, 4);
-    m = 0x05; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x9146, 1); goto L_916A; }
+    if (a == 0x05) { mff_cycles(0x9146, 1); goto L_916A; }
     mff_cycles(0x9148, 4);
-    m = 0xFF; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x914A, 1); goto L_9170; }
+    m = 0xFF;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x914A, 1); goto L_9170; }
     mff_cycles(0x914C, 20);
     a = 0x00;
     n = (a) >> 7;
@@ -2332,27 +2412,23 @@ L_910A:;
 L_9158:;
     mff_cycles(0x9158, 7);
     a = 0x09;
-    z = (a) == 0;
     RAM(TMP1) = a;
-    if (!z) { mff_cycles(0x915C, 1); goto L_9174; }
+    if (a != 0) { mff_cycles(0x915C, 1); goto L_9174; }
 L_915E:;
     mff_cycles(0x915E, 7);
     a = 0x07;
-    z = (a) == 0;
     RAM(TMP1) = a;
-    if (!z) { mff_cycles(0x9162, 1); goto L_9174; }
+    if (a != 0) { mff_cycles(0x9162, 1); goto L_9174; }
 L_9164:;
     mff_cycles(0x9164, 7);
     a = 0x09;
-    z = (a) == 0;
     RAM(TMP1) = a;
-    if (!z) { mff_cycles(0x9168, 1); goto L_9174; }
+    if (a != 0) { mff_cycles(0x9168, 1); goto L_9174; }
 L_916A:;
     mff_cycles(0x916A, 7);
     a = 0x08;
-    z = (a) == 0;
     RAM(TMP1) = a;
-    if (!z) { mff_cycles(0x916E, 1); goto L_9174; }
+    if (a != 0) { mff_cycles(0x916E, 1); goto L_9174; }
 L_9170:;
     mff_cycles(0x9170, 5);
     a = 0x07;
@@ -2361,11 +2437,15 @@ L_9174:;
     mff_cycles(0x9174, 27);
     a = 0x0C;
     c = 1;
-    m = RAM(TMP1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(TMP1);
+    w = a - m - !c;
+    a = (uint8_t)w;
     RAM(TMP1) = a;
     a = 0x05;
     c = 1;
-    m = RAM(TMP1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(TMP1);
+    w = a - m - !c;
+    a = (uint8_t)w;
     RAM(TMP1) = a;
     y = RAM(ROUND);
     a = prg_read((uint16_t)(0x9363 + y));
@@ -2388,7 +2468,11 @@ L_9174:;
     a = mem_read((uint16_t)(RAM16(TMP4) + y));
     mff_cycles(0x91A1, 14);
     c = 0;
-    m = RAM(TMP1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(TMP1);
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w > 0xFF;
+    a = (uint8_t)w;
     x = a;
     y = RAM(SPAWN_SLOT);
     a = prg_read((uint16_t)(0x94DD + x));
@@ -2412,35 +2496,38 @@ L_9174:;
     RAM(TMP2) = x;
     a = RAM(RNG);
     c = 0;
-    m = RAM(RNG + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(RNG + 1);
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    a = (uint8_t)w;
     RAM(RNG) = a;
     a &= 0x0F;
     x = a;
     a = RAM(OBJ_ANIM + y);
-    m = 0xB7; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x91D3, 2); goto L_9209; }
+    m = 0xB7;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x91D3, 2); goto L_9209; }
     mff_cycles(0x91D5, 7);
     a = RAM(ROUND);
-    m = 0x00; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x91D9, 1); goto L_91EB; }
+    m = 0x00;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x91D9, 1); goto L_91EB; }
     mff_cycles(0x91DB, 4);
-    m = 0x01; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x91DD, 1); goto L_91F0; }
+    m = 0x01;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x91DD, 1); goto L_91F0; }
     mff_cycles(0x91DF, 4);
-    m = 0x02; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x91E1, 1); goto L_91F5; }
+    m = 0x02;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x91E1, 1); goto L_91F5; }
     mff_cycles(0x91E3, 4);
-    m = 0x03; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x91E5, 1); goto L_91FA; }
+    m = 0x03;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x91E5, 1); goto L_91FA; }
     mff_cycles(0x91E7, 4);
-    m = 0x04; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x91E9, 1); goto L_91FF; }
+    m = 0x04;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x91E9, 1); goto L_91FF; }
 L_91EB:;
     mff_cycles(0x91EB, 4);
     a = prg_read((uint16_t)(0x95EB + x));
@@ -2483,7 +2570,11 @@ L_9202:;
 L_9209:;
     mff_cycles(0x9209, 17);
     a = RAM(RNG + 2);
-    m = RAM(RNG + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(RNG + 1);
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w > 0xFF;
+    a = (uint8_t)w;
     RAM(RNG + 2) = a;
     a &= 0x0F;
     x = a;
@@ -2514,7 +2605,8 @@ L_921C:;
     if (c) { mff_cycles(0x921B, 1); goto L_921B; }
     mff_cycles(0x9221, 149);
     RAM(TMP0) = y;
-    t = (uint8_t)(RAM(AREA_KILLS) + 1); RAM(AREA_KILLS) = t;
+    t = (uint8_t)(RAM(AREA_KILLS) + 1);
+    RAM(AREA_KILLS) = t;
     a = RAM(PLAYER_DIR);
     RAM(OBJ_DIR + y) = a;
     a = 0x00;
@@ -2543,7 +2635,9 @@ L_921C:;
     a = 0xFF;
     RAM(OBJ_VY + y) = a;
     a = RAM(RNG);
-    m = RAM(RNG + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(RNG + 1);
+    w = a + m + c;
+    a = (uint8_t)w;
     RAM(RNG) = a;
     a &= 0x07;
     x = a;
@@ -2559,12 +2653,10 @@ L_921C:;
     for (;;) {
         mff_cycles(0x928F, 6);
         a = RAM(OBJ_STATE + x);
-        n = (a) >> 7;
-        if (n) {
+        if (a & 0x80) {
             mff_cycles(0x9294, 6);
             a = RAM(OBJ_SPAWN_GROUP + x);
-            n = (a) >> 7;
-            if (!n) {
+            if (!(a & 0x80)) {
                 mff_cycles(0x9299, 7);
                 RAM(SPAWN_GROUPS + y) = a;
                 y--;
@@ -2576,44 +2668,33 @@ L_921C:;
         }
         mff_cycles(0x929D, 6);
         x--;
-        m = 0x02; c = x >= m;
-        z = ((uint8_t)(x - m)) == 0;
-        if (z) break;
+        if (x == 0x02) break;
         mff_cycles(0x928F, 1);
     }
     mff_cycles(0x92A2, 19);
     x = 0x02;
     a = RAM(SPAWN_GROUPS);
     c = 0;
-    m = RAM(SPAWN_GROUPS + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SPAWN_GROUPS + 1);
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    a = (uint8_t)w;
     RAM(TMP1) = a;
-    m = 0x07; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x92AF, 1); goto L_92E8; }
+    if (a == 0x07) { mff_cycles(0x92AF, 1); goto L_92E8; }
     mff_cycles(0x92B1, 4);
-    m = 0x08; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x92B3, 1); goto L_92E8; }
+    if (a == 0x08) { mff_cycles(0x92B3, 1); goto L_92E8; }
     mff_cycles(0x92B5, 4);
-    m = 0x09; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x92B7, 1); goto L_92E8; }
+    if (a == 0x09) { mff_cycles(0x92B7, 1); goto L_92E8; }
     mff_cycles(0x92B9, 4);
-    m = 0x00; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x92BB, 1); goto L_92D2; }
+    if (a == 0x00) { mff_cycles(0x92BB, 1); goto L_92D2; }
     mff_cycles(0x92BD, 4);
-    m = 0x04; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x92BF, 1); goto L_92D8; }
+    if (a == 0x04) { mff_cycles(0x92BF, 1); goto L_92D8; }
     mff_cycles(0x92C1, 4);
-    m = 0x05; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x92C3, 1); goto L_92DE; }
+    if (a == 0x05) { mff_cycles(0x92C3, 1); goto L_92DE; }
     mff_cycles(0x92C5, 4);
-    m = 0xFF; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x92C7, 1); goto L_92E4; }
+    m = 0xFF;
+    c = a >= m;
+    if (a == m) { mff_cycles(0x92C7, 1); goto L_92E4; }
     mff_cycles(0x92C9, 16);
     a = 0x00;
     n = (a) >> 7;
@@ -2625,21 +2706,18 @@ L_921C:;
 L_92D2:;
     mff_cycles(0x92D2, 7);
     a = 0x07;
-    z = (a) == 0;
     RAM(TMP1) = a;
-    if (!z) { mff_cycles(0x92D6, 1); goto L_92E8; }
+    if (a != 0) { mff_cycles(0x92D6, 1); goto L_92E8; }
 L_92D8:;
     mff_cycles(0x92D8, 7);
     a = 0x07;
-    z = (a) == 0;
     RAM(TMP1) = a;
-    if (!z) { mff_cycles(0x92DC, 1); goto L_92E8; }
+    if (a != 0) { mff_cycles(0x92DC, 1); goto L_92E8; }
 L_92DE:;
     mff_cycles(0x92DE, 7);
     a = 0x08;
-    z = (a) == 0;
     RAM(TMP1) = a;
-    if (!z) { mff_cycles(0x92E2, 1); goto L_92E8; }
+    if (a != 0) { mff_cycles(0x92E2, 1); goto L_92E8; }
 L_92E4:;
     mff_cycles(0x92E4, 5);
     a = 0x07;
@@ -2648,24 +2726,28 @@ L_92E8:;
     mff_cycles(0x92E8, 24);
     a = 0x0C;
     c = 1;
-    m = RAM(TMP1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(TMP1);
+    w = a - m - !c;
+    a = (uint8_t)w;
     RAM(TMP1) = a;
     a = 0x05;
     c = 1;
-    m = RAM(TMP1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(TMP1);
+    w = a - m - !c;
+    a = (uint8_t)w;
     RAM(TMP1) = a;
-    m = 0x00; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x92F8, 1); goto L_92FE; }
+    if (a == 0x00) { mff_cycles(0x92F8, 1); goto L_92FE; }
     mff_cycles(0x92FA, 4);
-    m = 0x01; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x92FC, 2); goto L_930F; }
+    if (a == 0x01) { mff_cycles(0x92FC, 2); goto L_930F; }
 L_92FE:;
     mff_cycles(0x92FE, 19);
     a = RAM(RNG);
     c = 0;
-    m = RAM(RNG + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(RNG + 1);
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w > 0xFF;
+    a = (uint8_t)w;
     RAM(RNG) = a;
     a &= 0x01;
     x = a;
@@ -2680,7 +2762,11 @@ L_930F:;
     mff_cycles(0x930F, 19);
     a = RAM(RNG + 1);
     c = 0;
-    m = RAM(RNG + 2); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(RNG + 2);
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w > 0xFF;
+    a = (uint8_t)w;
     RAM(RNG + 1) = a;
     a &= 0x01;
     x = a;
@@ -2765,34 +2851,23 @@ void func_96C3_b4(void) {
     for (;;) {
         mff_cycles(0x96C9, 6);
         a = RAM(OBJ_STATE + y);
-        n = (a) >> 7;
-        if (n) {
+        if (a & 0x80) {
             mff_cycles(0x96CE, 8);
             a = RAM(OBJ_ANIM + y);
-            m = 0x80; c = a >= m;
-            if (c) {
+            if (a >= 0x80) {
                 mff_cycles(0x96D5, 4);
-                m = 0xBB; c = a >= m;
-                z = ((uint8_t)(a - m)) == 0;
-                if (!z) {
+                if (a != 0xBB) {
                     mff_cycles(0x96D9, 4);
-                    m = 0xB9; c = a >= m;
-                    z = ((uint8_t)(a - m)) == 0;
-                    if (!z) {
+                    if (a != 0xB9) {
                         mff_cycles(0x96DD, 4);
-                        m = 0xBA; c = a >= m;
-                        z = ((uint8_t)(a - m)) == 0;
-                        if (!z) {
+                        if (a != 0xBA) {
                             mff_cycles(0x96E1, 4);
-                            m = 0xC7; c = a >= m;
-                            z = ((uint8_t)(a - m)) == 0;
-                            if (!z) {
+                            if (a != 0xC7) {
                                 mff_cycles(0x96E5, 4);
-                                m = 0xC8; c = a >= m;
-                                z = ((uint8_t)(a - m)) == 0;
-                                if (!z) {
+                                if (a != 0xC8) {
                                     mff_cycles(0x96E9, 5);
-                                    t = (uint8_t)(RAM(TMP0) + 1); RAM(TMP0) = t;
+                                    t = (uint8_t)(RAM(TMP0) + 1);
+                                    RAM(TMP0) = t;
                                 } else {
                                     mff_cycles(0x96E7, 1);
                                 }
@@ -2816,14 +2891,13 @@ void func_96C3_b4(void) {
         }
         mff_cycles(0x96EB, 6);
         y--;
-        m = 0x02; c = y >= m;
-        z = ((uint8_t)(y - m)) == 0;
-        if (z) break;
+        if (y == 0x02) break;
         mff_cycles(0x96C9, 1);
     }
     mff_cycles(0x96F0, 7);
     a = RAM(TMP0);
-    m = 0x02; c = a >= m;
+    m = 0x02;
+    c = a >= m;
     if (!c) {
         mff_cycles(0x96F6, 8);
         a = 0x00;
@@ -2852,34 +2926,28 @@ void func_96FC_b4(void) {
 L_9702:;
     mff_cycles(0x9702, 6);
     a = RAM(OBJ_STATE + y);
-    n = (a) >> 7;
-    if (!n) { mff_cycles(0x9705, 1); goto L_971B; }
+    if (!(a & 0x80)) { mff_cycles(0x9705, 1); goto L_971B; }
     mff_cycles(0x9707, 8);
     a = RAM(OBJ_ID + y);
-    m = 0x91; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x970C, 1); goto L_9719; }
+    if (a == 0x91) { mff_cycles(0x970C, 1); goto L_9719; }
     mff_cycles(0x970E, 4);
-    m = 0x95; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x9710, 1); goto L_9719; }
+    if (a == 0x95) { mff_cycles(0x9710, 1); goto L_9719; }
     mff_cycles(0x9712, 8);
     a = RAM(OBJ_ANIM + y);
-    m = 0x80; c = a >= m;
-    if (!c) { mff_cycles(0x9717, 1); goto L_971B; }
+    if (a < 0x80) { mff_cycles(0x9717, 1); goto L_971B; }
 L_9719:;
     mff_cycles(0x9719, 5);
-    t = (uint8_t)(RAM(TMP0) + 1); RAM(TMP0) = t;
+    t = (uint8_t)(RAM(TMP0) + 1);
+    RAM(TMP0) = t;
 L_971B:;
     mff_cycles(0x971B, 6);
     y--;
-    m = 0x02; c = y >= m;
-    z = ((uint8_t)(y - m)) == 0;
-    if (!z) { mff_cycles(0x9702, 1); goto L_9702; }
+    m = 0x02;
+    c = y >= m;
+    if (y != m) { mff_cycles(0x9702, 1); goto L_9702; }
     mff_cycles(0x9720, 5);
     a = RAM(TMP0);
-    z = (a) == 0;
-    if (z) {
+    if (a == 0) {
         mff_cycles(0x9724, 8);
         a = 0x00;
         n = (a) >> 7;
@@ -3623,7 +3691,9 @@ void func_99B4_b4(void) {
 void func_A000_b4(void) {
     REGS_IN;
     mff_cycles(0xA000, 11);
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
+    t = a;
+    t = (uint8_t)(t << 1);
+    a = t;
     mff_push(a);
     x = a;
     a = prg_read((uint16_t)(0xA035 + x));
@@ -3636,11 +3706,19 @@ void func_A000_b4(void) {
     mff_cycles(0xA010, 27);
     RAM(CHR_BANKS + 5) = a;
     a = mff_pull();
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
+    t = a;
+    t = (uint8_t)(t << 1);
+    a = t;
+    t = a;
+    c = t >> 7;
+    t = (uint8_t)(t << 1);
+    a = t;
     y = a;
     a = 0x00;
-    m = 0xA1; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = 0xA1;
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    a = (uint8_t)w;
     RAM(TMP1) = a;
     a = 0x05;
     RAM(TMP0) = a;
@@ -3653,9 +3731,9 @@ void func_A000_b4(void) {
         RAM(PALETTE_BASE + 24 + x) = a;
         y++;
         x++;
-        m = 0x08; c = x >= m;
-        z = ((uint8_t)(x - m)) == 0;
-        if (z) break;
+        m = 0x08;
+        c = x >= m;
+        if (x == m) break;
         mff_cycles(0xA022, 1);
     }
     mff_cycles(0xA030, 11);
@@ -3671,11 +3749,19 @@ void func_A000_b4(void) {
 void func_A013_b4(void) {
     REGS_IN;
     mff_cycles(0xA013, 20);
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
+    t = a;
+    t = (uint8_t)(t << 1);
+    a = t;
+    t = a;
+    c = t >> 7;
+    t = (uint8_t)(t << 1);
+    a = t;
     y = a;
     a = 0x00;
-    m = 0xA1; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = 0xA1;
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    a = (uint8_t)w;
     RAM(TMP1) = a;
     a = 0x05;
     RAM(TMP0) = a;
@@ -3688,9 +3774,9 @@ void func_A013_b4(void) {
         RAM(PALETTE_BASE + 24 + x) = a;
         y++;
         x++;
-        m = 0x08; c = x >= m;
-        z = ((uint8_t)(x - m)) == 0;
-        if (z) break;
+        m = 0x08;
+        c = x >= m;
+        if (x == m) break;
         mff_cycles(0xA022, 1);
     }
     mff_cycles(0xA030, 11);
@@ -3728,9 +3814,9 @@ void func_A300_b4(void) {
             mff_cycles(0xA313, 1);
         }
         mff_cycles(0xA318, 7);
-        t = (uint8_t)(RAM(TMP16) - 1); RAM(TMP16) = t;
-        n = (t) >> 7;
-        if (n) break;
+        t = (uint8_t)(RAM(TMP16) - 1);
+        RAM(TMP16) = t;
+        if (t & 0x80) break;
         mff_cycles(0xA30E, 1);
     }
     mff_cycles(0xA31C, 12);
@@ -3751,8 +3837,10 @@ void func_A321_b4(void) {
     mff_cycles(0xA327, 17);
     y = a;
     a = RAM(BG_PAL_ANIM_TIMER + x);
-    t = (uint8_t)(RAM(BG_PAL_ANIM_TIMER + x) + 1); RAM(BG_PAL_ANIM_TIMER + x) = t;
-    m = prg_read((uint16_t)(0xA459 + y)); c = a >= m;
+    t = (uint8_t)(RAM(BG_PAL_ANIM_TIMER + x) + 1);
+    RAM(BG_PAL_ANIM_TIMER + x) = t;
+    m = prg_read((uint16_t)(0xA459 + y));
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0xA331, 2);
@@ -3761,11 +3849,10 @@ void func_A321_b4(void) {
         a = 0x00;
         RAM(BG_PAL_ANIM_TIMER + x) = a;
         a = RAM(BG_PAL_ANIM_STEP + x);
-        t = (uint8_t)(RAM(BG_PAL_ANIM_STEP + x) + 1); RAM(BG_PAL_ANIM_STEP + x) = t;
-        m = prg_read((uint16_t)(0xA458 + y)); c = a >= m;
-        z = ((uint8_t)(a - m)) == 0;
+        t = (uint8_t)(RAM(BG_PAL_ANIM_STEP + x) + 1);
+        RAM(BG_PAL_ANIM_STEP + x) = t;
         mff_cycles(0xA341, 2);
-        if (z) {
+        if (a == prg_read((uint16_t)(0xA458 + y))) {
             mff_cycles(0xA343, 7);
             a = 0x00;
             RAM(BG_PAL_ANIM_STEP + x) = a;
@@ -3775,12 +3862,21 @@ void func_A321_b4(void) {
         mff_cycles(0xA348, 14);
         a = y;
         c = 0;
-        m = RAM(BG_PAL_ANIM_STEP + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        m = RAM(BG_PAL_ANIM_STEP + x);
+        w = a + m + c;
+        a = (uint8_t)w;
         x = a;
         a = prg_read((uint16_t)(0xA45B + x));
         mff_cycles(0xA351, 6);
-        t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-        m = prg_read((uint16_t)(0xA45B + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        t = a;
+        c = t >> 7;
+        t = (uint8_t)(t << 1);
+        a = t;
+        m = prg_read((uint16_t)(0xA45B + x));
+        w = a + m + c;
+        v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+        c = w > 0xFF;
+        a = (uint8_t)w;
         mff_cycles(0xA355, 6);
         x = a;
         a = prg_read((uint16_t)(0xA45A + y));
@@ -3796,13 +3892,14 @@ void func_A321_b4(void) {
             RAM(PALETTE_BASE + y) = a;
             y++;
             x++;
-            t = (uint8_t)(RAM(TMP0) - 1); RAM(TMP0) = t;
-            z = (t) == 0;
-            if (z) break;
+            t = (uint8_t)(RAM(TMP0) - 1);
+            RAM(TMP0) = t;
+            if (t == 0) break;
             mff_cycles(0xA35E, 1);
         }
         mff_cycles(0xA36D, 5);
-        t = (uint8_t)(RAM(TMP17) + 1); RAM(TMP17) = t;
+        t = (uint8_t)(RAM(TMP17) + 1);
+        RAM(TMP17) = t;
         n = (t) >> 7;
         z = (t) == 0;
     } else {
@@ -3844,22 +3941,27 @@ L_A719:;
     a = prg_read((uint16_t)(0xA785 + x));
     mff_cycles(0xA728, 28);
     c = 0;
-    m = RAM(TMP17); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(TMP17);
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    a = (uint8_t)w;
     RAM(VRAM_BUFFER + 1) = a;
     a = 0x00;
     RAM(VRAM_BUFFER + 2) = a;
     y = RAM(TMP14);
-    t = (uint8_t)(RAM(TMP14) + 1); RAM(TMP14) = t;
+    t = (uint8_t)(RAM(TMP14) + 1);
+    RAM(TMP14) = t;
     a = mem_read((uint16_t)(RAM16(TMP12) + y));
     mff_cycles(0xA739, 4);
-    m = 0xFF; c = a >= m;
+    m = 0xFF;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0xA73B, 1); goto L_A77E; }
     mff_cycles(0xA73D, 4);
-    m = 0xFE; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) {
+    m = 0xFE;
+    c = a >= m;
+    if (a != m) {
         mff_cycles(0xA741, 31);
         RAM(VRAM_BUFFER + 3) = a;
         a = 0xFF;
@@ -3883,7 +3985,8 @@ L_A719:;
         RAM(TMP17) = a;
         a = mff_pull();
         RAM(TMP16) = a;
-        t = (uint8_t)(RAM(TMP17) + 1); RAM(TMP17) = t;
+        t = (uint8_t)(RAM(TMP17) + 1);
+        RAM(TMP17) = t;
         a = RAM(FRAME_COUNTER);
         a &= 0x03;
         n = (a) >> 7;
@@ -3906,9 +4009,11 @@ L_A719:;
         mff_cycles(0xA73F, 1);
     }
     mff_cycles(0xA76D, 12);
-    t = (uint8_t)(RAM(TMP16) + 1); RAM(TMP16) = t;
+    t = (uint8_t)(RAM(TMP16) + 1);
+    RAM(TMP16) = t;
     a = RAM(TMP16);
-    m = 0x03; c = a >= m;
+    m = 0x03;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) { mff_cycles(0xA719, 1); goto L_A719; }
@@ -3947,22 +4052,27 @@ L_A719:;
     a = prg_read((uint16_t)(0xA785 + x));
     mff_cycles(0xA728, 28);
     c = 0;
-    m = RAM(TMP17); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(TMP17);
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    a = (uint8_t)w;
     RAM(VRAM_BUFFER + 1) = a;
     a = 0x00;
     RAM(VRAM_BUFFER + 2) = a;
     y = RAM(TMP14);
-    t = (uint8_t)(RAM(TMP14) + 1); RAM(TMP14) = t;
+    t = (uint8_t)(RAM(TMP14) + 1);
+    RAM(TMP14) = t;
     a = mem_read((uint16_t)(RAM16(TMP12) + y));
     mff_cycles(0xA739, 4);
-    m = 0xFF; c = a >= m;
+    m = 0xFF;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0xA73B, 1); goto L_A77E; }
     mff_cycles(0xA73D, 4);
-    m = 0xFE; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) {
+    m = 0xFE;
+    c = a >= m;
+    if (a != m) {
         mff_cycles(0xA741, 31);
         RAM(VRAM_BUFFER + 3) = a;
         a = 0xFF;
@@ -3986,7 +4096,8 @@ L_A719:;
         RAM(TMP17) = a;
         a = mff_pull();
         RAM(TMP16) = a;
-        t = (uint8_t)(RAM(TMP17) + 1); RAM(TMP17) = t;
+        t = (uint8_t)(RAM(TMP17) + 1);
+        RAM(TMP17) = t;
         a = RAM(FRAME_COUNTER);
         a &= 0x03;
         n = (a) >> 7;
@@ -4009,9 +4120,11 @@ L_A719:;
         mff_cycles(0xA73F, 1);
     }
     mff_cycles(0xA76D, 12);
-    t = (uint8_t)(RAM(TMP16) + 1); RAM(TMP16) = t;
+    t = (uint8_t)(RAM(TMP16) + 1);
+    RAM(TMP16) = t;
     a = RAM(TMP16);
-    m = 0x03; c = a >= m;
+    m = 0x03;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) { mff_cycles(0xA719, 1); goto L_A719; }
@@ -4049,22 +4162,27 @@ L_A71D:;
     a = prg_read((uint16_t)(0xA785 + x));
     mff_cycles(0xA728, 28);
     c = 0;
-    m = RAM(TMP17); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(TMP17);
+    w = a + m + c;
+    v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
+    a = (uint8_t)w;
     RAM(VRAM_BUFFER + 1) = a;
     a = 0x00;
     RAM(VRAM_BUFFER + 2) = a;
     y = RAM(TMP14);
-    t = (uint8_t)(RAM(TMP14) + 1); RAM(TMP14) = t;
+    t = (uint8_t)(RAM(TMP14) + 1);
+    RAM(TMP14) = t;
     a = mem_read((uint16_t)(RAM16(TMP12) + y));
     mff_cycles(0xA739, 4);
-    m = 0xFF; c = a >= m;
+    m = 0xFF;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0xA73B, 1); goto L_A77E; }
     mff_cycles(0xA73D, 4);
-    m = 0xFE; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) {
+    m = 0xFE;
+    c = a >= m;
+    if (a != m) {
         mff_cycles(0xA741, 31);
         RAM(VRAM_BUFFER + 3) = a;
         a = 0xFF;
@@ -4088,7 +4206,8 @@ L_A71D:;
         RAM(TMP17) = a;
         a = mff_pull();
         RAM(TMP16) = a;
-        t = (uint8_t)(RAM(TMP17) + 1); RAM(TMP17) = t;
+        t = (uint8_t)(RAM(TMP17) + 1);
+        RAM(TMP17) = t;
         a = RAM(FRAME_COUNTER);
         a &= 0x03;
         n = (a) >> 7;
@@ -4111,9 +4230,11 @@ L_A71D:;
         mff_cycles(0xA73F, 1);
     }
     mff_cycles(0xA76D, 12);
-    t = (uint8_t)(RAM(TMP16) + 1); RAM(TMP16) = t;
+    t = (uint8_t)(RAM(TMP16) + 1);
+    RAM(TMP16) = t;
     a = RAM(TMP16);
-    m = 0x03; c = a >= m;
+    m = 0x03;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) { mff_cycles(0xA719, 1); goto L_A719; }
@@ -4177,8 +4298,7 @@ void func_A78E_b4(void) {
         RAM(VRAM_BUFFER + 51 + y) = a;
         y++;
         x--;
-        n = (x) >> 7;
-        if (n) break;
+        if (x & 0x80) break;
         mff_cycles(0xA7B9, 1);
     }
     mff_cycles(0xA7C6, 12);
@@ -4241,11 +4361,11 @@ void func_AB34_b4(void) {
     mff_cycles(0xAB34, 8);
     a = RAM(OBJ_STATE);
     a &= 0x0F;
-    z = (a) == 0;
-    if (z) {
+    if (a == 0) {
         mff_cycles(0xAB3B, 8);
         a = 0x73;
-        m = RAM(OBJ_ANIM); c = a >= m;
+        m = RAM(OBJ_ANIM);
+        c = a >= m;
         n = ((uint8_t)(a - m)) >> 7;
         z = ((uint8_t)(a - m)) == 0;
         if (!z) {
@@ -4265,12 +4385,10 @@ void func_AB34_b4(void) {
         }
         mff_cycles(0xAB4A, 6);
         a = RAM(OBJ_ANIM_FRAME);
-        z = (a) == 0;
-        if (z) {
+        if (a == 0) {
             mff_cycles(0xAB4F, 6);
             a = RAM(OBJ_ANIM_TIMER);
-            z = (a) == 0;
-            if (z) {
+            if (a == 0) {
                 mff_cycles(0xAB54, 8);
                 a = 0x16;
                 n = (a) >> 7;
@@ -4286,7 +4404,8 @@ void func_AB34_b4(void) {
         }
         mff_cycles(0xAB59, 8);
         a = RAM(OBJ_ANIM_FRAME);
-        m = 0x06; c = a >= m;
+        m = 0x06;
+        c = a >= m;
         n = ((uint8_t)(a - m)) >> 7;
         z = ((uint8_t)(a - m)) == 0;
         if (z) {
@@ -4309,7 +4428,8 @@ void func_AB34_b4(void) {
             RAM(OBJ_VY_FRAC) = a;
             a = 0x04;
             RAM(OBJ_VY) = a;
-            t = (uint8_t)(RAM(OBJ_STATE) + 1); RAM(OBJ_STATE) = t;
+            t = (uint8_t)(RAM(OBJ_STATE) + 1);
+            RAM(OBJ_STATE) = t;
             n = (t) >> 7;
             z = (t) == 0;
         } else {
@@ -4328,11 +4448,11 @@ void func_AB34_b4(void) {
     mff_cycles(0xAB7D, 8);
     a = RAM(OBJ_STATE);
     a &= 0x02;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0xAB82, 1); goto L_AB95; }
+    if (a != 0) { mff_cycles(0xAB82, 1); goto L_AB95; }
     mff_cycles(0xAB84, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x05; c = a >= m;
+    m = 0x05;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) { mff_cycles(0xAB89, 1); goto L_AB9A; }
@@ -4356,11 +4476,11 @@ L_AB9A:;
     SYNC_IN;
     mff_cycles(0xAB9D, 6);
     a = RAM(OBJ_VY);
-    n = (a) >> 7;
-    if (n) {
+    if (a & 0x80) {
         mff_cycles(0xABA2, 8);
         a = 0x3E;
-        m = RAM(OBJ_ANIM); c = a >= m;
+        m = RAM(OBJ_ANIM);
+        c = a >= m;
         n = ((uint8_t)(a - m)) >> 7;
         z = ((uint8_t)(a - m)) == 0;
         if (!z) {
@@ -4376,7 +4496,8 @@ L_AB9A:;
             if (!mff_call_fn(0x0BB0, func_F440, 0xE000)) return;
             SYNC_IN;
             mff_cycles(0xABB1, 6);
-            t = (uint8_t)(RAM(OBJ_STATE) + 1); RAM(OBJ_STATE) = t;
+            t = (uint8_t)(RAM(OBJ_STATE) + 1);
+            RAM(OBJ_STATE) = t;
         } else {
             mff_cycles(0xABA7, 1);
         }
@@ -4385,7 +4506,8 @@ L_AB9A:;
     }
     mff_cycles(0xABB4, 8);
     a = RAM(OBJ_Y);
-    m = 0xA9; c = a >= m;
+    m = 0xA9;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (c) {
@@ -4433,7 +4555,8 @@ void func_ABD0_b4(void) {
     REGS_IN;
     mff_cycles(0xABD0, 8);
     a = 0x24;
-    m = RAM(OBJ_ANIM); c = a >= m;
+    m = RAM(OBJ_ANIM);
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -4450,12 +4573,10 @@ void func_ABD0_b4(void) {
         SYNC_IN;
         mff_cycles(0xABDF, 6);
         a = RAM(OBJ_ANIM_FRAME);
-        z = (a) == 0;
-        if (z) {
+        if (a == 0) {
             mff_cycles(0xABE4, 6);
             a = RAM(OBJ_ANIM_TIMER);
-            z = (a) == 0;
-            if (z) {
+            if (a == 0) {
                 mff_cycles(0xABE9, 8);
                 a = 0x1B;
                 n = (a) >> 7;
@@ -4474,9 +4595,9 @@ void func_ABD0_b4(void) {
     }
     mff_cycles(0xABEE, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x0B; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) {
+    m = 0x0B;
+    c = a >= m;
+    if (a == m) {
         mff_cycles(0xABF5, 8);
         a = 0x34;
         n = (a) >> 7;
@@ -4489,7 +4610,8 @@ void func_ABD0_b4(void) {
     }
     mff_cycles(0xABFA, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x13; c = a >= m;
+    m = 0x13;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -4505,7 +4627,8 @@ void func_ABD0_b4(void) {
     }
     mff_cycles(0xAC07, 8);
     a = 0x14;
-    m = RAM(OBJ_ANIM); c = a >= m;
+    m = RAM(OBJ_ANIM);
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -4530,14 +4653,14 @@ void func_ABD0_b4(void) {
     }
     mff_cycles(0xAC20, 8);
     a = RAM(OBJ_ANIM);
-    m = 0x5B; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0xAC25, 1); goto L_AC55; }
+    m = 0x5B;
+    c = a >= m;
+    if (a == m) { mff_cycles(0xAC25, 1); goto L_AC55; }
     mff_cycles(0xAC27, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x04; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) {
+    m = 0x04;
+    c = a >= m;
+    if (a == m) {
         mff_cycles(0xAC2E, 6);
         a = RAM(OBJ_ANIM_TIMER);
         n = (a) >> 7;
@@ -4555,7 +4678,8 @@ void func_ABD0_b4(void) {
     }
     mff_cycles(0xAC36, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x06; c = a >= m;
+    m = 0x06;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) { mff_cycles(0xAC3B, 1); goto L_AC7B; }
@@ -4578,7 +4702,11 @@ void func_ABD0_b4(void) {
     RAM(PLAYER_GROUND_Y) = a;
     a = RAM(OBJ_Y);
     c = 1;
-    m = 0x20; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = 0x20;
+    w = a - m - !c;
+    v = ((a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w >= 0;
+    a = (uint8_t)w;
     RAM(OBJ_Y) = a;
 L_AC55:;
     mff_cycles(0xAC55, 8);
@@ -4595,7 +4723,8 @@ L_AC55:;
     if (n) {
         mff_cycles(0xAC5F, 8);
         a = RAM(OBJ_Y);
-        m = 0xA8; c = a >= m;
+        m = 0xA8;
+        c = a >= m;
         n = ((uint8_t)(a - m)) >> 7;
         z = ((uint8_t)(a - m)) == 0;
         if (c) {
@@ -4643,12 +4772,10 @@ void func_ABDF_b4(void) {
     REGS_IN;
     mff_cycles(0xABDF, 6);
     a = RAM(OBJ_ANIM_FRAME);
-    z = (a) == 0;
-    if (z) {
+    if (a == 0) {
         mff_cycles(0xABE4, 6);
         a = RAM(OBJ_ANIM_TIMER);
-        z = (a) == 0;
-        if (z) {
+        if (a == 0) {
             mff_cycles(0xABE9, 8);
             a = 0x1B;
             n = (a) >> 7;
@@ -4664,9 +4791,9 @@ void func_ABDF_b4(void) {
     }
     mff_cycles(0xABEE, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x0B; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) {
+    m = 0x0B;
+    c = a >= m;
+    if (a == m) {
         mff_cycles(0xABF5, 8);
         a = 0x34;
         n = (a) >> 7;
@@ -4679,7 +4806,8 @@ void func_ABDF_b4(void) {
     }
     mff_cycles(0xABFA, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x13; c = a >= m;
+    m = 0x13;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -4695,7 +4823,8 @@ void func_ABDF_b4(void) {
     }
     mff_cycles(0xAC07, 8);
     a = 0x14;
-    m = RAM(OBJ_ANIM); c = a >= m;
+    m = RAM(OBJ_ANIM);
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -4720,14 +4849,14 @@ void func_ABDF_b4(void) {
     }
     mff_cycles(0xAC20, 8);
     a = RAM(OBJ_ANIM);
-    m = 0x5B; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0xAC25, 1); goto L_AC55; }
+    m = 0x5B;
+    c = a >= m;
+    if (a == m) { mff_cycles(0xAC25, 1); goto L_AC55; }
     mff_cycles(0xAC27, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x04; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) {
+    m = 0x04;
+    c = a >= m;
+    if (a == m) {
         mff_cycles(0xAC2E, 6);
         a = RAM(OBJ_ANIM_TIMER);
         n = (a) >> 7;
@@ -4745,7 +4874,8 @@ void func_ABDF_b4(void) {
     }
     mff_cycles(0xAC36, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x06; c = a >= m;
+    m = 0x06;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) { mff_cycles(0xAC3B, 1); goto L_AC7B; }
@@ -4768,7 +4898,11 @@ void func_ABDF_b4(void) {
     RAM(PLAYER_GROUND_Y) = a;
     a = RAM(OBJ_Y);
     c = 1;
-    m = 0x20; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = 0x20;
+    w = a - m - !c;
+    v = ((a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w >= 0;
+    a = (uint8_t)w;
     RAM(OBJ_Y) = a;
 L_AC55:;
     mff_cycles(0xAC55, 8);
@@ -4785,7 +4919,8 @@ L_AC55:;
     if (n) {
         mff_cycles(0xAC5F, 8);
         a = RAM(OBJ_Y);
-        m = 0xA8; c = a >= m;
+        m = 0xA8;
+        c = a >= m;
         n = ((uint8_t)(a - m)) >> 7;
         z = ((uint8_t)(a - m)) == 0;
         if (c) {
@@ -4833,14 +4968,14 @@ void func_AC20_b4(void) {
     REGS_IN;
     mff_cycles(0xAC20, 8);
     a = RAM(OBJ_ANIM);
-    m = 0x5B; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0xAC25, 1); goto L_AC55; }
+    m = 0x5B;
+    c = a >= m;
+    if (a == m) { mff_cycles(0xAC25, 1); goto L_AC55; }
     mff_cycles(0xAC27, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x04; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) {
+    m = 0x04;
+    c = a >= m;
+    if (a == m) {
         mff_cycles(0xAC2E, 6);
         a = RAM(OBJ_ANIM_TIMER);
         n = (a) >> 7;
@@ -4858,7 +4993,8 @@ void func_AC20_b4(void) {
     }
     mff_cycles(0xAC36, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x06; c = a >= m;
+    m = 0x06;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) { mff_cycles(0xAC3B, 1); goto L_AC7B; }
@@ -4881,7 +5017,11 @@ void func_AC20_b4(void) {
     RAM(PLAYER_GROUND_Y) = a;
     a = RAM(OBJ_Y);
     c = 1;
-    m = 0x20; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = 0x20;
+    w = a - m - !c;
+    v = ((a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w >= 0;
+    a = (uint8_t)w;
     RAM(OBJ_Y) = a;
 L_AC55:;
     mff_cycles(0xAC55, 8);
@@ -4898,7 +5038,8 @@ L_AC55:;
     if (n) {
         mff_cycles(0xAC5F, 8);
         a = RAM(OBJ_Y);
-        m = 0xA8; c = a >= m;
+        m = 0xA8;
+        c = a >= m;
         n = ((uint8_t)(a - m)) >> 7;
         z = ((uint8_t)(a - m)) == 0;
         if (c) {
@@ -4958,7 +5099,8 @@ void func_AC81_b4(void) {
     REGS_IN;
     mff_cycles(0xAC81, 8);
     a = 0x30;
-    m = RAM(OBJ_ANIM); c = a >= m;
+    m = RAM(OBJ_ANIM);
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -4989,10 +5131,10 @@ void func_AC81_b4(void) {
     }
     mff_cycles(0xACA9, 6);
     a = RAM(OBJ_TIMER);
-    z = (a) == 0;
-    if (!z) {
+    if (a != 0) {
         mff_cycles(0xACAE, 12);
-        t = (uint8_t)(RAM(OBJ_TIMER) - 1); RAM(OBJ_TIMER) = t;
+        t = (uint8_t)(RAM(OBJ_TIMER) - 1);
+        RAM(OBJ_TIMER) = t;
         n = (t) >> 7;
         z = (t) == 0;
         SYNC_OUT;
@@ -5006,7 +5148,8 @@ void func_AC81_b4(void) {
     }
     mff_cycles(0xACB7, 8);
     a = 0x3D;
-    m = RAM(OBJ_ANIM); c = a >= m;
+    m = RAM(OBJ_ANIM);
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -5044,10 +5187,10 @@ void func_AC81_b4(void) {
     SYNC_IN;
     mff_cycles(0xACD3, 6);
     a = RAM(OBJ_TIMER + 1);
-    z = (a) == 0;
-    if (!z) {
+    if (a != 0) {
         mff_cycles(0xACD8, 12);
-        t = (uint8_t)(RAM(OBJ_TIMER + 1) - 1); RAM(OBJ_TIMER + 1) = t;
+        t = (uint8_t)(RAM(OBJ_TIMER + 1) - 1);
+        RAM(OBJ_TIMER + 1) = t;
         n = (t) >> 7;
         z = (t) == 0;
         SYNC_OUT;
@@ -5061,7 +5204,8 @@ void func_AC81_b4(void) {
     }
     mff_cycles(0xACE1, 8);
     a = 0x47;
-    m = RAM(OBJ_ANIM); c = a >= m;
+    m = RAM(OBJ_ANIM);
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -5081,8 +5225,7 @@ void func_AC81_b4(void) {
     }
     mff_cycles(0xACF0, 6);
     a = RAM(OBJ_ANIM_FRAME);
-    z = (a) == 0;
-    if (z) {
+    if (a == 0) {
         mff_cycles(0xACF5, 8);
         a = 0x1D;
         n = (a) >> 7;
@@ -5095,7 +5238,8 @@ void func_AC81_b4(void) {
     }
     mff_cycles(0xACFA, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x0C; c = a >= m;
+    m = 0x0C;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) {
@@ -5137,7 +5281,8 @@ void func_ACB7_b4(void) {
     REGS_IN;
     mff_cycles(0xACB7, 8);
     a = 0x3D;
-    m = RAM(OBJ_ANIM); c = a >= m;
+    m = RAM(OBJ_ANIM);
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -5175,10 +5320,10 @@ void func_ACB7_b4(void) {
     SYNC_IN;
     mff_cycles(0xACD3, 6);
     a = RAM(OBJ_TIMER + 1);
-    z = (a) == 0;
-    if (!z) {
+    if (a != 0) {
         mff_cycles(0xACD8, 12);
-        t = (uint8_t)(RAM(OBJ_TIMER + 1) - 1); RAM(OBJ_TIMER + 1) = t;
+        t = (uint8_t)(RAM(OBJ_TIMER + 1) - 1);
+        RAM(OBJ_TIMER + 1) = t;
         n = (t) >> 7;
         z = (t) == 0;
         SYNC_OUT;
@@ -5192,7 +5337,8 @@ void func_ACB7_b4(void) {
     }
     mff_cycles(0xACE1, 8);
     a = 0x47;
-    m = RAM(OBJ_ANIM); c = a >= m;
+    m = RAM(OBJ_ANIM);
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -5212,8 +5358,7 @@ void func_ACB7_b4(void) {
     }
     mff_cycles(0xACF0, 6);
     a = RAM(OBJ_ANIM_FRAME);
-    z = (a) == 0;
-    if (z) {
+    if (a == 0) {
         mff_cycles(0xACF5, 8);
         a = 0x1D;
         n = (a) >> 7;
@@ -5226,7 +5371,8 @@ void func_ACB7_b4(void) {
     }
     mff_cycles(0xACFA, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x0C; c = a >= m;
+    m = 0x0C;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) {
@@ -5268,7 +5414,8 @@ void func_ACE1_b4(void) {
     REGS_IN;
     mff_cycles(0xACE1, 8);
     a = 0x47;
-    m = RAM(OBJ_ANIM); c = a >= m;
+    m = RAM(OBJ_ANIM);
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
@@ -5288,8 +5435,7 @@ void func_ACE1_b4(void) {
     }
     mff_cycles(0xACF0, 6);
     a = RAM(OBJ_ANIM_FRAME);
-    z = (a) == 0;
-    if (z) {
+    if (a == 0) {
         mff_cycles(0xACF5, 8);
         a = 0x1D;
         n = (a) >> 7;
@@ -5302,7 +5448,8 @@ void func_ACE1_b4(void) {
     }
     mff_cycles(0xACFA, 8);
     a = RAM(OBJ_ANIM_FRAME);
-    m = 0x0C; c = a >= m;
+    m = 0x0C;
+    c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) {

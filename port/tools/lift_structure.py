@@ -17,7 +17,7 @@ return. Labels nobody jumps to anymore are dropped.
 """
 import re
 
-CGOTO = re.compile(r"^if \((!?[nzcv])\) \{ (mff_cycles\(0x[0-9A-F]{4}, \d+\);) goto L_([0-9A-F]{4}); \}$")
+CGOTO = re.compile(r"^if \((.+)\) \{ (mff_cycles\(0x[0-9A-F]{4}, \d+\);) goto L_([0-9A-F]{4}); \}$")
 GOTO = re.compile(r"^goto L_([0-9A-F]{4});$")
 LABEL = re.compile(r"^L_([0-9A-F]{4}):;?$")
 
@@ -42,7 +42,26 @@ def parse(lines):
 
 
 def neg(c):
-    return c[1:] if c.startswith("!") else "!" + c
+    """The opposite condition, kept readable."""
+    if re.fullmatch(r"!?[nzcv]", c):
+        return c[1:] if c.startswith("!") else "!" + c
+    if c.startswith("!(") and c.endswith(")") and balanced(c[2:-1]):
+        return c[2:-1]
+    m = re.fullmatch(r"([^=!<>()]+|\w+\([^()]*\)) (==|!=|>=|<) (.+)", c)
+    if m and balanced(m.group(3)):
+        op = {"==": "!=", "!=": "==", ">=": "<", "<": ">="}[m.group(2)]
+        return f"{m.group(1)} {op} {m.group(3)}"
+    return f"!({c})"
+
+
+def balanced(e):
+    d = 0
+    for ch in e:
+        d += ch == "("
+        d -= ch == ")"
+        if d < 0:
+            return False
+    return d == 0
 
 
 def plain(items):

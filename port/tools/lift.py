@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.join(ROOT, "tools"))
 from dis6502 import MN  # noqa: E402
 sys.path.insert(0, os.path.dirname(__file__))
 import lift_structure  # noqa: E402
+import lift_opt  # noqa: E402
 
 SIZE = {"imp": 1, "acc": 1, "imm": 2, "zp": 2, "zpx": 2, "zpy": 2, "izx": 2, "izy": 2, "rel": 2,
         "abs": 3, "abx": 3, "aby": 3, "ind": 3}
@@ -708,7 +709,7 @@ class Lifter:
             for s in body:
                 out.append(s + ";" if s.startswith("L_") else "    " + s)
         else:
-            out += lift_structure.structure(body)
+            out += lift_structure.structure(lift_opt.optimize(body))
         out.append("}")
         return "\n".join(out)
 
