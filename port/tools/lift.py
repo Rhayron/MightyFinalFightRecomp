@@ -705,6 +705,7 @@ class Lifter:
                "    REGS_IN;"]
         if start != entry:
             raise Refuse("entry inside a shared body")
+        self.last_body = list(body)
         if self.flat:
             for s in body:
                 out.append(s + ";" if s.startswith("L_") else "    " + s)

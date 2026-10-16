@@ -81,40 +81,23 @@ def functions(paths):
     return out
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("rom")
-    ap.add_argument("--map", default=os.path.join(ROOT, "runs", "cdl", "prgmap.bin"))
-    ap.add_argument("--tables", default=os.path.join(ROOT, "runs", "cdl", "tables.json"))
-    ap.add_argument("--generated", default=os.path.join(ROOT, "runs", "p4", "pure", "generated"))
-    ap.add_argument("--toml-out")
-    ap.add_argument("--names-out")
-    ap.add_argument("-v", action="store_true", help="print every table and push, not just the gaps")
-    a = ap.parse_args()
-    rom = open(a.rom, "rb").read()
-    prg = rom[16:16 + rom[4] * 0x4000]
-    kind = open(a.map, "rb").read()
-    gen = functions(glob.glob(os.path.join(a.generated, "*.c")))
-    port_files = sorted(glob.glob(os.path.join(ROOT, "port", "src", "game", "*.c")))
-    port = functions(port_files + [os.path.join(ROOT, "port", "scaffold", "extras.c")])
+class Jump:
+    """One way the game jumps somewhere no JSR names: where (BB:AAAA), what,
+    the CPU addresses the code reads the table at (empty for a push), and the
+    PRG offsets of the targets."""
+    def __init__(self, where, what, reads, targets):
+        self.where, self.what, self.reads, self.targets = where, what, reads, sorted(set(targets))
 
+
+def jumps(prg, kind, tables_path):
+    """Every jump table (the P0 map's, then again from each JMP ($zz) site) and
+    every return address pushed before a jump."""
     def cpu(off):
         return window(off // 0x2000) + off % 0x2000
 
-    found = {}                                   # name -> where it comes from
-
-    def add(where, what, offs):
-        names = []
-        for o in offs:
-            n = name(o)
-            found.setdefault(n, where)
-            names.append(n + ("" if n in port else " (not in port)" if n in gen else " (no function)"))
-        if a.v or any(n not in port for n in (name(o) for o in offs)):
-            print(f"{where}  {what}: {', '.join(names)}")
-
-    # the P0 map's tables
+    out = []
     banked = set()              # tables whose targets' banks depend on the entry
-    for t in json.load(open(a.tables)):
+    for t in json.load(open(tables_path)):
         n, plus, offs = t.get("count", 0), t.get("plus", 0), []
         if t.get("type") == "split":
             if "target_banks" in t:
@@ -125,19 +108,18 @@ def main():
                 o = ctx * 0x2000 + (w - 0xA000) if 0xA000 <= w < 0xC000 and "target_banks" in t else resolve(ctx, w)
                 if o is not None and decodes(prg, o):
                     offs.append(o)
-            where = f"{t['lo'] // 0x2000:02X}:{cpu(t['lo']):04X}"
+            where, reads = f"{t['lo'] // 0x2000:02X}:{cpu(t['lo']):04X}", {cpu(t["lo"]), cpu(t["hi"])}
         elif "start" in t:
             for k in range(n):
                 w = ((prg[t["start"] + 2 * k] | prg[t["start"] + 2 * k + 1] << 8) + plus) & 0xFFFF
                 o = resolve(t["start"] // 0x2000, w)
                 if o is not None and decodes(prg, o):
                     offs.append(o)
-            where = f"{t['start'] // 0x2000:02X}:{cpu(t['start']):04X}"
+            where, reads = f"{t['start'] // 0x2000:02X}:{cpu(t['start']):04X}", {cpu(t["start"]), cpu(t["start"]) + 1}
         else:
             continue
-        add(where, f"P0 table {t.get('name', '')} x{n}", sorted(set(offs)))
+        out.append(Jump(where, f"P0 table {t.get('name', '')} x{n}", reads, offs))
 
-    # jump tables the map does not know, and pushed return addresses
     for b8 in range(len(prg) // 0x2000):
         starts = [o for o in range(b8 * 0x2000, (b8 + 1) * 0x2000) if kind[o] in CODE]
         for i, o in enumerate(starts):
@@ -169,14 +151,47 @@ def main():
                         break
                     offs.append(t)
                 what = f"JMP (${zz:04X}) " + (f"word table ${lo:04X}" if word else f"split table ${lo:04X}/${hi:04X}")
-                add(where, f"{what} x{len(offs)}", sorted(set(offs)))
+                out.append(Jump(where, f"{what} x{len(offs)}", {lo, hi}, offs))
             if op == 0x48 and i >= 3:                        # ... PHA: a pushed return address
                 p = starts[i - 3:i + 1]
                 if [prg[x] for x in p] == [0xA9, 0x48, 0xA9, 0x48] and i + 1 < len(starts) \
                         and prg[starts[i + 1]] in (0x4C, 0x6C):
                     t = resolve(b8, (prg[p[0] + 1] << 8 | prg[p[2] + 1]) + 1)
                     if t is not None:
-                        add(where, "pushed return", [t])
+                        out.append(Jump(where, "pushed return", set(), [t]))
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("rom")
+    ap.add_argument("--map", default=os.path.join(ROOT, "runs", "cdl", "prgmap.bin"))
+    ap.add_argument("--tables", default=os.path.join(ROOT, "runs", "cdl", "tables.json"))
+    ap.add_argument("--generated", default=os.path.join(ROOT, "runs", "p4", "pure", "generated"))
+    ap.add_argument("--toml-out")
+    ap.add_argument("--names-out")
+    ap.add_argument("-v", action="store_true", help="print every table and push, not just the gaps")
+    a = ap.parse_args()
+    rom = open(a.rom, "rb").read()
+    prg = rom[16:16 + rom[4] * 0x4000]
+    kind = open(a.map, "rb").read()
+    gen = functions(glob.glob(os.path.join(a.generated, "*.c")))
+    port_files = sorted(glob.glob(os.path.join(ROOT, "port", "src", "game", "*.c")))
+    port = functions(port_files + [os.path.join(ROOT, "port", "scaffold", "extras.c")])
+
+    found = {}                                   # name -> where it comes from
+
+    def add(where, what, offs):
+        names = []
+        for o in offs:
+            n = name(o)
+            found.setdefault(n, where)
+            names.append(n + ("" if n in port else " (not in port)" if n in gen else " (no function)"))
+        if a.v or any(n not in port for n in (name(o) for o in offs)):
+            print(f"{where}  {what}: {', '.join(names)}")
+
+    for j in jumps(prg, kind, a.tables):
+        add(j.where, j.what, j.targets)
 
     # constant targets in the port's code
     for path in port_files:
