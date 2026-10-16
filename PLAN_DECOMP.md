@@ -65,18 +65,28 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   removidas e `if`/laços no lugar dos `goto` nos formatos simples (`lift_structure.py`). Nesta
   etapa a rotina tem de deixar RAM, registradores, flags **e ciclos** iguais aos do original;
   `port/tests/run_routes.sh check` compara frame a frame (RAM, OAM, paleta e a imagem) com o andaime
-  sem substituições em 6 rotas: o round 1 com os três personagens e três *tours* de 50.000 frames
+  sem substituições em 9 rotas: o round 1 com os três personagens, três *tours* de 50.000 frames
   (bot dentro do andaime, `port/scaffold/bot.c`) que passam por todos os rounds, pelo chefe final e
-  pelo final. Hoje: todas as 952 rotinas do jogo estão em `port/src/game` (escalonador, tarefas,
+  pelo final, e três jogos de 60.000 frames com outras sementes do bot. Hoje: todas as 1.049 rotinas
+  do jogo estão em `port/src/game` (escalonador, tarefas,
   NMI/IRQ, VRAM, RNG, controle e outras à mão; o resto convertido), e com a opção `MFF_EJECTED`
   o port compila **sem nenhum código gerado** (`port/tools/dispatch_gen.py` gera a tabela de
-  despacho) e fica idêntico nas 6 rotas. **Mudança no andaime:** a NMI só entra no topo do laço do
+  despacho) e fica idêntico nas 9 rotas. **Correção (16/10, noite):** até ali o port ainda executava
+  código da ROM: um despacho sem rotina cai no interpretador do runtime, sem aviso e de forma exata, por
+  isso as rotas não acusavam (~93 milhões de instruções por bateria, quase tudo na continuação do laço
+  de objetos, `$805E`, que nenhuma ferramenta tinha listado). `port/tools/find_entries.py` acha
+  estaticamente cada destino de salto sem rotina (tabelas maiores que o que as rotas usaram, endereços
+  de retorno empilhados, desvios); 97 rotinas novas (`lifted_late.c`) e 16 entradas no gerador fecharam
+  a lacuna, e agora o `port_check.sh` falha se faltar rotina e as rotas falham se o interpretador rodar
+  qualquer instrução. **Mudança no andaime:** a NMI só entra no topo do laço do
   escalonador (`$FEBD`): o driver de som lê um registrador que nunca inicializa, e o ponto exato da
   NMI vazava para o estado dele. Agentes em paralelo adiantaram a P5 (assets: 90.490 frames
   idênticos ao oráculo, `docs/assets.md`), a P6 (driver de som em Python idêntico ao oráculo,
-  `docs/sound.md`) e nomearam 133 variáveis de RAM (`docs/objects.md`). Falta da P4: arrumar o
-  código convertido sistema a sistema (nomes, comentários, estruturas), tirar os registradores de
-  hardware do código do jogo e os endereços crus que restam.
+  `docs/sound.md`) e nomearam 133 variáveis de RAM (`docs/objects.md`). Os registradores de hardware
+  e os endereços crus já saíram do código do jogo (`hw.h`, `state.h`); falta da P4 arrumar o código
+  convertido sistema a sistema (nomes, comentários, estruturas), que está com cinco agentes (som,
+  objetos, fase, jogador, fluxo de telas). `port/tools/exit_use.py` diz que registradores e flags cada
+  rotina recebe e devolve de fato, para enxugar o resto.
 
 ---
 
