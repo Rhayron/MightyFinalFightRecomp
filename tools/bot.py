@@ -51,9 +51,12 @@ def enemies(ram, banned=()):
 STALL = 6        # segments with the player not moving while the bot walks
 UNSTICK = 4      # segments of random walking after a stall
 BAN = 40         # segments a target that caused a stall is ignored
+REACH = 22         # x distance the bot stands from its target before attacking
+Y_SLACK = 3        # how far off the target's y line still counts as aligned
+MIX = (0.08, 0.18, 0.28)  # cumulative odds: special, jump attack, walk-in grab; rest punches
 LONG_FIGHT = 3000  # --god: frames an enemy may stay alive before its life is cut
 DIALOG_AFTER = 1500  # frames without progress before the bot starts tapping A
-SKIP_AFTER = 6000  # --god: frames without progress (round, area, exp) before $0030 = $0E,
+SKIP_AFTER = 12000  # --god: frames without progress (round, area, exp) before $0030 = $0E,
                    # the game's own "skip stage" action (moves on to the next area)
 
 
@@ -67,6 +70,10 @@ def policy(ram, rng, tick, mem):
     if not ram[0x300] & 0x80:              # no live player: cutscene, map, round end
         return [(0, "START" if tick % 4 == 0 else "A"), (4, "-")]
     px, py = ram[0x360], ram[0x3C0]
+    if tick % 200 in (100, 101):
+        # pause and unpause once in a while: gameplay_pause_check ($C904)
+        # was never reached by any run before
+        return [(0, "START"), (4, "-")]
     mem["banned"] = {s: n - 1 for s, n in mem.get("banned", {}).items() if n > 1}
     hist = mem.setdefault("hist", [])
     hist.append((px, py, mem.get("walking", False), mem.get("target")))
@@ -83,15 +90,17 @@ def policy(ram, rng, tick, mem):
         return [(0, "RIGHT+A")]
     foes = enemies(ram, mem["banned"])
     if not foes:
-        vert = "UP+" if py > 0xB0 else "DOWN+" if py < 0x98 else ""
+        # Move on along the top of the walkway: round 3's pits swallow anyone
+        # who walks down into them (DOWN+RIGHT lost 3 lives in 200 frames from
+        # f218285; UP+RIGHT and RIGHT crossed with none lost, jumping cost one).
         mem["walking"], mem["target"] = True, None
-        return [(0, vert + "RIGHT")]
+        return [(0, "UP+RIGHT")]
     ex, ey, _, slot = min(foes, key=lambda e: abs(e[0] - px) + 2 * abs(e[1] - py))
     mem["target"] = slot
     side = -1 if px < ex else 1             # stand on our current side of it
-    want = ex + side * 22
+    want = ex + side * REACH
     dirs = []
-    if abs(ey - py) > 3:
+    if abs(ey - py) > Y_SLACK:
         dirs.append("DOWN" if ey > py else "UP")
     if abs(want - px) > 6:
         dirs.append("RIGHT" if want > px else "LEFT")
@@ -100,16 +109,17 @@ def policy(ram, rng, tick, mem):
         return [(0, "+".join(dirs))]
     face = "RIGHT" if side < 0 else "LEFT"
     r = rng.random()
-    if r < 0.08:
+    if r < MIX[0]:
         return [(0, "A+B"), (6, "-")]       # special (costs health)
-    if r < 0.18:
+    if r < MIX[1]:
         return [(0, face + "+A"), (5, face + "+A+B"), (10, "-")]  # jump attack
-    if r < 0.28:
+    if r < MIX[2]:
         return [(0, face)]                  # walk in: grab / throw
     return [(0, face), (2, "B"), (5, "-"), (8, "B"), (11, "-"), (13, "B")]
 
 
 def main():
+    global REACH, Y_SLACK, MIX
     p = argparse.ArgumentParser()
     p.add_argument("--exe", required=True)
     p.add_argument("--rom", required=True)
@@ -122,8 +132,16 @@ def main():
                    help="refill health ($3A) and lives ($3E), and cut the life of enemies alive for "
                         "LONG_FIGHT frames, in the state before every segment; the route no "
                         "longer replays on its own, so segments write --miss-log themselves")
+    p.add_argument("--run-arg", action="append", default=[],
+                   help="extra option for every segment run, e.g. --run-arg=--cdl-out --run-arg=FILE")
+    p.add_argument("--skip-every", type=int, default=0,
+                   help="--god tour: skip stage after this many frames in an area, progress or not")
+    p.add_argument("--reach", type=int, default=REACH)
+    p.add_argument("--y-slack", type=int, default=Y_SLACK)
+    p.add_argument("--mix", default=",".join(map(str, MIX)), help="cumulative special,jump,grab odds")
     a = p.parse_args()
     a.exe = os.path.abspath(a.exe)
+    REACH, Y_SLACK, MIX = a.reach, a.y_slack, tuple(float(x) for x in a.mix.split(","))
     os.makedirs(a.out, exist_ok=True)
     rng = random.Random(a.seed)
     route = open(os.path.join(a.out, "route.txt"), "w", newline="\n")
@@ -149,8 +167,8 @@ def main():
             if ram[0x300] & 0x80 and 0 < ram[0x3A] < full_hp:
                 # coverage aid: only a live player's health, never a death in progress
                 patch[0x3A] = full_hp
-            if ram[0x300] & 0x80 and ram[0x3E] < 3:
-                patch[0x3E] = 3     # pits kill outright; never reach game over
+            if ram[0x3E] < 3 and ram[0x30] != 0x09:
+                patch[0x3E] = 3     # pits kill outright and fast; never reach the continue screen
             # an enemy (a boss, mostly) still standing after LONG_FIGHT frames
             # has run its code plenty: drop its life ($04A0+slot) to finish it
             ages = mem.setdefault("ages", {})
@@ -162,10 +180,12 @@ def main():
                 ages[key] = ages.get(key, 0) + a.seg
                 if ages[key] > LONG_FIGHT and ram[0x4A0 + key[0]] > 1:
                     patch[0x4A0 + key[0]] = 1
-            mark = (ram[0x61], ram[0x22], ram[0x6C], ram[0x6D])
+            # a tour (--skip-every) counts time per area; otherwise any progress resets the clock
+            mark = ((ram[0x61], ram[0x22], ram[0x60]) if a.skip_every
+                    else (ram[0x61], ram[0x22], ram[0x6C], ram[0x6D]))
             if mark != mem.get("mark"):
                 mem["mark"], mem["mark_frame"] = mark, frame
-            elif ram[0x300] & 0x80 and frame - mem["mark_frame"] > SKIP_AFTER:
+            elif ram[0x300] & 0x80 and frame - mem["mark_frame"] > (a.skip_every or SKIP_AFTER):
                 patch[0x30] = 0x0E
                 mem["mark_frame"] = frame
                 print(f"frame {frame}: no progress for {SKIP_AFTER} frames, skip stage", flush=True)
@@ -185,6 +205,7 @@ def main():
         nxt = os.path.join(a.out, "next.cycstate")
         cmd = [a.exe, a.rom, "--load-state", state, "--frames", str(end + 1),
                "--input", seg_in, "--save-state", f"{end}:{nxt}"]
+        cmd += a.run_arg
         if a.god:
             cmd += ["--miss-log", miss]
         if (end + 1 - start) % 600 < a.seg:

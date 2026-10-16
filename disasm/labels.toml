@@ -1,0 +1,602 @@
+# Names for the generated disassembly (disasm/tools/disasm.py). Every entry
+# cites where it was confirmed. bank = 8 KiB PRG bank (MMC3 mode 0: even banks
+# at $8000, odd at $A000, $0E fixed at $C000, $0F fixed at $E000).
+
+# ---- vectors (bank $0F, $FFFA-$FFFF) -------------------------------------
+
+[[label]]
+bank = 0x0F
+addr = 0xFE00
+name = "reset"
+comment = "RESET vector. SEI/CLD, PPU and APU off, two vblank waits, clears RAM"
+
+[[label]]
+bank = 0x0E
+addr = 0xC000
+name = "nmi"
+comment = "NMI vector. Saves A/X/Y, PPUCTRL from $FF, rendering off; $EE|$9A set -> nmi_busy ($C09D)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC09D
+name = "nmi_busy"
+comment = "NMI path taken while $EE or $9A is nonzero (read at $C015)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC13B
+name = "irq"
+comment = "IRQ vector. Acknowledges the MMC3 IRQ ($E000/$E001) and jumps through ($009C)"
+
+# ---- object slots (16 slots; tables at $0300 + $10*n) -----------------------
+
+[[label]]
+bank = 0x0E
+addr = 0xC334
+name = "objects_clear_all"
+comment = "X=$0F..0: zeroes $0300/$0310/$0560/$0470/$04B0/$0320/$0330/$0440/$0450/$0490/$04A0, $0480=$FF"
+
+[[label]]
+bank = 0x0F
+addr = 0xF2BE
+name = "object_clear"
+comment = "Zeroes slot X across the object tables ($0300, $0310, $0320 ... $05E0)"
+
+# ---- RAM (not used by the generator yet; names for later passes) -----------
+
+[[ram]]
+addr = 0x009C
+size = 2
+name = "irq_handler"
+comment = "IRQ jumps through it (irq, $C147); scenes install their raster split here"
+
+[[ram]]
+addr = 0x00FF
+name = "ppuctrl_shadow"
+comment = "nmi writes it AND #$7F to $2000 ($C009)"
+
+[[ram]]
+addr = 0x0030
+name = "game_action"
+comment = "docs/ram_map.md; $0E = skip stage (verified)"
+
+[[ram]]
+addr = 0x0061
+name = "round"
+comment = "0-based round, docs/ram_map.md (verified)"
+
+[[ram]]
+addr = 0x0300
+size = 16
+name = "obj_state"
+comment = "bit 7 = live; slot 0 = player"
+
+[[ram]]
+addr = 0x0320
+size = 16
+name = "obj_id"
+
+[[ram]]
+addr = 0x0360
+size = 16
+name = "obj_x"
+
+[[ram]]
+addr = 0x03C0
+size = 16
+name = "obj_y"
+
+[[ram]]
+addr = 0x0490
+size = 16
+name = "obj_life_max"
+comment = "set with obj_life at spawn from per-type tables (08:9202, 08:9215, 08:9344)"
+
+[[ram]]
+addr = 0x04A0
+size = 16
+name = "obj_life"
+comment = "the ENEMY bar; Abigail took no damage in 1,200 frames of hits (P0 notes)"
+
+# ---- task scheduler (cooperative, 4 tasks, one stack region each) ----------
+
+[[label]]
+bank = 0x0F
+addr = 0xFEBA
+name = "scheduler"
+comment = "main loop: S=$FF, picks a task with state >= 4 from $80+4n; state 8 = new (JMP via $82/$83), else TXS to its saved stack"
+
+[[label]]
+bank = 0x0F
+addr = 0xFF02
+name = "task_spawn"
+comment = "A = task, $93/$94 = entry; state 8 (FF26 -> X = A*4)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFF12
+name = "task_kill"
+code = true
+comment = "A = task: state 0. Never executed in any coverage run"
+
+[[label]]
+bank = 0x0F
+addr = 0xFF1A
+name = "task_exit"
+code = true
+comment = "current task ($91): state 0, back to scheduler. Never executed in any coverage run"
+
+[[label]]
+bank = 0x0F
+addr = 0xFF2A
+name = "task_wait_frames"
+comment = "X frames of task_wait_frame"
+
+[[label]]
+bank = 0x0F
+addr = 0xFF31
+name = "task_wait_frame"
+comment = "sleep 1 frame: $81 = 1, state 1, SP -> $82; nmi ($C0E8) counts $81 down and sets state 4"
+
+[[label]]
+bank = 0x0F
+addr = 0xFF4D
+name = "bank_switch"
+comment = "MMC3 R6/R7 <- $F4/$F5 (shadows $F2/$F3, select $F0); $F6 reentrancy guard, $F7 deferred"
+
+[[label]]
+bank = 0x0E
+addr = 0xC0E8
+name = "nmi_task_timers"
+comment = "for each task in state 1: DEC $81; at 0 -> state 4 (ready)"
+
+[[ram]]
+addr = 0x0080
+size = 16
+name = "tasks"
+comment = "4 x {state, timer, sp_or_entry_lo, entry_hi}; state 0 free, 1 sleeping, 2 running, 4 ready, 8 new"
+
+[[ram]]
+addr = 0x0091
+name = "task_current"
+comment = "index of the running task (scheduler $FEDB)"
+
+[[ram]]
+addr = 0x0092
+name = "frame_counter"
+comment = "INC every nmi ($C0E0)"
+
+[[ram]]
+addr = 0x00F4
+size = 2
+name = "bank_request"
+comment = "banks wanted at $8000/$A000 (bank_switch)"
+
+# ---- NMI return hijack and sound -----------------------------------------
+
+[[label]]
+bank = 0x0E
+addr = 0xC0FD
+name = "nmi_hijack_return"
+comment = "saves the interrupted PC ($0106/$0107 on the stack) in $A0/$A1 and makes RTI return to nmi_tail"
+
+[[label]]
+bank = 0x0E
+addr = 0xC119
+name = "nmi_tail"
+comment = "runs after RTI in the interrupted context: fakes a return to $A0/$A1 - 1, calls sound_update, RTS"
+
+[[label]]
+bank = 0x0F
+addr = 0xFF72
+name = "sound_update"
+comment = "maps banks 06/07, drains the sound queue into sound_play, calls sound_tick, restores via bank_switch; mid-switch ($F6) -> INC $F7 and bank_switch runs it later"
+
+[[label]]
+bank = 0x0F
+addr = 0xF34A
+name = "sound_queue_push"
+comment = "A = sound command into the 8-entry ring at $DC (write index $DA); $88 = empty slot"
+
+[[label]]
+bank = 0x06
+addr = 0x8000
+name = "sound_tick"
+comment = "JMP $806C; called once per frame by sound_update"
+
+[[label]]
+bank = 0x06
+addr = 0x8003
+name = "sound_play"
+comment = "JMP $80FE; A = command from the queue"
+
+[[label]]
+bank = 0x00
+addr = 0x8000
+name = "player_action_dispatch"
+comment = "dispatches on game_action ($30) through the split table lo $8011 / hi $803B (39 entries)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC556
+name = "main_task"
+comment = "task 0, spawned by reset: S=$BF, sound $F0, LICENSED BY NINTENDO (180 frames), CAPCOM PRESENTS (180, skippable)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC5B3
+name = "rom_integrity_check"
+comment = "16 bytes at $FFE0 must equal $C8DD..., $FFF8 must be 8; else hangs at $C5CA (never executed)"
+
+[[ram]]
+addr = 0x00A0
+size = 2
+name = "nmi_return_pc"
+comment = "the PC the NMI interrupted (nmi_hijack_return)"
+
+[[ram]]
+addr = 0x00DC
+size = 8
+name = "sound_queue"
+comment = "ring of sound commands, $88 = empty (reset fills it)"
+
+[[ram]]
+addr = 0x00DA
+name = "sound_queue_write"
+
+[[ram]]
+addr = 0x00DB
+name = "sound_queue_read"
+
+[[ram]]
+addr = 0x00F6
+name = "bank_switch_busy"
+
+[[ram]]
+addr = 0x00F7
+name = "sound_deferred"
+
+# ---- frame services --------------------------------------------------------
+
+[[label]]
+bank = 0x0E
+addr = 0xC265
+name = "rendering_off"
+comment = "INC $EE (nmi skips its VRAM work while nonzero), PPUMASK = 0"
+
+[[label]]
+bank = 0x0E
+addr = 0xC26F
+name = "rendering_on"
+comment = "DEC $EE, PPUMASK = $18 (background + sprites)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC277
+name = "read_joypads"
+comment = "both pads + Famicom expansion bits; held -> $16/$17, newly pressed -> $14/$15; opposite directions are cancelled"
+
+[[ram]]
+addr = 0x0014
+size = 2
+name = "joy_pressed"
+comment = "new presses, pad 1/2 (A $80 B $40 Select $20 Start $10 U D L R); START at the title: AND #$10 ($C6D4)"
+
+[[ram]]
+addr = 0x0016
+size = 2
+name = "joy_held"
+comment = "intro pages end when any button is held ($C5D8)"
+
+[[ram]]
+addr = 0x00EE
+name = "render_off_depth"
+comment = "rendering_off/on count; nmi takes nmi_busy while it (or $9A) is nonzero"
+
+[[ram]]
+addr = 0x00FE
+name = "ppumask_shadow"
+
+[[ram]]
+addr = 0x0022
+name = "round_tables"
+comment = "round index for the per-round tables (music $C83C, $A000 bank $C1F8); follows round ($61) a little after each round change (bot logs)"
+
+[[ram]]
+addr = 0x00B8
+name = "intro_page"
+comment = "0..4, each drawn by $9A00 in bank 00 (main_task)"
+
+# ---- game flow (main_task) -------------------------------------------------
+
+[[label]]
+bank = 0x0E
+addr = 0xC657
+name = "title_screen"
+comment = "music $0C, bank 04 fn 1; three timers $0500/$0510/$0520; all expired -> JMP reset (attract restarts the game)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC6D2
+name = "title_wait_start"
+comment = "joy_pressed & START -> select (bank 04 fn 2, $9100), round map (fn 8, $8D00, 45 frames), game start"
+
+[[label]]
+bank = 0x0E
+addr = 0xC768
+name = "round_start_wait"
+comment = "loops until $29 is set, then maps the round's bank ($C1F8[$22]) and reads its header at $AE68"
+
+[[label]]
+bank = 0x0E
+addr = 0xC83C
+name = "round_music"
+comment = "sound command per round (indexed by $22): 0-4"
+
+[[label]]
+bank = 0x0E
+addr = 0xC1F8
+name = "round_bank"
+comment = "PRG bank for $A000 per round (indexed by $22)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC841
+name = "start_health"
+comment = "per character ($34): Cody $40, Guy $30, Haggar $50 - the bot saw 64/48/80"
+
+[[label]]
+bank = 0x0E
+addr = 0xC844
+name = "clear_ram_400_5ff"
+
+[[label]]
+bank = 0x0E
+addr = 0xC85C
+name = "screen_clear"
+comment = "wait a frame, rendering off, clear $0400-$05FF, scroll 0, clear nametable $2000"
+
+[[label]]
+bank = 0x0E
+addr = 0xC8ED
+name = "gameplay"
+comment = "entered after new-game init (player slot 0 at $30,$90; lives 5; credits 3; round 0)"
+
+[[ram]]
+addr = 0x00AF
+name = "credits"
+comment = "3 at a new game: the continue screen's CREDIT 3"
+
+[[ram]]
+addr = 0x003A
+name = "health"
+comment = "start_health[$34]"
+
+[[ram]]
+addr = 0x003E
+name = "lives"
+
+[[ram]]
+addr = 0x0034
+name = "player_id"
+comment = "Cody 0, Guy 1, Haggar 2"
+
+[[label]]
+bank = 0x0E
+addr = 0xC904
+name = "gameplay_pause_check"
+comment = "START toggles $98 (paused) with sound $15; no coverage run ever paused, so the toggle is unseen"
+
+[[label]]
+bank = 0x0E
+addr = 0xC93B
+name = "gameplay_update"
+comment = "player_state (fixed bank) -> bank 00 player_action_dispatch -> $E2A3 -> banks 08/09 $8080 $8900 $A300 -> bank 0C $8000 (objects) -> $E6AB"
+
+[[label]]
+bank = 0x0E
+addr = 0xC987
+name = "gameplay_special_screen"
+comment = "$62 set: bank 04 $9800 until $05BC = 7"
+
+[[label]]
+bank = 0x0E
+addr = 0xC99D
+name = "gameplay_draw"
+comment = "$97 = 4, $C31D, $E9BC"
+
+[[label]]
+bank = 0x0E
+addr = 0xC9A7
+name = "gameplay_frame_end"
+comment = "$C3B4, render_off_depth 0 for the wait, task_wait_frame, back to gameplay"
+
+[[label]]
+bank = 0x0E
+addr = 0xC9B6
+name = "player_state"
+comment = "JMP through player_state_lo/hi[game_action]"
+
+[[label]]
+bank = 0x0E
+addr = 0xC9CA
+name = "player_state_lo"
+
+[[label]]
+bank = 0x0E
+addr = 0xC9F5
+name = "player_state_hi"
+
+[[ram]]
+addr = 0x0098
+name = "paused"
+
+# ---- player_state handlers (player_state_lo/hi, 43 entries by game_action) ----
+
+[[label]]
+bank = 0x0E
+addr = 0xCA20
+name = "player_state_idle"
+comment = "game_action 00"
+
+[[label]]
+bank = 0x0E
+addr = 0xCF88
+name = "player_state_jump"
+comment = "01 jumping (Data Crystal)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD2B7
+name = "player_state_02"
+comment = "02 (not in Data Crystal's list)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD30F
+name = "player_state_punch"
+comment = "03 punching"
+
+[[label]]
+bank = 0x0E
+addr = 0xD7A3
+name = "player_state_grab"
+comment = "04 grabbing an enemy"
+
+[[label]]
+bank = 0x0E
+addr = 0xD9FA
+name = "player_state_hit"
+comment = "05 got hit"
+
+[[label]]
+bank = 0x0E
+addr = 0xDA3F
+name = "player_state_knockdown"
+comment = "06 falling down"
+
+[[label]]
+bank = 0x0E
+addr = 0xDE5E
+name = "player_state_transition"
+comment = "07 select screen and 0E skip stage share it"
+
+[[label]]
+bank = 0x0E
+addr = 0xCCB4
+name = "player_state_default"
+comment = "08, 0D and every action from 0F up (specials, throws per character: bank 00)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDC6C
+name = "player_state_continue"
+comment = "09 continue screen"
+
+[[label]]
+bank = 0x0E
+addr = 0xD45A
+name = "player_state_0A"
+comment = "0A (not in Data Crystal's list)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDCDD
+name = "player_state_throw"
+comment = "0B Cody's throw"
+
+[[label]]
+bank = 0x0E
+addr = 0xDD6A
+name = "player_state_hitpos"
+comment = "0C hitting position"
+
+# ---- objects ------------------------------------------------------------------
+
+[[label]]
+bank = 0x0C
+addr = 0x8003
+name = "objects_update"
+comment = "slots 1-15 ($EF): maps the id's behaviour bank into $A000 (tools/mff_dispatch.py), dispatches through obj_behavior_lo/hi with return to $805D"
+
+[[label]]
+bank = 0x0C
+addr = 0x83AF
+name = "obj_behavior_lo"
+comment = "160 entries by obj_id; target bank depends on the id"
+
+[[label]]
+bank = 0x0C
+addr = 0x844F
+name = "obj_behavior_hi"
+
+[[ram]]
+addr = 0x0060
+name = "sub_area"
+comment = "area within the round: stage_events acts at round 2/sub_area 2 and round 3/sub_area 1 (08:8904)"
+
+[[ram]]
+addr = 0x0023
+name = "scroll_mode"
+comment = "low 2 bits pick stage_scroll's mode; mode 2 never ran in coverage"
+
+[[label]]
+bank = 0x08
+addr = 0x8080
+name = "stage_scroll"
+comment = "by scroll_mode & 3: 0 nothing, 1 -> $80A7, 2 -> $808E (unseen in every run)"
+
+[[label]]
+bank = 0x08
+addr = 0x8900
+name = "stage_events"
+comment = "per-frame round-specific work, only for round 2 sub_area 2 and round 3 sub_area 1 (0-based rounds)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE9BC
+name = "objects_draw"
+comment = "slots 15, 14, then 0..15 or 13..0 alternating each frame ($95): the order rotation that makes sprites flicker instead of vanish past 8 per line"
+
+[[label]]
+bank = 0x0F
+addr = 0xE9FE
+name = "object_draw"
+comment = "slot X, if obj_flags bit 4; screen x = obj_x/obj_x_hi - scroll_x ($FC/$F9)"
+
+[[ram]]
+addr = 0x0095
+name = "draw_parity"
+comment = "INC per objects_draw; bit 0 picks the draw order"
+
+[[ram]]
+addr = 0x0380
+size = 16
+name = "obj_x_hi"
+comment = "world x high byte (object_draw subtracts $F9)"
+
+[[ram]]
+addr = 0x0560
+size = 16
+name = "obj_flags"
+comment = "bit 4 = drawn (object_draw)"
+
+[[ram]]
+addr = 0x00FC
+name = "scroll_x"
+comment = "low byte; object_draw subtracts it from obj_x; nmi copies it to $7D"
+
+[[ram]]
+addr = 0x00F9
+name = "scroll_x_hi"
+
+[[label]]
+bank = 0x0E
+addr = 0xC222
+name = "nmi_vram_update"
+comment = "nmi calls it when vram_request is set, and clears the request ($C01E-$C026)"
+
+[[ram]]
+addr = 0x0064
+name = "vram_request"
+comment = "set to $FF by game code (e.g. $E6D8); nmi_vram_update runs at the next nmi"

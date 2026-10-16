@@ -63,6 +63,25 @@ inputs/*.txt or a bot session -> exe --input X --miss-log runs/<name>.miss
   `NESRECOMP_RECOMP_UI` from a CRLF CMakeCache as `""`; `tools/build.ps1`
   always passes `-RecompUi` to avoid it. Worth an upstream fix.
 
+## Decomp workflow (PLAN_DECOMP.md)
+
+```
+exe --cdl-out runs/cdl/parts*/X.cdl        (nesrecomp branch feat/cyc-cdl; bot.py --run-arg=--cdl-out ...)
+py -3 -I tools/mff_dispatch.py ROM > runs/cdl/extra.json
+py -3 -I tools/cdl_report.py ROM runs/cdl/map.cdl [new logs] --seeds cyc_seeds.txt --static \
+    --extra runs/cdl/extra.json --md runs/cdl/report.md --map-out runs/cdl/prgmap.bin --tables-out runs/cdl/tables.json
+py -3 -I disasm/tools/disasm.py ROM --map runs/cdl/prgmap.bin --tables runs/cdl/tables.json --out build_disasm
+py -3 -I disasm/tools/verify.py ROM --dir build_disasm --cc65 build_cc65      # must print OK (byte for byte)
+py -3 -I tools/dis6502.py ROM BANK ADDR [N]                                    # quick look with map classes
+```
+
+- Names go in `disasm/labels.toml` with evidence; `code = true` decodes code no run executed.
+  Never commit generated disassembly, map binaries or CDLs (they are ROM-derived).
+- Bank windows (MMC3 mode 0): even `$8000`, odd `$A000`, `$0E` `$C000`, `$0F` `$E000`, except
+  data bank `$02` at `$A000` (common enemies' data, mapped by `objects_update`).
+- Best coverage tool: `bot.py --god --skip-every 1200` (a "tour" through every area).
+- Bash heredocs turn `\\` into `\`: write scripts with the Write tool.
+
 ## Rules
 
 - Run native tools hidden (no console windows, no focus stealing); open the
