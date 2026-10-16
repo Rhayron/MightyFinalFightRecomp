@@ -56,6 +56,15 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   outro caminho (tarefa em outro ponto do código, RNG mexido pelo `$92`). **Mudança de plano:** a
   regressão da P4 é andaime original × andaime limpo (exata no jogo todo); o oráculo certifica o
   andaime nos trechos sem lag; lag fiel (NMI no PC interrompido do oráculo) fica para a P7.
+- **P4 começada.** **Mudança de plano:** em vez de ejetar o código gerado inteiro (dezenas de MB, o
+  mesmo código repetido em cada chamada), cada rotina ganha um corpo em C escrito à mão em
+  `port/src/game/` e entra no andaime por `[[replace_func]]`. Nesta etapa a rotina tem de deixar RAM,
+  registradores, flags **e ciclos** iguais aos do original; `port/tests/run_routes.sh check` compara
+  o andaime com e sem as substituições, frame a frame, nas 3 rotas do round 1 (20.195 frames cada).
+  Prontas: `rng_step`, `read_joypads`, `bank_switch`, `rendering_off/on`, `object_clear`,
+  `objects_clear_all`, `clear_ram_400_5ff`, `sound_queue_push`, todas idênticas. Correção no gerador
+  (nesrecomp `mff-scaffold`, `d4e1d94`): rotina substituída não é mais engolida pelo corpo de outra.
+  Os nomes, tipos e o `state.h` vêm depois, quando a rotina já não precisar imitar o 6502.
 
 ---
 
