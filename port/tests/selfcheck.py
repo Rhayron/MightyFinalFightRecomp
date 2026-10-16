@@ -42,6 +42,8 @@ def main():
     ap.add_argument("candidate")
     ap.add_argument("--max", type=int, default=10)
     ap.add_argument("--strict", action="store_true", help="compare the whole stack page")
+    ap.add_argument("--pics", nargs=2, metavar=("BASE", "CAND"),
+                    help="MFF_PICLOG files of the same runs: compare every frame's picture hash")
     a = ap.parse_args()
     base, cand = open(a.baseline, "rb").read(), open(a.candidate, "rb").read()
     names = ram_names()
@@ -75,9 +77,29 @@ def main():
             print(f"frame {k}: {len(diffs)} bytes differ: {listed}" + (" ..." if len(diffs) > 8 else ""))
     if len(base) // REC != len(cand) // REC:
         print(f"lengths differ: baseline {len(base) // REC} frames, candidate {len(cand) // REC}")
+    pic_first = cyc_first = None
+    if a.pics:
+        pb, pc = open(a.pics[0], "rb").read(), open(a.pics[1], "rb").read()
+        m = min(len(pb), len(pc)) // 12
+        for k in range(m):
+            rb, rc = pb[k * 12:k * 12 + 12], pc[k * 12:k * 12 + 12]
+            if pic_first is None and rb[:8] != rc[:8]:
+                pic_first = k
+            if cyc_first is None and rb[8:] != rc[8:]:
+                cyc_first = k
+                dc = int.from_bytes(rc[8:], "little") - int.from_bytes(rb[8:], "little")
+        if len(pb) != len(pc):
+            print(f"picture logs differ in length: {len(pb) // 12} / {len(pc) // 12} frames")
+        print(f"{m} pictures compared: " + ("identical" if pic_first is None
+                                            else f"first difference at picture {pic_first}")
+              + ("; cycle counts identical" if cyc_first is None
+                 else f"; cycle count first differs at picture {cyc_first} ({dc:+d})"))
     note = f" ({dead_only} frames differ only in dead stack bytes)" if dead_only else ""
     print(f"{n} frames compared: " + ("identical" if first is None else f"first difference at frame {first}") + note)
-    sys.exit(0 if first is None and len(base) == len(cand) else 1)
+    # cycle counts are reported, not failed: a block charged at once moves
+    # the frame boundary by a few cycles (it lands after the block), and the
+    # difference stays bounded instead of drifting
+    sys.exit(0 if first is None and pic_first is None and len(base) == len(cand) else 1)
 
 
 if __name__ == "__main__":

@@ -36,6 +36,7 @@ run_one() {
     env=(MFF_BOT="$bot")
   fi
   env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "${env[@]}" MFF_FRAMELOG="$(pwd -W)/$out" \
+    MFF_PICLOG="$(pwd -W)/${out%.flog}.pic" \
     "$EXE" "$ROM" --smoke "$frames" --smoke-interval 1000000 --smoke-output runs/p4 \
     > runs/p4/$name.log 2>&1 || echo "$name: exit $?" >> runs/p4/$name.log
 }
@@ -48,7 +49,8 @@ for r in "${routes[@]}"; do
   name=$(basename "$r"); name=${name%.*}
   if [ "$MODE" = check ]; then
     echo "== $name"
-    py -3 -I port/tests/selfcheck.py runs/p4/base_$name.flog runs/p4/cand_$name.flog --max 5 || status=1
+    py -3 -I port/tests/selfcheck.py runs/p4/base_$name.flog runs/p4/cand_$name.flog --max 5 \
+      --pics runs/p4/base_$name.pic runs/p4/cand_$name.pic || status=1
   else
     echo "$name: baseline $(( $(stat -c %s runs/p4/base_$name.flog) / 2340 )) frames"
   fi

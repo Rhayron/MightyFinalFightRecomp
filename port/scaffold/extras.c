@@ -27,15 +27,28 @@ uint32_t game_get_expected_crc32(void) { return 0x3F78037Cu; }
 
 const char *game_get_name(void) { return "Mighty Final Fight (legacy scaffold)"; }
 
-/* No lag frames in the scaffold (MFF_LAG=1 restores them): hold the NMI while
- * any task is running (state 2 in $80+4n). An NMI the runner fires mid-task
- * (its CPU time is an estimate) cut at $C3BC - inside the RNG, right before
- * the frame-end yield - corrupted the coroutine stacks (S fell to $01 at
- * NMI 11,338 of inputs/10_cody_poweron.txt). With the veto the scaffold plays
- * as if every frame fit; the lockstep resyncs the oracle's lag frames. */
-static int mff_nmi_veto(void) {
+/* When the NMI may land (MFF_LAG=1 turns this off).
+ *
+ * Never while a task is running (state 2 in $80+4n): an NMI the runner fired
+ * mid-task (its CPU time is an estimate) cut at $C3BC - inside the RNG, right
+ * before the frame-end yield - and corrupted the coroutine stacks (S fell to
+ * $01 at NMI 11,338 of inputs/10_cody_poweron.txt). So the scaffold plays as
+ * if every frame fit; the lockstep resyncs the oracle's lag frames.
+ *
+ * And, around the scheduler, only at the top of its scan ($FEBD): not in the
+ * rest of the scheduler, task_wait_frame's tail or the IRQ handlers. The
+ * registers the NMI interrupts are those of the scheduler's loop, and the
+ * sound driver (run by nmi_tail) reads one it never sets, so where in the
+ * loop the NMI lands showed in its scratch ($C3). That place followed the
+ * frame's exact cycle count, which P4's hand-written routines only keep per
+ * block; at $FEBD the registers are always the same. Elsewhere (reset's
+ * $2002 polling, which needs the frame to end) the NMI is not held. */
+static int mff_nmi_veto(uint16_t pc) {
     for (int t = 0; t < 4; t++)
         if (g_ram[0x80 + 4 * t] == 2) return 1;
+    if (pc >= 0xFEBA && pc <= 0xFF01) return pc != 0xFEBD;   /* scheduler */
+    if (pc >= 0xFF24 && pc <= 0xFF49) return 1;               /* task_wait_frame */
+    if (pc >= 0xC13B && pc <= 0xC1DE) return 1;               /* irq */
     return 0;
 }
 
@@ -328,7 +341,28 @@ int game_handle_debug_cmd(const char *cmd, int id, const char *json) {
     return 0;
 }
 
-void game_post_render(uint32_t *framebuf) { (void)framebuf; }
+/* MFF_PICLOG=FILE: per rendered frame, u32 frame, u32 FNV-1a hash of the
+ * picture and the low 32 bits of the CPU cycle count, so
+ * port/tests/selfcheck.py also compares what the PPU code drew (VRAM
+ * uploads, palette, the IRQ's mid-frame scroll split) and when. */
+void game_post_render(uint32_t *framebuf) {
+    static FILE *f = NULL;
+    static int state = 0;
+    if (!state) {
+        const char *e = getenv("MFF_PICLOG");
+        f = (e && *e) ? fopen(e, "wb") : NULL;
+        state = f ? 1 : -1;
+    }
+    if (state < 0 || !framebuf) return;
+    uint32_t h = 2166136261u, rec[3];
+    size_t n = (size_t)g_render_width * 240;
+    for (size_t i = 0; i < n; i++) { h ^= framebuf[i]; h *= 16777619u; }
+    rec[0] = (uint32_t)g_frame_count;
+    rec[1] = h;
+    rec[2] = (uint32_t)g_nes_cycles;     /* CPU cycles so far: timing drift shows here first */
+    fwrite(rec, 4, 3, f);
+    fflush(f);
+}
 
 /* ---- MFF: nmi_tail (0E:C119), replaced (game.base.toml [[replace_func]]) ----
  * On the console the NMI rewrites its own return address so RTI lands here
@@ -341,6 +375,19 @@ void game_post_render(uint32_t *framebuf) { (void)framebuf; }
 extern void func_FF72(void);
 void func_C119(void) {
     uint8_t a = g_cpu.A, x = g_cpu.X, y = g_cpu.Y;
+    { /* MFF_TAILTRACE=FIRST:N - registers and sound scratch at nmi_tail */
+        static long first = -2, last = 0;
+        if (first == -2) {
+            const char *e = getenv("MFF_TAILTRACE");
+            first = -1;
+            if (e) { first = atol(e); const char *c = strchr(e, ':'); last = first + (c ? atol(c + 1) : 10); }
+        }
+        if (first >= 0 && (long)g_frame_count >= first && (long)g_frame_count < last)
+            fprintf(stderr, "[tail] f=%llu A=%02X X=%02X Y=%02X P=%02X C0=%02X%02X%02X%02X cyc=%llu\n",
+                    (unsigned long long)g_frame_count, a, x, y,
+                    (g_cpu.N << 7) | (g_cpu.V << 6) | (g_cpu.Z << 1) | g_cpu.C,
+                    g_ram[0xC0], g_ram[0xC1], g_ram[0xC2], g_ram[0xC3], (unsigned long long)g_nes_cycles);
+    }
     uint8_t n = g_cpu.N, v = g_cpu.V, d = g_cpu.D, i = g_cpu.I, z = g_cpu.Z, c = g_cpu.C;
     func_FF72();
     g_cpu.A = a; g_cpu.X = x; g_cpu.Y = y;

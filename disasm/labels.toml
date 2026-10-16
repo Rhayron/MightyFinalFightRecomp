@@ -609,6 +609,12 @@ comment = "once per gameplay frame (gameplay_frame_end): rotates $E4-$E7 and mix
 
 [[ram]]
 addr = 0x00E4
-size = 5
+size = 4
 name = "rng"
 comment = "rng_step state"
+
+[[ram]]
+addr = 0x00E8
+size = 6
+name = "chr_banks"
+comment = "MMC3 R0-R5 shadows: nmi writes R2-R5 ($C090) and nmi_busy R0/R1 ($C0BA) from $E8+X"

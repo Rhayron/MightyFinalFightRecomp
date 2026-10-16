@@ -69,6 +69,38 @@ static inline void mff_call_yield(uint16_t site, uint16_t target) {
 }
 
 static inline void mff_push(uint8_t v) { g_ram[0x100 + g_cpu.S] = v; g_cpu.S--; }
+static inline uint8_t mff_pull(void) { g_cpu.S++; return g_ram[0x100 + g_cpu.S]; }
+
+/* the flags as PHP pushes them (B and bit 5 set) and as PLP/RTI take them */
+static inline uint8_t mff_p(void) {
+    return (uint8_t)((g_cpu.N << 7) | (g_cpu.V << 6) | 0x30 | (g_cpu.D << 3) |
+                     (g_cpu.I << 2) | (g_cpu.Z << 1) | g_cpu.C);
+}
+static inline void mff_set_p(uint8_t p) {
+    g_cpu.N = (p >> 7) & 1; g_cpu.V = (p >> 6) & 1; g_cpu.D = (p >> 3) & 1;
+    g_cpu.I = (p >> 2) & 1; g_cpu.Z = (p >> 1) & 1; g_cpu.C = p & 1;
+}
+
+/* RTI as the generated code does it: flags and PC off the stack; the PC
+ * goes to g_rti_target (func_NMI runs it when an NMI hijacked its return). */
+extern uint16_t g_rti_target, g_rti_source;
+extern int g_rti_bank;
+static inline void mff_rti(uint16_t pc) {
+    uint8_t lo, hi;
+    g_rti_source = pc;
+    g_rti_bank = 7;
+    mff_set_p(mff_pull());
+    lo = mff_pull();
+    hi = mff_pull();
+    g_rti_target = (uint16_t)((hi << 8) | lo);
+}
+
+/* JMP to code the scaffold keeps as a function of its own: the generator
+ * charges the target 2 more cycles before its tail call. */
+static inline void mff_jmp_charge(uint16_t pc, uint16_t target) {
+    mff_cycles(pc, 3);
+    nes_cpu_instruction_boundary(target, 2);
+}
 
 static inline void mff_nz(uint8_t v) {
     g_cpu.N = (v & 0x80) ? 1 : 0;
