@@ -211,10 +211,13 @@ static void resync(void) {
         fprintf(stderr, "[mff] resync at NMI %u (oracle frame %u)\n", (unsigned)count, (unsigned)o_last);
 }
 
+void mff_bot_frame(uint64_t frame_count);   /* bot.c, MFF_BOT */
+
 void game_on_frame(uint64_t frame_count) {
     frame_log(frame_count);
     resync();
     keyed_input();
+    mff_bot_frame(frame_count);
     /* MFF_TRACE=N (first N frames) or START:N */
     static long first = -2, limit = 0;
     if (first == -2) {
