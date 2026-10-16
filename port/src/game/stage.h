@@ -93,6 +93,17 @@ void func_E653(void);   /* metatile_ptr */
 void func_E66E(void);   /* screen_map_ptr */
 void func_E689(void);   /* screen_map_ptr_of */
 
+/* background probes (stage_probe.c) */
+void func_ECCF(void);   /* bg_probe */
+void func_ED49(void);   /* bg_probe_walk */
+void func_EDBA(void);   /* bg_probe_2 */
+void func_EEC4(void);   /* probe_begin */
+void func_EEDF(void);   /* probe_end */
+void func_EF55(void);   /* push_out_left */
+void func_EF6D(void);   /* push_out_right */
+void func_EF83(void);   /* push_out_down */
+void func_EF9D(void);   /* push_out_up */
+
 /* status bar (stage_hud.c) */
 void func_E6AB(void);   /* hud_update */
 void func_E6DD(void);   /* hud_player */

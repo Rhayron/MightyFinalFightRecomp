@@ -1424,23 +1424,23 @@ addr = 0xEC33   # object_offscreen, stage_draw.c
 [[replace_func]]
 addr = 0xEC81   # object_free, stage_draw.c
 [[replace_func]]
-addr = 0xECCF   # lifted, lifted_e.c
+addr = 0xECCF   # bg_probe, stage_probe.c
 [[replace_func]]
-addr = 0xED49   # lifted, lifted_e.c
+addr = 0xED49   # bg_probe_walk, stage_probe.c
 [[replace_func]]
-addr = 0xEDBA   # lifted, lifted_e.c
+addr = 0xEDBA   # bg_probe_2, stage_probe.c
 [[replace_func]]
-addr = 0xEEC4   # lifted, lifted_e.c
+addr = 0xEEC4   # probe_begin, stage_probe.c
 [[replace_func]]
-addr = 0xEEDF   # lifted, lifted_e.c
+addr = 0xEEDF   # probe_end, stage_probe.c
 [[replace_func]]
-addr = 0xEF55   # lifted, lifted_e.c
+addr = 0xEF55   # push_out_left, stage_probe.c
 [[replace_func]]
-addr = 0xEF6D   # lifted, lifted_e.c
+addr = 0xEF6D   # push_out_right, stage_probe.c
 [[replace_func]]
-addr = 0xEF83   # lifted, lifted_e.c
+addr = 0xEF83   # push_out_down, stage_probe.c
 [[replace_func]]
-addr = 0xEF9D   # lifted, lifted_e.c
+addr = 0xEF9D   # push_out_up, stage_probe.c
 [[replace_func]]
 addr = 0xF000   # lifted, lifted_f.c
 [[replace_func]]
