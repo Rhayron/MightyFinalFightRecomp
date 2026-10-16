@@ -178,6 +178,7 @@ void func_806C_b3(void) {
         return;
     }
 
+    /* the effect's sequencer */
     mff_cycles(0x8071, 8);
     a = RAM(SND_EFFECT_PTR) | RAM(SND_EFFECT_PTR + 1);
     NZ(a);
@@ -190,6 +191,7 @@ void func_806C_b3(void) {
         mff_cycles(0x8075, 1);
     }
 
+    /* the tempo */
     mff_cycles(0x807A, 27);
     w = RAM(SND_TEMPO + 1) + RAM(SND_TEMPO_ACC);
     RAM(SND_TEMPO_ACC) = (uint8_t)w;
@@ -200,6 +202,8 @@ void func_806C_b3(void) {
     a = (uint8_t)w;
     RAM(SND_TICKS) = a;
 
+    /* the channels: $CF shifts right once per channel, its bit 0 telling
+     * whether the effect owns the next one; $CF is restored after */
     a = RAM(SND_EFFECT_CHANNELS);
     mff_push(a);
     x = SND_X_PULSE1;
@@ -244,7 +248,7 @@ void func_806C_b3(void) {
     mff_cycles(0x80A9, 24);
     a = mff_pull();
     RAM(SND_EFFECT_CHANNELS) = a;
-    RAM(SND_FLAGS) &= ~SND_FLAG_BUSY;           /* LSR / ASL */
+    RAM(SND_FLAGS) &= (uint8_t)~SND_FLAG_BUSY;  /* LSR / ASL: C clear */
     c = 0;
     a = RAM(SND_FADE_SPEED) & 0x7F;
     NZ(a);
@@ -413,7 +417,7 @@ void func_8106_b3(void) {
     NZ(a);
     mff_cycles(0x8121, 2);
     if (z) {
-        mff_cycles(0x8121, 1);
+        mff_cycles(0x8121, 1);                  /* a null entry: nothing */
     } else {
         mff_cycles(0x8123, 4);
         a = prg_read((uint16_t)(SND_TBL_CMD_PTR_HI + x));

@@ -85,7 +85,7 @@ static void snd_lfo_reset(void) {
     mff_cycles(0x864C, 24);
     a = 0;
     RAM(SND_LFO + x) = a;
-    a = RAM(SND_ENV + x) & 0x37;
+    a = RAM(SND_ENV + x) & (uint8_t)~(SND_ENV_NEW_INSTR | SND_ENV_LFO_ODD | SND_ENV_LFO_NEG);
     NZ(a);
     RAM(SND_ENV + x) = a;
     SYNC_OUT;
@@ -252,7 +252,7 @@ void func_865A_b3(void) {
     }
     if (!ratio) {
         mff_cycles(0x8662, 11);
-        a = (RAM(SND_VOLUME + x) & 0xC0) | RAM(SND_ARG) | SND_CONST_VOLUME;
+        a = (RAM(SND_VOLUME + x) & SND_VOL_DUTY) | RAM(SND_ARG) | SND_CONST_VOLUME;
         NZ(a);
     }
     mff_cycles(0x866B, 11);
@@ -344,7 +344,7 @@ void func_86A7_b3(void) {
 void func_86AD_b3(void) {
     REGS_IN;
     mff_cycles(0x86AD, 22);
-    a = (RAM(SND_VOLUME + x) & 0x0F) | RAM(SND_ARG) | SND_CONST_VOLUME;
+    a = (RAM(SND_VOLUME + x) & SND_VOL_LEVEL) | RAM(SND_ARG) | SND_CONST_VOLUME;
     NZ(a);
     RAM(SND_VOLUME + x) = a;
     SYNC_OUT;

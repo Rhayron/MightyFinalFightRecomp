@@ -40,6 +40,8 @@
 #define SND_TRIANGLE_REGS 0x08   /* (3 - 1) * 4: the triangle's block */
 #define SND_CONST_VOLUME  0x30   /* $4000/$4004/$400C bits 4-5: constant volume, no length counter */
 #define SND_VOLUME_SILENT 0x30   /* the same at volume 0: silent */
+#define SND_VOL_DUTY      0xC0   /* $070C,X: the duty bits */
+#define SND_VOL_LEVEL     0x0F   /* $070C,X: the volume */
 #define SND_SWEEP_OFF     0x08   /* $4001/$4005: sweep off, negate set */
 #define SND_CHANNELS_ON   0x0F   /* $4015: pulse 1, pulse 2, triangle, noise */
 #define SND_PERIOD_HI_LEN 0x08   /* ORed into $4003/$4007/$400B: length index 1 */
@@ -104,9 +106,9 @@
 #define SND_CMD_STOP_MUSIC   0xF2
 #define SND_CMD_PAUSE        0xF3
 #define SND_CMD_RESUME       0xF4
-#define SND_CMD_FADE_IN      0xF5   /* $F5-$F7 run in the interpreter: no */
-#define SND_CMD_FADE_OUT     0xF6   /* lifted routine (never used) */
-#define SND_CMD_PITCH_SCALE  0xF7
+#define SND_CMD_FADE_IN      0xF5   /* Y = the speed; $F5-$F7 are never used */
+#define SND_CMD_FADE_OUT     0xF6   /* and have no lifted routine: they run */
+#define SND_CMD_PITCH_SCALE  0xF7   /* in the interpreter */
 #define SND_EFFECT_LOOPS     0x80   /* an effect's first byte: bit 7 loop, bits 0-6 priority */
 
 /* ---- music stream opcodes ($00-$18; notes $20-$FF) */

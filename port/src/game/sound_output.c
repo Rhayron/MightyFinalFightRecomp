@@ -300,9 +300,9 @@ static void snd_output_triangle(void) {
 /* snd_output_volume, $8760: the level $0710,X ($8763: A, from the fade)
  * becomes the attenuation 15 - (level >> 4) in $C3. The tremolo
  * (instrument byte 6, from 5 up) can deepen it to (LFO * depth) >> 10,
- * read as a triangle wave (255 - phase in the odd quarters); 16 or more
- * mutes. The register gets $070C,X - attenuation, or its duty bits alone
- * when that borrows into bit 4 (BIT $C4, $C4 = $10). */
+ * read as a triangle wave (255 - phase in the odd quarters). The register
+ * gets $070C,X - attenuation, or $070C,X & $F0 (volume 0) when that borrows
+ * into bit 4 (BIT $C4, $C4 = $10) or the tremolo reaches 16. */
 static void snd_output_volume(int load_level) {
     REGS_IN;
     int mute = 0;
@@ -323,7 +323,7 @@ static void snd_output_volume(int load_level) {
         mff_cycles(0x8773, 19);
         RAM(SND_MULTIPLIER) = a;
         y = RAM(SND_LFO + x);
-        c = (RAM(SND_ENV + x) >> 6) & 1;        /* ASL, ASL: an odd quarter */
+        c = (RAM(SND_ENV + x) & SND_ENV_LFO_ODD) != 0;    /* ASL, ASL */
         a = y;
         NZ(a);
         if (c) {
@@ -377,7 +377,7 @@ static void snd_output_volume(int load_level) {
     }
     if (mute) {
         mff_cycles(0x87A5, 6);
-        a = RAM(SND_VOLUME + x) & 0xF0;
+        a = RAM(SND_VOLUME + x) & (SND_VOL_DUTY | SND_CONST_VOLUME);
     }
     SYNC_OUT;
     snd_output_regs();
@@ -417,7 +417,7 @@ static void snd_output_regs(void) {
             mff_cycles(0x87BE, 19);
             RAM(SND_MULTIPLIER) = a;
             y = RAM(SND_LFO + x);
-            c = (RAM(SND_ENV + x) >> 6) & 1;
+            c = (RAM(SND_ENV + x) & SND_ENV_LFO_ODD) != 0;
             a = y;
             NZ(a);
             if (c) {

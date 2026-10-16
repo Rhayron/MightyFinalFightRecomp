@@ -315,7 +315,7 @@ void func_82DE_b3(void) {
         }
         if (release) {
             mff_cycles(0x8300, 8);
-            a = RAM(SND_ENV + x) & 0x04;        /* phase 4: off already */
+            a = RAM(SND_ENV + x) & SND_PHASE_OFF;   /* off (phase 4) already */
             NZ(a);
             if (z) {
                 mff_cycles(0x8307, 3);
@@ -420,7 +420,7 @@ void func_8333_b3(void) {
     if (y == 0) {
         mff_cycles(0x8339, 21);
         RAM(SND_LEVEL + x) = a;
-        a = (RAM(SND_ENV + x) & ~SND_ENV_PHASE) | SND_PHASE_OFF;
+        a = (RAM(SND_ENV + x) & (uint8_t)~SND_ENV_PHASE) | SND_PHASE_OFF;
         NZ(a);
         RAM(SND_ENV + x) = a;
         SYNC_OUT;
