@@ -1,10 +1,55 @@
 # port/ — the decompiled port (PLAN_DECOMP.md)
 
-Work in progress. Today this holds the **P3 scaffold**: Mighty Final Fight on
+Work in progress. This holds the **P3 scaffold**: Mighty Final Fight on
 NESRecomp's legacy, function-level backend (one C function per 6502 routine),
-and the **lockstep** check that compares it frame by frame with the
-cycle-accurate build in the repo root (the oracle). P4 ejects the scaffold's
-generated C into `port/src/game/` and cleans it up with the lockstep green.
+the **lockstep** check that compares it frame by frame with the
+cycle-accurate build in the repo root (the oracle), and the start of **P4**:
+routines rewritten by hand in `port/src/game/`, each replacing its generated
+version in the scaffold.
+
+## P4: hand-written routines
+
+The generated code is not ejected wholesale (it is tens of MB with the same
+code repeated at every call site); instead one routine at a time gets a
+readable C body in `port/src/game/*.c` and a `[[replace_func]]` line in
+`scaffold/game.base.toml`. In this phase a replacement must leave the
+machine exactly as the original does, so the scaffold with replacements is
+compared with the scaffold without them, frame by frame:
+
+```bash
+port/tests/run_routes.sh baseline   # once, on the unrefactored scaffold
+port/tests/regen.sh                 # after editing game.base.toml or src/game
+port/tests/run_routes.sh check      # every route in tests/routes must print "identical"
+```
+
+- Exact means all 2 KiB of RAM (temporaries such as `$00` too), OAM and
+  palette every frame, and the same registers and flags on return.
+- Cycles count too: the scaffold ends a frame on a cycle count, and a
+  replacement charging 10 cycles too few fails the check within the first
+  gameplay frames. The model (`mff.h`): base cycles per opcode, +1 per taken
+  branch, no page-cross penalty. A routine charges a segment, then does its
+  work; segments split where an interrupt reads what the routine writes
+  (`bank_switch_busy`, the sound queue).
+- Under `push_all_jsr` a routine ends with `mff_rts()` (pops the return
+  address the caller pushed).
+
+Done so far: `rng_step`, `read_joypads`, `bank_switch`, `rendering_off/on`,
+`object_clear`, `objects_clear_all`, `clear_ram_400_5ff`, `sound_queue_push`.
+
+The generator changes this needed are on nesrecomp's `mff-scaffold` branch:
+a `replace_func` entry is never folded into another function's body (callers
+would bypass it), a replaced function is never an owner of other entries,
+and a body that falls into a replaced entry tail-calls the replacement.
+The finder's fixed-bank pointer scan still invents entries (`$C842`, inside
+the `start_health` table, whose decode runs into `clear_ram_400_5ff`); those
+bodies are never called. Turning the heuristics off
+(`NESRECOMP_LEGACY_FUNCTION_FINDER=1`) halves the generated code but is not
+the certified scaffold: it moves the frame boundary inside the scheduler's
+idle loop from frame 2 on and hits a coroutine stack error at frame 7,621 of
+the Guy route, so it stays off.
+
+A hand count of cycles is easy to get wrong (`clear_ram_400_5ff` was 510
+short at first, caught at frame 19); the check is what makes a routine done.
 
 ## Scaffold
 

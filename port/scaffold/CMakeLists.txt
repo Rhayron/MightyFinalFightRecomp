@@ -18,6 +18,8 @@ find_package(SDL2 REQUIRED)
 file(GLOB MFF_GENERATED CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/generated/mff_full*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/generated/mff_dispatch.c")
+# P4: the hand-written routines that replace generated ones ([[replace_func]])
+file(GLOB MFF_GAME CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../src/game/*.c")
 if(NOT MFF_GENERATED)
     message(FATAL_ERROR "Run NESRecomp --legacy --game game.toml in port/scaffold first (generated/ is empty)")
 endif()
@@ -27,12 +29,14 @@ add_executable(MffScaffold
     extras.c
     nes_snapshot.c
     verify_mode.c
+    ${MFF_GAME}
     ${MFF_GENERATED}
 )
 
 target_include_directories(MffScaffold PRIVATE
     ${NESRECOMP_RUNNER_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/game
     ${SDL2_INCLUDE_DIRS}
 )
 

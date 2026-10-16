@@ -272,7 +272,7 @@ comment = "DEC $EE, PPUMASK = $18 (background + sprites)"
 
 [[label]]
 bank = 0x0E
-addr = 0xC277
+addr = 0xC279
 name = "read_joypads"
 comment = "both pads + Famicom expansion bits; held -> $16/$17, newly pressed -> $14/$15; opposite directions are cancelled"
 
@@ -605,7 +605,7 @@ comment = "set to $FF by game code (e.g. $E6D8); nmi_vram_update runs at the nex
 bank = 0x0E
 addr = 0xC3B4
 name = "rng_step"
-comment = "once per gameplay frame (gameplay_frame_end): shifts $E4-$E8 and mixes draw_parity and frame_counter into $E4/$E5. An NMI landing inside it (a lag frame: oracle frame 11342 of inputs/10_cody_poweron.txt, PC $C3BC) changes every number drawn afterwards"
+comment = "once per gameplay frame (gameplay_frame_end): rotates $E4-$E7 and mixes draw_parity and frame_counter into $E4/$E5. An NMI landing inside it (a lag frame: oracle frame 11342 of inputs/10_cody_poweron.txt, PC $C3BC) changes every number drawn afterwards"
 
 [[ram]]
 addr = 0x00E4
