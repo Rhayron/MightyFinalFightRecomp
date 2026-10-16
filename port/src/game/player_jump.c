@@ -92,8 +92,8 @@ void func_D03F(void) {
  * D0EB).
  *
  * Once the jump moves (jump_moving set) player_jump_drift ($D242) carries
- * it on. Otherwise, once the player is falling (obj_vy[0] not negative),
- * not in a jump kick, with left or right held:
+ * it on. Otherwise, while the jump still rises (obj_vy[0] not negative:
+ * obj_y goes up by it), not in a jump kick, with left or right held:
  *  - the animation becomes the moving jump (with its CHR bank) unless B was
  *    just pressed or it already is;
  *  - jump_moving is counted up and jump_dir takes the direction (pad bits,
@@ -121,7 +121,7 @@ void func_D18E(void) {
     mff_cycles(0xD192, 4 + 2);
     a = RAM(OBJ_VY);
     SET_NZ(a);
-    if (n) {                                    /* still rising */
+    if (n) {                                    /* falling already */
         mff_cycles(0xD195, 1 + 6);
         RTS();
     }
