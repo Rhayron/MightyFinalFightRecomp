@@ -1334,25 +1334,25 @@ addr = 0xDC6C   # lifted, lifted_d.c
 [[replace_func]]
 addr = 0xDCDD   # lifted, lifted_d.c
 [[replace_func]]
-addr = 0xDD6A   # lifted, lifted_d.c
+addr = 0xDD6A   # player_attack.c
 [[replace_func]]
-addr = 0xDD7F   # lifted, lifted_d.c
+addr = 0xDD7F   # player_attack.c
 [[replace_func]]
-addr = 0xDD8E   # lifted, lifted_d.c
+addr = 0xDD8E   # player_attack.c
 [[replace_func]]
-addr = 0xDDB7   # lifted, lifted_d.c
+addr = 0xDDB7   # player_attack.c
 [[replace_func]]
-addr = 0xDDC1   # lifted, lifted_d.c
+addr = 0xDDC1   # player_attack.c
 [[replace_func]]
-addr = 0xDDC4   # lifted, lifted_d.c
+addr = 0xDDC4   # player_attack.c
 [[replace_func]]
-addr = 0xDDD3   # lifted, lifted_d.c
+addr = 0xDDD3   # player_attack.c
 [[replace_func]]
-addr = 0xDDE2   # lifted, lifted_d.c
+addr = 0xDDE2   # player_attack.c
 [[replace_func]]
-addr = 0xDDFF   # lifted, lifted_d.c
+addr = 0xDDFF   # player_attack.c
 [[replace_func]]
-addr = 0xDE0E   # lifted, lifted_d.c
+addr = 0xDE0E   # player_attack.c
 [[replace_func]]
 addr = 0xDE33   # lifted, lifted_d.c
 [[replace_func]]

@@ -34,6 +34,8 @@ static void guy_strike_frames(void);
 static void haggar_jab(void);
 static void haggar_wait(void);
 static void haggar_jab2(void);
+static void hitpos_wait(int dispatch_end);
+static void haggar_hitpos_pose(int dispatch_wait);
 
 /*
  * player_state_punch ($D30F, labels.toml): game_action 3. player_state_idle
@@ -1382,4 +1384,310 @@ void func_D79A(void) {
     SET_NZ(a);
     RAM(ACTION_TIMER) = a;
     RTS();
+}
+
+/* ---- the hitting position (game_action $0C) ---- */
+
+/* the hitpos handler of each character (player_state_hitpos) */
+#define HITPOS_HANDLER_LO   0xDD79   /* 7F D3 FF */
+#define HITPOS_HANDLER_HI   0xDD7C   /* DD DD DD: $DD7F, $DDD3, $DDFF */
+
+/*
+ * player_state_hitpos ($DD6A, labels.toml): game_action $0C, the pause
+ * after a combo step (player_hitpos_start: 8 frames). JMP ($0004) to the
+ * character's handler from $DD79/$DD7C[player_id]: cody_hitpos $DD7F,
+ * guy_hitpos $DDD3, haggar_hitpos $DDFF. Reached by JMP right after
+ * player_hitpos_start (0E:D47A, D63E, D797) and through player_state's table
+ * (entry $0C).
+ * Out: $04/$05 = the handler, A = its high byte.
+ */
+void func_DD6A(void) {
+    REGS_IN;
+
+    mff_cycles(0xDD6A, 3 + 4);
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(HITPOS_HANDLER_LO + y));
+    mff_cycles(0xDD6F, 3 + 4);
+    RAM(TMP4) = a;
+    a = prg_read((uint16_t)(HITPOS_HANDLER_HI + y));
+    SET_NZ(a);
+    mff_cycles(0xDD74, 3 + 5);
+    RAM(TMP5) = a;
+    JMP_IND(TMP4);
+}
+
+/*
+ * cody_hitpos ($DD7F, proposed). The three hitpos handlers do the same:
+ *  - B: with combo_timer running (a hit landed: objects_update sets it to
+ *    $1E) the combo goes on (hitpos_combo_next: player_state_idle's
+ *    $CB07, the next animation from player_stand_anim); without, the punch
+ *    state again (game_action 3).
+ *  - otherwise, at the end of action_timer, hitpos_end; before it
+ *    action_timer and combo_timer count down and the pose holds: here
+ *    animation $45 or a next step of $16 keep frame 1; any other goes to
+ *    hitpos_wait.
+ */
+void func_DD7F(void) {
+    REGS_IN;
+
+    mff_cycles(0xDD7F, 3 + 2 + 2);
+    a = RAM(JOY_PRESSED) & PAD_B;
+    if (a != 0) {
+        mff_cycles(0xDD85, 3 + 2);
+        a = RAM(COMBO_TIMER);
+        SET_NZ(a);
+        if (!z) {
+            mff_cycles(0xDD87, 1);
+            FALL_INTO(func_DDC1);               /* hitpos_combo_next */
+        }
+        mff_cycles(0xDD89, 2 + 3 + 6);
+        a = ACT_ATTACK;
+        SET_NZ(a);
+        RAM(GAME_ACTION) = a;
+        RTS();
+    }
+    mff_cycles(0xDD83, 1 + 3 + 2);
+    a = RAM(ACTION_TIMER);
+    SET_NZ(a);
+    if (z) {
+        mff_cycles(0xDDAA, 1);
+        FALL_INTO(func_DDB7);                   /* hitpos_end */
+    }
+    mff_cycles(0xDDAC, 5 + 3 + 2);
+    RAM(ACTION_TIMER)--;
+    a = RAM(COMBO_TIMER);
+    if (a == 0) {
+        mff_cycles(0xDDB0, 1);
+    } else {
+        mff_cycles(0xDDB2, 5 + 3);
+        RAM(COMBO_TIMER)--;
+    }
+    FALL_INTO(func_DD8E);
+}
+
+/* cody_hitpos_pose ($DD8E, proposed): animation $45, or player_stand_anim
+ * $16: frame 1 at timer 0; otherwise hitpos_wait. Reached by JMP from
+ * cody_hitpos (0E:DDB4) and run on into from it. */
+void func_DD8E(void) {
+    REGS_IN;
+
+    mff_cycles(0xDD8E, 4 + 2 + 2);
+    a = RAM(OBJ_ANIM);
+    COMPARE(a, 0x45);
+    if (!z) {
+        mff_cycles(0xDD95, 3 + 2 + 2);
+        a = RAM(PLAYER_STAND_ANIM);
+        COMPARE(a, 0x16);
+        if (!z) {
+            mff_cycles(0xDD9B, 2 + 1);
+            SYNC_OUT;
+            hitpos_wait(0);
+            return;
+        }
+        mff_cycles(0xDD99, 1);
+    } else {
+        mff_cycles(0xDD93, 1);
+    }
+    mff_cycles(0xDD9D, 2 + 4 + 2 + 4 + 6);
+    a = 1;
+    RAM(OBJ_ANIM_FRAME) = a;
+    a = 0;
+    SET_NZ(a);
+    RAM(OBJ_ANIM_TIMER) = a;
+    RTS();
+}
+
+/* hitpos_end ($DDB7, proposed): the hitting position is over: player_stand
+ * ($CEAA), game_action and attack_live 0. Branched to from the hitpos
+ * handlers. Out: A = 0. */
+void func_DDB7(void) {
+    REGS_IN;
+
+    mff_cycles(0xDDB7, 6);
+    JSR_AT(0xDDB7, 0xCEAA, -1);                 /* player_stand */
+    mff_cycles(0xDDBA, 2 + 3 + 3 + 6);
+    a = ACT_IDLE;
+    SET_NZ(a);
+    RAM(GAME_ACTION) = a;
+    RAM(ATTACK_LIVE) = a;
+    RTS();
+}
+
+/* hitpos_combo_next ($DDC1, proposed): JMP player_combo_continue ($CB07,
+ * inside player_state_idle). Branched to from cody_hitpos and guy_hitpos. */
+void func_DDC1(void) {
+    REGS_IN;
+
+    mff_cycles(0xDDC1, 3);
+    JMP_TAIL(0xCB07, -1);                       /* player_combo_continue */
+}
+
+/*
+ * hitpos_wait ($DDC4, proposed): out of the pose. With combo_timer running
+ * the animation is held at frame 0 and attack_live cleared; with it at 0,
+ * hitpos_end. As its own routine (branched to from guy_hitpos_pose and
+ * haggar_hitpos_pose) the lifter dispatches the branch to hitpos_end; run
+ * inline inside cody_hitpos_pose and haggar_hitpos it runs hitpos_end
+ * inline. dispatch_end keeps the two forms.
+ */
+static void hitpos_wait(int dispatch_end) {
+    REGS_IN;
+
+    mff_cycles(0xDDC4, 3 + 2);
+    a = RAM(COMBO_TIMER);
+    SET_NZ(a);
+    if (z) {
+        mff_cycles(0xDDC6, 1);
+        if (dispatch_end)
+            BRANCH_TAIL(0xDDB7);                /* hitpos_end */
+        FALL_INTO(func_DDB7);
+    }
+    mff_cycles(0xDDC8, 2 + 4 + 4 + 3 + 6);
+    a = 0;
+    SET_NZ(a);
+    RAM(OBJ_ANIM_FRAME) = a;
+    RAM(OBJ_ANIM_TIMER) = a;
+    RAM(ATTACK_LIVE) = a;
+    RTS();
+}
+
+void func_DDC4(void) {
+    hitpos_wait(1);
+}
+
+/* guy_hitpos ($DDD3, proposed): as cody_hitpos, with guy_hitpos_pose. */
+void func_DDD3(void) {
+    REGS_IN;
+
+    mff_cycles(0xDDD3, 3 + 2 + 2);
+    a = RAM(JOY_PRESSED) & PAD_B;
+    if (a != 0) {
+        mff_cycles(0xDDD9, 3 + 2);
+        a = RAM(COMBO_TIMER);
+        SET_NZ(a);
+        if (!z) {
+            mff_cycles(0xDDDB, 1);
+            BRANCH_TAIL(0xDDC1);                /* hitpos_combo_next */
+        }
+        mff_cycles(0xDDDD, 2 + 3 + 6);
+        a = ACT_ATTACK;
+        SET_NZ(a);
+        RAM(GAME_ACTION) = a;
+        RTS();
+    }
+    mff_cycles(0xDDD7, 1 + 3 + 2);
+    a = RAM(ACTION_TIMER);
+    SET_NZ(a);
+    if (z) {
+        mff_cycles(0xDDF2, 1);
+        BRANCH_TAIL(0xDDB7);                    /* hitpos_end */
+    }
+    mff_cycles(0xDDF4, 5 + 3 + 2);
+    RAM(ACTION_TIMER)--;
+    a = RAM(COMBO_TIMER);
+    if (a == 0) {
+        mff_cycles(0xDDF8, 1);
+    } else {
+        mff_cycles(0xDDFA, 5 + 3);
+        RAM(COMBO_TIMER)--;
+    }
+    FALL_INTO(func_DDE2);
+}
+
+/* guy_hitpos_pose ($DDE2, proposed): before the step $17 Guy's pose
+ * restarts animation $0E; otherwise hitpos_wait. Reached by JMP from
+ * guy_hitpos (0E:DDFC) and run on into from it. */
+void func_DDE2(void) {
+    REGS_IN;
+
+    mff_cycles(0xDDE2, 3 + 2 + 2);
+    a = RAM(PLAYER_STAND_ANIM);
+    COMPARE(a, 0x17);
+    if (!z) {
+        mff_cycles(0xDDE8, 2 + 1);
+        BRANCH_TAIL(0xDDC4);                    /* hitpos_wait */
+    }
+    mff_cycles(0xDDE6, 1 + 2 + 6);
+    a = 0x0E;
+    SET_NZ(a);
+    JSR_FN(0xDDEC, func_F294);                  /* player_set_anim */
+    mff_cycles(0xDDEF, 6);
+    RTS();
+}
+
+/* haggar_hitpos ($DDFF, proposed): as cody_hitpos, with
+ * haggar_hitpos_pose. */
+void func_DDFF(void) {
+    REGS_IN;
+
+    mff_cycles(0xDDFF, 3 + 2 + 2);
+    a = RAM(JOY_PRESSED) & PAD_B;
+    if (a != 0) {
+        mff_cycles(0xDE05, 3 + 2);
+        a = RAM(COMBO_TIMER);
+        SET_NZ(a);
+        if (!z) {
+            mff_cycles(0xDE07, 1 + 3);
+            JMP_TAIL(0xCB07, -1);               /* player_combo_continue */
+        }
+        mff_cycles(0xDE09, 2 + 3 + 6);
+        a = ACT_ATTACK;
+        SET_NZ(a);
+        RAM(GAME_ACTION) = a;
+        RTS();
+    }
+    mff_cycles(0xDE03, 1 + 3 + 2);
+    a = RAM(ACTION_TIMER);
+    SET_NZ(a);
+    if (z) {
+        mff_cycles(0xDE23, 2);
+        FALL_INTO(func_DDB7);                   /* hitpos_end */
+    }
+    mff_cycles(0xDE25, 5 + 3 + 2);
+    RAM(ACTION_TIMER)--;
+    a = RAM(COMBO_TIMER);
+    if (a == 0) {
+        mff_cycles(0xDE29, 1);
+    } else {
+        mff_cycles(0xDE2B, 5 + 3);
+        RAM(COMBO_TIMER)--;
+    }
+    SYNC_OUT;
+    haggar_hitpos_pose(0);
+}
+
+/*
+ * haggar_hitpos_pose ($DE0E, proposed): before the step $18 Haggar's pose
+ * is animation $0F with CHR bank 9; otherwise hitpos_wait - branched to
+ * when this runs as its own routine (JMP from haggar_hitpos, 0E:DE2D), run
+ * inline when haggar_hitpos runs on into it.
+ */
+static void haggar_hitpos_pose(int dispatch_wait) {
+    REGS_IN;
+
+    mff_cycles(0xDE0E, 3 + 2 + 2);
+    a = RAM(PLAYER_STAND_ANIM);
+    COMPARE(a, 0x18);
+    if (!z) {
+        mff_cycles(0xDE14, 2 + 2);
+        if (dispatch_wait)
+            BRANCH_TAIL(0xDDC4);                /* hitpos_wait */
+        SYNC_OUT;
+        hitpos_wait(0);
+        return;
+    }
+    mff_cycles(0xDE12, 1 + 2 + 6);
+    a = 0x0F;
+    SET_NZ(a);
+    JSR_FN(0xDE18, func_F294);                  /* player_set_anim */
+    mff_cycles(0xDE1B, 2 + 6);
+    a = 0x09;
+    SET_NZ(a);
+    JSR_FN(0xDE1D, func_F440);                  /* player_set_chr */
+    mff_cycles(0xDE20, 6);
+    RTS();
+}
+
+void func_DE0E(void) {
+    haggar_hitpos_pose(1);
 }

@@ -241,5 +241,21 @@ void func_DB6C(void);
 void func_DBD4(void);
 void func_DBFD(void);
 void func_DC29(void);
+void func_DC6C(void);
+void func_DCDD(void);
+void func_DD6A(void);
+void func_DD7F(void);
+void func_DD8E(void);
+void func_DDB7(void);
+void func_DDC1(void);
+void func_DDC4(void);
+void func_DDD3(void);
+void func_DDE2(void);
+void func_DDFF(void);
+void func_DE0E(void);
+void func_DE33(void);
+void func_DE5E(void);
+void func_DF50(void);
+void func_DFE9(void);
 
 #endif
