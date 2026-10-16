@@ -49,6 +49,13 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   fluxo do jogo (attract = `JMP reset`), laço de gameplay, despacho de estados do jogador e de
   comportamento de objetos (160 ids, banco por id: `tools/mff_dispatch.py`), desenho com rotação de
   ordem (o piscar). Mudanças de plano que isso traz: a P4 precisa de **corrotinas** para as tarefas.
+- **P3 concluída com um limite conhecido.** `port/scaffold` roda no backend legacy (870 entradas do
+  mapa, `push_all_jsr`, `nmi_tail` substituído, NMI segurada no meio de tarefa via `g_nmi_veto`).
+  Lockstep (`port/tests/`): RAM idêntica ao oráculo do power-on até o primeiro lag de cada rota
+  (Cody 7.637 frames, Guy 10.433, Haggar 7.669). Depois disso o andaime, que não faz lag, segue
+  outro caminho (tarefa em outro ponto do código, RNG mexido pelo `$92`). **Mudança de plano:** a
+  regressão da P4 é andaime original × andaime limpo (exata no jogo todo); o oráculo certifica o
+  andaime nos trechos sem lag; lag fiel (NMI no PC interrompido do oráculo) fica para a P7.
 
 ---
 

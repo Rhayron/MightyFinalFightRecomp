@@ -27,6 +27,7 @@ needed (details in `game.base.toml` and `extras.c`):
 | The finder decodes data as code (9,728 "functions") | the map's entry points and data regions; `disable_ptr_scan`, `disable_secondary` |
 | Each task resume leaked two stack bytes | `push_all_jsr`: the scheduler resumes a task by popping the yield's return address |
 | The NMI's hijacked return (`nmi_tail`, `$C119`) RTSed to `$0000` | `replace_func`: `func_C119` runs `sound_update` and keeps A/X/Y/P |
+| An NMI fired mid-task (the runner's estimated-time lag) corrupted the coroutine stacks | `g_nmi_veto` (nesrecomp branch `mff-scaffold`): no NMI while a task runs; `MFF_LAG=1` brings the lag back |
 
 Run headless: `MffScaffold.exe ROM --smoke FRAMES --smoke-interval N --smoke-output DIR`
 (`SDL_VIDEODRIVER=dummy`), or `--script FILE` for the legacy runner's
@@ -54,3 +55,22 @@ py -3 -I port/tests/lockstep.py o.flog s.flog
   PC the NMI interrupted, which the scaffold never has).
 - `--frame-log` costs ~135 KB per frame on the oracle side; delete it after
   the check.
+- `MFF_RESYNC=o.flog` copies the oracle's RAM for the same key between
+  frames (never the stack page, the task table `$80-$91` or `nmi_return_pc`).
+  It realigns data, not control flow.
+
+### What the lockstep shows (power-on through round 1, ~19,900 frames)
+
+Identical until the first frame the oracle lags (its NMI lands while task 0 is
+still running): Cody to frame 7,637, Guy to 10,433, Haggar to 7,669 with the
+veto on. The scaffold never lags, and after a lag only the oracle had, a task
+is at another point of its own code (a wait counter on its stack), which no
+RAM copy fixes; lags also move the RNG (`rng_step` mixes in `frame_counter`).
+So:
+
+- **against the oracle**: boot, intro, title, select and the gameplay up to
+  the first lag are certified bit for bit;
+- **for P4**: the refactored scaffold is checked against the unrefactored one
+  (same timing model, deterministic), which is exact over the whole game;
+- **faithful lag** (the NMI at the oracle's interrupted PC, `nmi_return_pc`)
+  is P7's timing model.
