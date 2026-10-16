@@ -399,28 +399,28 @@ bank = 3
 addr = 0x86AD   # snd_set_duty, sound_voice.c
 [[replace_func]]
 bank = 3
-addr = 0x86BA   # lifted, lifted_b3.c
+addr = 0x86BA   # snd_envelope, sound_output.c
 [[replace_func]]
 bank = 3
-addr = 0x86D1   # lifted, lifted_b3.c
+addr = 0x86D1   # snd_env_attack, sound_output.c
 [[replace_func]]
 bank = 3
-addr = 0x86E6   # lifted, lifted_b3.c
+addr = 0x86E6   # snd_env_decay, sound_output.c
 [[replace_func]]
 bank = 3
-addr = 0x8702   # lifted, lifted_b3.c
+addr = 0x8702   # snd_env_release, sound_output.c
 [[replace_func]]
 bank = 3
-addr = 0x871A   # lifted, lifted_b3.c
+addr = 0x871A   # snd_env_next, sound_output.c
 [[replace_func]]
 bank = 3
-addr = 0x8720   # lifted, lifted_b3.c
+addr = 0x8720   # snd_output, sound_output.c
 [[replace_func]]
 bank = 3
-addr = 0x88A0   # lifted, lifted_b3.c
+addr = 0x88A0   # snd_slide, sound_output.c
 [[replace_func]]
 bank = 3
-addr = 0x8914   # lifted, lifted_b3.c
+addr = 0x8914   # snd_env_off, sound_output.c
 [[replace_func]]
 bank = 5
 addr = 0x9C00   # lifted, lifted_b5.c

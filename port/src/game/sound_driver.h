@@ -184,5 +184,8 @@ void func_855A_b3(void);
 void func_8636_b3(void);
 void func_8644_b3(void);
 void func_8684_b3(void);
+void func_871A_b3(void);
+void func_8720_b3(void);
+void func_88A0_b3(void);
 
 #endif
