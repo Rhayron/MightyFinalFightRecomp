@@ -1362,15 +1362,15 @@ addr = 0xDF50   # lifted, lifted_d.c
 [[replace_func]]
 addr = 0xDFE9   # lifted, lifted_d.c
 [[replace_func]]
-addr = 0xE03B   # lifted, lifted_e.c
+addr = 0xE03B   # area_start, stage_area.c
 [[replace_func]]
-addr = 0xE12F   # lifted, lifted_e.c
+addr = 0xE12F   # round_map_pause, stage_area.c
 [[replace_func]]
-addr = 0xE139   # lifted, lifted_e.c
+addr = 0xE139   # round_map_resume, stage_area.c
 [[replace_func]]
-addr = 0xE143   # lifted, lifted_e.c
+addr = 0xE143   # camera_reset, stage_area.c
 [[replace_func]]
-addr = 0xE16B   # lifted, lifted_e.c
+addr = 0xE16B   # player_start_position, stage_area.c
 [[replace_func]]
 addr = 0xE2A3   # camera_update, stage_camera.c
 [[replace_func]]
