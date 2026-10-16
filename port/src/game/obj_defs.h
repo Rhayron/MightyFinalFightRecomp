@@ -191,10 +191,10 @@ void func_F343(void);   /* obj_dir toward the player, and the flags */
 void func_F34C(void);   /* sound_queue_push (effects) */
 void func_F365(void);   /* y distance to the player */
 void func_F374(void);   /* x distance to the player */
-void func_F440(void);
-void func_F443(void);
-void func_F449(void);
-void func_F44F(void);
+void func_F440(void);   /* chr_banks+2 = A (the player's sprite bank) */
+void func_F443(void);   /* obj_set_anim, chr_banks+3 = Y */
+void func_F449(void);   /* obj_set_anim, chr_banks+4 = Y */
+void func_F44F(void);   /* obj_set_anim, chr_banks+5 = Y */
 void func_F455(void);   /* spawn_hit_spark */
 void func_F55A(void);   /* enemy_attack_test */
 void func_F71A(void);   /* free slot in $0D..3 */
@@ -218,5 +218,6 @@ void func_8347_b6(void);
 void func_83A8_b6(void);
 void func_8593_b6(void);
 void func_8A31_b6(void);
+void func_8C00_b6(void);
 
 #endif

@@ -693,22 +693,22 @@ bank = 6
 addr = 0x8A31   # obj_hits.c
 [[replace_func]]
 bank = 6
-addr = 0x8AEE   # lifted, lifted_b6.c
+addr = 0x8AEE   # obj_items.c
 [[replace_func]]
 bank = 6
-addr = 0x8B64   # lifted, lifted_b6.c
+addr = 0x8B64   # obj_items.c
 [[replace_func]]
 bank = 6
-addr = 0x8BC2   # lifted, lifted_b6.c
+addr = 0x8BC2   # obj_items.c
 [[replace_func]]
 bank = 6
-addr = 0x8BD6   # lifted, lifted_b6.c
+addr = 0x8BD6   # obj_items.c
 [[replace_func]]
 bank = 6
-addr = 0x8BED   # lifted, lifted_b6.c
+addr = 0x8BED   # obj_items.c
 [[replace_func]]
 bank = 6
-addr = 0x8C00   # lifted, lifted_b6.c
+addr = 0x8C00   # obj_items.c
 [[replace_func]]
 bank = 6
 addr = 0x8C1C   # lifted, lifted_b6.c
