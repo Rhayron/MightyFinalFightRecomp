@@ -1314,21 +1314,21 @@ addr = 0xD9A3   # player_grab.c
 [[replace_func]]
 addr = 0xD9E9   # player_grab.c
 [[replace_func]]
-addr = 0xD9FA   # lifted, lifted_d.c
+addr = 0xD9FA   # player_hurt.c
 [[replace_func]]
-addr = 0xDA3F   # lifted, lifted_d.c
+addr = 0xDA3F   # player_hurt.c
 [[replace_func]]
-addr = 0xDB03   # lifted, lifted_d.c
+addr = 0xDB03   # player_hurt.c
 [[replace_func]]
-addr = 0xDB2C   # lifted, lifted_d.c
+addr = 0xDB2C   # player_hurt.c
 [[replace_func]]
-addr = 0xDB6C   # lifted, lifted_d.c
+addr = 0xDB6C   # player_hurt.c
 [[replace_func]]
-addr = 0xDBD4   # lifted, lifted_d.c
+addr = 0xDBD4   # player_hurt.c
 [[replace_func]]
-addr = 0xDBFD   # lifted, lifted_d.c
+addr = 0xDBFD   # player_hurt.c
 [[replace_func]]
-addr = 0xDC29   # lifted, lifted_d.c
+addr = 0xDC29   # player_hurt.c
 [[replace_func]]
 addr = 0xDC6C   # lifted, lifted_d.c
 [[replace_func]]
