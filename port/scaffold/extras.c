@@ -13,6 +13,7 @@
 #endif
 #include <SDL.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /* Globals expected by the runner framework */
@@ -26,7 +27,20 @@ uint32_t game_get_expected_crc32(void) { return 0x3F78037Cu; }
 
 const char *game_get_name(void) { return "Mighty Final Fight (legacy scaffold)"; }
 
+/* No lag frames in the scaffold (MFF_LAG=1 restores them): hold the NMI while
+ * any task is running (state 2 in $80+4n). An NMI the runner fires mid-task
+ * (its CPU time is an estimate) cut at $C3BC - inside the RNG, right before
+ * the frame-end yield - corrupted the coroutine stacks (S fell to $01 at
+ * NMI 11,338 of inputs/10_cody_poweron.txt). With the veto the scaffold plays
+ * as if every frame fit; the lockstep resyncs the oracle's lag frames. */
+static int mff_nmi_veto(void) {
+    for (int t = 0; t < 4; t++)
+        if (g_ram[0x80 + 4 * t] == 2) return 1;
+    return 0;
+}
+
 void game_on_init(void) {
+    { const char *lag = getenv("MFF_LAG"); if (!lag || *lag != '1') g_nmi_veto = mff_nmi_veto; }
     int port = (g_run_mode == RUN_MODE_EMULATED) ? 4371 : 4370;
     debug_server_init(port);
 
@@ -125,16 +139,100 @@ static void keyed_input(void) {
         g_controller1_buttons = s_in[s_in_at - 1].mask;   /* more repeats here than in the oracle */
 }
 
+/* MFF_RESYNC=ORACLE.framelog (the cycle build's --frame-log of the same
+ * route): after each frame is logged, copy the oracle's CPU RAM for the same
+ * NMI key over the scaffold's, minus the bytes each runner owns (stack page,
+ * the tasks' saved stack pointers, nmi_return_pc). A divergence then lasts one
+ * frame instead of carrying on - expected on lag frames, where the scaffold
+ * cuts the frame's work at a different instruction - so the lockstep keeps
+ * checking the whole route. Keys as in keyed_input/lockstep.py. */
+static void resync(void) {
+    static int state = 0, started = 0, prev = -1;
+    static FILE *f;
+    static uint32_t count, o_count, o_last;
+    static uint16_t rep, o_rep;
+    static int o_started, o_have, o_prev = -1;
+    static uint8_t o_ram[0x800];
+    static unsigned long resyncs;
+    if (!state) {
+        const char *e = getenv("MFF_RESYNC");
+        f = (e && *e) ? fopen(e, "rb") : NULL;
+        char magic[12];
+        state = (f && fread(magic, 1, 12, f) == 12 && !memcmp(magic, "CYCFRAME", 8)) ? 1 : -1;
+        if (state > 0) fprintf(stderr, "[mff] MFF_RESYNC: %s\n", e);
+    }
+    if (state < 0) return;
+    /* this frame's key */
+    int v = g_ram[0x92];
+    if (!started) {
+        if (prev == 0 && v == 1) { started = 1; count = 1; rep = 0; }
+        prev = v;
+        if (!started) return;
+    } else {
+        uint32_t next = count + (uint32_t)((v - prev) & 0xFF);
+        rep = (next == count) ? (uint16_t)(rep + 1) : 0;
+        count = next;
+        prev = v;
+    }
+    /* advance the oracle log to the same key */
+    for (;;) {
+        if (o_have && (o_count > count || (o_count == count && o_rep >= rep))) break;
+        uint32_t head[9];
+        if (fread(head, 4, 9, f) != 9) { state = -1; return; }
+        fseek(f, 32 + 256, SEEK_CUR);
+        if (fread(o_ram, 1, head[3], f) != head[3]) { state = -1; return; }
+        fseek(f, (long)(head[4] + head[5] + head[6] + head[7] + head[8]), SEEK_CUR);
+        int ov = o_ram[0x92];
+        if (!o_started) {
+            if (o_prev == 0 && ov == 1) { o_started = 1; o_count = 1; o_rep = 0; o_have = 1; }
+            o_prev = ov;
+            continue;
+        }
+        uint32_t next = o_count + (uint32_t)((ov - o_prev) & 0xFF);
+        o_rep = (next == o_count) ? (uint16_t)(o_rep + 1) : 0;
+        o_count = next;
+        o_prev = ov;
+        o_last = head[0];
+    }
+    if (o_count != count || o_rep != rep) return;      /* no oracle frame with this key */
+    /* Only between frames on both sides: while a task is still running (a lag
+     * frame on either side) the scaffold's C control flow is mid-task, and RAM
+     * saying otherwise would desynchronise code and data. */
+    if (g_ram[0x80] == 2 || o_ram[0x80] == 2) return;
+    int changed = 0;
+    for (int i = 0; i < 0x800; i++) {
+        /* never copied: the stack page, the scheduler's task table and current
+         * task ($80-$91, control flow, not data) and nmi_return_pc */
+        if ((i >= 0x100 && i < 0x200) || (i >= 0x80 && i <= 0x91) || i == 0xA0 || i == 0xA1)
+            continue;
+        if (g_ram[i] != o_ram[i]) { g_ram[i] = o_ram[i]; changed = 1; }
+    }
+    if (changed && ++resyncs <= 50)
+        fprintf(stderr, "[mff] resync at NMI %u (oracle frame %u)\n", (unsigned)count, (unsigned)o_last);
+}
+
 void game_on_frame(uint64_t frame_count) {
     frame_log(frame_count);
+    resync();
     keyed_input();
-    static long limit = -2;
-    if (limit == -2) { const char *e = getenv("MFF_TRACE"); limit = e ? atol(e) : -1; }
-    if (limit < 0 || (long)frame_count >= limit) return;
+    /* MFF_TRACE=N (first N frames) or START:N */
+    static long first = -2, limit = 0;
+    if (first == -2) {
+        const char *e = getenv("MFF_TRACE");
+        first = -1;
+        if (e) {
+            const char *c = strchr(e, ':');
+            if (c) { first = atol(e); limit = first + atol(c + 1); }
+            else { first = 0; limit = atol(e); }
+        }
+    }
+    if (first < 0 || (long)frame_count < first || (long)frame_count >= limit) return;
+    extern const char *g_last_recomp_func;
     fprintf(stderr, "[mff] f=%llu S=%02X tasks", (unsigned long long)frame_count, g_cpu.S);
     for (int t = 0; t < 4; t++)
         fprintf(stderr, " %02X/%02X/%02X%02X", g_ram[0x80 + 4*t], g_ram[0x81 + 4*t], g_ram[0x83 + 4*t], g_ram[0x82 + 4*t]);
-    fprintf(stderr, " cur=%02X EE=%02X F6=%02X 92=%02X\n", g_ram[0x91], g_ram[0xEE], g_ram[0xF6], g_ram[0x92]);
+    fprintf(stderr, " cur=%02X EE=%02X F6=%02X 92=%02X act=%02X fn=%s\n", g_ram[0x91], g_ram[0xEE], g_ram[0xF6],
+            g_ram[0x92], g_ram[0x30], g_last_recomp_func ? g_last_recomp_func : "?");
 }
 
 void game_post_nmi(uint64_t frame_count) { (void)frame_count; }

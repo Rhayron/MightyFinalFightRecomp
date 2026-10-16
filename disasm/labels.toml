@@ -600,3 +600,15 @@ comment = "nmi calls it when vram_request is set, and clears the request ($C01E-
 addr = 0x0064
 name = "vram_request"
 comment = "set to $FF by game code (e.g. $E6D8); nmi_vram_update runs at the next nmi"
+
+[[label]]
+bank = 0x0E
+addr = 0xC3B4
+name = "rng_step"
+comment = "once per gameplay frame (gameplay_frame_end): shifts $E4-$E8 and mixes draw_parity and frame_counter into $E4/$E5. An NMI landing inside it (a lag frame: oracle frame 11342 of inputs/10_cody_poweron.txt, PC $C3BC) changes every number drawn afterwards"
+
+[[ram]]
+addr = 0x00E4
+size = 5
+name = "rng"
+comment = "rng_step state"
