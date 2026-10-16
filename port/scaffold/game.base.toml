@@ -1214,13 +1214,13 @@ addr = 0xCF88   # lifted, lifted_c.c
 [[replace_func]]
 addr = 0xCFD1   # lifted, lifted_c.c
 [[replace_func]]
-addr = 0xD00E   # lifted, lifted_d.c
+addr = 0xD00E   # player_jump.c
 [[replace_func]]
-addr = 0xD03F   # lifted, lifted_d.c
+addr = 0xD03F   # player_jump.c
 [[replace_func]]
-addr = 0xD18E   # lifted, lifted_d.c
+addr = 0xD18E   # player_jump.c
 [[replace_func]]
-addr = 0xD242   # lifted, lifted_d.c
+addr = 0xD242   # player_jump.c
 [[replace_func]]
 addr = 0xD2B7   # lifted, lifted_d.c
 [[replace_func]]
