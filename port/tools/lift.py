@@ -260,10 +260,18 @@ class Lifter:
         elif mn == "JMP":
             ins["end"] = True
             mi = re.search(r"_jt = (nes_read16_jmpbug|nes_read16zp)\(0x([0-9A-F]{2,4})\); nes_cpu_instruction_boundary\(_jt, (\d+)\); call_by_address_tail\(_jt, (-?\d+)\); return;", rest)
-            if not mi:
+            # a jump whose target returns to an address the code pushed itself:
+            # call it, then continue there
+            mk = re.search(r"_jt = (nes_read16_jmpbug|nes_read16zp)\(0x([0-9A-F]{2,4})\); nes_cpu_instruction_boundary\(_jt, (\d+)\); call_by_address\(_jt\); call_by_address_tail\(0x([0-9A-F]{4}), (-?\d+)\); return;", rest)
+            if mi:
+                ins["kind"] = "ind"
+                ins["read"], ins["extra"], ins["bankarg"] = mi.group(1), int(mi.group(3)), int(mi.group(4))
+            elif mk:
+                ins["kind"] = "ind_cont"
+                ins["read"], ins["extra"] = mk.group(1), int(mk.group(3))
+                ins["cont"], ins["bankarg"] = int(mk.group(4), 16), int(mk.group(5))
+            else:
                 raise Refuse(f"${pc:04X}: JMP () form {rest[:90]}")
-            ins["kind"] = "ind"
-            ins["read"], ins["extra"], ins["bankarg"] = mi.group(1), int(mi.group(3)), int(mi.group(4))
         elif mn == "JSR":
             md = re.search(r"g_ram\[0x100 \+ g_cpu.S\] = \(uint8_t\)_rp; g_cpu.S--; (.*)$", rest)
             mr = re.search(r"g_code_window_base \| 0x([0-9A-F]{4})", rest)
@@ -558,6 +566,12 @@ class Lifter:
                     p = ins["arg"]
                     add(f"{{ uint16_t jt = {ins['read']}(0x{p:04X}); nes_cpu_instruction_boundary(jt, {ins['extra']}); "
                         f"call_by_address_tail(jt, {ins['bankarg']}); return; }}")
+                elif k == "ind_cont":
+                    flush()
+                    sync_all()
+                    p = ins["arg"]
+                    add(f"{{ uint16_t jt = {ins['read']}(0x{p:04X}); nes_cpu_instruction_boundary(jt, {ins['extra']}); "
+                        f"call_by_address(jt); call_by_address_tail(0x{ins['cont']:04X}, {ins['bankarg']}); return; }}")
                 else:
                     flush()
                     sync_all()

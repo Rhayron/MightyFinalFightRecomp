@@ -511,6 +511,1875 @@ addr = 0xFF4C   # lifted, lifted_f.c
 addr = 0xFF72   # lifted, lifted_f.c
 [[replace_func]]
 addr = 0xFF8E   # lifted, lifted_f.c
+[[replace_func]]
+bank = 0
+addr = 0x8065   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8066   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x807E   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8090   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8193   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x821D   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x82AF   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x83A1   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x83DC   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8429   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8479   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x85AA   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x85BF   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x85F9   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x85FE   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x87AA   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x87F7   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8832   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x884E   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8864   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x88AA   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8B15   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8B98   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8BB1   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8C38   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x8DD1   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x90AC   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x9297   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x93EF   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x9410   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x943F   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x945E   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x94F2   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x94F7   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x9565   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x958B   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x95BA   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x95FA   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x9610   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x9615   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x961A   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x961F   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x97A9   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x97C8   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x984F   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x987A   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x9A13   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x9A1D   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x9A98   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x9AC0   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0x9B16   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA000   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA003   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA006   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA009   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA00C   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA00F   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA012   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA015   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA018   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA01B   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA01E   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA021   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA024   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA027   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA02A   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA02D   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA030   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA031   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA090   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA09B   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA0FD   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA101   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA13C   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA169   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA22A   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA28B   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA2ED   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA3EA   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA417   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA473   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA53B   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA557   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA5CF   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA633   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA651   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA6D6   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA736   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA7E1   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA83A   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA882   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA8B7   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA8EF   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA918   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA971   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA9CA   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xA9F5   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xAA33   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xAAD8   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xAB0A   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xAB93   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xABB0   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xABB6   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xAC4E   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xACC1   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xAD0B   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xAD50   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xAD5E   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xAD8C   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xADBA   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 0
+addr = 0xAE19   # lifted, lifted_b0.c
+[[replace_func]]
+bank = 1
+addr = 0xB300   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB303   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB306   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB309   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB30C   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB30F   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB312   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB315   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB318   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB31B   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB31E   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB321   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB324   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB327   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB32A   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB32D   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB330   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB331   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB390   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB39B   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB3F4   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB546   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB57B   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB615   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB660   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB666   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB6F5   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB7BD   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB7C9   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB879   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB912   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB925   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xB977   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBA01   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBA1C   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBA53   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBA88   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBAD0   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBB29   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBB91   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBBCB   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBCD1   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBD46   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBD7C   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBDAF   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBDCE   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBE72   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBE9B   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBF38   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBF48   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBF95   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 1
+addr = 0xBFBE   # lifted, lifted_b1.c
+[[replace_func]]
+bank = 2
+addr = 0x8016   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x8DD8   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x8DEC   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x8E56   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x8E65   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x8ED4   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x8EED   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x8F07   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x9181   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x91BF   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x938A   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x9398   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x9413   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x942A   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x980F   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x98AF   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x98BD   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x98DD   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x999B   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x99D6   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x99DD   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x9A74   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x9A8F   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x9A9E   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x9AA0   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x9AC2   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x9AD1   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x9AD9   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0x9AF4   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA700   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA703   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA706   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA709   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA70C   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA70F   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA712   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA715   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA718   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA71B   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA71E   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA721   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA727   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA72A   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA72D   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA730   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA731   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA7A5   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA8A8   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA916   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA957   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xA9E4   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xAA82   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xAB08   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xAB41   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xABC4   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xABE1   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xAC58   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xAC7D   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xACE1   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xAD37   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 2
+addr = 0xAD58   # lifted, lifted_b2.c
+[[replace_func]]
+bank = 3
+addr = 0x8006   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8023   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x803A   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x806C   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x80D8   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x80EC   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x80FE   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8106   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x81AE   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x81C8   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x81D4   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x81E4   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x81F1   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x821E   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8226   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8252   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x82DE   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8326   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8386   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8393   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x83CD   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x847E   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8491   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8497   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x84D9   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x84DD   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x84E1   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x84E8   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x84F1   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x84FF   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8505   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8510   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8515   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x851B   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x851F   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8523   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8527   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x855A   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8575   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8580   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8592   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x85A3   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x85AE   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x85DE   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8636   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8644   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x865A   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x866F   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8684   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x86A1   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x86A7   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x86AD   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x86BA   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x86D1   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x86E6   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8702   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x871A   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8720   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x88A0   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 3
+addr = 0x8914   # lifted, lifted_b3.c
+[[replace_func]]
+bank = 4
+addr = 0x80C2   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x80E4   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x89D2   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x89D7   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8A2C   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8A43   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8A44   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8A53   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8A62   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8A76   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8A8D   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8A9D   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8AAB   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8AAC   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8ABF   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8AD3   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8AEA   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8AF9   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8B08   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8B1C   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8B35   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8B44   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8B58   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8B68   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8B7C   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8B8F   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8B9F   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8BB6   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8BC5   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8BE8   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8BFF   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8C0E   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8C1E   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8C32   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8C57   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8C6E   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8C7D   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8C8B   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8C8C   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8CA5   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8CBD   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8CD2   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8CE1   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8CF5   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8D0C   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8D1B   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8D2A   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8D3A   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8D51   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8D60   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8D6F   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8D83   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8D98   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x8DA8   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9000   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x921C   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x931D   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x96C3   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x96FC   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x972A   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x977F   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9787   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9788   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x979F   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x97A6   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x97B4   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x97C7   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x97CE   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x97E5   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x97EC   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x97FA   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9813   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x981A   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9821   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x982F   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9842   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9849   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9860   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9875   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x988C   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9893   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x98A1   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x98B4   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x98BB   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x98D2   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x98D9   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x98E0   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x98E7   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x98FA   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9901   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9918   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x991F   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9926   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9947   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x995E   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9965   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x996C   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9973   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x998A   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9991   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x9998   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x999F   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0x99B4   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xA000   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xA013   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xA321   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xA713   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xA71D   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xA788   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xA78E   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xA7D0   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xAB34   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xAB77   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xABD0   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xABDF   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xAC20   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xAC75   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xAC81   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xACB7   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xACE1   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 4
+addr = 0xAD0B   # lifted, lifted_b4.c
+[[replace_func]]
+bank = 5
+addr = 0xB300   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB303   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB306   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB309   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB30C   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB30F   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB312   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB315   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB318   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB31B   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB31E   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB321   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB324   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB327   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB32A   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB32D   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB330   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB331   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB349   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB366   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB403   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB411   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB46F   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB512   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB581   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB5AF   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB5D7   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB625   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB696   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB743   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB80B   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB84B   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB88C   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB929   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xB9B7   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBB0A   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBB8C   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBBE1   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBBEC   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBC6B   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBCC8   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBCD9   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBD7F   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBD9B   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBDBF   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBDE6   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBE23   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBE79   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBECE   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBF2B   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBF5B   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBF75   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBF90   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 5
+addr = 0xBFAF   # lifted, lifted_b5.c
+[[replace_func]]
+bank = 6
+addr = 0x8003   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x800B   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x819A   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x81B8   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x81F0   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x822F   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8244   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8256   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x827D   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8347   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x83A8   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x84EF   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x84F0   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8593   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x85C8   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x85F0   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8618   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x89E3   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x89F2   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x89F8   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8A08   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8A1E   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8A31   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8AEE   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8B64   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8BC2   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8BD6   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8BED   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8C00   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8C1C   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8C3F   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8C98   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8D00   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8D88   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8DEF   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8E43   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8E5A   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8EB4   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8EE5   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8F45   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8F8D   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8FA5   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8FC6   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x8FF9   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9036   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9078   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x90BA   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9128   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x917E   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9199   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x91B7   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9276   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x92F0   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x930B   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9332   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9357   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x93D1   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x942F   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9457   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x94B5   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x94D4   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9532   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9551   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x95AF   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x95CE   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9602   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x965C   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x968D   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x96EB   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9730   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9733   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x97E4   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9818   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x981B   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x983B   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x986E   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x98DE   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9912   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9962   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x99FC   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9A2D   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9A3F   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9AD8   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9B04   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9B07   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9B1F   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9B62   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9B6B   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9B74   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9BE1   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9BFC   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9C29   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9C55   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9C7A   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9CAD   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9CED   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9CF1   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9CF5   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9D71   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9D9E   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9DA4   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9DAA   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9E20   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9E24   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9E28   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9E32   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9E36   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9E40   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9E44   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9EC5   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9ECD   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9EF4   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9EF8   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9F05   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9F0E   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9F12   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9FBB   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0x9FF6   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA04C   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA060   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA085   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA088   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA0E8   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA102   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA18B   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA18E   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA210   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA2A6   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA2C3   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA340   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA3F5   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA411   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA41D   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA494   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA512   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA54F   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA5DA   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA652   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA717   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA732   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA73A   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA780   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA7AD   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA82C   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA89C   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA8E4   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA8E8   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA8F3   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA953   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA995   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA9E3   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA9EB   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xA9F6   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xAA1D   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xAA60   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xAAA0   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xAAAE   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xAAD7   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xAB00   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xAB29   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xAB4F   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xAB9F   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xAC34   # lifted, lifted_b6.c
+[[replace_func]]
+bank = 6
+addr = 0xACB3   # lifted, lifted_b6.c
 
 # ---- generated by port/tools/legacy_config.py from the P0 map; do not edit below ----
 
