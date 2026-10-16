@@ -83,17 +83,30 @@
 #define ACT_LAND       0x02   /* player_state_land: a few frames after a jump */
 #define ACT_ATTACK     0x03   /* player_state_punch */
 #define ACT_GRAB       0x04   /* player_state_grab */
+#define ACT_HIT        0x05   /* player_state_hit */
+#define ACT_KNOCKDOWN  0x06   /* player_state_knockdown */
 #define ACT_HOLD       0x0A   /* player_state_0A: a boss in bank $03 holds the player */
+#define ACT_CODY_THROW 0x0B   /* player_state_throw: Cody's throw */
 #define ACT_HITPOS     0x0C   /* player_state_hitpos: after a combo hit */
-#define ACT_CODY_SLASH 0x14   /* Cody's combo finisher (bank $00; Data Crystal: Cody's slash) */
-#define ACT_PIT_FALL   0x24   /* falling into a pit (player_pit_fall, $CFD1) */
+/* from here on handled in bank $00 (player_action_dispatch); names from Data
+ * Crystal where the code agrees */
+#define ACT_HEADSMASHER   0x12   /* Haggar: A while holding an enemy */
+#define ACT_GUY_THROW     0x13   /* Guy: B while holding an enemy */
+#define ACT_CODY_SLASH    0x14   /* Cody's combo finisher */
+#define ACT_HAGGAR_THROW  0x15   /* Haggar's back throw: B while holding */
+#define ACT_LYING         0x1F   /* down after a knockdown, getting up */
+#define ACT_GRAB_KNEE     0x21   /* Cody: B with no direction while holding */
+#define ACT_PIT_FALL      0x24   /* falling into a pit (player_pit_fall, $CFD1) */
 
 /* ---- background probe ($10 after obj_fall/obj_move_*) ---- */
 #define PROBE_PIT      0x40   /* attribute of a pit tile (and up) */
 
 /* ---- sound effects (sound_queue_push_sfx, $F34C) ---- */
 #define SFX_SWING      0x17   /* an attack goes out (attack_swing_sound, $F430) */
+#define SFX_JUMP       0x1B
 #define SFX_LAND       0x1C   /* a jump lands */
+#define SFX_KNOCKDOWN  0x28   /* the player is knocked down */
+#define SFX_THROW      0x33
 
 /* ---- obj_state ---- */
 #define STATE_LIVE     0x80
@@ -103,6 +116,7 @@
 
 /* ---- obj_flags: bit 7 on screen, 6 flipped (facing right: obj_face_right
  * $F090 sets it), 4 world coordinates ---- */
+#define FLAGS_FLIP         0x40
 #define FLAGS_FACING_LEFT  0x90
 #define FLAGS_FACING_RIGHT 0xD0
 
@@ -112,12 +126,20 @@
 /* ---- per-character tables in the fixed bank (3 bytes each) ---- */
 /* animation ids to set (player_set_anim, $F294) */
 #define ANIM_STAND          0xE1E3   /* 01 02 03 (player_stand, $CEAA) */
+#define ANIM_JUMP           0xE1E9   /* 07 08 09 */
 #define ANIM_JUMP_MOVING    0xE1EC   /* 0A 0B 0C: jump with left/right */
 #define ANIM_JUMP_KICK      0xE1FE   /* 1C 1D 1E */
+#define ANIM_KNOCKED_DOWN   0xE20D   /* 2B 2C 2D */
 #define ANIM_JUMP_BACK      0xE21C   /* 3A 3B 3C: moving away from the facing side */
 /* CHR banks for the sprite (player_set_chr, $F440) */
 #define CHR_JUMP            0xE22E   /* 01 05 12 */
 #define CHR_JUMP_KICK       0xE243   /* 02 06 13 */
+#define CHR_KNOCKED_DOWN    0xE255   /* 0D 15 12 */
+/* walking speed (player_state_idle sets it each frame, 0E:CAA2) */
+#define WALK_VX_FRAC        0xE1C1   /* 4C 80 19 */
+#define WALK_VX             0xE1C4   /* 01 01 01 */
+#define WALK_VY_FRAC        0xE1C7   /* 00 33 CC */
+#define WALK_VY             0xE1CA   /* 01 01 00 */
 /* jump speed in x when moving against the facing */
 #define JUMP_BACK_VX_FRAC   0xE1CD   /* 80 B3 33 */
 #define JUMP_BACK_VX        0xE1D0   /* 01 01 01 */
@@ -138,14 +160,20 @@
 #define POWER_ACTION        0xFCCE   /* 23 27 10 */
 
 /* ---- routines elsewhere ---- */
+void func_F003(void);   /* steps slot X right by vx and probes the background
+                           (Y = probe point); C set = blocked */
 void func_F03F(void);   /* player_face_right: obj_flags[0] |= $40 */
 void func_F048(void);   /* player_face_left: obj_flags[0] &= ~$40 */
 void func_F090(void);   /* obj_face_right: obj_flags[X] |= $40 */
+void func_F054(void);   /* steps slot X left, as $F003 */
 void func_F099(void);   /* obj_face_left: obj_flags[X] &= ~$40 */
+void func_F0A2(void);   /* steps slot X down by vy and probes; C set = blocked */
+void func_F0F7(void);   /* steps slot X up, as $F0A2 */
 void func_F119(void);   /* obj_fall: slot X falls by obj_vy with gravity; C set
                            on the floor, $10 = the probed tile's attribute */
 void func_F183(void);   /* obj_move_right: x += vx (slot X) */
 void func_F1A1(void);   /* obj_move_left: x -= vx (slot X) */
+void func_F288(void);   /* obj_set_anim: obj_anim[X] = A, frame and timer 0 */
 void func_F294(void);   /* player_set_anim: obj_anim[0] = A, frame and timer 0 */
 void func_F34C(void);   /* sound_queue_push_sfx: queue sound A */
 void func_F428(void);   /* attack_start: attack_live $1E, attack_id 0, swing sound */
@@ -190,5 +218,28 @@ void func_D6E0(void);
 void func_D70A(void);
 void func_D777(void);
 void func_D79A(void);
+void func_D7A3(void);
+void func_D7B8(void);
+void func_D7F2(void);
+void func_D82E(void);
+void func_D83B(void);
+void func_D886(void);
+void func_D88C(void);
+void func_D89A(void);
+void func_D8A8(void);
+void func_D8B7(void);
+void func_D8E5(void);
+void func_D93C(void);
+void func_D986(void);
+void func_D9A3(void);
+void func_D9E9(void);
+void func_D9FA(void);
+void func_DA3F(void);
+void func_DB03(void);
+void func_DB2C(void);
+void func_DB6C(void);
+void func_DBD4(void);
+void func_DBFD(void);
+void func_DC29(void);
 
 #endif
