@@ -231,31 +231,31 @@ bank = 1
 addr = 0xBFBE   # lifted, lifted_b1.c
 [[replace_func]]
 bank = 3
-addr = 0x8000   # lifted, lifted_b3.c
+addr = 0x8000   # sound_tick, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x8003   # lifted, lifted_b3.c
+addr = 0x8003   # sound_play, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x8006   # lifted, lifted_b3.c
+addr = 0x8006   # snd_mul8, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x8023   # lifted, lifted_b3.c
+addr = 0x8023   # snd_jump_inline, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x803A   # lifted, lifted_b3.c
+addr = 0x803A   # snd_read, sound_driver.c
 [[replace_func]]
 bank = 3
 addr = 0x806C   # lifted, lifted_b3.c
 [[replace_func]]
 bank = 3
-addr = 0x80D8   # lifted, lifted_b3.c
+addr = 0x80D8   # snd_silence, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x80EC   # lifted, lifted_b3.c
+addr = 0x80EC   # snd_reg_write, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x80FE   # lifted, lifted_b3.c
+addr = 0x80FE   # snd_play_body, sound_driver.c
 [[replace_func]]
 bank = 3
 addr = 0x8106   # lifted, lifted_b3.c
