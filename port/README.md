@@ -3,53 +3,63 @@
 Work in progress. This holds the **P3 scaffold**: Mighty Final Fight on
 NESRecomp's legacy, function-level backend (one C function per 6502 routine),
 the **lockstep** check that compares it frame by frame with the
-cycle-accurate build in the repo root (the oracle), and the start of **P4**:
-routines rewritten by hand in `port/src/game/`, each replacing its generated
-version in the scaffold.
+cycle-accurate build in the repo root (the oracle), and **P4**: every
+routine of the game in C in `port/src/game/`, building and running without
+the scaffold's generated code.
 
-## P4: hand-written routines
+## P4: every routine in port/src/game
 
-The generated code is not ejected wholesale (it is tens of MB with the same
-code repeated at every call site); instead one routine at a time gets a
-readable C body in `port/src/game/*.c` and a `[[replace_func]]` line in
-`scaffold/game.base.toml`. In this phase a replacement must leave the
-machine exactly as the original does, so the scaffold with replacements is
-compared with the scaffold without them, frame by frame:
+Every routine of the game now has a C body in `port/src/game/`: about thirty
+written by hand (the scheduler and tasks, NMI and IRQ, VRAM uploads, the
+RNG, the pads, banking) and the rest lifted. With the CMake option
+`MFF_EJECTED` the port builds from `port/src/game`, `port/src/glue` and the
+runtime alone, no generated code at all, and plays the six test routes
+identically to the original scaffold.
 
 ```bash
-port/tests/run_routes.sh baseline   # once, on the unrefactored scaffold
-port/tests/regen.sh                 # after editing game.base.toml or src/game
-port/tests/run_routes.sh check      # every route in tests/routes must print "identical"
+port/tests/run_routes.sh baseline   # once, on the pure scaffold (regen.sh --pure)
+port/tests/regen.sh                 # the scaffold with port/src/game (replace_func)
+port/tests/run_routes.sh check      # every route must print "identical"
+py -3 -I port/tools/dispatch_gen.py # then build the port alone:
+cmake -S port/scaffold -B build_port -A x64 -DMFF_EJECTED=ON && cmake --build build_port --config Release
+MFF_EXE=build_port/Release/MffScaffold.exe port/tests/run_routes.sh check
 ```
 
-- Exact means all 2 KiB of RAM (temporaries such as `$00` too), OAM and
-  palette every frame, and the same registers and flags on return.
-- Cycles count too: the scaffold ends a frame on a cycle count, and a
-  replacement charging 10 cycles too few fails the check within the first
-  gameplay frames. The model (`mff.h`): base cycles per opcode, +1 per taken
-  branch, no page-cross penalty. A routine charges a segment, then does its
-  work; segments split where an interrupt reads what the routine writes
-  (`bank_switch_busy`, the sound queue).
-- Under `push_all_jsr` a routine ends with `mff_rts()` (pops the return
-  address the caller pushed).
+The routes (`port/tests/routes`): round 1 with each character (inputs keyed
+by NMI count) and three 50,000-frame tours by the in-process bot
+(`port/scaffold/bot.c`, `MFF_BOT=char:seed:skip`) that go through every
+round, beat the final boss and run into the ending. The check compares, every
+frame, all of CPU RAM but the dead part of the stack page, OAM, palette and
+a hash of the rendered picture.
 
-Done so far: `rng_step`, `read_joypads`, `bank_switch`, `rendering_off/on`,
-`object_clear`, `objects_clear_all`, `clear_ram_400_5ff`, `sound_queue_push`.
+### The lifter
 
-The generator changes this needed are on nesrecomp's `mff-scaffold` branch:
-a `replace_func` entry is never folded into another function's body (callers
-would bypass it), a replaced function is never an owner of other entries,
-and a body that falls into a replaced entry tail-calls the replacement.
-The finder's fixed-bank pointer scan still invents entries (`$C842`, inside
-the `start_health` table, whose decode runs into `clear_ram_400_5ff`); those
-bodies are never called. Turning the heuristics off
-(`NESRECOMP_LEGACY_FUNCTION_FINDER=1`) halves the generated code but is not
-the certified scaffold: it moves the frame boundary inside the scheduler's
-idle loop from frame 2 on and hits a coroutine stack error at frame 7,621 of
-the Guy route, so it stays off.
+`port/tools/lift.py` turns a routine into C that is exact by construction:
+the semantics come from the ROM, and every decision the generator made comes
+from the pure scaffold's own copy of the code (which jumps are tail calls
+and cost 2 more cycles, page-crossing branches, yields, how a JSR
+dispatches). A/X/Y and the flags are locals synced with `g_cpu` at calls and
+exits, a flag no path reads is not computed, RAM is named from
+`disasm/labels.toml` (`port/src/game/state.h`, by `port/tools/state_h.py`),
+and `lift_structure.py` turns the simple goto shapes into if/else and loops.
+`port/tools/lift_bank.py ROM BANK...` lifts every routine of some banks that
+has no hand-written replacement; `--extra` adds entries the P0 map does not
+list but runs reach (find them with a stack-tracking build and
+`NESRECOMP_FUNC_COUNTS=FILE`).
 
-A hand count of cycles is easy to get wrong (`clear_ram_400_5ff` was 510
-short at first, caught at frame 19); the check is what makes a routine done.
+### Rules a replacement keeps (port/src/game/mff.h)
+
+- Exact means RAM (temporaries such as `$00` too), registers and flags on
+  return, and cycles: the scaffold ends a frame on a cycle count. The model:
+  base cycles per opcode, +1 for a taken branch (+2 across a page), no
+  page-cross penalty on loads, +2 when a JMP becomes a tail call.
+- A routine charges a run of instructions, then does its work. Runs end at
+  every hardware access (it then happens at the cycle it did) and at every
+  call.
+- The scaffold takes the NMI only between tasks, and around the scheduler
+  only at the top of its scan (`$FEBD`): the sound driver reads a register
+  nmi_tail never sets, so the place the NMI interrupted leaked into its
+  scratch. The scheduler is written instruction by instruction for that.
 
 ## Scaffold
 

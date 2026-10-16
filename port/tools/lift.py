@@ -34,6 +34,8 @@ import tomllib
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 from dis6502 import MN  # noqa: E402
+sys.path.insert(0, os.path.dirname(__file__))
+import lift_structure  # noqa: E402
 
 SIZE = {"imp": 1, "acc": 1, "imm": 2, "zp": 2, "zpx": 2, "zpy": 2, "izx": 2, "izy": 2, "rel": 2,
         "abs": 3, "abx": 3, "aby": 3, "ind": 3}
@@ -157,6 +159,7 @@ class Lifter:
         self.nm = names
         self.calls = set()          # prototypes needed
         self.stops = set()          # entries written by hand: reaching one is a tail call
+        self.flat = False           # True: labels and gotos, no if/loop structuring
 
     def byte(self, pc):
         if pc >= 0xC000:
@@ -663,11 +666,11 @@ class Lifter:
                "    REGS_IN;"]
         if start != entry:
             raise Refuse("entry inside a shared body")
-        for s in body:
-            if s.startswith("L_"):
-                out.append(s + ";")
-            else:
-                out.append("    " + s)
+        if self.flat:
+            for s in body:
+                out.append(s + ";" if s.startswith("L_") else "    " + s)
+        else:
+            out += lift_structure.structure(body)
         out.append("}")
         return "\n".join(out)
 

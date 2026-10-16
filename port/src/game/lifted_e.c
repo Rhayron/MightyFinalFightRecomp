@@ -38,7 +38,6 @@ void func_FF4D(void);
 /*  $E03B - lifted by port/tools/lift.py */
 void func_E03B(void) {
     REGS_IN;
-L_E03B:;
     mff_cycles(0xE03B, 31);
     mff_push(a);
     a &= 0xE0;
@@ -124,15 +123,17 @@ L_E03B:;
     mff_cycles(0xE096, 5);
     a = RAM(ROUND);
     z = (a) == 0;
-    if (z) { mff_cycles(0xE098, 1); goto L_E09F; }
-    mff_cycles(0xE09A, 8);
-    a = 0x05;
-    n = (a) >> 7;
-    z = (a) == 0;
-    SYNC_OUT;
-    if (!mff_call_fn(0x009E, func_F34A, 0xE000)) return;
-    SYNC_IN;
-L_E09F:;
+    if (!z) {
+        mff_cycles(0xE09A, 8);
+        a = 0x05;
+        n = (a) >> 7;
+        z = (a) == 0;
+        SYNC_OUT;
+        if (!mff_call_fn(0x009E, func_F34A, 0xE000)) return;
+        SYNC_IN;
+    } else {
+        mff_cycles(0xE098, 1);
+    }
     mff_cycles(0xE09F, 4);
     a = 0xFF;
     z = (a) == 0;
@@ -227,18 +228,24 @@ L_E11C:;
     m = 0x04; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE120, 1); goto L_E12C; }
-    mff_cycles(0xE122, 7);
-    a = RAM(SUB_AREA);
-    m = 0x02; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE126, 1); goto L_E12C; }
-    mff_cycles(0xE128, 5);
-    a = 0x20;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(GAME_ACTION) = a;
+    if (z) {
+        mff_cycles(0xE122, 7);
+        a = RAM(SUB_AREA);
+        m = 0x02; c = a >= m;
+        n = ((uint8_t)(a - m)) >> 7;
+        z = ((uint8_t)(a - m)) == 0;
+        if (z) {
+            mff_cycles(0xE128, 5);
+            a = 0x20;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(GAME_ACTION) = a;
+        } else {
+            mff_cycles(0xE126, 1);
+        }
+    } else {
+        mff_cycles(0xE120, 1);
+    }
 L_E12C:;
     mff_cycles(0xE12C, 3);
     SYNC_OUT;
@@ -248,7 +255,6 @@ L_E12C:;
 /*  $E12F - lifted by port/tools/lift.py */
 void func_E12F(void) {
     REGS_IN;
-L_E12F:;
     mff_cycles(0xE12F, 18);
     a = 0xFF;
     RAM(PAUSED) = a;
@@ -264,7 +270,6 @@ L_E12F:;
 /*  $E139 - lifted by port/tools/lift.py */
 void func_E139(void) {
     REGS_IN;
-L_E139:;
     mff_cycles(0xE139, 18);
     g_cpu.I = 0;
     a = 0x01;
@@ -280,7 +285,6 @@ L_E139:;
 /*  $E143 - lifted by port/tools/lift.py */
 void func_E143(void) {
     REGS_IN;
-L_E143:;
     mff_cycles(0xE143, 40);
     a = 0x00;
     RAM(SCROLL_X) = a;
@@ -303,7 +307,6 @@ L_E143:;
 /*  $E16B - lifted by port/tools/lift.py */
 void func_E16B(void) {
     REGS_IN;
-L_E16B:;
     mff_cycles(0xE16B, 7);
     y = RAM(ROUND);
     a = nes_read((uint16_t)(0xE18F + y));
@@ -335,7 +338,6 @@ L_E16B:;
 /*  $E2A3 - lifted by port/tools/lift.py */
 void func_E2A3(void) {
     REGS_IN;
-L_E2A3:;
     mff_cycles(0xE2A3, 7);
     a = RAM(GAME_ACTION);
     m = 0x06; c = a >= m;
@@ -378,21 +380,25 @@ L_E2C0:;
     a = RAM(CAMERA_LOCK);
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0xE2C2, 1); goto L_E2C7; }
-    mff_cycles(0xE2C4, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0xE473, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E473(); g_code_window_base = swb; } return;
-L_E2C7:;
+    if (!z) {
+        mff_cycles(0xE2C4, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0xE473, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E473(); g_code_window_base = swb; } return;
+    } else {
+        mff_cycles(0xE2C2, 1);
+    }
     mff_cycles(0xE2C7, 7);
     a = RAM(AREA_FLAGS);
     a &= 0x20;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!z) { mff_cycles(0xE2CB, 1); goto L_E2D0; }
-    mff_cycles(0xE2CD, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0xE473, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E473(); g_code_window_base = swb; } return;
-L_E2D0:;
+    if (z) {
+        mff_cycles(0xE2CD, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0xE473, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E473(); g_code_window_base = swb; } return;
+    } else {
+        mff_cycles(0xE2CB, 1);
+    }
     mff_cycles(0xE2D0, 26);
     a = 0x01;
     RAM(0x10) = a;
@@ -403,11 +409,13 @@ L_E2D0:;
     RAM(0x00) = a;
     c = 1;
     m = 0x80; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    if (c) { mff_cycles(0xE2E1, 1); goto L_E2E7; }
-    mff_cycles(0xE2E3, 4);
-    a ^= 0xFF;
-    m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-L_E2E7:;
+    if (!c) {
+        mff_cycles(0xE2E3, 4);
+        a ^= 0xFF;
+        m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    } else {
+        mff_cycles(0xE2E1, 1);
+    }
     mff_cycles(0xE2E7, 17);
     RAM(0x01) = a;
     a = RAM(OBJ_X);
@@ -416,11 +424,13 @@ L_E2E7:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x02) = a;
-    if (n) { mff_cycles(0xE2F1, 1); goto L_E2F6; }
-    mff_cycles(0xE2F3, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0xE3A3, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E3A3(); g_code_window_base = swb; } return;
-L_E2F6:;
+    if (!n) {
+        mff_cycles(0xE2F3, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0xE3A3, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E3A3(); g_code_window_base = swb; } return;
+    } else {
+        mff_cycles(0xE2F1, 1);
+    }
     mff_cycles(0xE2F6, 16);
     a ^= 0xFF;
     c = 0;
@@ -428,18 +438,22 @@ L_E2F6:;
     RAM(0x02) = a;
     a = RAM(0x01);
     m = 0x19; c = a >= m;
-    if (!c) { mff_cycles(0xE301, 1); goto L_E307; }
-    mff_cycles(0xE303, 6);
-    a = RAM(0x02);
-    RAM(0x01) = a;
-L_E307:;
+    if (c) {
+        mff_cycles(0xE303, 6);
+        a = RAM(0x02);
+        RAM(0x01) = a;
+    } else {
+        mff_cycles(0xE301, 1);
+    }
     mff_cycles(0xE307, 7);
     a = 0x18;
     m = RAM(0x01); c = a >= m;
-    if (c) { mff_cycles(0xE30B, 1); goto L_E30F; }
-    mff_cycles(0xE30D, 3);
-    RAM(0x01) = a;
-L_E30F:;
+    if (!c) {
+        mff_cycles(0xE30D, 3);
+        RAM(0x01) = a;
+    } else {
+        mff_cycles(0xE30B, 1);
+    }
     mff_cycles(0xE30F, 15);
     a = 0x02;
     RAM(0x10) = a;
@@ -463,7 +477,9 @@ L_E30F:;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0xE32B, 1); goto L_E333; }
     mff_cycles(0xE32D, 2);
-    if (!z) { mff_cycles(0xE32D, 1); goto L_E32F; }
+    if (!z) {
+        mff_cycles(0xE32D, 1);
+    }
 L_E32F:;
     mff_cycles(0xE32F, 4);
     a = 0x18;
@@ -482,18 +498,20 @@ L_E335:;
     m = RAM(0x0F); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (c) { mff_cycles(0xE341, 1); goto L_E352; }
-    mff_cycles(0xE343, 21);
-    a = RAM(SCROLL_X);
-    c = 0;
-    m = RAM(0x0F); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(OBJ_X) = a;
-    a = RAM(SCROLL_X_HI);
-    m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_X_HI) = a;
-L_E352:;
+    if (!c) {
+        mff_cycles(0xE343, 21);
+        a = RAM(SCROLL_X);
+        c = 0;
+        m = RAM(0x0F); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(OBJ_X) = a;
+        a = RAM(SCROLL_X_HI);
+        m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(OBJ_X_HI) = a;
+    } else {
+        mff_cycles(0xE341, 1);
+    }
     mff_cycles(0xE352, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -503,78 +521,96 @@ L_E353:;
     m = 0x1D; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE357, 1); goto L_E3A0; }
-    mff_cycles(0xE359, 5);
-    a = RAM(ROUND);
-    z = (a) == 0;
-    if (!z) { mff_cycles(0xE35B, 1); goto L_E373; }
-    mff_cycles(0xE35D, 7);
-    a = RAM(SUB_AREA);
-    m = 0x01; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE361, 1); goto L_E373; }
-    mff_cycles(0xE363, 7);
-    a = RAM(AREA_SCREEN);
-    m = 0x02; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE367, 1); goto L_E373; }
-    mff_cycles(0xE369, 17);
-    a = 0x1E;
-    RAM(GAME_ACTION) = a;
-    a = 0x80;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_STATE) = a;
-    SYNC_OUT;
-    mff_rts(); return;
-L_E373:;
-    mff_cycles(0xE373, 7);
-    a = RAM(ROUND);
-    m = 0x03; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE377, 1); goto L_E38D; }
-    mff_cycles(0xE379, 5);
-    a = RAM(SUB_AREA);
-    n = (a) >> 7;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0xE37B, 1); goto L_E38D; }
-    mff_cycles(0xE37D, 7);
-    a = RAM(AREA_SCREEN);
-    m = 0x02; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!c) { mff_cycles(0xE381, 1); goto L_E38D; }
-    mff_cycles(0xE383, 17);
-    a = 0x26;
-    RAM(GAME_ACTION) = a;
-    a = 0x80;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_STATE) = a;
-    SYNC_OUT;
-    mff_rts(); return;
-L_E38D:;
-    mff_cycles(0xE38D, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x038F, 0xCEAA, -1)) return;
-    SYNC_IN;
-    mff_cycles(0xE390, 17);
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(GAME_ACTION) = a;
-    RAM(CAMERA_AUTOSCROLL) = a;
-    RAM(JUMP_MOVING) = a;
-    SYNC_OUT;
-    if (!mff_call_fn(0x039A, func_F436, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xE39B, 6);
-    a = 0x80;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_STATE) = a;
-L_E3A0:;
+    if (z) {
+        mff_cycles(0xE359, 5);
+        a = RAM(ROUND);
+        z = (a) == 0;
+        if (z) {
+            mff_cycles(0xE35D, 7);
+            a = RAM(SUB_AREA);
+            m = 0x01; c = a >= m;
+            z = ((uint8_t)(a - m)) == 0;
+            if (z) {
+                mff_cycles(0xE363, 7);
+                a = RAM(AREA_SCREEN);
+                m = 0x02; c = a >= m;
+                z = ((uint8_t)(a - m)) == 0;
+                if (z) {
+                    mff_cycles(0xE369, 17);
+                    a = 0x1E;
+                    RAM(GAME_ACTION) = a;
+                    a = 0x80;
+                    n = (a) >> 7;
+                    z = (a) == 0;
+                    RAM(OBJ_STATE) = a;
+                    SYNC_OUT;
+                    mff_rts(); return;
+                } else {
+                    mff_cycles(0xE367, 1);
+                }
+            } else {
+                mff_cycles(0xE361, 1);
+            }
+        } else {
+            mff_cycles(0xE35B, 1);
+        }
+        mff_cycles(0xE373, 7);
+        a = RAM(ROUND);
+        m = 0x03; c = a >= m;
+        n = ((uint8_t)(a - m)) >> 7;
+        z = ((uint8_t)(a - m)) == 0;
+        if (z) {
+            mff_cycles(0xE379, 5);
+            a = RAM(SUB_AREA);
+            n = (a) >> 7;
+            z = (a) == 0;
+            if (z) {
+                mff_cycles(0xE37D, 7);
+                a = RAM(AREA_SCREEN);
+                m = 0x02; c = a >= m;
+                n = ((uint8_t)(a - m)) >> 7;
+                z = ((uint8_t)(a - m)) == 0;
+                if (c) {
+                    mff_cycles(0xE383, 17);
+                    a = 0x26;
+                    RAM(GAME_ACTION) = a;
+                    a = 0x80;
+                    n = (a) >> 7;
+                    z = (a) == 0;
+                    RAM(OBJ_STATE) = a;
+                    SYNC_OUT;
+                    mff_rts(); return;
+                } else {
+                    mff_cycles(0xE381, 1);
+                }
+            } else {
+                mff_cycles(0xE37B, 1);
+            }
+        } else {
+            mff_cycles(0xE377, 1);
+        }
+        mff_cycles(0xE38D, 6);
+        SYNC_OUT;
+        if (!mff_call_at(0x038F, 0xCEAA, -1)) return;
+        SYNC_IN;
+        mff_cycles(0xE390, 17);
+        a = 0x00;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(GAME_ACTION) = a;
+        RAM(CAMERA_AUTOSCROLL) = a;
+        RAM(JUMP_MOVING) = a;
+        SYNC_OUT;
+        if (!mff_call_fn(0x039A, func_F436, 0xE000)) return;
+        SYNC_IN;
+        mff_cycles(0xE39B, 6);
+        a = 0x80;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(OBJ_STATE) = a;
+    } else {
+        mff_cycles(0xE357, 1);
+    }
     mff_cycles(0xE3A0, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0xE473, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E473(); g_code_window_base = swb; } return;
@@ -590,78 +626,96 @@ L_E353:;
     m = 0x1D; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE357, 1); goto L_E3A0; }
-    mff_cycles(0xE359, 5);
-    a = RAM(ROUND);
-    z = (a) == 0;
-    if (!z) { mff_cycles(0xE35B, 1); goto L_E373; }
-    mff_cycles(0xE35D, 7);
-    a = RAM(SUB_AREA);
-    m = 0x01; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE361, 1); goto L_E373; }
-    mff_cycles(0xE363, 7);
-    a = RAM(AREA_SCREEN);
-    m = 0x02; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE367, 1); goto L_E373; }
-    mff_cycles(0xE369, 17);
-    a = 0x1E;
-    RAM(GAME_ACTION) = a;
-    a = 0x80;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_STATE) = a;
-    SYNC_OUT;
-    mff_rts(); return;
-L_E373:;
-    mff_cycles(0xE373, 7);
-    a = RAM(ROUND);
-    m = 0x03; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE377, 1); goto L_E38D; }
-    mff_cycles(0xE379, 5);
-    a = RAM(SUB_AREA);
-    n = (a) >> 7;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0xE37B, 1); goto L_E38D; }
-    mff_cycles(0xE37D, 7);
-    a = RAM(AREA_SCREEN);
-    m = 0x02; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!c) { mff_cycles(0xE381, 1); goto L_E38D; }
-    mff_cycles(0xE383, 17);
-    a = 0x26;
-    RAM(GAME_ACTION) = a;
-    a = 0x80;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_STATE) = a;
-    SYNC_OUT;
-    mff_rts(); return;
-L_E38D:;
-    mff_cycles(0xE38D, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x038F, 0xCEAA, -1)) return;
-    SYNC_IN;
-    mff_cycles(0xE390, 17);
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(GAME_ACTION) = a;
-    RAM(CAMERA_AUTOSCROLL) = a;
-    RAM(JUMP_MOVING) = a;
-    SYNC_OUT;
-    if (!mff_call_fn(0x039A, func_F436, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xE39B, 6);
-    a = 0x80;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_STATE) = a;
-L_E3A0:;
+    if (z) {
+        mff_cycles(0xE359, 5);
+        a = RAM(ROUND);
+        z = (a) == 0;
+        if (z) {
+            mff_cycles(0xE35D, 7);
+            a = RAM(SUB_AREA);
+            m = 0x01; c = a >= m;
+            z = ((uint8_t)(a - m)) == 0;
+            if (z) {
+                mff_cycles(0xE363, 7);
+                a = RAM(AREA_SCREEN);
+                m = 0x02; c = a >= m;
+                z = ((uint8_t)(a - m)) == 0;
+                if (z) {
+                    mff_cycles(0xE369, 17);
+                    a = 0x1E;
+                    RAM(GAME_ACTION) = a;
+                    a = 0x80;
+                    n = (a) >> 7;
+                    z = (a) == 0;
+                    RAM(OBJ_STATE) = a;
+                    SYNC_OUT;
+                    mff_rts(); return;
+                } else {
+                    mff_cycles(0xE367, 1);
+                }
+            } else {
+                mff_cycles(0xE361, 1);
+            }
+        } else {
+            mff_cycles(0xE35B, 1);
+        }
+        mff_cycles(0xE373, 7);
+        a = RAM(ROUND);
+        m = 0x03; c = a >= m;
+        n = ((uint8_t)(a - m)) >> 7;
+        z = ((uint8_t)(a - m)) == 0;
+        if (z) {
+            mff_cycles(0xE379, 5);
+            a = RAM(SUB_AREA);
+            n = (a) >> 7;
+            z = (a) == 0;
+            if (z) {
+                mff_cycles(0xE37D, 7);
+                a = RAM(AREA_SCREEN);
+                m = 0x02; c = a >= m;
+                n = ((uint8_t)(a - m)) >> 7;
+                z = ((uint8_t)(a - m)) == 0;
+                if (c) {
+                    mff_cycles(0xE383, 17);
+                    a = 0x26;
+                    RAM(GAME_ACTION) = a;
+                    a = 0x80;
+                    n = (a) >> 7;
+                    z = (a) == 0;
+                    RAM(OBJ_STATE) = a;
+                    SYNC_OUT;
+                    mff_rts(); return;
+                } else {
+                    mff_cycles(0xE381, 1);
+                }
+            } else {
+                mff_cycles(0xE37B, 1);
+            }
+        } else {
+            mff_cycles(0xE377, 1);
+        }
+        mff_cycles(0xE38D, 6);
+        SYNC_OUT;
+        if (!mff_call_at(0x038F, 0xCEAA, -1)) return;
+        SYNC_IN;
+        mff_cycles(0xE390, 17);
+        a = 0x00;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(GAME_ACTION) = a;
+        RAM(CAMERA_AUTOSCROLL) = a;
+        RAM(JUMP_MOVING) = a;
+        SYNC_OUT;
+        if (!mff_call_fn(0x039A, func_F436, 0xE000)) return;
+        SYNC_IN;
+        mff_cycles(0xE39B, 6);
+        a = 0x80;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(OBJ_STATE) = a;
+    } else {
+        mff_cycles(0xE357, 1);
+    }
     mff_cycles(0xE3A0, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0xE473, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E473(); g_code_window_base = swb; } return;
@@ -788,14 +842,16 @@ L_E409:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(SCROLL_X) = a;
-    if (!c) { mff_cycles(0xE410, 1); goto L_E415; }
-    mff_cycles(0xE412, 11);
-    t = (uint8_t)(RAM(AREA_SCREEN) + 1); RAM(AREA_SCREEN) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-    SYNC_OUT;
-    mff_rts(); return;
-L_E415:;
+    if (c) {
+        mff_cycles(0xE412, 11);
+        t = (uint8_t)(RAM(AREA_SCREEN) + 1); RAM(AREA_SCREEN) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+        SYNC_OUT;
+        mff_rts(); return;
+    } else {
+        mff_cycles(0xE410, 1);
+    }
     mff_cycles(0xE415, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0xE4DF, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E4DF(); g_code_window_base = swb; } return;
@@ -803,77 +859,98 @@ L_E418:;
     mff_cycles(0xE418, 7);
     a = RAM(0x01);
     m = 0x19; c = a >= m;
-    if (!c) { mff_cycles(0xE41C, 1); goto L_E42E; }
-    mff_cycles(0xE41E, 8);
-    a = RAM(0x02);
-    z = (a) == 0;
-    RAM(0x01) = a;
-    if (!z) { mff_cycles(0xE422, 1); goto L_E42E; }
-    mff_cycles(0xE424, 7);
-    a = RAM(GAME_ACTION);
-    m = 0x14; c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE428, 1); goto L_E42E; }
-    mff_cycles(0xE42A, 5);
-    a = 0x01;
-    RAM(0x01) = a;
-L_E42E:;
+    if (c) {
+        mff_cycles(0xE41E, 8);
+        a = RAM(0x02);
+        z = (a) == 0;
+        RAM(0x01) = a;
+        if (z) {
+            mff_cycles(0xE424, 7);
+            a = RAM(GAME_ACTION);
+            m = 0x14; c = a >= m;
+            z = ((uint8_t)(a - m)) == 0;
+            if (z) {
+                mff_cycles(0xE42A, 5);
+                a = 0x01;
+                RAM(0x01) = a;
+            } else {
+                mff_cycles(0xE428, 1);
+            }
+        } else {
+            mff_cycles(0xE422, 1);
+        }
+    } else {
+        mff_cycles(0xE41C, 1);
+    }
     mff_cycles(0xE42E, 7);
     a = 0x18;
     m = RAM(0x01); c = a >= m;
-    if (c) { mff_cycles(0xE432, 1); goto L_E436; }
-    mff_cycles(0xE434, 3);
-    RAM(0x01) = a;
-L_E436:;
+    if (!c) {
+        mff_cycles(0xE434, 3);
+        RAM(0x01) = a;
+    } else {
+        mff_cycles(0xE432, 1);
+    }
     mff_cycles(0xE436, 7);
     a = RAM(0x01);
     m = 0x04; c = a >= m;
-    if (!c) { mff_cycles(0xE43A, 1); goto L_E440; }
-    mff_cycles(0xE43C, 5);
-    a = 0x01;
-    RAM(0x01) = a;
-L_E440:;
+    if (c) {
+        mff_cycles(0xE43C, 5);
+        a = 0x01;
+        RAM(0x01) = a;
+    } else {
+        mff_cycles(0xE43A, 1);
+    }
     mff_cycles(0xE440, 5);
     a = RAM(0x01);
     z = (a) == 0;
-    if (z) { mff_cycles(0xE442, 1); goto L_E473; }
-    mff_cycles(0xE444, 13);
-    a = RAM(SCROLL_X);
-    c = 0;
-    m = RAM(0x01); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(SCROLL_X) = a;
-    if (!c) { mff_cycles(0xE44B, 1); goto L_E46F; }
-    mff_cycles(0xE44D, 13);
-    t = (uint8_t)(RAM(AREA_SCREEN) + 1); RAM(AREA_SCREEN) = t;
-    a = RAM(AREA_SCREEN);
-    m = RAM(AREA_SCREEN_COUNT); c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE453, 1); goto L_E463; }
-    mff_cycles(0xE455, 13);
-    a = 0x00;
-    RAM(SCROLL_X) = a;
-    a = 0xF0;
-    m = RAM(OBJ_X); c = a >= m;
-    if (c) { mff_cycles(0xE45E, 1); goto L_E463; }
-    mff_cycles(0xE460, 4);
-    RAM(OBJ_X) = a;
-L_E463:;
-    mff_cycles(0xE463, 18);
-    a = 0xFF;
-    RAM(CAMERA_LOCK) = a;
-    RAM(CAMERA_AUTOSCROLL) = a;
-    a = 0x00;
-    RAM(SCROLL_X) = a;
-    t = (uint8_t)(RAM(SCROLL_X_HI) + 1); RAM(SCROLL_X_HI) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-L_E46F:;
-    mff_cycles(0xE46F, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0xE4DF, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E4DF(); g_code_window_base = swb; } return;
-L_E473:;
+    if (!z) {
+        mff_cycles(0xE444, 13);
+        a = RAM(SCROLL_X);
+        c = 0;
+        m = RAM(0x01); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(SCROLL_X) = a;
+        if (c) {
+            mff_cycles(0xE44D, 13);
+            t = (uint8_t)(RAM(AREA_SCREEN) + 1); RAM(AREA_SCREEN) = t;
+            a = RAM(AREA_SCREEN);
+            m = RAM(AREA_SCREEN_COUNT); c = a >= m;
+            z = ((uint8_t)(a - m)) == 0;
+            if (z) {
+                mff_cycles(0xE455, 13);
+                a = 0x00;
+                RAM(SCROLL_X) = a;
+                a = 0xF0;
+                m = RAM(OBJ_X); c = a >= m;
+                if (!c) {
+                    mff_cycles(0xE460, 4);
+                    RAM(OBJ_X) = a;
+                } else {
+                    mff_cycles(0xE45E, 1);
+                }
+            } else {
+                mff_cycles(0xE453, 1);
+            }
+            mff_cycles(0xE463, 18);
+            a = 0xFF;
+            RAM(CAMERA_LOCK) = a;
+            RAM(CAMERA_AUTOSCROLL) = a;
+            a = 0x00;
+            RAM(SCROLL_X) = a;
+            t = (uint8_t)(RAM(SCROLL_X_HI) + 1); RAM(SCROLL_X_HI) = t;
+            n = (t) >> 7;
+            z = (t) == 0;
+        } else {
+            mff_cycles(0xE44B, 1);
+        }
+        mff_cycles(0xE46F, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0xE4DF, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E4DF(); g_code_window_base = swb; } return;
+    } else {
+        mff_cycles(0xE442, 1);
+    }
     mff_cycles(0xE473, 5);
     a = RAM(SCROLL_X);
     n = (a) >> 7;
@@ -912,14 +989,17 @@ L_E496:;
     mff_cycles(0xE496, 8);
     a = RAM(OBJ_X);
     m = 0x20; c = a >= m;
-    if (c) { mff_cycles(0xE49B, 1); goto L_E4A3; }
-    mff_cycles(0xE49D, 12);
-    a = 0x20;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_X) = a;
-    SYNC_OUT;
-    mff_rts(); return;
+    if (!c) {
+        mff_cycles(0xE49D, 12);
+        a = 0x20;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(OBJ_X) = a;
+        SYNC_OUT;
+        mff_rts(); return;
+    } else {
+        mff_cycles(0xE49B, 1);
+    }
 L_E4A3:;
     mff_cycles(0xE4A3, 7);
     a = RAM(PLAYER_ID);
@@ -967,17 +1047,23 @@ L_E4C8:;
     m = 0x19; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0xE4D3, 1); goto L_E4DE; }
-    mff_cycles(0xE4D5, 4);
-    m = 0x0E; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0xE4D7, 1); goto L_E4DE; }
-    mff_cycles(0xE4D9, 6);
-    a = 0xF0;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_X) = a;
+    if (!z) {
+        mff_cycles(0xE4D5, 4);
+        m = 0x0E; c = a >= m;
+        n = ((uint8_t)(a - m)) >> 7;
+        z = ((uint8_t)(a - m)) == 0;
+        if (!z) {
+            mff_cycles(0xE4D9, 6);
+            a = 0xF0;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(OBJ_X) = a;
+        } else {
+            mff_cycles(0xE4D7, 1);
+        }
+    } else {
+        mff_cycles(0xE4D3, 1);
+    }
 L_E4DE:;
     mff_cycles(0xE4DE, 6);
     SYNC_OUT;
@@ -987,7 +1073,6 @@ L_E4DE:;
 /*  $E473 - lifted by port/tools/lift.py */
 void func_E473(void) {
     REGS_IN;
-L_E473:;
     mff_cycles(0xE473, 5);
     a = RAM(SCROLL_X);
     n = (a) >> 7;
@@ -1026,14 +1111,17 @@ L_E496:;
     mff_cycles(0xE496, 8);
     a = RAM(OBJ_X);
     m = 0x20; c = a >= m;
-    if (c) { mff_cycles(0xE49B, 1); goto L_E4A3; }
-    mff_cycles(0xE49D, 12);
-    a = 0x20;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_X) = a;
-    SYNC_OUT;
-    mff_rts(); return;
+    if (!c) {
+        mff_cycles(0xE49D, 12);
+        a = 0x20;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(OBJ_X) = a;
+        SYNC_OUT;
+        mff_rts(); return;
+    } else {
+        mff_cycles(0xE49B, 1);
+    }
 L_E4A3:;
     mff_cycles(0xE4A3, 7);
     a = RAM(PLAYER_ID);
@@ -1081,17 +1169,23 @@ L_E4C8:;
     m = 0x19; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0xE4D3, 1); goto L_E4DE; }
-    mff_cycles(0xE4D5, 4);
-    m = 0x0E; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0xE4D7, 1); goto L_E4DE; }
-    mff_cycles(0xE4D9, 6);
-    a = 0xF0;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_X) = a;
+    if (!z) {
+        mff_cycles(0xE4D5, 4);
+        m = 0x0E; c = a >= m;
+        n = ((uint8_t)(a - m)) >> 7;
+        z = ((uint8_t)(a - m)) == 0;
+        if (!z) {
+            mff_cycles(0xE4D9, 6);
+            a = 0xF0;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(OBJ_X) = a;
+        } else {
+            mff_cycles(0xE4D7, 1);
+        }
+    } else {
+        mff_cycles(0xE4D3, 1);
+    }
 L_E4DE:;
     mff_cycles(0xE4DE, 6);
     SYNC_OUT;
@@ -1101,21 +1195,22 @@ L_E4DE:;
 /*  $E4DF - lifted by port/tools/lift.py */
 void func_E4DF(void) {
     REGS_IN;
-L_E4DF:;
     mff_cycles(0xE4DF, 10);
     a = RAM(SCROLL_X);
     c = 1;
     m = RAM(SCROLL_X_PREV); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!n) { mff_cycles(0xE4E4, 1); goto L_E4EB; }
-    mff_cycles(0xE4E6, 6);
-    a ^= 0xFF;
-    c = 0;
-    m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_E4EB:;
+    if (n) {
+        mff_cycles(0xE4E6, 6);
+        a ^= 0xFF;
+        c = 0;
+        m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0xE4E4, 1);
+    }
     mff_cycles(0xE4EB, 5);
     RAM(0x03) = a;
     if (z) { mff_cycles(0xE4ED, 2); goto L_E51F; }
@@ -1123,31 +1218,35 @@ L_E4EB:;
     a = RAM(SCROLL_MODE);
     a &= 0x0C;
     z = (a) == 0;
-    if (z) { mff_cycles(0xE4F3, 2); goto L_E506; }
-    mff_cycles(0xE4F5, 14);
-    a = RAM(0x10);
-    RAM(SCROLL_MODE) = a;
-    a &= 0x01;
-    x = a;
-    a = nes_read((uint16_t)(0xE60B + x));
-    mff_cycles(0xE4FF, 7);
-    RAM(SCROLL_X_PREV) = a;
-    a = nes_read((uint16_t)(0xE60D + x));
-    mff_cycles(0xE504, 3);
-    RAM(BG_COLUMN) = a;
-L_E506:;
+    if (!z) {
+        mff_cycles(0xE4F5, 14);
+        a = RAM(0x10);
+        RAM(SCROLL_MODE) = a;
+        a &= 0x01;
+        x = a;
+        a = nes_read((uint16_t)(0xE60B + x));
+        mff_cycles(0xE4FF, 7);
+        RAM(SCROLL_X_PREV) = a;
+        a = nes_read((uint16_t)(0xE60D + x));
+        mff_cycles(0xE504, 3);
+        RAM(BG_COLUMN) = a;
+    } else {
+        mff_cycles(0xE4F3, 2);
+    }
     mff_cycles(0xE506, 7);
     a = RAM(0x10);
     a &= 0x01;
     z = (a) == 0;
-    if (z) { mff_cycles(0xE50A, 1); goto L_E511; }
-    mff_cycles(0xE50C, 6);
-    a = RAM(SCROLL_X_PREV);
-    n = (a) >> 7;
-    z = (a) == 0;
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0xE515, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E515(); g_code_window_base = swb; } return;
-L_E511:;
+    if (!z) {
+        mff_cycles(0xE50C, 6);
+        a = RAM(SCROLL_X_PREV);
+        n = (a) >> 7;
+        z = (a) == 0;
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0xE515, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E515(); g_code_window_base = swb; } return;
+    } else {
+        mff_cycles(0xE50A, 1);
+    }
     mff_cycles(0xE511, 20);
     a = RAM(SCROLL_X_PREV);
     a ^= 0xFF;
@@ -1176,11 +1275,13 @@ L_E521:;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     RAM(SCROLL_MODE) = a;
-    if (z) { mff_cycles(0xE52C, 1); goto L_E531; }
-    mff_cycles(0xE52E, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0xE53F, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E53F(); g_code_window_base = swb; } return;
-L_E531:;
+    if (!z) {
+        mff_cycles(0xE52E, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0xE53F, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E53F(); g_code_window_base = swb; } return;
+    } else {
+        mff_cycles(0xE52C, 1);
+    }
     mff_cycles(0xE531, 9);
     a = RAM(BG_COLUMN);
     c = 0;
@@ -1189,14 +1290,16 @@ L_E531:;
     m = 0x20; c = a >= m;
     a &= 0x1F;
     RAM(BG_COLUMN) = a;
-    if (!c) { mff_cycles(0xE53D, 1); goto L_E547; }
-    mff_cycles(0xE53F, 9);
-    a = RAM(BG_SCREEN);
-    c = 0;
-    m = nes_read((uint16_t)(0xE601 + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    mff_cycles(0xE545, 3);
-    RAM(BG_SCREEN) = a;
-L_E547:;
+    if (c) {
+        mff_cycles(0xE53F, 9);
+        a = RAM(BG_SCREEN);
+        c = 0;
+        m = nes_read((uint16_t)(0xE601 + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        mff_cycles(0xE545, 3);
+        RAM(BG_SCREEN) = a;
+    } else {
+        mff_cycles(0xE53D, 1);
+    }
     mff_cycles(0xE547, 7);
     y = RAM(ROUND_TABLES);
     a = nes_read((uint16_t)(0xC1F8 + y));
@@ -1223,110 +1326,117 @@ L_E547:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x03) = a;
-L_E560:;
-    mff_cycles(0xE560, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x0562, func_E60F, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xE563, 45);
-    y = RAM(MAP_CELL);
-    a = RAM(ATTR_SHADOW + y);
-    RAM(0x11) = a;
-    a = RAM(BG_COLUMN);
-    a &= 0x03;
-    y = a;
-    x = RAM(0x03);
-    a = RAM(TILE_BLOCK + y);
-    RAM(VRAM_BUFFER + 3 + x) = a;
-    a = RAM(TILE_BLOCK + 4 + y);
-    RAM(VRAM_BUFFER + 4 + x) = a;
-    a = RAM(MAP_CELL);
-    m = 0x38; c = a >= m;
-    if (c) { mff_cycles(0xE581, 1); goto L_E58F; }
-    mff_cycles(0xE583, 18);
-    a = RAM(TILE_BLOCK + 8 + y);
-    RAM(VRAM_BUFFER + 5 + x) = a;
-    a = RAM(TILE_BLOCK + 12 + y);
-    RAM(VRAM_BUFFER + 6 + x) = a;
-L_E58F:;
-    mff_cycles(0xE58F, 7);
-    a = RAM(BG_COLUMN);
-    a &= 0x01;
-    z = (a) == 0;
-    if (z) { mff_cycles(0xE593, 1); goto L_E5BE; }
-    mff_cycles(0xE595, 7);
-    a = RAM(0x10);
-    a &= nes_read((uint16_t)(0xE603 + y));
-    mff_cycles(0xE59A, 10);
-    RAM(0x10) = a;
-    a = RAM(0x11);
-    a &= nes_read((uint16_t)(0xE607 + y));
-    mff_cycles(0xE5A1, 43);
-    a |= RAM(0x10);
-    RAM(VRAM_BUFFER + 27 + x) = a;
-    y = RAM(MAP_CELL);
-    RAM(ATTR_SHADOW + y) = a;
-    a = 0x23;
-    RAM(VRAM_BUFFER + 24 + x) = a;
-    a = y;
-    a |= 0xC0;
-    c = 0;
-    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(VRAM_BUFFER + 25 + x) = a;
-    a = 0x00;
-    RAM(VRAM_BUFFER + 26 + x) = a;
-L_E5BE:;
-    mff_cycles(0xE5BE, 34);
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    a = RAM(MAP_CELL);
-    c = 0;
-    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(MAP_CELL) = a;
-    m = 0x28; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!c) { mff_cycles(0xE5CF, 1); goto L_E5FE; }
-    mff_cycles(0xE5D1, 32);
-    a = 0x20;
-    RAM(VRAM_BUFFER) = a;
-    a = RAM(BG_COLUMN);
-    c = 0;
-    m = 0x80; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(VRAM_BUFFER + 1) = a;
-    a = 0x14;
-    RAM(VRAM_BUFFER + 2) = a;
-    y = 0x00;
-    a = RAM(BG_COLUMN);
-    a &= 0x01;
-    z = (a) == 0;
-    if (z) { mff_cycles(0xE5E9, 1); goto L_E5ED; }
-    mff_cycles(0xE5EB, 2);
-    y = 0x14;
-L_E5ED:;
-    mff_cycles(0xE5ED, 28);
-    a = 0xFF;
-    RAM(VRAM_BUFFER + 24 + y) = a;
-    RAM(VRAM_COLUMN_REQUEST) = a;
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(VRAM_BUFFER + 3) = a;
-    RAM(VRAM_BUFFER + 23) = a;
-    c = 0;
-    SYNC_OUT;
-    mff_rts(); return;
-L_E5FE:;
-    mff_cycles(0xE5FE, 3);
-    goto L_E560;
+    for (;;) {
+        mff_cycles(0xE560, 6);
+        SYNC_OUT;
+        if (!mff_call_fn(0x0562, func_E60F, 0xE000)) return;
+        SYNC_IN;
+        mff_cycles(0xE563, 45);
+        y = RAM(MAP_CELL);
+        a = RAM(ATTR_SHADOW + y);
+        RAM(0x11) = a;
+        a = RAM(BG_COLUMN);
+        a &= 0x03;
+        y = a;
+        x = RAM(0x03);
+        a = RAM(TILE_BLOCK + y);
+        RAM(VRAM_BUFFER + 3 + x) = a;
+        a = RAM(TILE_BLOCK + 4 + y);
+        RAM(VRAM_BUFFER + 4 + x) = a;
+        a = RAM(MAP_CELL);
+        m = 0x38; c = a >= m;
+        if (!c) {
+            mff_cycles(0xE583, 18);
+            a = RAM(TILE_BLOCK + 8 + y);
+            RAM(VRAM_BUFFER + 5 + x) = a;
+            a = RAM(TILE_BLOCK + 12 + y);
+            RAM(VRAM_BUFFER + 6 + x) = a;
+        } else {
+            mff_cycles(0xE581, 1);
+        }
+        mff_cycles(0xE58F, 7);
+        a = RAM(BG_COLUMN);
+        a &= 0x01;
+        z = (a) == 0;
+        if (!z) {
+            mff_cycles(0xE595, 7);
+            a = RAM(0x10);
+            a &= nes_read((uint16_t)(0xE603 + y));
+            mff_cycles(0xE59A, 10);
+            RAM(0x10) = a;
+            a = RAM(0x11);
+            a &= nes_read((uint16_t)(0xE607 + y));
+            mff_cycles(0xE5A1, 43);
+            a |= RAM(0x10);
+            RAM(VRAM_BUFFER + 27 + x) = a;
+            y = RAM(MAP_CELL);
+            RAM(ATTR_SHADOW + y) = a;
+            a = 0x23;
+            RAM(VRAM_BUFFER + 24 + x) = a;
+            a = y;
+            a |= 0xC0;
+            c = 0;
+            m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(VRAM_BUFFER + 25 + x) = a;
+            a = 0x00;
+            RAM(VRAM_BUFFER + 26 + x) = a;
+        } else {
+            mff_cycles(0xE593, 1);
+        }
+        mff_cycles(0xE5BE, 34);
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        a = RAM(MAP_CELL);
+        c = 0;
+        m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(MAP_CELL) = a;
+        m = 0x28; c = a >= m;
+        n = ((uint8_t)(a - m)) >> 7;
+        z = ((uint8_t)(a - m)) == 0;
+        if (c) {
+            mff_cycles(0xE5D1, 32);
+            a = 0x20;
+            RAM(VRAM_BUFFER) = a;
+            a = RAM(BG_COLUMN);
+            c = 0;
+            m = 0x80; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(VRAM_BUFFER + 1) = a;
+            a = 0x14;
+            RAM(VRAM_BUFFER + 2) = a;
+            y = 0x00;
+            a = RAM(BG_COLUMN);
+            a &= 0x01;
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0xE5EB, 2);
+                y = 0x14;
+            } else {
+                mff_cycles(0xE5E9, 1);
+            }
+            mff_cycles(0xE5ED, 28);
+            a = 0xFF;
+            RAM(VRAM_BUFFER + 24 + y) = a;
+            RAM(VRAM_COLUMN_REQUEST) = a;
+            a = 0x00;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(VRAM_BUFFER + 3) = a;
+            RAM(VRAM_BUFFER + 23) = a;
+            c = 0;
+            SYNC_OUT;
+            mff_rts(); return;
+        } else {
+            mff_cycles(0xE5CF, 1);
+        }
+        mff_cycles(0xE5FE, 3);
+    }
 }
 
 /*  $E515 - lifted by port/tools/lift.py */
 void func_E515(void) {
     REGS_IN;
-L_E515:;
     mff_cycles(0xE515, 15);
     a &= 0x07;
     c = 0;
@@ -1336,12 +1446,14 @@ L_E515:;
     t = a; c = t & 1; t >>= 1; a = t;
     n = (t) >> 7;
     z = (t) == 0;
-    if (!z) { mff_cycles(0xE51D, 1); goto L_E521; }
-    mff_cycles(0xE51F, 8);
-    c = 1;
-    SYNC_OUT;
-    mff_rts(); return;
-L_E521:;
+    if (z) {
+        mff_cycles(0xE51F, 8);
+        c = 1;
+        SYNC_OUT;
+        mff_rts(); return;
+    } else {
+        mff_cycles(0xE51D, 1);
+    }
     mff_cycles(0xE521, 22);
     a = RAM(0x10);
     mff_push(a);
@@ -1352,11 +1464,13 @@ L_E521:;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     RAM(SCROLL_MODE) = a;
-    if (z) { mff_cycles(0xE52C, 1); goto L_E531; }
-    mff_cycles(0xE52E, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0xE53F, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E53F(); g_code_window_base = swb; } return;
-L_E531:;
+    if (!z) {
+        mff_cycles(0xE52E, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0xE53F, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E53F(); g_code_window_base = swb; } return;
+    } else {
+        mff_cycles(0xE52C, 1);
+    }
     mff_cycles(0xE531, 9);
     a = RAM(BG_COLUMN);
     c = 0;
@@ -1365,14 +1479,16 @@ L_E531:;
     m = 0x20; c = a >= m;
     a &= 0x1F;
     RAM(BG_COLUMN) = a;
-    if (!c) { mff_cycles(0xE53D, 1); goto L_E547; }
-    mff_cycles(0xE53F, 9);
-    a = RAM(BG_SCREEN);
-    c = 0;
-    m = nes_read((uint16_t)(0xE601 + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    mff_cycles(0xE545, 3);
-    RAM(BG_SCREEN) = a;
-L_E547:;
+    if (c) {
+        mff_cycles(0xE53F, 9);
+        a = RAM(BG_SCREEN);
+        c = 0;
+        m = nes_read((uint16_t)(0xE601 + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        mff_cycles(0xE545, 3);
+        RAM(BG_SCREEN) = a;
+    } else {
+        mff_cycles(0xE53D, 1);
+    }
     mff_cycles(0xE547, 7);
     y = RAM(ROUND_TABLES);
     a = nes_read((uint16_t)(0xC1F8 + y));
@@ -1399,110 +1515,117 @@ L_E547:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x03) = a;
-L_E560:;
-    mff_cycles(0xE560, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x0562, func_E60F, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xE563, 45);
-    y = RAM(MAP_CELL);
-    a = RAM(ATTR_SHADOW + y);
-    RAM(0x11) = a;
-    a = RAM(BG_COLUMN);
-    a &= 0x03;
-    y = a;
-    x = RAM(0x03);
-    a = RAM(TILE_BLOCK + y);
-    RAM(VRAM_BUFFER + 3 + x) = a;
-    a = RAM(TILE_BLOCK + 4 + y);
-    RAM(VRAM_BUFFER + 4 + x) = a;
-    a = RAM(MAP_CELL);
-    m = 0x38; c = a >= m;
-    if (c) { mff_cycles(0xE581, 1); goto L_E58F; }
-    mff_cycles(0xE583, 18);
-    a = RAM(TILE_BLOCK + 8 + y);
-    RAM(VRAM_BUFFER + 5 + x) = a;
-    a = RAM(TILE_BLOCK + 12 + y);
-    RAM(VRAM_BUFFER + 6 + x) = a;
-L_E58F:;
-    mff_cycles(0xE58F, 7);
-    a = RAM(BG_COLUMN);
-    a &= 0x01;
-    z = (a) == 0;
-    if (z) { mff_cycles(0xE593, 1); goto L_E5BE; }
-    mff_cycles(0xE595, 7);
-    a = RAM(0x10);
-    a &= nes_read((uint16_t)(0xE603 + y));
-    mff_cycles(0xE59A, 10);
-    RAM(0x10) = a;
-    a = RAM(0x11);
-    a &= nes_read((uint16_t)(0xE607 + y));
-    mff_cycles(0xE5A1, 43);
-    a |= RAM(0x10);
-    RAM(VRAM_BUFFER + 27 + x) = a;
-    y = RAM(MAP_CELL);
-    RAM(ATTR_SHADOW + y) = a;
-    a = 0x23;
-    RAM(VRAM_BUFFER + 24 + x) = a;
-    a = y;
-    a |= 0xC0;
-    c = 0;
-    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(VRAM_BUFFER + 25 + x) = a;
-    a = 0x00;
-    RAM(VRAM_BUFFER + 26 + x) = a;
-L_E5BE:;
-    mff_cycles(0xE5BE, 34);
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    a = RAM(MAP_CELL);
-    c = 0;
-    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(MAP_CELL) = a;
-    m = 0x28; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!c) { mff_cycles(0xE5CF, 1); goto L_E5FE; }
-    mff_cycles(0xE5D1, 32);
-    a = 0x20;
-    RAM(VRAM_BUFFER) = a;
-    a = RAM(BG_COLUMN);
-    c = 0;
-    m = 0x80; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(VRAM_BUFFER + 1) = a;
-    a = 0x14;
-    RAM(VRAM_BUFFER + 2) = a;
-    y = 0x00;
-    a = RAM(BG_COLUMN);
-    a &= 0x01;
-    z = (a) == 0;
-    if (z) { mff_cycles(0xE5E9, 1); goto L_E5ED; }
-    mff_cycles(0xE5EB, 2);
-    y = 0x14;
-L_E5ED:;
-    mff_cycles(0xE5ED, 28);
-    a = 0xFF;
-    RAM(VRAM_BUFFER + 24 + y) = a;
-    RAM(VRAM_COLUMN_REQUEST) = a;
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(VRAM_BUFFER + 3) = a;
-    RAM(VRAM_BUFFER + 23) = a;
-    c = 0;
-    SYNC_OUT;
-    mff_rts(); return;
-L_E5FE:;
-    mff_cycles(0xE5FE, 3);
-    goto L_E560;
+    for (;;) {
+        mff_cycles(0xE560, 6);
+        SYNC_OUT;
+        if (!mff_call_fn(0x0562, func_E60F, 0xE000)) return;
+        SYNC_IN;
+        mff_cycles(0xE563, 45);
+        y = RAM(MAP_CELL);
+        a = RAM(ATTR_SHADOW + y);
+        RAM(0x11) = a;
+        a = RAM(BG_COLUMN);
+        a &= 0x03;
+        y = a;
+        x = RAM(0x03);
+        a = RAM(TILE_BLOCK + y);
+        RAM(VRAM_BUFFER + 3 + x) = a;
+        a = RAM(TILE_BLOCK + 4 + y);
+        RAM(VRAM_BUFFER + 4 + x) = a;
+        a = RAM(MAP_CELL);
+        m = 0x38; c = a >= m;
+        if (!c) {
+            mff_cycles(0xE583, 18);
+            a = RAM(TILE_BLOCK + 8 + y);
+            RAM(VRAM_BUFFER + 5 + x) = a;
+            a = RAM(TILE_BLOCK + 12 + y);
+            RAM(VRAM_BUFFER + 6 + x) = a;
+        } else {
+            mff_cycles(0xE581, 1);
+        }
+        mff_cycles(0xE58F, 7);
+        a = RAM(BG_COLUMN);
+        a &= 0x01;
+        z = (a) == 0;
+        if (!z) {
+            mff_cycles(0xE595, 7);
+            a = RAM(0x10);
+            a &= nes_read((uint16_t)(0xE603 + y));
+            mff_cycles(0xE59A, 10);
+            RAM(0x10) = a;
+            a = RAM(0x11);
+            a &= nes_read((uint16_t)(0xE607 + y));
+            mff_cycles(0xE5A1, 43);
+            a |= RAM(0x10);
+            RAM(VRAM_BUFFER + 27 + x) = a;
+            y = RAM(MAP_CELL);
+            RAM(ATTR_SHADOW + y) = a;
+            a = 0x23;
+            RAM(VRAM_BUFFER + 24 + x) = a;
+            a = y;
+            a |= 0xC0;
+            c = 0;
+            m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(VRAM_BUFFER + 25 + x) = a;
+            a = 0x00;
+            RAM(VRAM_BUFFER + 26 + x) = a;
+        } else {
+            mff_cycles(0xE593, 1);
+        }
+        mff_cycles(0xE5BE, 34);
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        a = RAM(MAP_CELL);
+        c = 0;
+        m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(MAP_CELL) = a;
+        m = 0x28; c = a >= m;
+        n = ((uint8_t)(a - m)) >> 7;
+        z = ((uint8_t)(a - m)) == 0;
+        if (c) {
+            mff_cycles(0xE5D1, 32);
+            a = 0x20;
+            RAM(VRAM_BUFFER) = a;
+            a = RAM(BG_COLUMN);
+            c = 0;
+            m = 0x80; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(VRAM_BUFFER + 1) = a;
+            a = 0x14;
+            RAM(VRAM_BUFFER + 2) = a;
+            y = 0x00;
+            a = RAM(BG_COLUMN);
+            a &= 0x01;
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0xE5EB, 2);
+                y = 0x14;
+            } else {
+                mff_cycles(0xE5E9, 1);
+            }
+            mff_cycles(0xE5ED, 28);
+            a = 0xFF;
+            RAM(VRAM_BUFFER + 24 + y) = a;
+            RAM(VRAM_COLUMN_REQUEST) = a;
+            a = 0x00;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(VRAM_BUFFER + 3) = a;
+            RAM(VRAM_BUFFER + 23) = a;
+            c = 0;
+            SYNC_OUT;
+            mff_rts(); return;
+        } else {
+            mff_cycles(0xE5CF, 1);
+        }
+        mff_cycles(0xE5FE, 3);
+    }
 }
 
 /*  $E521 - lifted by port/tools/lift.py */
 void func_E521(void) {
     REGS_IN;
-L_E521:;
     mff_cycles(0xE521, 22);
     a = RAM(0x10);
     mff_push(a);
@@ -1513,11 +1636,13 @@ L_E521:;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     RAM(SCROLL_MODE) = a;
-    if (z) { mff_cycles(0xE52C, 1); goto L_E531; }
-    mff_cycles(0xE52E, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0xE53F, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E53F(); g_code_window_base = swb; } return;
-L_E531:;
+    if (!z) {
+        mff_cycles(0xE52E, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0xE53F, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_E53F(); g_code_window_base = swb; } return;
+    } else {
+        mff_cycles(0xE52C, 1);
+    }
     mff_cycles(0xE531, 9);
     a = RAM(BG_COLUMN);
     c = 0;
@@ -1526,14 +1651,16 @@ L_E531:;
     m = 0x20; c = a >= m;
     a &= 0x1F;
     RAM(BG_COLUMN) = a;
-    if (!c) { mff_cycles(0xE53D, 1); goto L_E547; }
-    mff_cycles(0xE53F, 9);
-    a = RAM(BG_SCREEN);
-    c = 0;
-    m = nes_read((uint16_t)(0xE601 + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    mff_cycles(0xE545, 3);
-    RAM(BG_SCREEN) = a;
-L_E547:;
+    if (c) {
+        mff_cycles(0xE53F, 9);
+        a = RAM(BG_SCREEN);
+        c = 0;
+        m = nes_read((uint16_t)(0xE601 + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        mff_cycles(0xE545, 3);
+        RAM(BG_SCREEN) = a;
+    } else {
+        mff_cycles(0xE53D, 1);
+    }
     mff_cycles(0xE547, 7);
     y = RAM(ROUND_TABLES);
     a = nes_read((uint16_t)(0xC1F8 + y));
@@ -1560,110 +1687,117 @@ L_E547:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x03) = a;
-L_E560:;
-    mff_cycles(0xE560, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x0562, func_E60F, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xE563, 45);
-    y = RAM(MAP_CELL);
-    a = RAM(ATTR_SHADOW + y);
-    RAM(0x11) = a;
-    a = RAM(BG_COLUMN);
-    a &= 0x03;
-    y = a;
-    x = RAM(0x03);
-    a = RAM(TILE_BLOCK + y);
-    RAM(VRAM_BUFFER + 3 + x) = a;
-    a = RAM(TILE_BLOCK + 4 + y);
-    RAM(VRAM_BUFFER + 4 + x) = a;
-    a = RAM(MAP_CELL);
-    m = 0x38; c = a >= m;
-    if (c) { mff_cycles(0xE581, 1); goto L_E58F; }
-    mff_cycles(0xE583, 18);
-    a = RAM(TILE_BLOCK + 8 + y);
-    RAM(VRAM_BUFFER + 5 + x) = a;
-    a = RAM(TILE_BLOCK + 12 + y);
-    RAM(VRAM_BUFFER + 6 + x) = a;
-L_E58F:;
-    mff_cycles(0xE58F, 7);
-    a = RAM(BG_COLUMN);
-    a &= 0x01;
-    z = (a) == 0;
-    if (z) { mff_cycles(0xE593, 1); goto L_E5BE; }
-    mff_cycles(0xE595, 7);
-    a = RAM(0x10);
-    a &= nes_read((uint16_t)(0xE603 + y));
-    mff_cycles(0xE59A, 10);
-    RAM(0x10) = a;
-    a = RAM(0x11);
-    a &= nes_read((uint16_t)(0xE607 + y));
-    mff_cycles(0xE5A1, 43);
-    a |= RAM(0x10);
-    RAM(VRAM_BUFFER + 27 + x) = a;
-    y = RAM(MAP_CELL);
-    RAM(ATTR_SHADOW + y) = a;
-    a = 0x23;
-    RAM(VRAM_BUFFER + 24 + x) = a;
-    a = y;
-    a |= 0xC0;
-    c = 0;
-    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(VRAM_BUFFER + 25 + x) = a;
-    a = 0x00;
-    RAM(VRAM_BUFFER + 26 + x) = a;
-L_E5BE:;
-    mff_cycles(0xE5BE, 34);
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    a = RAM(MAP_CELL);
-    c = 0;
-    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(MAP_CELL) = a;
-    m = 0x28; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!c) { mff_cycles(0xE5CF, 1); goto L_E5FE; }
-    mff_cycles(0xE5D1, 32);
-    a = 0x20;
-    RAM(VRAM_BUFFER) = a;
-    a = RAM(BG_COLUMN);
-    c = 0;
-    m = 0x80; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(VRAM_BUFFER + 1) = a;
-    a = 0x14;
-    RAM(VRAM_BUFFER + 2) = a;
-    y = 0x00;
-    a = RAM(BG_COLUMN);
-    a &= 0x01;
-    z = (a) == 0;
-    if (z) { mff_cycles(0xE5E9, 1); goto L_E5ED; }
-    mff_cycles(0xE5EB, 2);
-    y = 0x14;
-L_E5ED:;
-    mff_cycles(0xE5ED, 28);
-    a = 0xFF;
-    RAM(VRAM_BUFFER + 24 + y) = a;
-    RAM(VRAM_COLUMN_REQUEST) = a;
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(VRAM_BUFFER + 3) = a;
-    RAM(VRAM_BUFFER + 23) = a;
-    c = 0;
-    SYNC_OUT;
-    mff_rts(); return;
-L_E5FE:;
-    mff_cycles(0xE5FE, 3);
-    goto L_E560;
+    for (;;) {
+        mff_cycles(0xE560, 6);
+        SYNC_OUT;
+        if (!mff_call_fn(0x0562, func_E60F, 0xE000)) return;
+        SYNC_IN;
+        mff_cycles(0xE563, 45);
+        y = RAM(MAP_CELL);
+        a = RAM(ATTR_SHADOW + y);
+        RAM(0x11) = a;
+        a = RAM(BG_COLUMN);
+        a &= 0x03;
+        y = a;
+        x = RAM(0x03);
+        a = RAM(TILE_BLOCK + y);
+        RAM(VRAM_BUFFER + 3 + x) = a;
+        a = RAM(TILE_BLOCK + 4 + y);
+        RAM(VRAM_BUFFER + 4 + x) = a;
+        a = RAM(MAP_CELL);
+        m = 0x38; c = a >= m;
+        if (!c) {
+            mff_cycles(0xE583, 18);
+            a = RAM(TILE_BLOCK + 8 + y);
+            RAM(VRAM_BUFFER + 5 + x) = a;
+            a = RAM(TILE_BLOCK + 12 + y);
+            RAM(VRAM_BUFFER + 6 + x) = a;
+        } else {
+            mff_cycles(0xE581, 1);
+        }
+        mff_cycles(0xE58F, 7);
+        a = RAM(BG_COLUMN);
+        a &= 0x01;
+        z = (a) == 0;
+        if (!z) {
+            mff_cycles(0xE595, 7);
+            a = RAM(0x10);
+            a &= nes_read((uint16_t)(0xE603 + y));
+            mff_cycles(0xE59A, 10);
+            RAM(0x10) = a;
+            a = RAM(0x11);
+            a &= nes_read((uint16_t)(0xE607 + y));
+            mff_cycles(0xE5A1, 43);
+            a |= RAM(0x10);
+            RAM(VRAM_BUFFER + 27 + x) = a;
+            y = RAM(MAP_CELL);
+            RAM(ATTR_SHADOW + y) = a;
+            a = 0x23;
+            RAM(VRAM_BUFFER + 24 + x) = a;
+            a = y;
+            a |= 0xC0;
+            c = 0;
+            m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(VRAM_BUFFER + 25 + x) = a;
+            a = 0x00;
+            RAM(VRAM_BUFFER + 26 + x) = a;
+        } else {
+            mff_cycles(0xE593, 1);
+        }
+        mff_cycles(0xE5BE, 34);
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        a = RAM(MAP_CELL);
+        c = 0;
+        m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(MAP_CELL) = a;
+        m = 0x28; c = a >= m;
+        n = ((uint8_t)(a - m)) >> 7;
+        z = ((uint8_t)(a - m)) == 0;
+        if (c) {
+            mff_cycles(0xE5D1, 32);
+            a = 0x20;
+            RAM(VRAM_BUFFER) = a;
+            a = RAM(BG_COLUMN);
+            c = 0;
+            m = 0x80; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(VRAM_BUFFER + 1) = a;
+            a = 0x14;
+            RAM(VRAM_BUFFER + 2) = a;
+            y = 0x00;
+            a = RAM(BG_COLUMN);
+            a &= 0x01;
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0xE5EB, 2);
+                y = 0x14;
+            } else {
+                mff_cycles(0xE5E9, 1);
+            }
+            mff_cycles(0xE5ED, 28);
+            a = 0xFF;
+            RAM(VRAM_BUFFER + 24 + y) = a;
+            RAM(VRAM_COLUMN_REQUEST) = a;
+            a = 0x00;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(VRAM_BUFFER + 3) = a;
+            RAM(VRAM_BUFFER + 23) = a;
+            c = 0;
+            SYNC_OUT;
+            mff_rts(); return;
+        } else {
+            mff_cycles(0xE5CF, 1);
+        }
+        mff_cycles(0xE5FE, 3);
+    }
 }
 
 /*  $E53F - lifted by port/tools/lift.py */
 void func_E53F(void) {
     REGS_IN;
-L_E53F:;
     mff_cycles(0xE53F, 9);
     a = RAM(BG_SCREEN);
     c = 0;
@@ -1695,213 +1829,228 @@ L_E53F:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x03) = a;
-L_E560:;
-    mff_cycles(0xE560, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x0562, func_E60F, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xE563, 45);
-    y = RAM(MAP_CELL);
-    a = RAM(ATTR_SHADOW + y);
-    RAM(0x11) = a;
-    a = RAM(BG_COLUMN);
-    a &= 0x03;
-    y = a;
-    x = RAM(0x03);
-    a = RAM(TILE_BLOCK + y);
-    RAM(VRAM_BUFFER + 3 + x) = a;
-    a = RAM(TILE_BLOCK + 4 + y);
-    RAM(VRAM_BUFFER + 4 + x) = a;
-    a = RAM(MAP_CELL);
-    m = 0x38; c = a >= m;
-    if (c) { mff_cycles(0xE581, 1); goto L_E58F; }
-    mff_cycles(0xE583, 18);
-    a = RAM(TILE_BLOCK + 8 + y);
-    RAM(VRAM_BUFFER + 5 + x) = a;
-    a = RAM(TILE_BLOCK + 12 + y);
-    RAM(VRAM_BUFFER + 6 + x) = a;
-L_E58F:;
-    mff_cycles(0xE58F, 7);
-    a = RAM(BG_COLUMN);
-    a &= 0x01;
-    z = (a) == 0;
-    if (z) { mff_cycles(0xE593, 1); goto L_E5BE; }
-    mff_cycles(0xE595, 7);
-    a = RAM(0x10);
-    a &= nes_read((uint16_t)(0xE603 + y));
-    mff_cycles(0xE59A, 10);
-    RAM(0x10) = a;
-    a = RAM(0x11);
-    a &= nes_read((uint16_t)(0xE607 + y));
-    mff_cycles(0xE5A1, 43);
-    a |= RAM(0x10);
-    RAM(VRAM_BUFFER + 27 + x) = a;
-    y = RAM(MAP_CELL);
-    RAM(ATTR_SHADOW + y) = a;
-    a = 0x23;
-    RAM(VRAM_BUFFER + 24 + x) = a;
-    a = y;
-    a |= 0xC0;
-    c = 0;
-    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(VRAM_BUFFER + 25 + x) = a;
-    a = 0x00;
-    RAM(VRAM_BUFFER + 26 + x) = a;
-L_E5BE:;
-    mff_cycles(0xE5BE, 34);
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    a = RAM(MAP_CELL);
-    c = 0;
-    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(MAP_CELL) = a;
-    m = 0x28; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!c) { mff_cycles(0xE5CF, 1); goto L_E5FE; }
-    mff_cycles(0xE5D1, 32);
-    a = 0x20;
-    RAM(VRAM_BUFFER) = a;
-    a = RAM(BG_COLUMN);
-    c = 0;
-    m = 0x80; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(VRAM_BUFFER + 1) = a;
-    a = 0x14;
-    RAM(VRAM_BUFFER + 2) = a;
-    y = 0x00;
-    a = RAM(BG_COLUMN);
-    a &= 0x01;
-    z = (a) == 0;
-    if (z) { mff_cycles(0xE5E9, 1); goto L_E5ED; }
-    mff_cycles(0xE5EB, 2);
-    y = 0x14;
-L_E5ED:;
-    mff_cycles(0xE5ED, 28);
-    a = 0xFF;
-    RAM(VRAM_BUFFER + 24 + y) = a;
-    RAM(VRAM_COLUMN_REQUEST) = a;
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(VRAM_BUFFER + 3) = a;
-    RAM(VRAM_BUFFER + 23) = a;
-    c = 0;
-    SYNC_OUT;
-    mff_rts(); return;
-L_E5FE:;
-    mff_cycles(0xE5FE, 3);
-    goto L_E560;
+    for (;;) {
+        mff_cycles(0xE560, 6);
+        SYNC_OUT;
+        if (!mff_call_fn(0x0562, func_E60F, 0xE000)) return;
+        SYNC_IN;
+        mff_cycles(0xE563, 45);
+        y = RAM(MAP_CELL);
+        a = RAM(ATTR_SHADOW + y);
+        RAM(0x11) = a;
+        a = RAM(BG_COLUMN);
+        a &= 0x03;
+        y = a;
+        x = RAM(0x03);
+        a = RAM(TILE_BLOCK + y);
+        RAM(VRAM_BUFFER + 3 + x) = a;
+        a = RAM(TILE_BLOCK + 4 + y);
+        RAM(VRAM_BUFFER + 4 + x) = a;
+        a = RAM(MAP_CELL);
+        m = 0x38; c = a >= m;
+        if (!c) {
+            mff_cycles(0xE583, 18);
+            a = RAM(TILE_BLOCK + 8 + y);
+            RAM(VRAM_BUFFER + 5 + x) = a;
+            a = RAM(TILE_BLOCK + 12 + y);
+            RAM(VRAM_BUFFER + 6 + x) = a;
+        } else {
+            mff_cycles(0xE581, 1);
+        }
+        mff_cycles(0xE58F, 7);
+        a = RAM(BG_COLUMN);
+        a &= 0x01;
+        z = (a) == 0;
+        if (!z) {
+            mff_cycles(0xE595, 7);
+            a = RAM(0x10);
+            a &= nes_read((uint16_t)(0xE603 + y));
+            mff_cycles(0xE59A, 10);
+            RAM(0x10) = a;
+            a = RAM(0x11);
+            a &= nes_read((uint16_t)(0xE607 + y));
+            mff_cycles(0xE5A1, 43);
+            a |= RAM(0x10);
+            RAM(VRAM_BUFFER + 27 + x) = a;
+            y = RAM(MAP_CELL);
+            RAM(ATTR_SHADOW + y) = a;
+            a = 0x23;
+            RAM(VRAM_BUFFER + 24 + x) = a;
+            a = y;
+            a |= 0xC0;
+            c = 0;
+            m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(VRAM_BUFFER + 25 + x) = a;
+            a = 0x00;
+            RAM(VRAM_BUFFER + 26 + x) = a;
+        } else {
+            mff_cycles(0xE593, 1);
+        }
+        mff_cycles(0xE5BE, 34);
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        a = RAM(MAP_CELL);
+        c = 0;
+        m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(MAP_CELL) = a;
+        m = 0x28; c = a >= m;
+        n = ((uint8_t)(a - m)) >> 7;
+        z = ((uint8_t)(a - m)) == 0;
+        if (c) {
+            mff_cycles(0xE5D1, 32);
+            a = 0x20;
+            RAM(VRAM_BUFFER) = a;
+            a = RAM(BG_COLUMN);
+            c = 0;
+            m = 0x80; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(VRAM_BUFFER + 1) = a;
+            a = 0x14;
+            RAM(VRAM_BUFFER + 2) = a;
+            y = 0x00;
+            a = RAM(BG_COLUMN);
+            a &= 0x01;
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0xE5EB, 2);
+                y = 0x14;
+            } else {
+                mff_cycles(0xE5E9, 1);
+            }
+            mff_cycles(0xE5ED, 28);
+            a = 0xFF;
+            RAM(VRAM_BUFFER + 24 + y) = a;
+            RAM(VRAM_COLUMN_REQUEST) = a;
+            a = 0x00;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(VRAM_BUFFER + 3) = a;
+            RAM(VRAM_BUFFER + 23) = a;
+            c = 0;
+            SYNC_OUT;
+            mff_rts(); return;
+        } else {
+            mff_cycles(0xE5CF, 1);
+        }
+        mff_cycles(0xE5FE, 3);
+    }
 }
 
 /*  $E560 - lifted by port/tools/lift.py */
 void func_E560(void) {
     REGS_IN;
-L_E560:;
-    mff_cycles(0xE560, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x0562, func_E60F, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xE563, 45);
-    y = RAM(MAP_CELL);
-    a = RAM(ATTR_SHADOW + y);
-    RAM(0x11) = a;
-    a = RAM(BG_COLUMN);
-    a &= 0x03;
-    y = a;
-    x = RAM(0x03);
-    a = RAM(TILE_BLOCK + y);
-    RAM(VRAM_BUFFER + 3 + x) = a;
-    a = RAM(TILE_BLOCK + 4 + y);
-    RAM(VRAM_BUFFER + 4 + x) = a;
-    a = RAM(MAP_CELL);
-    m = 0x38; c = a >= m;
-    if (c) { mff_cycles(0xE581, 1); goto L_E58F; }
-    mff_cycles(0xE583, 18);
-    a = RAM(TILE_BLOCK + 8 + y);
-    RAM(VRAM_BUFFER + 5 + x) = a;
-    a = RAM(TILE_BLOCK + 12 + y);
-    RAM(VRAM_BUFFER + 6 + x) = a;
-L_E58F:;
-    mff_cycles(0xE58F, 7);
-    a = RAM(BG_COLUMN);
-    a &= 0x01;
-    z = (a) == 0;
-    if (z) { mff_cycles(0xE593, 1); goto L_E5BE; }
-    mff_cycles(0xE595, 7);
-    a = RAM(0x10);
-    a &= nes_read((uint16_t)(0xE603 + y));
-    mff_cycles(0xE59A, 10);
-    RAM(0x10) = a;
-    a = RAM(0x11);
-    a &= nes_read((uint16_t)(0xE607 + y));
-    mff_cycles(0xE5A1, 43);
-    a |= RAM(0x10);
-    RAM(VRAM_BUFFER + 27 + x) = a;
-    y = RAM(MAP_CELL);
-    RAM(ATTR_SHADOW + y) = a;
-    a = 0x23;
-    RAM(VRAM_BUFFER + 24 + x) = a;
-    a = y;
-    a |= 0xC0;
-    c = 0;
-    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(VRAM_BUFFER + 25 + x) = a;
-    a = 0x00;
-    RAM(VRAM_BUFFER + 26 + x) = a;
-L_E5BE:;
-    mff_cycles(0xE5BE, 34);
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
-    a = RAM(MAP_CELL);
-    c = 0;
-    m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(MAP_CELL) = a;
-    m = 0x28; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!c) { mff_cycles(0xE5CF, 1); goto L_E5FE; }
-    mff_cycles(0xE5D1, 32);
-    a = 0x20;
-    RAM(VRAM_BUFFER) = a;
-    a = RAM(BG_COLUMN);
-    c = 0;
-    m = 0x80; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(VRAM_BUFFER + 1) = a;
-    a = 0x14;
-    RAM(VRAM_BUFFER + 2) = a;
-    y = 0x00;
-    a = RAM(BG_COLUMN);
-    a &= 0x01;
-    z = (a) == 0;
-    if (z) { mff_cycles(0xE5E9, 1); goto L_E5ED; }
-    mff_cycles(0xE5EB, 2);
-    y = 0x14;
-L_E5ED:;
-    mff_cycles(0xE5ED, 28);
-    a = 0xFF;
-    RAM(VRAM_BUFFER + 24 + y) = a;
-    RAM(VRAM_COLUMN_REQUEST) = a;
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(VRAM_BUFFER + 3) = a;
-    RAM(VRAM_BUFFER + 23) = a;
-    c = 0;
-    SYNC_OUT;
-    mff_rts(); return;
-L_E5FE:;
-    mff_cycles(0xE5FE, 3);
-    goto L_E560;
+    for (;;) {
+        mff_cycles(0xE560, 6);
+        SYNC_OUT;
+        if (!mff_call_fn(0x0562, func_E60F, 0xE000)) return;
+        SYNC_IN;
+        mff_cycles(0xE563, 45);
+        y = RAM(MAP_CELL);
+        a = RAM(ATTR_SHADOW + y);
+        RAM(0x11) = a;
+        a = RAM(BG_COLUMN);
+        a &= 0x03;
+        y = a;
+        x = RAM(0x03);
+        a = RAM(TILE_BLOCK + y);
+        RAM(VRAM_BUFFER + 3 + x) = a;
+        a = RAM(TILE_BLOCK + 4 + y);
+        RAM(VRAM_BUFFER + 4 + x) = a;
+        a = RAM(MAP_CELL);
+        m = 0x38; c = a >= m;
+        if (!c) {
+            mff_cycles(0xE583, 18);
+            a = RAM(TILE_BLOCK + 8 + y);
+            RAM(VRAM_BUFFER + 5 + x) = a;
+            a = RAM(TILE_BLOCK + 12 + y);
+            RAM(VRAM_BUFFER + 6 + x) = a;
+        } else {
+            mff_cycles(0xE581, 1);
+        }
+        mff_cycles(0xE58F, 7);
+        a = RAM(BG_COLUMN);
+        a &= 0x01;
+        z = (a) == 0;
+        if (!z) {
+            mff_cycles(0xE595, 7);
+            a = RAM(0x10);
+            a &= nes_read((uint16_t)(0xE603 + y));
+            mff_cycles(0xE59A, 10);
+            RAM(0x10) = a;
+            a = RAM(0x11);
+            a &= nes_read((uint16_t)(0xE607 + y));
+            mff_cycles(0xE5A1, 43);
+            a |= RAM(0x10);
+            RAM(VRAM_BUFFER + 27 + x) = a;
+            y = RAM(MAP_CELL);
+            RAM(ATTR_SHADOW + y) = a;
+            a = 0x23;
+            RAM(VRAM_BUFFER + 24 + x) = a;
+            a = y;
+            a |= 0xC0;
+            c = 0;
+            m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(VRAM_BUFFER + 25 + x) = a;
+            a = 0x00;
+            RAM(VRAM_BUFFER + 26 + x) = a;
+        } else {
+            mff_cycles(0xE593, 1);
+        }
+        mff_cycles(0xE5BE, 34);
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        t = (uint8_t)(RAM(0x03) + 1); RAM(0x03) = t;
+        a = RAM(MAP_CELL);
+        c = 0;
+        m = 0x08; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(MAP_CELL) = a;
+        m = 0x28; c = a >= m;
+        n = ((uint8_t)(a - m)) >> 7;
+        z = ((uint8_t)(a - m)) == 0;
+        if (c) {
+            mff_cycles(0xE5D1, 32);
+            a = 0x20;
+            RAM(VRAM_BUFFER) = a;
+            a = RAM(BG_COLUMN);
+            c = 0;
+            m = 0x80; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(VRAM_BUFFER + 1) = a;
+            a = 0x14;
+            RAM(VRAM_BUFFER + 2) = a;
+            y = 0x00;
+            a = RAM(BG_COLUMN);
+            a &= 0x01;
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0xE5EB, 2);
+                y = 0x14;
+            } else {
+                mff_cycles(0xE5E9, 1);
+            }
+            mff_cycles(0xE5ED, 28);
+            a = 0xFF;
+            RAM(VRAM_BUFFER + 24 + y) = a;
+            RAM(VRAM_COLUMN_REQUEST) = a;
+            a = 0x00;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(VRAM_BUFFER + 3) = a;
+            RAM(VRAM_BUFFER + 23) = a;
+            c = 0;
+            SYNC_OUT;
+            mff_rts(); return;
+        } else {
+            mff_cycles(0xE5CF, 1);
+        }
+        mff_cycles(0xE5FE, 3);
+    }
 }
 
 /*  $E60F - lifted by port/tools/lift.py */
 void func_E60F(void) {
     REGS_IN;
-L_E60F:;
     mff_cycles(0xE60F, 6);
     SYNC_OUT;
     if (!mff_call_fn(0x0611, func_E653, 0xE000)) return;
@@ -1995,7 +2144,6 @@ L_E64E:;
 /*  $E653 - lifted by port/tools/lift.py */
 void func_E653(void) {
     REGS_IN;
-L_E653:;
     mff_cycles(0xE653, 6);
     SYNC_OUT;
     if (!mff_call_at(0x0655, 0xC1DF, -1)) return;
@@ -2024,7 +2172,6 @@ L_E653:;
 /*  $E66E - lifted by port/tools/lift.py */
 void func_E66E(void) {
     REGS_IN;
-L_E66E:;
     mff_cycles(0xE66E, 5);
     a = RAM(SUB_AREA);
     z = (a) == 0;
@@ -2087,7 +2234,6 @@ L_E686:;
 /*  $E689 - lifted by port/tools/lift.py */
 void func_E689(void) {
     REGS_IN;
-L_E689:;
     mff_cycles(0xE689, 73);
     mff_push(a);
     a = 0x00;
@@ -2119,7 +2265,6 @@ L_E689:;
 /*  $E6AB - lifted by port/tools/lift.py */
 void func_E6AB(void) {
     REGS_IN;
-L_E6AB:;
     mff_cycles(0xE6AB, 8);
     a = RAM(VRAM_LIST_REQUEST);
     a |= RAM(VRAM_COLUMN_REQUEST);
@@ -2148,34 +2293,39 @@ L_E6BE:;
     m = 0x0E; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0xE6C2, 1); goto L_E6DC; }
-    mff_cycles(0xE6C4, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x06C6, func_E6DD, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xE6C7, 7);
-    a = RAM(GAME_ACTION);
-    m = 0x04; c = a >= m;
-    n = ((uint8_t)(a - m)) >> 7;
-    z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE6CB, 1); goto L_E6D5; }
-    mff_cycles(0xE6CD, 11);
-    x = RAM(GRAB_SLOT);
-    RAM(HUD_ENEMY_SLOT) = x;
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(HUD_ENEMY_TIMER) = a;
-L_E6D5:;
-    mff_cycles(0xE6D5, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x06D7, func_E89B, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xE6D8, 5);
-    a = 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(VRAM_REQUEST) = a;
+    if (!z) {
+        mff_cycles(0xE6C4, 6);
+        SYNC_OUT;
+        if (!mff_call_fn(0x06C6, func_E6DD, 0xE000)) return;
+        SYNC_IN;
+        mff_cycles(0xE6C7, 7);
+        a = RAM(GAME_ACTION);
+        m = 0x04; c = a >= m;
+        n = ((uint8_t)(a - m)) >> 7;
+        z = ((uint8_t)(a - m)) == 0;
+        if (z) {
+            mff_cycles(0xE6CD, 11);
+            x = RAM(GRAB_SLOT);
+            RAM(HUD_ENEMY_SLOT) = x;
+            a = 0x00;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(HUD_ENEMY_TIMER) = a;
+        } else {
+            mff_cycles(0xE6CB, 1);
+        }
+        mff_cycles(0xE6D5, 6);
+        SYNC_OUT;
+        if (!mff_call_fn(0x06D7, func_E89B, 0xE000)) return;
+        SYNC_IN;
+        mff_cycles(0xE6D8, 5);
+        a = 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(VRAM_REQUEST) = a;
+    } else {
+        mff_cycles(0xE6C2, 1);
+    }
 L_E6DC:;
     mff_cycles(0xE6DC, 6);
     SYNC_OUT;
@@ -2185,7 +2335,6 @@ L_E6DC:;
 /*  $E6DD - lifted by port/tools/lift.py */
 void func_E6DD(void) {
     REGS_IN;
-L_E6DD:;
     mff_cycles(0xE6DD, 10);
     x = RAM(VRAM_BUFFER_LEN);
     a = RAM(GAME_ACTION);
@@ -2229,10 +2378,12 @@ L_E6FC:;
     x++;
     a = RAM(HEALTH);
     n = (a) >> 7;
-    if (!n) { mff_cycles(0xE713, 1); goto L_E717; }
-    mff_cycles(0xE715, 2);
-    a = 0x00;
-L_E717:;
+    if (n) {
+        mff_cycles(0xE715, 2);
+        a = 0x00;
+    } else {
+        mff_cycles(0xE713, 1);
+    }
     mff_cycles(0xE717, 3);
     RAM(0x01) = a;
 L_E719:;
@@ -2316,11 +2467,13 @@ L_E742:;
     a = RAM(PLAYER_ID);
     m = 0x02; c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE795, 1); goto L_E79D; }
-    mff_cycles(0xE797, 14);
-    t = (uint8_t)(RAM(VRAM_BUFFER + x) + 1); RAM(VRAM_BUFFER + x) = t;
-    t = (uint8_t)(RAM(VRAM_BUFFER + x) + 1); RAM(VRAM_BUFFER + x) = t;
-L_E79D:;
+    if (z) {
+        mff_cycles(0xE797, 14);
+        t = (uint8_t)(RAM(VRAM_BUFFER + x) + 1); RAM(VRAM_BUFFER + x) = t;
+        t = (uint8_t)(RAM(VRAM_BUFFER + x) + 1); RAM(VRAM_BUFFER + x) = t;
+    } else {
+        mff_cycles(0xE795, 1);
+    }
     mff_cycles(0xE79D, 45);
     x++;
     a = 0x73;
@@ -2464,7 +2617,6 @@ L_E850:;
 /*  $E7F5 - lifted by port/tools/lift.py */
 void func_E7F5(void) {
     REGS_IN;
-L_E7F5:;
     mff_cycles(0xE7F5, 34);
     a = 0x03;
     RAM(VRAM_BUFFER + x) = a;
@@ -2545,7 +2697,6 @@ L_E850:;
 /*  $E853 - lifted by port/tools/lift.py */
 void func_E853(void) {
     REGS_IN;
-L_E853:;
     mff_cycles(0xE853, 9);
     RAM(VRAM_BUFFER_LEN) = x;
     SYNC_OUT;
@@ -2555,7 +2706,6 @@ L_E853:;
 /*  $E856 - lifted by port/tools/lift.py */
 void func_E856(void) {
     REGS_IN;
-L_E856:;
     mff_cycles(0xE856, 33);
     a = 0x78;
     RAM(VRAM_BUFFER + x) = a;
@@ -2575,7 +2725,6 @@ L_E856:;
 /* hud_enemy_bar $E89B - lifted by port/tools/lift.py */
 void func_E89B(void) {
     REGS_IN;
-L_E89B:;
     mff_cycles(0xE89B, 2);
     y = 0x02;
 L_E89D:;
@@ -2727,14 +2876,17 @@ L_E93F:;
     a = 0x0F;
     RAM(0x02) = a;
 L_E947:;
-    mff_cycles(0xE947, 16);
-    a = 0x00;
-    RAM(VRAM_BUFFER + x) = a;
-    x++;
-    t = (uint8_t)(RAM(0x02) - 1); RAM(0x02) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-    if (!z) { mff_cycles(0xE947, 1); goto L_E947; }
+    for (;;) {
+        mff_cycles(0xE947, 16);
+        a = 0x00;
+        RAM(VRAM_BUFFER + x) = a;
+        x++;
+        t = (uint8_t)(RAM(0x02) - 1); RAM(0x02) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+        if (z) break;
+        mff_cycles(0xE947, 1);
+    }
     mff_cycles(0xE951, 9);
     RAM(VRAM_BUFFER_LEN) = x;
     SYNC_OUT;
@@ -2744,16 +2896,17 @@ L_E947:;
 /*  $E8BD - lifted by port/tools/lift.py */
 void func_E8BD(void) {
     REGS_IN;
-L_E8BD:;
     mff_cycles(0xE8BD, 5);
     a = RAM(HUD_ENEMY_SLOT);
     n = (a) >> 7;
     z = (a) == 0;
-    if (!z) { mff_cycles(0xE8BF, 1); goto L_E8C9; }
-    mff_cycles(0xE8C1, 6);
-    SYNC_OUT;
-    mff_rts(); return;
-L_E8C9:;
+    if (z) {
+        mff_cycles(0xE8C1, 6);
+        SYNC_OUT;
+        mff_rts(); return;
+    } else {
+        mff_cycles(0xE8BF, 1);
+    }
     mff_cycles(0xE8C9, 50);
     y = a;
     x = RAM(VRAM_BUFFER_LEN);
@@ -2856,14 +3009,17 @@ L_E93F:;
     a = 0x0F;
     RAM(0x02) = a;
 L_E947:;
-    mff_cycles(0xE947, 16);
-    a = 0x00;
-    RAM(VRAM_BUFFER + x) = a;
-    x++;
-    t = (uint8_t)(RAM(0x02) - 1); RAM(0x02) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-    if (!z) { mff_cycles(0xE947, 1); goto L_E947; }
+    for (;;) {
+        mff_cycles(0xE947, 16);
+        a = 0x00;
+        RAM(VRAM_BUFFER + x) = a;
+        x++;
+        t = (uint8_t)(RAM(0x02) - 1); RAM(0x02) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+        if (z) break;
+        mff_cycles(0xE947, 1);
+    }
     mff_cycles(0xE951, 9);
     RAM(VRAM_BUFFER_LEN) = x;
     SYNC_OUT;
@@ -2873,7 +3029,6 @@ L_E947:;
 /*  $E954 - lifted by port/tools/lift.py */
 void func_E954(void) {
     REGS_IN;
-L_E954:;
     mff_cycles(0xE954, 40);
     x = RAM(VRAM_BUFFER_LEN);
     a = 0x06;
@@ -2889,11 +3044,13 @@ L_E954:;
     a = RAM(PLAYER_ID);
     m = 0x02; c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
-    if (!z) { mff_cycles(0xE96E, 1); goto L_E972; }
-    mff_cycles(0xE970, 4);
-    y++;
-    y++;
-L_E972:;
+    if (z) {
+        mff_cycles(0xE970, 4);
+        y++;
+        y++;
+    } else {
+        mff_cycles(0xE96E, 1);
+    }
     mff_cycles(0xE972, 4);
     a = nes_read((uint16_t)(0xE98C + y));
     mff_cycles(0xE975, 7);
@@ -2902,17 +3059,19 @@ L_E972:;
     mff_cycles(0xE97A, 5);
     RAM(0x01) = a;
     y = 0x00;
-L_E97E:;
-    mff_cycles(0xE97E, 5);
-    a = nes_read((uint16_t)(RAM16(0x00) + y));
-    mff_cycles(0xE980, 13);
-    RAM(VRAM_BUFFER + x) = a;
-    x++;
-    y++;
-    m = 0x06; c = y >= m;
-    n = ((uint8_t)(y - m)) >> 7;
-    z = ((uint8_t)(y - m)) == 0;
-    if (!z) { mff_cycles(0xE97E, 1); goto L_E97E; }
+    for (;;) {
+        mff_cycles(0xE97E, 5);
+        a = nes_read((uint16_t)(RAM16(0x00) + y));
+        mff_cycles(0xE980, 13);
+        RAM(VRAM_BUFFER + x) = a;
+        x++;
+        y++;
+        m = 0x06; c = y >= m;
+        n = ((uint8_t)(y - m)) >> 7;
+        z = ((uint8_t)(y - m)) == 0;
+        if (z) break;
+        mff_cycles(0xE97E, 1);
+    }
     mff_cycles(0xE989, 9);
     RAM(VRAM_BUFFER_LEN) = x;
     SYNC_OUT;
@@ -2922,79 +3081,92 @@ L_E97E:;
 /* objects_draw $E9BC - lifted by port/tools/lift.py */
 void func_E9BC(void) {
     REGS_IN;
-L_E9BC:;
     mff_cycles(0xE9BC, 8);
     x = 0x0F;
     a = RAM(OBJ_STATE + x);
     n = (a) >> 7;
     z = (a) == 0;
-    if (!n) { mff_cycles(0xE9C1, 1); goto L_E9C6; }
-    mff_cycles(0xE9C3, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x09C5, func_E9FE, 0xE000)) return;
-    SYNC_IN;
-L_E9C6:;
+    if (n) {
+        mff_cycles(0xE9C3, 6);
+        SYNC_OUT;
+        if (!mff_call_fn(0x09C5, func_E9FE, 0xE000)) return;
+        SYNC_IN;
+    } else {
+        mff_cycles(0xE9C1, 1);
+    }
     mff_cycles(0xE9C6, 8);
     x--;
     a = RAM(OBJ_STATE + x);
     n = (a) >> 7;
     z = (a) == 0;
-    if (!n) { mff_cycles(0xE9CA, 1); goto L_E9CF; }
-    mff_cycles(0xE9CC, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x09CE, func_E9FE, 0xE000)) return;
-    SYNC_IN;
-L_E9CF:;
+    if (n) {
+        mff_cycles(0xE9CC, 6);
+        SYNC_OUT;
+        if (!mff_call_fn(0x09CE, func_E9FE, 0xE000)) return;
+        SYNC_IN;
+    } else {
+        mff_cycles(0xE9CA, 1);
+    }
     mff_cycles(0xE9CF, 12);
     t = (uint8_t)(RAM(DRAW_PARITY) + 1); RAM(DRAW_PARITY) = t;
     a = RAM(DRAW_PARITY);
     t = a; c = t & 1; t >>= 1; a = t;
-    if (c) { mff_cycles(0xE9D4, 1); goto L_E9EB; }
-    mff_cycles(0xE9D6, 5);
-    x = 0x00;
-    RAM(DRAW_SLOT) = x;
-L_E9DA:;
-    mff_cycles(0xE9DA, 6);
-    a = RAM(OBJ_STATE + x);
-    n = (a) >> 7;
-    z = (a) == 0;
-    if (!n) { mff_cycles(0xE9DD, 1); goto L_E9E2; }
-    mff_cycles(0xE9DF, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x09E1, func_E9FE, 0xE000)) return;
-    SYNC_IN;
-L_E9E2:;
-    mff_cycles(0xE9E2, 12);
-    t = (uint8_t)(RAM(DRAW_SLOT) + 1); RAM(DRAW_SLOT) = t;
-    x = RAM(DRAW_SLOT);
-    m = 0x10; c = x >= m;
-    n = ((uint8_t)(x - m)) >> 7;
-    z = ((uint8_t)(x - m)) == 0;
-    if (!z) { mff_cycles(0xE9DA, 1); goto L_E9DA; }
-    mff_cycles(0xE9EA, 6);
-    SYNC_OUT;
-    mff_rts(); return;
-L_E9EB:;
+    if (!c) {
+        mff_cycles(0xE9D6, 5);
+        x = 0x00;
+        RAM(DRAW_SLOT) = x;
+        for (;;) {
+            mff_cycles(0xE9DA, 6);
+            a = RAM(OBJ_STATE + x);
+            n = (a) >> 7;
+            z = (a) == 0;
+            if (n) {
+                mff_cycles(0xE9DF, 6);
+                SYNC_OUT;
+                if (!mff_call_fn(0x09E1, func_E9FE, 0xE000)) return;
+                SYNC_IN;
+            } else {
+                mff_cycles(0xE9DD, 1);
+            }
+            mff_cycles(0xE9E2, 12);
+            t = (uint8_t)(RAM(DRAW_SLOT) + 1); RAM(DRAW_SLOT) = t;
+            x = RAM(DRAW_SLOT);
+            m = 0x10; c = x >= m;
+            n = ((uint8_t)(x - m)) >> 7;
+            z = ((uint8_t)(x - m)) == 0;
+            if (z) break;
+            mff_cycles(0xE9DA, 1);
+        }
+        mff_cycles(0xE9EA, 6);
+        SYNC_OUT;
+        mff_rts(); return;
+    } else {
+        mff_cycles(0xE9D4, 1);
+    }
     mff_cycles(0xE9EB, 5);
     x = 0x0D;
     RAM(DRAW_SLOT) = x;
-L_E9EF:;
-    mff_cycles(0xE9EF, 6);
-    a = RAM(OBJ_STATE + x);
-    n = (a) >> 7;
-    z = (a) == 0;
-    if (!n) { mff_cycles(0xE9F2, 1); goto L_E9F7; }
-    mff_cycles(0xE9F4, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x09F6, func_E9FE, 0xE000)) return;
-    SYNC_IN;
-L_E9F7:;
-    mff_cycles(0xE9F7, 10);
-    t = (uint8_t)(RAM(DRAW_SLOT) - 1); RAM(DRAW_SLOT) = t;
-    x = RAM(DRAW_SLOT);
-    n = (x) >> 7;
-    z = (x) == 0;
-    if (!n) { mff_cycles(0xE9EF, 1); goto L_E9EF; }
+    for (;;) {
+        mff_cycles(0xE9EF, 6);
+        a = RAM(OBJ_STATE + x);
+        n = (a) >> 7;
+        z = (a) == 0;
+        if (n) {
+            mff_cycles(0xE9F4, 6);
+            SYNC_OUT;
+            if (!mff_call_fn(0x09F6, func_E9FE, 0xE000)) return;
+            SYNC_IN;
+        } else {
+            mff_cycles(0xE9F2, 1);
+        }
+        mff_cycles(0xE9F7, 10);
+        t = (uint8_t)(RAM(DRAW_SLOT) - 1); RAM(DRAW_SLOT) = t;
+        x = RAM(DRAW_SLOT);
+        n = (x) >> 7;
+        z = (x) == 0;
+        if (n) break;
+        mff_cycles(0xE9EF, 1);
+    }
     mff_cycles(0xE9FD, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -3003,7 +3175,6 @@ L_E9F7:;
 /* object_draw $E9FE - lifted by port/tools/lift.py */
 void func_E9FE(void) {
     REGS_IN;
-L_E9FE:;
     mff_cycles(0xE9FE, 8);
     a = RAM(OBJ_FLAGS + x);
     a &= 0x10;
@@ -3036,11 +3207,13 @@ L_E9FE:;
 L_EA24:;
     mff_cycles(0xEA24, 5);
     a = RAM(0x13);
-    if (c) { mff_cycles(0xEA26, 1); goto L_EA2C; }
-    mff_cycles(0xEA28, 4);
-    a ^= 0xFF;
-    m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-L_EA2C:;
+    if (!c) {
+        mff_cycles(0xEA28, 4);
+        a ^= 0xFF;
+        m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    } else {
+        mff_cycles(0xEA26, 1);
+    }
     mff_cycles(0xEA2C, 4);
     m = 0x68; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
@@ -3150,23 +3323,28 @@ L_EA6F:;
     m = nes_read((uint16_t)(RAM16(0x00) + y)); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0xEAB0, 2);
-    if (!z) { mff_cycles(0xEAB0, 1); goto L_EACC; }
-    mff_cycles(0xEAB2, 31);
-    a = RAM(OBJ_ANIM_TIMER + x);
-    a &= 0x80;
-    RAM(OBJ_ANIM_TIMER + x) = a;
-    a = RAM(OBJ_ANIM_FRAME + x);
-    a &= 0x7F;
-    t = (uint8_t)(RAM(OBJ_ANIM_FRAME + x) + 1); RAM(OBJ_ANIM_FRAME + x) = t;
-    y--;
-    m = nes_read((uint16_t)(RAM16(0x00) + y)); c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    mff_cycles(0xEAC5, 2);
-    if (!z) { mff_cycles(0xEAC5, 1); goto L_EACC; }
-    mff_cycles(0xEAC7, 7);
-    a = 0x00;
-    RAM(OBJ_ANIM_FRAME + x) = a;
-L_EACC:;
+    if (z) {
+        mff_cycles(0xEAB2, 31);
+        a = RAM(OBJ_ANIM_TIMER + x);
+        a &= 0x80;
+        RAM(OBJ_ANIM_TIMER + x) = a;
+        a = RAM(OBJ_ANIM_FRAME + x);
+        a &= 0x7F;
+        t = (uint8_t)(RAM(OBJ_ANIM_FRAME + x) + 1); RAM(OBJ_ANIM_FRAME + x) = t;
+        y--;
+        m = nes_read((uint16_t)(RAM16(0x00) + y)); c = a >= m;
+        z = ((uint8_t)(a - m)) == 0;
+        mff_cycles(0xEAC5, 2);
+        if (z) {
+            mff_cycles(0xEAC7, 7);
+            a = 0x00;
+            RAM(OBJ_ANIM_FRAME + x) = a;
+        } else {
+            mff_cycles(0xEAC5, 1);
+        }
+    } else {
+        mff_cycles(0xEAB0, 1);
+    }
     mff_cycles(0xEACC, 6);
     a = RAM(OBJ_FLAGS + x);
     n = (a) >> 7;
@@ -3218,26 +3396,30 @@ L_EAF0:;
     y = 0x0B;
     a = mff_pull();
     n = (a) >> 7;
-    if (!n) { mff_cycles(0xEB03, 1); goto L_EB09; }
-    mff_cycles(0xEB05, 4);
-    a &= 0x7F;
-    y = 0x03;
-L_EB09:;
+    if (n) {
+        mff_cycles(0xEB05, 4);
+        a &= 0x7F;
+        y = 0x03;
+    } else {
+        mff_cycles(0xEB03, 1);
+    }
     mff_cycles(0xEB09, 8);
     RAM(0x04) = a;
     m = RAM(BANK_REQUEST + 1); c = y >= m;
     n = ((uint8_t)(y - m)) >> 7;
     z = ((uint8_t)(y - m)) == 0;
-    if (z) { mff_cycles(0xEB0D, 1); goto L_EB18; }
-    mff_cycles(0xEB0F, 12);
-    RAM(BANK_REQUEST + 1) = y;
-    RAM(0x05) = x;
-    SYNC_OUT;
-    if (!mff_call_fn(0x0B15, func_FF4D, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xEB16, 3);
-    x = RAM(0x05);
-L_EB18:;
+    if (!z) {
+        mff_cycles(0xEB0F, 12);
+        RAM(BANK_REQUEST + 1) = y;
+        RAM(0x05) = x;
+        SYNC_OUT;
+        if (!mff_call_fn(0x0B15, func_FF4D, 0xE000)) return;
+        SYNC_IN;
+        mff_cycles(0xEB16, 3);
+        x = RAM(0x05);
+    } else {
+        mff_cycles(0xEB0D, 1);
+    }
     mff_cycles(0xEB18, 7);
     y = 0x01;
     a = nes_read((uint16_t)(RAM16(0x02) + y));
@@ -3297,13 +3479,15 @@ L_EB4C:;
     RAM(0x01) = a;
     a = RAM(0x10);
     z = (a) == 0;
-    if (z) { mff_cycles(0xEB63, 1); goto L_EB6C; }
-    mff_cycles(0xEB65, 10);
-    a = 0xF8;
-    c = 1;
-    m = RAM(0x01); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    RAM(0x01) = a;
-L_EB6C:;
+    if (!z) {
+        mff_cycles(0xEB65, 10);
+        a = 0xF8;
+        c = 1;
+        m = RAM(0x01); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+        RAM(0x01) = a;
+    } else {
+        mff_cycles(0xEB63, 1);
+    }
     mff_cycles(0xEB6C, 18);
     a = RAM(0x13);
     c = 0;
@@ -3407,23 +3591,28 @@ L_EA6F:;
     m = nes_read((uint16_t)(RAM16(0x00) + y)); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0xEAB0, 2);
-    if (!z) { mff_cycles(0xEAB0, 1); goto L_EACC; }
-    mff_cycles(0xEAB2, 31);
-    a = RAM(OBJ_ANIM_TIMER + x);
-    a &= 0x80;
-    RAM(OBJ_ANIM_TIMER + x) = a;
-    a = RAM(OBJ_ANIM_FRAME + x);
-    a &= 0x7F;
-    t = (uint8_t)(RAM(OBJ_ANIM_FRAME + x) + 1); RAM(OBJ_ANIM_FRAME + x) = t;
-    y--;
-    m = nes_read((uint16_t)(RAM16(0x00) + y)); c = a >= m;
-    z = ((uint8_t)(a - m)) == 0;
-    mff_cycles(0xEAC5, 2);
-    if (!z) { mff_cycles(0xEAC5, 1); goto L_EACC; }
-    mff_cycles(0xEAC7, 7);
-    a = 0x00;
-    RAM(OBJ_ANIM_FRAME + x) = a;
-L_EACC:;
+    if (z) {
+        mff_cycles(0xEAB2, 31);
+        a = RAM(OBJ_ANIM_TIMER + x);
+        a &= 0x80;
+        RAM(OBJ_ANIM_TIMER + x) = a;
+        a = RAM(OBJ_ANIM_FRAME + x);
+        a &= 0x7F;
+        t = (uint8_t)(RAM(OBJ_ANIM_FRAME + x) + 1); RAM(OBJ_ANIM_FRAME + x) = t;
+        y--;
+        m = nes_read((uint16_t)(RAM16(0x00) + y)); c = a >= m;
+        z = ((uint8_t)(a - m)) == 0;
+        mff_cycles(0xEAC5, 2);
+        if (z) {
+            mff_cycles(0xEAC7, 7);
+            a = 0x00;
+            RAM(OBJ_ANIM_FRAME + x) = a;
+        } else {
+            mff_cycles(0xEAC5, 1);
+        }
+    } else {
+        mff_cycles(0xEAB0, 1);
+    }
     mff_cycles(0xEACC, 6);
     a = RAM(OBJ_FLAGS + x);
     n = (a) >> 7;
@@ -3475,26 +3664,30 @@ L_EAF0:;
     y = 0x0B;
     a = mff_pull();
     n = (a) >> 7;
-    if (!n) { mff_cycles(0xEB03, 1); goto L_EB09; }
-    mff_cycles(0xEB05, 4);
-    a &= 0x7F;
-    y = 0x03;
-L_EB09:;
+    if (n) {
+        mff_cycles(0xEB05, 4);
+        a &= 0x7F;
+        y = 0x03;
+    } else {
+        mff_cycles(0xEB03, 1);
+    }
     mff_cycles(0xEB09, 8);
     RAM(0x04) = a;
     m = RAM(BANK_REQUEST + 1); c = y >= m;
     n = ((uint8_t)(y - m)) >> 7;
     z = ((uint8_t)(y - m)) == 0;
-    if (z) { mff_cycles(0xEB0D, 1); goto L_EB18; }
-    mff_cycles(0xEB0F, 12);
-    RAM(BANK_REQUEST + 1) = y;
-    RAM(0x05) = x;
-    SYNC_OUT;
-    if (!mff_call_fn(0x0B15, func_FF4D, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xEB16, 3);
-    x = RAM(0x05);
-L_EB18:;
+    if (!z) {
+        mff_cycles(0xEB0F, 12);
+        RAM(BANK_REQUEST + 1) = y;
+        RAM(0x05) = x;
+        SYNC_OUT;
+        if (!mff_call_fn(0x0B15, func_FF4D, 0xE000)) return;
+        SYNC_IN;
+        mff_cycles(0xEB16, 3);
+        x = RAM(0x05);
+    } else {
+        mff_cycles(0xEB0D, 1);
+    }
     mff_cycles(0xEB18, 7);
     y = 0x01;
     a = nes_read((uint16_t)(RAM16(0x02) + y));
@@ -3554,13 +3747,15 @@ L_EB4C:;
     RAM(0x01) = a;
     a = RAM(0x10);
     z = (a) == 0;
-    if (z) { mff_cycles(0xEB63, 1); goto L_EB6C; }
-    mff_cycles(0xEB65, 10);
-    a = 0xF8;
-    c = 1;
-    m = RAM(0x01); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    RAM(0x01) = a;
-L_EB6C:;
+    if (!z) {
+        mff_cycles(0xEB65, 10);
+        a = 0xF8;
+        c = 1;
+        m = RAM(0x01); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+        RAM(0x01) = a;
+    } else {
+        mff_cycles(0xEB63, 1);
+    }
     mff_cycles(0xEB6C, 18);
     a = RAM(0x13);
     c = 0;
@@ -3614,7 +3809,6 @@ L_EB8C:;
 /* object_offscreen $EC33 - lifted by port/tools/lift.py */
 void func_EC33(void) {
     REGS_IN;
-L_EC33:;
     mff_cycles(0xEC33, 7);
     a = RAM(ROUND);
     m = 0x03; c = a >= m;
@@ -3655,21 +3849,23 @@ L_EC53:;
     c = 1;
     m = RAM(OBJ_X_HI + x); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
-    if (n) { mff_cycles(0xEC59, 1); goto L_EC6E; }
-    mff_cycles(0xEC5B, 32);
-    a = RAM(OBJ_X + x);
-    c = 0;
-    m = 0x10; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(OBJ_X + x) = a;
-    a = RAM(OBJ_X_HI + x);
-    m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_X_HI + x) = a;
-    c = 1;
-    SYNC_OUT;
-    mff_rts(); return;
-L_EC6E:;
+    if (!n) {
+        mff_cycles(0xEC5B, 32);
+        a = RAM(OBJ_X + x);
+        c = 0;
+        m = 0x10; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(OBJ_X + x) = a;
+        a = RAM(OBJ_X_HI + x);
+        m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(OBJ_X_HI + x) = a;
+        c = 1;
+        SYNC_OUT;
+        mff_rts(); return;
+    } else {
+        mff_cycles(0xEC59, 1);
+    }
     mff_cycles(0xEC6E, 32);
     a = RAM(OBJ_X + x);
     c = 1;
@@ -3717,7 +3913,6 @@ L_EC81:;
 /* object_free $EC81 - lifted by port/tools/lift.py */
 void func_EC81(void) {
     REGS_IN;
-L_EC81:;
     mff_cycles(0xEC81, 112);
     a = 0x00;
     RAM(OBJ_STATE + x) = a;
@@ -3751,7 +3946,6 @@ L_EC81:;
 /* bg_probe $ECCF - lifted by port/tools/lift.py */
 void func_ECCF(void) {
     REGS_IN;
-L_ECCF:;
     mff_cycles(0xECCF, 4);
     a = nes_read((uint16_t)(0xEEEB + y));
     n = (a) >> 7;
@@ -3792,13 +3986,15 @@ L_ECFB:;
     mff_cycles(0xECFB, 5);
     a = 0x00;
     y = RAM(0x02);
-L_ECFF:;
-    mff_cycles(0xECFF, 9);
-    RAM(PROBE_HITS + y) = a;
-    y--;
-    n = (y) >> 7;
-    z = (y) == 0;
-    if (!n) { mff_cycles(0xECFF, 2); goto L_ECFF; }
+    for (;;) {
+        mff_cycles(0xECFF, 9);
+        RAM(PROBE_HITS + y) = a;
+        y--;
+        n = (y) >> 7;
+        z = (y) == 0;
+        if (n) break;
+        mff_cycles(0xECFF, 2);
+    }
     mff_cycles(0xED05, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0xEEDF, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_EEDF(); g_code_window_base = swb; } return;
@@ -3825,10 +4021,12 @@ L_ED08:;
     a = nes_read((uint16_t)(0xEEF8 + y));
     n = (a) >> 7;
     mff_cycles(0xED25, 2);
-    if (!n) { mff_cycles(0xED25, 1); goto L_ED29; }
-    mff_cycles(0xED27, 5);
-    t = (uint8_t)(RAM(0x04) - 1); RAM(0x04) = t;
-L_ED29:;
+    if (n) {
+        mff_cycles(0xED27, 5);
+        t = (uint8_t)(RAM(0x04) - 1); RAM(0x04) = t;
+    } else {
+        mff_cycles(0xED25, 1);
+    }
     mff_cycles(0xED29, 53);
     c = 0;
     m = RAM(OBJ_X + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -3886,10 +4084,12 @@ L_ED5F:;
     y = RAM(0x02);
     RAM(PROBE_HITS + y) = a;
     m = RAM(PROBE_MAX); c = a >= m;
-    if (!c) { mff_cycles(0xED70, 1); goto L_ED74; }
-    mff_cycles(0xED72, 3);
-    RAM(PROBE_MAX) = a;
-L_ED74:;
+    if (c) {
+        mff_cycles(0xED72, 3);
+        RAM(PROBE_MAX) = a;
+    } else {
+        mff_cycles(0xED70, 1);
+    }
     mff_cycles(0xED74, 13);
     a |= RAM(0x10);
     RAM(0x10) = a;
@@ -3938,8 +4138,9 @@ L_EDB3:;
     m = 0x00; c = x >= m;
     n = ((uint8_t)(x - m)) >> 7;
     z = ((uint8_t)(x - m)) == 0;
-    if (!z) { mff_cycles(0xEDB5, 1); goto L_EDB7; }
-L_EDB7:;
+    if (!z) {
+        mff_cycles(0xEDB5, 1);
+    }
     mff_cycles(0xEDB7, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0xEEDF, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_EEDF(); g_code_window_base = swb; } return;
@@ -3985,10 +4186,12 @@ L_ED5F:;
     y = RAM(0x02);
     RAM(PROBE_HITS + y) = a;
     m = RAM(PROBE_MAX); c = a >= m;
-    if (!c) { mff_cycles(0xED70, 1); goto L_ED74; }
-    mff_cycles(0xED72, 3);
-    RAM(PROBE_MAX) = a;
-L_ED74:;
+    if (c) {
+        mff_cycles(0xED72, 3);
+        RAM(PROBE_MAX) = a;
+    } else {
+        mff_cycles(0xED70, 1);
+    }
     mff_cycles(0xED74, 13);
     a |= RAM(0x10);
     RAM(0x10) = a;
@@ -4037,8 +4240,9 @@ L_EDB3:;
     m = 0x00; c = x >= m;
     n = ((uint8_t)(x - m)) >> 7;
     z = ((uint8_t)(x - m)) == 0;
-    if (!z) { mff_cycles(0xEDB5, 1); goto L_EDB7; }
-L_EDB7:;
+    if (!z) {
+        mff_cycles(0xEDB5, 1);
+    }
     mff_cycles(0xEDB7, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0xEEDF, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_EEDF(); g_code_window_base = swb; } return;
@@ -4047,7 +4251,6 @@ L_EDB7:;
 /* bg_probe_2 $EDBA - lifted by port/tools/lift.py */
 void func_EDBA(void) {
     REGS_IN;
-L_EDBA:;
     mff_cycles(0xEDBA, 4);
     a = nes_read((uint16_t)(0xEF23 + y));
     n = (a) >> 7;
@@ -4067,10 +4270,12 @@ L_EDBA:;
     a = nes_read((uint16_t)(0xEF2E + y));
     n = (a) >> 7;
     mff_cycles(0xEDCF, 2);
-    if (!n) { mff_cycles(0xEDCF, 1); goto L_EDD3; }
-    mff_cycles(0xEDD1, 5);
-    t = (uint8_t)(RAM(0x04) - 1); RAM(0x04) = t;
-L_EDD3:;
+    if (n) {
+        mff_cycles(0xEDD1, 5);
+        t = (uint8_t)(RAM(0x04) - 1); RAM(0x04) = t;
+    } else {
+        mff_cycles(0xEDCF, 1);
+    }
     mff_cycles(0xEDD3, 53);
     c = 0;
     m = RAM(OBJ_X + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -4209,10 +4414,12 @@ L_EE6C:;
     y = RAM(0x02);
     RAM(PROBE_HITS + y) = a;
     m = RAM(PROBE_MAX); c = a >= m;
-    if (!c) { mff_cycles(0xEE7D, 1); goto L_EE81; }
-    mff_cycles(0xEE7F, 3);
-    RAM(PROBE_MAX) = a;
-L_EE81:;
+    if (c) {
+        mff_cycles(0xEE7F, 3);
+        RAM(PROBE_MAX) = a;
+    } else {
+        mff_cycles(0xEE7D, 1);
+    }
     mff_cycles(0xEE81, 13);
     a |= RAM(0x10);
     RAM(0x10) = a;
@@ -4261,8 +4468,9 @@ L_EEBD:;
     m = 0x00; c = x >= m;
     n = ((uint8_t)(x - m)) >> 7;
     z = ((uint8_t)(x - m)) == 0;
-    if (!z) { mff_cycles(0xEEBF, 1); goto L_EEC1; }
-L_EEC1:;
+    if (!z) {
+        mff_cycles(0xEEBF, 1);
+    }
     mff_cycles(0xEEC1, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0xEEDF, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_EEDF(); g_code_window_base = swb; } return;
@@ -4271,7 +4479,6 @@ L_EEC1:;
 /*  $EEC4 - lifted by port/tools/lift.py */
 void func_EEC4(void) {
     REGS_IN;
-L_EEC4:;
     mff_cycles(0xEEC4, 29);
     mff_push(a);
     a = x;
@@ -4303,7 +4510,6 @@ L_EEC4:;
 /*  $EEDF - lifted by port/tools/lift.py */
 void func_EEDF(void) {
     REGS_IN;
-L_EEDF:;
     mff_cycles(0xEEDF, 17);
     a = x;
     mff_push(a);
@@ -4326,7 +4532,6 @@ L_EEDF:;
 /*  $EF55 - lifted by port/tools/lift.py */
 void func_EF55(void) {
     REGS_IN;
-L_EF55:;
     mff_cycles(0xEF55, 39);
     a = RAM(0x12);
     a &= 0x0F;
@@ -4347,7 +4552,6 @@ L_EF55:;
 /*  $EF6D - lifted by port/tools/lift.py */
 void func_EF6D(void) {
     REGS_IN;
-L_EF6D:;
     mff_cycles(0xEF6D, 35);
     a = RAM(0x12);
     a &= 0x0F;
@@ -4367,7 +4571,6 @@ L_EF6D:;
 /*  $EF83 - lifted by port/tools/lift.py */
 void func_EF83(void) {
     REGS_IN;
-L_EF83:;
     mff_cycles(0xEF83, 22);
     a = RAM(0x11);
     a &= 0x0F;
@@ -4378,14 +4581,16 @@ L_EF83:;
     m = 0xF0; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (!c) { mff_cycles(0xEF92, 1); goto L_EF9C; }
-    mff_cycles(0xEF94, 14);
-    m = 0x0F; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(OBJ_Y + x) = a;
-    t = (uint8_t)(RAM(OBJ_Y_HI + x) + 1); RAM(OBJ_Y_HI + x) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-L_EF9C:;
+    if (c) {
+        mff_cycles(0xEF94, 14);
+        m = 0x0F; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(OBJ_Y + x) = a;
+        t = (uint8_t)(RAM(OBJ_Y_HI + x) + 1); RAM(OBJ_Y_HI + x) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+    } else {
+        mff_cycles(0xEF92, 1);
+    }
     mff_cycles(0xEF9C, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -4394,7 +4599,6 @@ L_EF9C:;
 /*  $EF9D - lifted by port/tools/lift.py */
 void func_EF9D(void) {
     REGS_IN;
-L_EF9D:;
     mff_cycles(0xEF9D, 27);
     a = RAM(0x11);
     mff_push(a);
@@ -4404,12 +4608,14 @@ L_EF9D:;
     c = 1;
     m = RAM(0x11); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     RAM(OBJ_Y + x) = a;
-    if (c) { mff_cycles(0xEFAD, 1); goto L_EFB7; }
-    mff_cycles(0xEFAF, 14);
-    m = 0x0F; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    RAM(OBJ_Y + x) = a;
-    t = (uint8_t)(RAM(OBJ_Y_HI + x) - 1); RAM(OBJ_Y_HI + x) = t;
-L_EFB7:;
+    if (!c) {
+        mff_cycles(0xEFAF, 14);
+        m = 0x0F; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+        RAM(OBJ_Y + x) = a;
+        t = (uint8_t)(RAM(OBJ_Y_HI + x) - 1); RAM(OBJ_Y_HI + x) = t;
+    } else {
+        mff_cycles(0xEFAD, 1);
+    }
     mff_cycles(0xEFB7, 13);
     a = mff_pull();
     n = (a) >> 7;

@@ -11,7 +11,6 @@
 /* sound_tick $8000 (bank 3) - lifted by port/tools/lift.py */
 void func_8000_b3(void) {
     REGS_IN;
-L_8000:;
     mff_cycles(0x8000, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0x806C, 2); call_by_address_tail(0x806C, 3); return;
@@ -20,7 +19,6 @@ L_8000:;
 /* sound_play $8003 (bank 3) - lifted by port/tools/lift.py */
 void func_8003_b3(void) {
     REGS_IN;
-L_8003:;
     mff_cycles(0x8003, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0x80FE, 2); call_by_address_tail(0x80FE, 3); return;
@@ -29,30 +27,33 @@ L_8003:;
 /* snd_mul8 $8006 (bank 3) - lifted by port/tools/lift.py */
 void func_8006_b3(void) {
     REGS_IN;
-L_8006:;
     mff_cycles(0x8006, 7);
     a = 0x00;
     RAM(SND_TMP + 1) = a;
     y = 0x08;
-L_800C:;
-    mff_cycles(0x800C, 12);
-    t = RAM(SND_TMP + 1); c = t >> 7; t = (uint8_t)(t << 1); RAM(SND_TMP + 1) = t;
-    t = RAM(SND_TMP); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP) = t;
-    if (!c) { mff_cycles(0x8010, 1); goto L_801F; }
-    mff_cycles(0x8012, 19);
-    c = 0;
-    a = RAM(SND_TMP + 1);
-    m = RAM(SND_TMP + 3); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP + 1) = a;
-    a = RAM(SND_TMP);
-    m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP) = a;
-L_801F:;
-    mff_cycles(0x801F, 4);
-    y--;
-    n = (y) >> 7;
-    z = (y) == 0;
-    if (!z) { mff_cycles(0x800C, 1); goto L_800C; }
+    for (;;) {
+        mff_cycles(0x800C, 12);
+        t = RAM(SND_TMP + 1); c = t >> 7; t = (uint8_t)(t << 1); RAM(SND_TMP + 1) = t;
+        t = RAM(SND_TMP); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP) = t;
+        if (c) {
+            mff_cycles(0x8012, 19);
+            c = 0;
+            a = RAM(SND_TMP + 1);
+            m = RAM(SND_TMP + 3); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(SND_TMP + 1) = a;
+            a = RAM(SND_TMP);
+            m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(SND_TMP) = a;
+        } else {
+            mff_cycles(0x8010, 1);
+        }
+        mff_cycles(0x801F, 4);
+        y--;
+        n = (y) >> 7;
+        z = (y) == 0;
+        if (z) break;
+        mff_cycles(0x800C, 1);
+    }
     mff_cycles(0x8022, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -61,7 +62,6 @@ L_801F:;
 /* snd_jump_inline $8023 (bank 3) - lifted by port/tools/lift.py */
 void func_8023_b3(void) {
     REGS_IN;
-L_8023:;
     mff_cycles(0x8023, 25);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     y = a;
@@ -88,21 +88,22 @@ L_8023:;
 /* snd_read $803A (bank 3) - lifted by port/tools/lift.py */
 void func_803A_b3(void) {
     REGS_IN;
-L_803A:;
     mff_cycles(0x803A, 9);
     RAM(SND_TMP) = y;
     y = 0x00;
     m = 0xC0; c = a >= m;
-    if (c) { mff_cycles(0x8040, 1); goto L_8047; }
-    mff_cycles(0x8042, 8);
-    RAM(SND_TMP + 1) = a;
-    a = nes_read((uint16_t)(RAM16(SND_TMP) + y));
-    n = (a) >> 7;
-    z = (a) == 0;
-    mff_cycles(0x8046, 6);
-    SYNC_OUT;
-    mff_rts(); return;
-L_8047:;
+    if (!c) {
+        mff_cycles(0x8042, 8);
+        RAM(SND_TMP + 1) = a;
+        a = nes_read((uint16_t)(RAM16(SND_TMP) + y));
+        n = (a) >> 7;
+        z = (a) == 0;
+        mff_cycles(0x8046, 6);
+        SYNC_OUT;
+        mff_rts(); return;
+    } else {
+        mff_cycles(0x8040, 1);
+    }
     mff_cycles(0x8047, 13);
     c = 1;
     m = 0x20; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
@@ -136,111 +137,127 @@ L_8047:;
 /* snd_tick_body $806C (bank 3) - lifted by port/tools/lift.py */
 void func_806C_b3(void) {
     REGS_IN;
-L_806C:;
     mff_cycles(0x806C, 7);
     a = RAM(SND_FLAGS);
     t = a; c = t & 1; t >>= 1; a = t;
     n = (t) >> 7;
     z = (t) == 0;
-    if (c) { mff_cycles(0x806F, 1); goto L_80D7; }
-    mff_cycles(0x8071, 8);
-    a = RAM(SND_EFFECT_PTR);
-    a |= RAM(SND_EFFECT_PTR + 1);
-    n = (a) >> 7;
-    z = (a) == 0;
-    if (z) { mff_cycles(0x8075, 1); goto L_807A; }
-    mff_cycles(0x8077, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x0079, 0x8252, 3)) return;
-    SYNC_IN;
-L_807A:;
-    mff_cycles(0x807A, 27);
-    c = 0;
-    a = RAM(SND_TEMPO + 1);
-    m = RAM(SND_TEMPO_ACC); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TEMPO_ACC) = a;
-    a = RAM(SND_TEMPO);
-    m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TICKS) = a;
-    a = RAM(SND_EFFECT_CHANNELS);
-    mff_push(a);
-    x = 0x03;
-L_808C:;
-    mff_cycles(0x808C, 7);
-    t = RAM(SND_EFFECT_CHANNELS); c = t & 1; t >>= 1; RAM(SND_EFFECT_CHANNELS) = t;
-    if (!c) { mff_cycles(0x808E, 1); goto L_8099; }
-    mff_cycles(0x8090, 14);
-    a = RAM(SND_EFFECT_CHANNELS);
-    a |= 0x80;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(SND_EFFECT_CHANNELS) = a;
-    SYNC_OUT;
-    if (!mff_call_at(0x0098, 0x82DE, 3)) return;
-    SYNC_IN;
-L_8099:;
-    mff_cycles(0x8099, 7);
-    a = RAM(SND_FLAGS);
-    a &= 0x02;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x809D, 1); goto L_80A6; }
-    mff_cycles(0x809F, 11);
-    a = x;
-    n = (a) >> 7;
-    z = (a) == 0;
-    mff_push(a);
-    SYNC_OUT;
-    if (!mff_call_at(0x00A3, 0x8393, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x80A4, 6);
-    a = mff_pull();
-    x = a;
-L_80A6:;
-    mff_cycles(0x80A6, 4);
-    x--;
-    n = (x) >> 7;
-    if (!n) { mff_cycles(0x808C, 1); goto L_808C; }
-    mff_cycles(0x80A9, 24);
-    a = mff_pull();
-    RAM(SND_EFFECT_CHANNELS) = a;
-    t = RAM(SND_FLAGS); c = t & 1; t >>= 1; RAM(SND_FLAGS) = t;
-    t = RAM(SND_FLAGS); c = t >> 7; t = (uint8_t)(t << 1); RAM(SND_FLAGS) = t;
-    a = RAM(SND_FADE_SPEED);
-    a &= 0x7F;
-    n = (a) >> 7;
-    z = (a) == 0;
-    if (z) { mff_cycles(0x80B4, 1); goto L_80D7; }
-    mff_cycles(0x80B6, 7);
-    y = 0x00;
-    RAM(SND_TMP) = y;
-    y = 0x04;
-L_80BC:;
-    mff_cycles(0x80BC, 11);
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-    t = RAM(SND_TMP); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP) = t;
-    y--;
-    z = (y) == 0;
-    if (!z) { mff_cycles(0x80BC, 1); goto L_80BC; }
-    mff_cycles(0x80C2, 16);
-    c = 0;
-    m = RAM(SND_FLAGS); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_FLAGS) = a;
-    a = RAM(SND_TMP);
-    m = RAM(SND_FADE_LEVEL); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    if (!c) { mff_cycles(0x80CB, 1); goto L_80D5; }
-    mff_cycles(0x80CD, 10);
-    a = RAM(SND_FADE_SPEED);
-    a &= 0x80;
-    RAM(SND_FADE_SPEED) = a;
-    a = 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_80D5:;
-    mff_cycles(0x80D5, 3);
-    RAM(SND_FADE_LEVEL) = a;
-L_80D7:;
+    if (!c) {
+        mff_cycles(0x8071, 8);
+        a = RAM(SND_EFFECT_PTR);
+        a |= RAM(SND_EFFECT_PTR + 1);
+        n = (a) >> 7;
+        z = (a) == 0;
+        if (!z) {
+            mff_cycles(0x8077, 6);
+            SYNC_OUT;
+            if (!mff_call_at(0x0079, 0x8252, 3)) return;
+            SYNC_IN;
+        } else {
+            mff_cycles(0x8075, 1);
+        }
+        mff_cycles(0x807A, 27);
+        c = 0;
+        a = RAM(SND_TEMPO + 1);
+        m = RAM(SND_TEMPO_ACC); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TEMPO_ACC) = a;
+        a = RAM(SND_TEMPO);
+        m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TICKS) = a;
+        a = RAM(SND_EFFECT_CHANNELS);
+        mff_push(a);
+        x = 0x03;
+        for (;;) {
+            mff_cycles(0x808C, 7);
+            t = RAM(SND_EFFECT_CHANNELS); c = t & 1; t >>= 1; RAM(SND_EFFECT_CHANNELS) = t;
+            if (c) {
+                mff_cycles(0x8090, 14);
+                a = RAM(SND_EFFECT_CHANNELS);
+                a |= 0x80;
+                n = (a) >> 7;
+                z = (a) == 0;
+                RAM(SND_EFFECT_CHANNELS) = a;
+                SYNC_OUT;
+                if (!mff_call_at(0x0098, 0x82DE, 3)) return;
+                SYNC_IN;
+            } else {
+                mff_cycles(0x808E, 1);
+            }
+            mff_cycles(0x8099, 7);
+            a = RAM(SND_FLAGS);
+            a &= 0x02;
+            z = (a) == 0;
+            if (z) {
+                mff_cycles(0x809F, 11);
+                a = x;
+                n = (a) >> 7;
+                z = (a) == 0;
+                mff_push(a);
+                SYNC_OUT;
+                if (!mff_call_at(0x00A3, 0x8393, 3)) return;
+                SYNC_IN;
+                mff_cycles(0x80A4, 6);
+                a = mff_pull();
+                x = a;
+            } else {
+                mff_cycles(0x809D, 1);
+            }
+            mff_cycles(0x80A6, 4);
+            x--;
+            n = (x) >> 7;
+            if (n) break;
+            mff_cycles(0x808C, 1);
+        }
+        mff_cycles(0x80A9, 24);
+        a = mff_pull();
+        RAM(SND_EFFECT_CHANNELS) = a;
+        t = RAM(SND_FLAGS); c = t & 1; t >>= 1; RAM(SND_FLAGS) = t;
+        t = RAM(SND_FLAGS); c = t >> 7; t = (uint8_t)(t << 1); RAM(SND_FLAGS) = t;
+        a = RAM(SND_FADE_SPEED);
+        a &= 0x7F;
+        n = (a) >> 7;
+        z = (a) == 0;
+        if (!z) {
+            mff_cycles(0x80B6, 7);
+            y = 0x00;
+            RAM(SND_TMP) = y;
+            y = 0x04;
+            for (;;) {
+                mff_cycles(0x80BC, 11);
+                t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
+                t = RAM(SND_TMP); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP) = t;
+                y--;
+                z = (y) == 0;
+                if (z) break;
+                mff_cycles(0x80BC, 1);
+            }
+            mff_cycles(0x80C2, 16);
+            c = 0;
+            m = RAM(SND_FLAGS); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            RAM(SND_FLAGS) = a;
+            a = RAM(SND_TMP);
+            m = RAM(SND_FADE_LEVEL); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            n = (a) >> 7;
+            z = (a) == 0;
+            if (c) {
+                mff_cycles(0x80CD, 10);
+                a = RAM(SND_FADE_SPEED);
+                a &= 0x80;
+                RAM(SND_FADE_SPEED) = a;
+                a = 0xFF;
+                n = (a) >> 7;
+                z = (a) == 0;
+            } else {
+                mff_cycles(0x80CB, 1);
+            }
+            mff_cycles(0x80D5, 3);
+            RAM(SND_FADE_LEVEL) = a;
+        } else {
+            mff_cycles(0x80B4, 1);
+        }
+    } else {
+        mff_cycles(0x806F, 1);
+    }
     mff_cycles(0x80D7, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -249,7 +266,6 @@ L_80D7:;
 /* snd_silence $80D8 (bank 3) - lifted by port/tools/lift.py */
 void func_80D8_b3(void) {
     REGS_IN;
-L_80D8:;
     mff_cycles(0x80D8, 18);
     a = x;
     a &= 0x03;
@@ -261,12 +277,14 @@ L_80D8:;
     m = 0x08; c = y >= m;
     n = ((uint8_t)(y - m)) >> 7;
     z = ((uint8_t)(y - m)) == 0;
-    if (!z) { mff_cycles(0x80E4, 1); goto L_80E8; }
-    mff_cycles(0x80E6, 2);
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_80E8:;
+    if (z) {
+        mff_cycles(0x80E6, 2);
+        a = 0x00;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x80E4, 1);
+    }
     mff_cycles(0x80E8, 5);
     nes_write((uint16_t)(0x4000 + y), a);
     mff_cycles(0x80EB, 6);
@@ -277,7 +295,6 @@ L_80E8:;
 /* snd_reg_write $80EC (bank 3) - lifted by port/tools/lift.py */
 void func_80EC_b3(void) {
     REGS_IN;
-L_80EC:;
     mff_cycles(0x80EC, 30);
     mff_push(a);
     a = x;
@@ -300,7 +317,6 @@ L_80EC:;
 /* snd_play_body $80FE (bank 3) - lifted by port/tools/lift.py */
 void func_80FE_b3(void) {
     REGS_IN;
-L_80FE:;
     mff_cycles(0x80FE, 11);
     t = (uint8_t)(RAM(SND_FLAGS) + 1); RAM(SND_FLAGS) = t;
     n = (t) >> 7;
@@ -319,15 +335,17 @@ L_80FE:;
 /* snd_command $8106 (bank 3) - lifted by port/tools/lift.py */
 void func_8106_b3(void) {
     REGS_IN;
-L_8106:;
     mff_cycles(0x8106, 4);
     m = 0xF0; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (!c) { mff_cycles(0x8108, 1); goto L_810D; }
-    mff_cycles(0x810A, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x81AE, 2); call_by_address_tail(0x81AE, 3); return;
+    if (c) {
+        mff_cycles(0x810A, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x81AE, 2); call_by_address_tail(0x81AE, 3); return;
+    } else {
+        mff_cycles(0x8108, 1);
+    }
 L_810D:;
     mff_cycles(0x810D, 4);
     m = nes_read(0x8A40); c = a >= m;
@@ -370,55 +388,72 @@ L_8118:;
     m = RAM(SND_EFFECT_PRIORITY); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (!c) { mff_cycles(0x8135, 1); goto L_816E; }
-    mff_cycles(0x8137, 5);
-    RAM(SND_EFFECT_PRIORITY) = a;
-    if (!z) { mff_cycles(0x8139, 1); goto L_8145; }
-    mff_cycles(0x813B, 5);
-    a = RAM(SND_EFFECT_LOOP);
-    n = (a) >> 7;
-    if (!n) { mff_cycles(0x813D, 1); goto L_8145; }
-    mff_cycles(0x813F, 5);
-    a = RAM(SND_TMP + 3);
-    n = (a) >> 7;
-    if (n) { mff_cycles(0x8141, 1); goto L_8145; }
-    mff_cycles(0x8143, 3);
-    RAM(SND_EFFECT_RELAUNCH) = y;
-L_8145:;
-    mff_cycles(0x8145, 15);
-    RAM(SND_EFFECT_LOOP) = y;
-    t = RAM(SND_TMP + 3); c = t >> 7; t = (uint8_t)(t << 1); RAM(SND_TMP + 3) = t;
-    t = RAM(SND_EFFECT_LOOP); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_EFFECT_LOOP) = t;
-    n = (t) >> 7;
-    if (!n) { mff_cycles(0x814B, 1); goto L_814F; }
-    mff_cycles(0x814D, 3);
-    RAM(SND_EFFECT_RELAUNCH) = x;
-L_814F:;
-    mff_cycles(0x814F, 13);
-    t = (uint8_t)(RAM(SND_TMP) + 1); RAM(SND_TMP) = t;
-    a = RAM(SND_TMP);
-    z = (a) == 0;
-    RAM(SND_EFFECT_PTR) = a;
-    if (!z) { mff_cycles(0x8155, 1); goto L_8159; }
-    mff_cycles(0x8157, 5);
-    t = (uint8_t)(RAM(SND_TMP + 1) + 1); RAM(SND_TMP + 1) = t;
-L_8159:;
-    mff_cycles(0x8159, 22);
-    a = RAM(SND_TMP + 1);
-    RAM(SND_EFFECT_PTR + 1) = a;
-    a = y;
-    RAM(SND_EFFECT_TRANSPOSE) = a;
-    RAM(SND_EFFECT_ROW_FRAMES) = a;
-    RAM(SND_EFFECT_GATE) = a;
-    RAM(SND_EFFECT_GATE_LEFT) = a;
-    y = 0x27;
-L_8168:;
-    mff_cycles(0x8168, 9);
-    RAM(0x0700 + y) = a;
-    y--;
-    n = (y) >> 7;
-    z = (y) == 0;
-    if (!n) { mff_cycles(0x8168, 1); goto L_8168; }
+    if (c) {
+        mff_cycles(0x8137, 5);
+        RAM(SND_EFFECT_PRIORITY) = a;
+        if (z) {
+            mff_cycles(0x813B, 5);
+            a = RAM(SND_EFFECT_LOOP);
+            n = (a) >> 7;
+            if (n) {
+                mff_cycles(0x813F, 5);
+                a = RAM(SND_TMP + 3);
+                n = (a) >> 7;
+                if (!n) {
+                    mff_cycles(0x8143, 3);
+                    RAM(SND_EFFECT_RELAUNCH) = y;
+                } else {
+                    mff_cycles(0x8141, 1);
+                }
+            } else {
+                mff_cycles(0x813D, 1);
+            }
+        } else {
+            mff_cycles(0x8139, 1);
+        }
+        mff_cycles(0x8145, 15);
+        RAM(SND_EFFECT_LOOP) = y;
+        t = RAM(SND_TMP + 3); c = t >> 7; t = (uint8_t)(t << 1); RAM(SND_TMP + 3) = t;
+        t = RAM(SND_EFFECT_LOOP); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_EFFECT_LOOP) = t;
+        n = (t) >> 7;
+        if (n) {
+            mff_cycles(0x814D, 3);
+            RAM(SND_EFFECT_RELAUNCH) = x;
+        } else {
+            mff_cycles(0x814B, 1);
+        }
+        mff_cycles(0x814F, 13);
+        t = (uint8_t)(RAM(SND_TMP) + 1); RAM(SND_TMP) = t;
+        a = RAM(SND_TMP);
+        z = (a) == 0;
+        RAM(SND_EFFECT_PTR) = a;
+        if (z) {
+            mff_cycles(0x8157, 5);
+            t = (uint8_t)(RAM(SND_TMP + 1) + 1); RAM(SND_TMP + 1) = t;
+        } else {
+            mff_cycles(0x8155, 1);
+        }
+        mff_cycles(0x8159, 22);
+        a = RAM(SND_TMP + 1);
+        RAM(SND_EFFECT_PTR + 1) = a;
+        a = y;
+        RAM(SND_EFFECT_TRANSPOSE) = a;
+        RAM(SND_EFFECT_ROW_FRAMES) = a;
+        RAM(SND_EFFECT_GATE) = a;
+        RAM(SND_EFFECT_GATE_LEFT) = a;
+        y = 0x27;
+        for (;;) {
+            mff_cycles(0x8168, 9);
+            RAM(0x0700 + y) = a;
+            y--;
+            n = (y) >> 7;
+            z = (y) == 0;
+            if (n) break;
+            mff_cycles(0x8168, 1);
+        }
+    } else {
+        mff_cycles(0x8135, 1);
+    }
 L_816E:;
     mff_cycles(0x816E, 6);
     SYNC_OUT;
@@ -434,97 +469,114 @@ L_816F:;
     RAM(SND_FADE_SPEED) = a;
     RAM(SND_FADE_LEVEL) = a;
     x = 0x53;
-L_8181:;
-    mff_cycles(0x8181, 9);
-    RAM(0x0728 + x) = a;
-    x--;
-    n = (x) >> 7;
-    if (!n) { mff_cycles(0x8181, 1); goto L_8181; }
+    for (;;) {
+        mff_cycles(0x8181, 9);
+        RAM(0x0728 + x) = a;
+        x--;
+        n = (x) >> 7;
+        if (n) break;
+        mff_cycles(0x8181, 1);
+    }
     mff_cycles(0x8187, 2);
     x = 0x03;
-L_8189:;
-    mff_cycles(0x8189, 7);
-    t = (uint8_t)(RAM(SND_TMP) + 1); RAM(SND_TMP) = t;
-    z = (t) == 0;
-    if (!z) { mff_cycles(0x818B, 1); goto L_818F; }
-    mff_cycles(0x818D, 5);
-    t = (uint8_t)(RAM(SND_TMP + 1) + 1); RAM(SND_TMP + 1) = t;
-L_818F:;
-    mff_cycles(0x818F, 12);
-    y = RAM(SND_TMP);
-    a = RAM(SND_TMP + 1);
-    n = (a) >> 7;
-    z = (a) == 0;
-    SYNC_OUT;
-    if (!mff_call_at(0x0195, 0x803A, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x8196, 12);
-    RAM(0x0754 + x) = a;
-    t = (uint8_t)(RAM(SND_TMP) + 1); RAM(SND_TMP) = t;
-    z = (t) == 0;
-    if (!z) { mff_cycles(0x819B, 1); goto L_819F; }
-    mff_cycles(0x819D, 5);
-    t = (uint8_t)(RAM(SND_TMP + 1) + 1); RAM(SND_TMP + 1) = t;
-L_819F:;
-    mff_cycles(0x819F, 12);
-    y = RAM(SND_TMP);
-    a = RAM(SND_TMP + 1);
-    n = (a) >> 7;
-    z = (a) == 0;
-    SYNC_OUT;
-    if (!mff_call_at(0x01A5, 0x803A, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x81A6, 9);
-    RAM(0x0750 + x) = a;
-    x--;
-    n = (x) >> 7;
-    if (!n) { mff_cycles(0x8189, 1); goto L_8189; }
+    for (;;) {
+        mff_cycles(0x8189, 7);
+        t = (uint8_t)(RAM(SND_TMP) + 1); RAM(SND_TMP) = t;
+        z = (t) == 0;
+        if (z) {
+            mff_cycles(0x818D, 5);
+            t = (uint8_t)(RAM(SND_TMP + 1) + 1); RAM(SND_TMP + 1) = t;
+        } else {
+            mff_cycles(0x818B, 1);
+        }
+        mff_cycles(0x818F, 12);
+        y = RAM(SND_TMP);
+        a = RAM(SND_TMP + 1);
+        n = (a) >> 7;
+        z = (a) == 0;
+        SYNC_OUT;
+        if (!mff_call_at(0x0195, 0x803A, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x8196, 12);
+        RAM(0x0754 + x) = a;
+        t = (uint8_t)(RAM(SND_TMP) + 1); RAM(SND_TMP) = t;
+        z = (t) == 0;
+        if (z) {
+            mff_cycles(0x819D, 5);
+            t = (uint8_t)(RAM(SND_TMP + 1) + 1); RAM(SND_TMP + 1) = t;
+        } else {
+            mff_cycles(0x819B, 1);
+        }
+        mff_cycles(0x819F, 12);
+        y = RAM(SND_TMP);
+        a = RAM(SND_TMP + 1);
+        n = (a) >> 7;
+        z = (a) == 0;
+        SYNC_OUT;
+        if (!mff_call_at(0x01A5, 0x803A, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x81A6, 9);
+        RAM(0x0750 + x) = a;
+        x--;
+        n = (x) >> 7;
+        if (n) break;
+        mff_cycles(0x8189, 1);
+    }
     mff_cycles(0x81AC, 2);
-    if (n) { mff_cycles(0x81AC, 1); goto L_81F1; }
-    mff_cycles(0x81AE, 11);
-    RAM(SND_TMP + 2) = y;
-    a &= 0x07;
-    n = (a) >> 7;
-    z = (a) == 0;
-    SYNC_OUT;
-    if (!mff_call_at(0x01B4, 0x8023, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x81B5, 11);
-    m = RAM(TASKS + 1); c = a >= m;
-    y++;
-    nes_write(RAM16((uint8_t)(RNG + x)), a);
-    mff_cycles(0x81BA, 6);
-    nes_write(RAM16((uint8_t)(0x1E + x)), a);
-    mff_cycles(0x81BC, 0);
-    mff_unreachable(0x81BC); return;   /* data: the branch above always goes */
-L_81F1:;
+    if (!n) {
+        mff_cycles(0x81AE, 11);
+        RAM(SND_TMP + 2) = y;
+        a &= 0x07;
+        n = (a) >> 7;
+        z = (a) == 0;
+        SYNC_OUT;
+        if (!mff_call_at(0x01B4, 0x8023, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x81B5, 11);
+        m = RAM(TASKS + 1); c = a >= m;
+        y++;
+        nes_write(RAM16((uint8_t)(RNG + x)), a);
+        mff_cycles(0x81BA, 6);
+        nes_write(RAM16((uint8_t)(0x1E + x)), a);
+        mff_cycles(0x81BC, 0);
+        mff_unreachable(0x81BC); return;   /* data: the branch above always goes */
+    } else {
+        mff_cycles(0x81AC, 1);
+    }
     mff_cycles(0x81F1, 8);
     a = RAM(SND_EFFECT_CHANNELS);
     mff_push(a);
     x = 0x03;
-L_81F6:;
-    mff_cycles(0x81F6, 7);
-    t = RAM(SND_EFFECT_CHANNELS); c = t & 1; t >>= 1; RAM(SND_EFFECT_CHANNELS) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-    if (c) { mff_cycles(0x81F8, 2); goto L_820A; }
-    mff_cycles(0x81FA, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x01FC, 0x80D8, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x81FD, 10);
-    a = RAM(0x0754 + x);
-    a |= RAM(0x0750 + x);
-    z = (a) == 0;
-    if (z) { mff_cycles(0x8203, 1); goto L_820A; }
-    mff_cycles(0x8205, 7);
-    a = 0xFF;
-    RAM(0x077C + x) = a;
-L_820A:;
-    mff_cycles(0x820A, 4);
-    x--;
-    n = (x) >> 7;
-    if (!n) { mff_cycles(0x81F6, 2); goto L_81F6; }
+    for (;;) {
+        mff_cycles(0x81F6, 7);
+        t = RAM(SND_EFFECT_CHANNELS); c = t & 1; t >>= 1; RAM(SND_EFFECT_CHANNELS) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+        if (!c) {
+            mff_cycles(0x81FA, 6);
+            SYNC_OUT;
+            if (!mff_call_at(0x01FC, 0x80D8, 3)) return;
+            SYNC_IN;
+            mff_cycles(0x81FD, 10);
+            a = RAM(0x0754 + x);
+            a |= RAM(0x0750 + x);
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0x8205, 7);
+                a = 0xFF;
+                RAM(0x077C + x) = a;
+            } else {
+                mff_cycles(0x8203, 1);
+            }
+        } else {
+            mff_cycles(0x81F8, 2);
+        }
+        mff_cycles(0x820A, 4);
+        x--;
+        n = (x) >> 7;
+        if (n) break;
+        mff_cycles(0x81F6, 2);
+    }
     mff_cycles(0x820D, 13);
     a = mff_pull();
     RAM(SND_EFFECT_CHANNELS) = a;
@@ -545,7 +597,6 @@ L_820A:;
 /* snd_special $81AE (bank 3) - lifted by port/tools/lift.py */
 void func_81AE_b3(void) {
     REGS_IN;
-L_81AE:;
     mff_cycles(0x81AE, 11);
     RAM(SND_TMP + 2) = y;
     a &= 0x07;
@@ -567,7 +618,6 @@ L_81AE:;
 /* snd_stop_all $81C5 (bank 3) - lifted by port/tools/lift.py */
 void func_81C5_b3(void) {
     REGS_IN;
-L_81C5:;
     mff_cycles(0x81C5, 6);
     SYNC_OUT;
     if (!mff_call_at(0x01C7, 0x81E4, 3)) return;
@@ -582,21 +632,23 @@ L_81C5:;
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x81D6, 1); goto L_81E3; }
-    mff_cycles(0x81D8, 11);
-    a ^= 0x0F;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(SND_EFFECT_CHANNELS) = a;
-    SYNC_OUT;
-    if (!mff_call_at(0x01DE, 0x81F1, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x81DF, 5);
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(SND_EFFECT_CHANNELS) = a;
-L_81E3:;
+    if (!z) {
+        mff_cycles(0x81D8, 11);
+        a ^= 0x0F;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(SND_EFFECT_CHANNELS) = a;
+        SYNC_OUT;
+        if (!mff_call_at(0x01DE, 0x81F1, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x81DF, 5);
+        a = 0x00;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(SND_EFFECT_CHANNELS) = a;
+    } else {
+        mff_cycles(0x81D6, 1);
+    }
     mff_cycles(0x81E3, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -605,7 +657,6 @@ L_81E3:;
 /* snd_effect_stop $81C8 (bank 3) - lifted by port/tools/lift.py */
 void func_81C8_b3(void) {
     REGS_IN;
-L_81C8:;
     mff_cycles(0x81C8, 22);
     a = 0x00;
     RAM(SND_EFFECT_PRIORITY) = a;
@@ -616,21 +667,23 @@ L_81C8:;
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x81D6, 1); goto L_81E3; }
-    mff_cycles(0x81D8, 11);
-    a ^= 0x0F;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(SND_EFFECT_CHANNELS) = a;
-    SYNC_OUT;
-    if (!mff_call_at(0x01DE, 0x81F1, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x81DF, 5);
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(SND_EFFECT_CHANNELS) = a;
-L_81E3:;
+    if (!z) {
+        mff_cycles(0x81D8, 11);
+        a ^= 0x0F;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(SND_EFFECT_CHANNELS) = a;
+        SYNC_OUT;
+        if (!mff_call_at(0x01DE, 0x81F1, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x81DF, 5);
+        a = 0x00;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(SND_EFFECT_CHANNELS) = a;
+    } else {
+        mff_cycles(0x81D6, 1);
+    }
     mff_cycles(0x81E3, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -639,26 +692,27 @@ L_81E3:;
 /* snd_release_changed $81D4 (bank 3) - lifted by port/tools/lift.py */
 void func_81D4_b3(void) {
     REGS_IN;
-L_81D4:;
     mff_cycles(0x81D4, 5);
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x81D6, 1); goto L_81E3; }
-    mff_cycles(0x81D8, 11);
-    a ^= 0x0F;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(SND_EFFECT_CHANNELS) = a;
-    SYNC_OUT;
-    if (!mff_call_at(0x01DE, 0x81F1, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x81DF, 5);
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(SND_EFFECT_CHANNELS) = a;
-L_81E3:;
+    if (!z) {
+        mff_cycles(0x81D8, 11);
+        a ^= 0x0F;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(SND_EFFECT_CHANNELS) = a;
+        SYNC_OUT;
+        if (!mff_call_at(0x01DE, 0x81F1, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x81DF, 5);
+        a = 0x00;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(SND_EFFECT_CHANNELS) = a;
+    } else {
+        mff_cycles(0x81D6, 1);
+    }
     mff_cycles(0x81E3, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -667,44 +721,52 @@ L_81E3:;
 /* snd_music_stop $81E4 (bank 3) - lifted by port/tools/lift.py */
 void func_81E4_b3(void) {
     REGS_IN;
-L_81E4:;
     mff_cycles(0x81E4, 4);
     a = 0x00;
     x = 0x03;
-L_81E8:;
-    mff_cycles(0x81E8, 14);
-    RAM(0x0754 + x) = a;
-    RAM(0x0750 + x) = a;
-    x--;
-    n = (x) >> 7;
-    if (!n) { mff_cycles(0x81E8, 1); goto L_81E8; }
+    for (;;) {
+        mff_cycles(0x81E8, 14);
+        RAM(0x0754 + x) = a;
+        RAM(0x0750 + x) = a;
+        x--;
+        n = (x) >> 7;
+        if (n) break;
+        mff_cycles(0x81E8, 1);
+    }
     mff_cycles(0x81F1, 8);
     a = RAM(SND_EFFECT_CHANNELS);
     mff_push(a);
     x = 0x03;
-L_81F6:;
-    mff_cycles(0x81F6, 7);
-    t = RAM(SND_EFFECT_CHANNELS); c = t & 1; t >>= 1; RAM(SND_EFFECT_CHANNELS) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-    if (c) { mff_cycles(0x81F8, 2); goto L_820A; }
-    mff_cycles(0x81FA, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x01FC, 0x80D8, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x81FD, 10);
-    a = RAM(0x0754 + x);
-    a |= RAM(0x0750 + x);
-    z = (a) == 0;
-    if (z) { mff_cycles(0x8203, 1); goto L_820A; }
-    mff_cycles(0x8205, 7);
-    a = 0xFF;
-    RAM(0x077C + x) = a;
-L_820A:;
-    mff_cycles(0x820A, 4);
-    x--;
-    n = (x) >> 7;
-    if (!n) { mff_cycles(0x81F6, 2); goto L_81F6; }
+    for (;;) {
+        mff_cycles(0x81F6, 7);
+        t = RAM(SND_EFFECT_CHANNELS); c = t & 1; t >>= 1; RAM(SND_EFFECT_CHANNELS) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+        if (!c) {
+            mff_cycles(0x81FA, 6);
+            SYNC_OUT;
+            if (!mff_call_at(0x01FC, 0x80D8, 3)) return;
+            SYNC_IN;
+            mff_cycles(0x81FD, 10);
+            a = RAM(0x0754 + x);
+            a |= RAM(0x0750 + x);
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0x8205, 7);
+                a = 0xFF;
+                RAM(0x077C + x) = a;
+            } else {
+                mff_cycles(0x8203, 1);
+            }
+        } else {
+            mff_cycles(0x81F8, 2);
+        }
+        mff_cycles(0x820A, 4);
+        x--;
+        n = (x) >> 7;
+        if (n) break;
+        mff_cycles(0x81F6, 2);
+    }
     mff_cycles(0x820D, 13);
     a = mff_pull();
     RAM(SND_EFFECT_CHANNELS) = a;
@@ -725,34 +787,40 @@ L_820A:;
 /* snd_silence_free $81F1 (bank 3) - lifted by port/tools/lift.py */
 void func_81F1_b3(void) {
     REGS_IN;
-L_81F1:;
     mff_cycles(0x81F1, 8);
     a = RAM(SND_EFFECT_CHANNELS);
     mff_push(a);
     x = 0x03;
-L_81F6:;
-    mff_cycles(0x81F6, 7);
-    t = RAM(SND_EFFECT_CHANNELS); c = t & 1; t >>= 1; RAM(SND_EFFECT_CHANNELS) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-    if (c) { mff_cycles(0x81F8, 2); goto L_820A; }
-    mff_cycles(0x81FA, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x01FC, 0x80D8, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x81FD, 10);
-    a = RAM(0x0754 + x);
-    a |= RAM(0x0750 + x);
-    z = (a) == 0;
-    if (z) { mff_cycles(0x8203, 1); goto L_820A; }
-    mff_cycles(0x8205, 7);
-    a = 0xFF;
-    RAM(0x077C + x) = a;
-L_820A:;
-    mff_cycles(0x820A, 4);
-    x--;
-    n = (x) >> 7;
-    if (!n) { mff_cycles(0x81F6, 2); goto L_81F6; }
+    for (;;) {
+        mff_cycles(0x81F6, 7);
+        t = RAM(SND_EFFECT_CHANNELS); c = t & 1; t >>= 1; RAM(SND_EFFECT_CHANNELS) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+        if (!c) {
+            mff_cycles(0x81FA, 6);
+            SYNC_OUT;
+            if (!mff_call_at(0x01FC, 0x80D8, 3)) return;
+            SYNC_IN;
+            mff_cycles(0x81FD, 10);
+            a = RAM(0x0754 + x);
+            a |= RAM(0x0750 + x);
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0x8205, 7);
+                a = 0xFF;
+                RAM(0x077C + x) = a;
+            } else {
+                mff_cycles(0x8203, 1);
+            }
+        } else {
+            mff_cycles(0x81F8, 2);
+        }
+        mff_cycles(0x820A, 4);
+        x--;
+        n = (x) >> 7;
+        if (n) break;
+        mff_cycles(0x81F6, 2);
+    }
     mff_cycles(0x820D, 13);
     a = mff_pull();
     RAM(SND_EFFECT_CHANNELS) = a;
@@ -773,7 +841,6 @@ L_820A:;
 /* snd_music_pause $821E (bank 3) - lifted by port/tools/lift.py */
 void func_821E_b3(void) {
     REGS_IN;
-L_821E:;
     mff_cycles(0x821E, 10);
     a = RAM(SND_FLAGS);
     a |= 0x02;
@@ -794,7 +861,6 @@ L_821E:;
 /* snd_music_resume $8226 (bank 3) - lifted by port/tools/lift.py */
 void func_8226_b3(void) {
     REGS_IN;
-L_8226:;
     mff_cycles(0x8226, 14);
     a = RAM(SND_FLAGS);
     a &= 0xFD;
@@ -808,19 +874,21 @@ L_8226:;
 /* snd_effect_step $8252 (bank 3) - lifted by port/tools/lift.py */
 void func_8252_b3(void) {
     REGS_IN;
-L_8252:;
     mff_cycles(0x8252, 5);
     a = RAM(SND_EFFECT_ROW_FRAMES);
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8254, 1); goto L_825B; }
-    mff_cycles(0x8256, 16);
-    t = (uint8_t)(RAM(SND_EFFECT_ROW_FRAMES) - 1); RAM(SND_EFFECT_ROW_FRAMES) = t;
-    t = (uint8_t)(RAM(SND_EFFECT_GATE_LEFT) - 1); RAM(SND_EFFECT_GATE_LEFT) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-    SYNC_OUT;
-    mff_rts(); return;
+    if (!z) {
+        mff_cycles(0x8256, 16);
+        t = (uint8_t)(RAM(SND_EFFECT_ROW_FRAMES) - 1); RAM(SND_EFFECT_ROW_FRAMES) = t;
+        t = (uint8_t)(RAM(SND_EFFECT_GATE_LEFT) - 1); RAM(SND_EFFECT_GATE_LEFT) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+        SYNC_OUT;
+        mff_rts(); return;
+    } else {
+        mff_cycles(0x8254, 1);
+    }
 L_825B:;
     mff_cycles(0x825B, 6);
     SYNC_OUT;
@@ -829,26 +897,30 @@ L_825B:;
     mff_cycles(0x825E, 7);
     RAM(SND_TMP + 3) = a;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-    if (!c) { mff_cycles(0x8261, 1); goto L_8273; }
-    mff_cycles(0x8263, 10);
-    RAM(SND_EFFECT_PRIORITY) = y;
-    a = RAM(SND_EFFECT_RELAUNCH);
-    t = a; c = t & 1; t >>= 1; a = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-    if (!c) { mff_cycles(0x8268, 1); goto L_8270; }
-    mff_cycles(0x826A, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x026C, 0x8118, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x826D, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x825B, 2); call_by_address_tail(0x825B, 3); return;
-L_8270:;
-    mff_cycles(0x8270, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x81C8, 2); call_by_address_tail(0x81C8, 3); return;
-L_8273:;
+    if (c) {
+        mff_cycles(0x8263, 10);
+        RAM(SND_EFFECT_PRIORITY) = y;
+        a = RAM(SND_EFFECT_RELAUNCH);
+        t = a; c = t & 1; t >>= 1; a = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+        if (c) {
+            mff_cycles(0x826A, 6);
+            SYNC_OUT;
+            if (!mff_call_at(0x026C, 0x8118, 3)) return;
+            SYNC_IN;
+            mff_cycles(0x826D, 3);
+            SYNC_OUT;
+            nes_cpu_instruction_boundary(0x825B, 2); call_by_address_tail(0x825B, 3); return;
+        } else {
+            mff_cycles(0x8268, 1);
+        }
+        mff_cycles(0x8270, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x81C8, 2); call_by_address_tail(0x81C8, 3); return;
+    } else {
+        mff_cycles(0x8261, 1);
+    }
     mff_cycles(0x8273, 7);
     t = RAM(SND_TMP + 3); c = t & 1; t >>= 1; RAM(SND_TMP + 3) = t;
     n = (t) >> 7;
@@ -903,34 +975,41 @@ L_8296:;
     a = 0x02;
     m = RAM(SND_EFFECT_PTR); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     RAM(SND_EFFECT_PTR) = a;
-    if (!c) { mff_cycles(0x82A2, 1); goto L_82A6; }
-    mff_cycles(0x82A4, 5);
-    t = (uint8_t)(RAM(SND_EFFECT_PTR + 1) + 1); RAM(SND_EFFECT_PTR + 1) = t;
+    if (c) {
+        mff_cycles(0x82A4, 5);
+        t = (uint8_t)(RAM(SND_EFFECT_PTR + 1) + 1); RAM(SND_EFFECT_PTR + 1) = t;
+    } else {
+        mff_cycles(0x82A2, 1);
+    }
 L_82A6:;
     mff_cycles(0x82A6, 7);
     t = RAM(SND_TMP + 3); c = t & 1; t >>= 1; RAM(SND_TMP + 3) = t;
     n = (t) >> 7;
     z = (t) == 0;
-    if (!c) { mff_cycles(0x82A8, 1); goto L_82AF; }
-    mff_cycles(0x82AA, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x02AC, 0x8386, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x82AD, 3);
-    RAM(SND_EFFECT_GATE) = a;
-L_82AF:;
+    if (c) {
+        mff_cycles(0x82AA, 6);
+        SYNC_OUT;
+        if (!mff_call_at(0x02AC, 0x8386, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x82AD, 3);
+        RAM(SND_EFFECT_GATE) = a;
+    } else {
+        mff_cycles(0x82A8, 1);
+    }
     mff_cycles(0x82AF, 7);
     t = RAM(SND_TMP + 3); c = t & 1; t >>= 1; RAM(SND_TMP + 3) = t;
     n = (t) >> 7;
     z = (t) == 0;
-    if (!c) { mff_cycles(0x82B1, 1); goto L_82B8; }
-    mff_cycles(0x82B3, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x02B5, 0x8386, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x82B6, 3);
-    RAM(SND_EFFECT_TRANSPOSE) = a;
-L_82B8:;
+    if (c) {
+        mff_cycles(0x82B3, 6);
+        SYNC_OUT;
+        if (!mff_call_at(0x02B5, 0x8386, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x82B6, 3);
+        RAM(SND_EFFECT_TRANSPOSE) = a;
+    } else {
+        mff_cycles(0x82B1, 1);
+    }
     mff_cycles(0x82B8, 6);
     SYNC_OUT;
     if (!mff_call_at(0x02BA, 0x8386, 3)) return;
@@ -960,13 +1039,15 @@ L_82B8:;
     a ^= RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x82D3, 1); goto L_82DA; }
-    mff_cycles(0x82D5, 9);
-    RAM(SND_EFFECT_CHANNELS) = a;
-    SYNC_OUT;
-    if (!mff_call_at(0x02D9, 0x81D4, 3)) return;
-    SYNC_IN;
-L_82DA:;
+    if (!z) {
+        mff_cycles(0x82D5, 9);
+        RAM(SND_EFFECT_CHANNELS) = a;
+        SYNC_OUT;
+        if (!mff_call_at(0x02D9, 0x81D4, 3)) return;
+        SYNC_IN;
+    } else {
+        mff_cycles(0x82D3, 1);
+    }
     mff_cycles(0x82DA, 13);
     a = mff_pull();
     n = (a) >> 7;
@@ -979,17 +1060,18 @@ L_82DA:;
 /* snd_effect_channel $82DE (bank 3) - lifted by port/tools/lift.py */
 void func_82DE_b3(void) {
     REGS_IN;
-L_82DE:;
     mff_cycles(0x82DE, 6);
     y = RAM(0x0700 + x);
     n = (y) >> 7;
     z = (y) == 0;
-    if (z) { mff_cycles(0x82E1, 1); goto L_82E6; }
-    mff_cycles(0x82E3, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x02E5, 0x8684, 3)) return;
-    SYNC_IN;
-L_82E6:;
+    if (!z) {
+        mff_cycles(0x82E3, 6);
+        SYNC_OUT;
+        if (!mff_call_at(0x02E5, 0x8684, 3)) return;
+        SYNC_IN;
+    } else {
+        mff_cycles(0x82E1, 1);
+    }
     mff_cycles(0x82E6, 7);
     a = RAM(SND_FLAGS);
     t = a; c = t & 1; t >>= 1; a = t;
@@ -1043,37 +1125,41 @@ L_830A:;
     SYNC_OUT;
     if (!mff_call_at(0x0310, 0x8386, 3)) return;
     SYNC_IN;
-L_8311:;
-    mff_cycles(0x8311, 4);
-    t = a; c = t & 1; t >>= 1; a = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-    if (!c) { mff_cycles(0x8312, 1); goto L_8320; }
-    mff_cycles(0x8314, 9);
-    mff_push(a);
-    SYNC_OUT;
-    if (!mff_call_at(0x0317, 0x8386, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x8318, 12);
-    RAM(SND_TMP + 2) = a;
-    a = RAM(SND_TMP + 3);
-    n = (a) >> 7;
-    z = (a) == 0;
-    SYNC_OUT;
-    if (!mff_call_at(0x031E, 0x8326, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x831F, 4);
-    a = mff_pull();
-    n = (a) >> 7;
-    z = (a) == 0;
-L_8320:;
-    mff_cycles(0x8320, 2);
-    if (z) { mff_cycles(0x8320, 1); SYNC_OUT; call_by_address_tail((uint16_t)(g_code_window_base + 0x0333), 3); return; }
-    mff_cycles(0x8322, 7);
-    t = (uint8_t)(RAM(SND_TMP + 3) + 1); RAM(SND_TMP + 3) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-    if (!z) { mff_cycles(0x8311, 1); goto L_8311; }
+    for (;;) {
+        mff_cycles(0x8311, 4);
+        t = a; c = t & 1; t >>= 1; a = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+        if (c) {
+            mff_cycles(0x8314, 9);
+            mff_push(a);
+            SYNC_OUT;
+            if (!mff_call_at(0x0317, 0x8386, 3)) return;
+            SYNC_IN;
+            mff_cycles(0x8318, 12);
+            RAM(SND_TMP + 2) = a;
+            a = RAM(SND_TMP + 3);
+            n = (a) >> 7;
+            z = (a) == 0;
+            SYNC_OUT;
+            if (!mff_call_at(0x031E, 0x8326, 3)) return;
+            SYNC_IN;
+            mff_cycles(0x831F, 4);
+            a = mff_pull();
+            n = (a) >> 7;
+            z = (a) == 0;
+        } else {
+            mff_cycles(0x8312, 1);
+        }
+        mff_cycles(0x8320, 2);
+        if (z) { mff_cycles(0x8320, 1); SYNC_OUT; call_by_address_tail((uint16_t)(g_code_window_base + 0x0333), 3); return; }
+        mff_cycles(0x8322, 7);
+        t = (uint8_t)(RAM(SND_TMP + 3) + 1); RAM(SND_TMP + 3) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+        if (z) break;
+        mff_cycles(0x8311, 1);
+    }
     mff_cycles(0x8326, 6);
     SYNC_OUT;
     if (!mff_call_at(0x0328, 0x8023, 3)) return;
@@ -1085,7 +1171,6 @@ L_8320:;
 /*  $8326 (bank 3) - lifted by port/tools/lift.py */
 void func_8326_b3(void) {
     REGS_IN;
-L_8326:;
     mff_cycles(0x8326, 6);
     SYNC_OUT;
     if (!mff_call_at(0x0328, 0x8023, 3)) return;
@@ -1097,7 +1182,6 @@ L_8326:;
 /*  $8333 (bank 3) - lifted by port/tools/lift.py */
 void func_8333_b3(void) {
     REGS_IN;
-L_8333:;
     mff_cycles(0x8333, 6);
     SYNC_OUT;
     if (!mff_call_at(0x0335, 0x8386, 3)) return;
@@ -1105,18 +1189,20 @@ L_8333:;
     mff_cycles(0x8336, 4);
     y = a;
     z = (y) == 0;
-    if (!z) { mff_cycles(0x8337, 1); goto L_8349; }
-    mff_cycles(0x8339, 21);
-    RAM(0x0710 + x) = a;
-    a = RAM(0x0704 + x);
-    a &= 0xF8;
-    a |= 0x04;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0704 + x) = a;
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x80D8, 2); call_by_address_tail(0x80D8, 3); return;
-L_8349:;
+    if (z) {
+        mff_cycles(0x8339, 21);
+        RAM(0x0710 + x) = a;
+        a = RAM(0x0704 + x);
+        a &= 0xF8;
+        a |= 0x04;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(0x0704 + x) = a;
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x80D8, 2); call_by_address_tail(0x80D8, 3); return;
+    } else {
+        mff_cycles(0x8337, 1);
+    }
     mff_cycles(0x8349, 21);
     a = RAM(0x0704 + x);
     a |= 0x20;
@@ -1124,30 +1210,36 @@ L_8349:;
     a = RAM(0x0718 + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = 0x54;
-    if (c) { mff_cycles(0x8357, 1); goto L_835B; }
-    mff_cycles(0x8359, 2);
-    a = 0x0A;
-L_835B:;
+    if (!c) {
+        mff_cycles(0x8359, 2);
+        a = 0x0A;
+    } else {
+        mff_cycles(0x8357, 1);
+    }
     mff_cycles(0x835B, 9);
     RAM(0x071C + x) = a;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!n) { mff_cycles(0x835F, 1); goto L_836B; }
-    mff_cycles(0x8361, 4);
-    m = 0x01; c = x >= m;
-    n = ((uint8_t)(x - m)) >> 7;
-    z = ((uint8_t)(x - m)) == 0;
-    if (!z) { mff_cycles(0x8363, 1); goto L_8368; }
-    mff_cycles(0x8365, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x0367, 0x85AE, 3)) return;
-    SYNC_IN;
-L_8368:;
-    mff_cycles(0x8368, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x8644, 2); call_by_address_tail(0x8644, 3); return;
-L_836B:;
+    if (n) {
+        mff_cycles(0x8361, 4);
+        m = 0x01; c = x >= m;
+        n = ((uint8_t)(x - m)) >> 7;
+        z = ((uint8_t)(x - m)) == 0;
+        if (z) {
+            mff_cycles(0x8365, 6);
+            SYNC_OUT;
+            if (!mff_call_at(0x0367, 0x85AE, 3)) return;
+            SYNC_IN;
+        } else {
+            mff_cycles(0x8363, 1);
+        }
+        mff_cycles(0x8368, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x8644, 2); call_by_address_tail(0x8644, 3); return;
+    } else {
+        mff_cycles(0x835F, 1);
+    }
     mff_cycles(0x836B, 6);
     SYNC_OUT;
     if (!mff_call_at(0x036D, 0x85AE, 3)) return;
@@ -1158,16 +1250,18 @@ L_836B:;
     y--;
     a = x;
     z = (a) == 0;
-    if (!z) { mff_cycles(0x8375, 1); goto L_837F; }
-    mff_cycles(0x8377, 10);
-    RAM(SND_TMP + 2) = a;
-    a = y;
-    a ^= 0x0F;
-    n = (a) >> 7;
-    z = (a) == 0;
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x8636, 2); call_by_address_tail(0x8636, 3); return;
-L_837F:;
+    if (z) {
+        mff_cycles(0x8377, 10);
+        RAM(SND_TMP + 2) = a;
+        a = y;
+        a ^= 0x0F;
+        n = (a) >> 7;
+        z = (a) == 0;
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x8636, 2); call_by_address_tail(0x8636, 3); return;
+    } else {
+        mff_cycles(0x8375, 1);
+    }
     mff_cycles(0x837F, 10);
     a = y;
     c = 0;
@@ -1181,19 +1275,20 @@ L_837F:;
 /* snd_effect_read $8386 (bank 3) - lifted by port/tools/lift.py */
 void func_8386_b3(void) {
     REGS_IN;
-L_8386:;
     mff_cycles(0x8386, 13);
     y = RAM(SND_EFFECT_PTR);
     a = RAM(SND_EFFECT_PTR + 1);
     t = (uint8_t)(RAM(SND_EFFECT_PTR) + 1); RAM(SND_EFFECT_PTR) = t;
     n = (t) >> 7;
     z = (t) == 0;
-    if (!z) { mff_cycles(0x838C, 1); goto L_8390; }
-    mff_cycles(0x838E, 5);
-    t = (uint8_t)(RAM(SND_EFFECT_PTR + 1) + 1); RAM(SND_EFFECT_PTR + 1) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-L_8390:;
+    if (z) {
+        mff_cycles(0x838E, 5);
+        t = (uint8_t)(RAM(SND_EFFECT_PTR + 1) + 1); RAM(SND_EFFECT_PTR + 1) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+    } else {
+        mff_cycles(0x838C, 1);
+    }
     mff_cycles(0x8390, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0x803A, 2); call_by_address_tail(0x803A, 3); return;
@@ -1202,7 +1297,6 @@ L_8390:;
 /* snd_music_channel $8393 (bank 3) - lifted by port/tools/lift.py */
 void func_8393_b3(void) {
     REGS_IN;
-L_8393:;
     mff_cycles(0x8393, 16);
     a = x;
     a |= 0x28;
@@ -1221,16 +1315,18 @@ L_8393:;
     y = RAM(0x0700 + x);
     n = (y) >> 7;
     z = (y) == 0;
-    if (z) { mff_cycles(0x83A7, 1); goto L_83AF; }
-    mff_cycles(0x83A9, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x03AB, 0x8684, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x83AC, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x03AE, 0x86BA, 3)) return;
-    SYNC_IN;
-L_83AF:;
+    if (!z) {
+        mff_cycles(0x83A9, 6);
+        SYNC_OUT;
+        if (!mff_call_at(0x03AB, 0x8684, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x83AC, 6);
+        SYNC_OUT;
+        if (!mff_call_at(0x03AE, 0x86BA, 3)) return;
+        SYNC_IN;
+    } else {
+        mff_cycles(0x83A7, 1);
+    }
     mff_cycles(0x83AF, 16);
     a = RAM(0x0740 + x);
     c = 1;
@@ -1270,15 +1366,17 @@ L_83CD:;
     m = 0x20; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (c) { mff_cycles(0x83D2, 1); goto L_83DA; }
-    mff_cycles(0x83D4, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x03D6, 0x8497, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x83D7, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x83CD, 2); call_by_address_tail(0x83CD, 3); return;
-L_83DA:;
+    if (!c) {
+        mff_cycles(0x83D4, 6);
+        SYNC_OUT;
+        if (!mff_call_at(0x03D6, 0x8497, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x83D7, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x83CD, 2); call_by_address_tail(0x83CD, 3); return;
+    } else {
+        mff_cycles(0x83D2, 1);
+    }
     mff_cycles(0x83DA, 27);
     mff_push(a);
     t = a; m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; a = t;
@@ -1304,16 +1402,19 @@ L_83EF:;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = nes_read((uint16_t)(0x891C + y));
     mff_cycles(0x83F4, 2);
-    if (!c) { mff_cycles(0x83F4, 2); goto L_8406; }
-    mff_cycles(0x83F6, 24);
-    RAM(SND_TMP + 2) = a;
-    a = RAM(0x0730 + x);
-    a &= 0xEF;
-    RAM(0x0730 + x) = a;
-    a = RAM(SND_TMP + 2);
-    t = a; c = t & 1; t >>= 1; a = t;
-    c = 0;
-    m = RAM(SND_TMP + 2); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    if (c) {
+        mff_cycles(0x83F6, 24);
+        RAM(SND_TMP + 2) = a;
+        a = RAM(0x0730 + x);
+        a &= 0xEF;
+        RAM(0x0730 + x) = a;
+        a = RAM(SND_TMP + 2);
+        t = a; c = t & 1; t >>= 1; a = t;
+        c = 0;
+        m = RAM(SND_TMP + 2); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    } else {
+        mff_cycles(0x83F4, 2);
+    }
 L_8406:;
     mff_cycles(0x8406, 21);
     c = 0;
@@ -1324,15 +1425,17 @@ L_8406:;
     a &= 0x1F;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!z) { mff_cycles(0x8411, 1); goto L_8419; }
-    mff_cycles(0x8413, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x0415, 0x85A3, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x8416, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x8491, 2); call_by_address_tail(0x8491, 3); return;
-L_8419:;
+    if (z) {
+        mff_cycles(0x8413, 6);
+        SYNC_OUT;
+        if (!mff_call_at(0x0415, 0x85A3, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x8416, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x8491, 2); call_by_address_tail(0x8491, 3); return;
+    } else {
+        mff_cycles(0x8411, 1);
+    }
     mff_cycles(0x8419, 19);
     mff_push(a);
     RAM(SND_TMP + 3) = y;
@@ -1346,10 +1449,12 @@ L_8419:;
     mff_cycles(0x8424, 5);
     a = RAM(SND_TMP);
     z = (a) == 0;
-    if (!z) { mff_cycles(0x8426, 1); goto L_842A; }
-    mff_cycles(0x8428, 2);
-    a = 0x01;
-L_842A:;
+    if (z) {
+        mff_cycles(0x8428, 2);
+        a = 0x01;
+    } else {
+        mff_cycles(0x8426, 1);
+    }
     mff_cycles(0x842A, 19);
     RAM(0x0740 + x) = a;
     a = mff_pull();
@@ -1379,35 +1484,40 @@ L_8440:;
     mff_cycles(0x8443, 5);
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
-    if (n) { mff_cycles(0x8445, 1); goto L_8454; }
-    mff_cycles(0x8447, 19);
-    RAM(SND_TMP + 2) = y;
-    a = x;
-    a &= 0x03;
-    y = a;
-    a = 0xFF;
-    RAM(0x077C + y) = a;
-    y = RAM(SND_TMP + 2);
+    if (!n) {
+        mff_cycles(0x8447, 19);
+        RAM(SND_TMP + 2) = y;
+        a = x;
+        a &= 0x03;
+        y = a;
+        a = 0xFF;
+        RAM(0x077C + y) = a;
+        y = RAM(SND_TMP + 2);
+    } else {
+        mff_cycles(0x8445, 1);
+    }
 L_8454:;
     mff_cycles(0x8454, 6);
     a = x;
     a &= 0x03;
     z = (a) == 0;
-    if (!z) { mff_cycles(0x8457, 1); goto L_8466; }
-    mff_cycles(0x8459, 15);
-    RAM(SND_TMP + 2) = a;
-    a = y;
-    a &= 0x0F;
-    a ^= 0x0F;
-    n = (a) >> 7;
-    z = (a) == 0;
-    SYNC_OUT;
-    if (!mff_call_at(0x0462, 0x8636, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x8463, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x847E, 2); call_by_address_tail(0x847E, 3); return;
-L_8466:;
+    if (z) {
+        mff_cycles(0x8459, 15);
+        RAM(SND_TMP + 2) = a;
+        a = y;
+        a &= 0x0F;
+        a ^= 0x0F;
+        n = (a) >> 7;
+        z = (a) == 0;
+        SYNC_OUT;
+        if (!mff_call_at(0x0462, 0x8636, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x8463, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x847E, 2); call_by_address_tail(0x847E, 3); return;
+    } else {
+        mff_cycles(0x8457, 1);
+    }
     mff_cycles(0x8466, 15);
     RAM(SND_TMP + 2) = y;
     a = RAM(0x0730 + x);
@@ -1438,13 +1548,15 @@ L_8466:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x0730 + x) = a;
-    if (!n) { mff_cycles(0x848F, 1); goto L_8496; }
-    mff_cycles(0x8491, 7);
-    a = 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0740 + x) = a;
-L_8496:;
+    if (n) {
+        mff_cycles(0x8491, 7);
+        a = 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(0x0740 + x) = a;
+    } else {
+        mff_cycles(0x848F, 1);
+    }
     mff_cycles(0x8496, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -1453,7 +1565,6 @@ L_8496:;
 /*  $83CD (bank 3) - lifted by port/tools/lift.py */
 void func_83CD_b3(void) {
     REGS_IN;
-L_83CD:;
     mff_cycles(0x83CD, 6);
     SYNC_OUT;
     if (!mff_call_at(0x03CF, 0x8592, 3)) return;
@@ -1462,15 +1573,17 @@ L_83CD:;
     m = 0x20; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (c) { mff_cycles(0x83D2, 1); goto L_83DA; }
-    mff_cycles(0x83D4, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x03D6, 0x8497, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x83D7, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x83CD, 2); call_by_address_tail(0x83CD, 3); return;
-L_83DA:;
+    if (!c) {
+        mff_cycles(0x83D4, 6);
+        SYNC_OUT;
+        if (!mff_call_at(0x03D6, 0x8497, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x83D7, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x83CD, 2); call_by_address_tail(0x83CD, 3); return;
+    } else {
+        mff_cycles(0x83D2, 1);
+    }
     mff_cycles(0x83DA, 27);
     mff_push(a);
     t = a; m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; a = t;
@@ -1496,16 +1609,19 @@ L_83EF:;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = nes_read((uint16_t)(0x891C + y));
     mff_cycles(0x83F4, 2);
-    if (!c) { mff_cycles(0x83F4, 2); goto L_8406; }
-    mff_cycles(0x83F6, 24);
-    RAM(SND_TMP + 2) = a;
-    a = RAM(0x0730 + x);
-    a &= 0xEF;
-    RAM(0x0730 + x) = a;
-    a = RAM(SND_TMP + 2);
-    t = a; c = t & 1; t >>= 1; a = t;
-    c = 0;
-    m = RAM(SND_TMP + 2); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    if (c) {
+        mff_cycles(0x83F6, 24);
+        RAM(SND_TMP + 2) = a;
+        a = RAM(0x0730 + x);
+        a &= 0xEF;
+        RAM(0x0730 + x) = a;
+        a = RAM(SND_TMP + 2);
+        t = a; c = t & 1; t >>= 1; a = t;
+        c = 0;
+        m = RAM(SND_TMP + 2); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    } else {
+        mff_cycles(0x83F4, 2);
+    }
 L_8406:;
     mff_cycles(0x8406, 21);
     c = 0;
@@ -1516,15 +1632,17 @@ L_8406:;
     a &= 0x1F;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!z) { mff_cycles(0x8411, 1); goto L_8419; }
-    mff_cycles(0x8413, 6);
-    SYNC_OUT;
-    if (!mff_call_at(0x0415, 0x85A3, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x8416, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x8491, 2); call_by_address_tail(0x8491, 3); return;
-L_8419:;
+    if (z) {
+        mff_cycles(0x8413, 6);
+        SYNC_OUT;
+        if (!mff_call_at(0x0415, 0x85A3, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x8416, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x8491, 2); call_by_address_tail(0x8491, 3); return;
+    } else {
+        mff_cycles(0x8411, 1);
+    }
     mff_cycles(0x8419, 19);
     mff_push(a);
     RAM(SND_TMP + 3) = y;
@@ -1538,10 +1656,12 @@ L_8419:;
     mff_cycles(0x8424, 5);
     a = RAM(SND_TMP);
     z = (a) == 0;
-    if (!z) { mff_cycles(0x8426, 1); goto L_842A; }
-    mff_cycles(0x8428, 2);
-    a = 0x01;
-L_842A:;
+    if (z) {
+        mff_cycles(0x8428, 2);
+        a = 0x01;
+    } else {
+        mff_cycles(0x8426, 1);
+    }
     mff_cycles(0x842A, 19);
     RAM(0x0740 + x) = a;
     a = mff_pull();
@@ -1571,35 +1691,40 @@ L_8440:;
     mff_cycles(0x8443, 5);
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
-    if (n) { mff_cycles(0x8445, 1); goto L_8454; }
-    mff_cycles(0x8447, 19);
-    RAM(SND_TMP + 2) = y;
-    a = x;
-    a &= 0x03;
-    y = a;
-    a = 0xFF;
-    RAM(0x077C + y) = a;
-    y = RAM(SND_TMP + 2);
+    if (!n) {
+        mff_cycles(0x8447, 19);
+        RAM(SND_TMP + 2) = y;
+        a = x;
+        a &= 0x03;
+        y = a;
+        a = 0xFF;
+        RAM(0x077C + y) = a;
+        y = RAM(SND_TMP + 2);
+    } else {
+        mff_cycles(0x8445, 1);
+    }
 L_8454:;
     mff_cycles(0x8454, 6);
     a = x;
     a &= 0x03;
     z = (a) == 0;
-    if (!z) { mff_cycles(0x8457, 1); goto L_8466; }
-    mff_cycles(0x8459, 15);
-    RAM(SND_TMP + 2) = a;
-    a = y;
-    a &= 0x0F;
-    a ^= 0x0F;
-    n = (a) >> 7;
-    z = (a) == 0;
-    SYNC_OUT;
-    if (!mff_call_at(0x0462, 0x8636, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x8463, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x847E, 2); call_by_address_tail(0x847E, 3); return;
-L_8466:;
+    if (z) {
+        mff_cycles(0x8459, 15);
+        RAM(SND_TMP + 2) = a;
+        a = y;
+        a &= 0x0F;
+        a ^= 0x0F;
+        n = (a) >> 7;
+        z = (a) == 0;
+        SYNC_OUT;
+        if (!mff_call_at(0x0462, 0x8636, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x8463, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x847E, 2); call_by_address_tail(0x847E, 3); return;
+    } else {
+        mff_cycles(0x8457, 1);
+    }
     mff_cycles(0x8466, 15);
     RAM(SND_TMP + 2) = y;
     a = RAM(0x0730 + x);
@@ -1630,13 +1755,15 @@ L_8466:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x0730 + x) = a;
-    if (!n) { mff_cycles(0x848F, 1); goto L_8496; }
-    mff_cycles(0x8491, 7);
-    a = 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0740 + x) = a;
-L_8496:;
+    if (n) {
+        mff_cycles(0x8491, 7);
+        a = 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(0x0740 + x) = a;
+    } else {
+        mff_cycles(0x848F, 1);
+    }
     mff_cycles(0x8496, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -1645,7 +1772,6 @@ L_8496:;
 /*  $847E (bank 3) - lifted by port/tools/lift.py */
 void func_847E_b3(void) {
     REGS_IN;
-L_847E:;
     mff_cycles(0x847E, 27);
     a = RAM(0x0730 + x);
     y = a;
@@ -1658,13 +1784,15 @@ L_847E:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x0730 + x) = a;
-    if (!n) { mff_cycles(0x848F, 1); goto L_8496; }
-    mff_cycles(0x8491, 7);
-    a = 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0740 + x) = a;
-L_8496:;
+    if (n) {
+        mff_cycles(0x8491, 7);
+        a = 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(0x0740 + x) = a;
+    } else {
+        mff_cycles(0x848F, 1);
+    }
     mff_cycles(0x8496, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -1673,7 +1801,6 @@ L_8496:;
 /*  $8491 (bank 3) - lifted by port/tools/lift.py */
 void func_8491_b3(void) {
     REGS_IN;
-L_8491:;
     mff_cycles(0x8491, 13);
     a = 0xFF;
     n = (a) >> 7;
@@ -1686,23 +1813,24 @@ L_8491:;
 /* snd_music_command $8497 (bank 3) - lifted by port/tools/lift.py */
 void func_8497_b3(void) {
     REGS_IN;
-L_8497:;
     mff_cycles(0x8497, 4);
     m = 0x04; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (!c) { mff_cycles(0x8499, 1); goto L_84A4; }
-    mff_cycles(0x849B, 9);
-    RAM(SND_TMP + 3) = a;
-    SYNC_OUT;
-    if (!mff_call_at(0x049F, 0x8592, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x84A0, 6);
-    RAM(SND_TMP + 2) = a;
-    a = RAM(SND_TMP + 3);
-    n = (a) >> 7;
-    z = (a) == 0;
-L_84A4:;
+    if (c) {
+        mff_cycles(0x849B, 9);
+        RAM(SND_TMP + 3) = a;
+        SYNC_OUT;
+        if (!mff_call_at(0x049F, 0x8592, 3)) return;
+        SYNC_IN;
+        mff_cycles(0x84A0, 6);
+        RAM(SND_TMP + 2) = a;
+        a = RAM(SND_TMP + 3);
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x8499, 1);
+    }
     mff_cycles(0x84A4, 6);
     SYNC_OUT;
     if (!mff_call_at(0x04A6, 0x8023, 3)) return;
@@ -1766,7 +1894,6 @@ L_84ED:;
 /*  $84D9 (bank 3) - lifted by port/tools/lift.py */
 void func_84D9_b3(void) {
     REGS_IN;
-L_84D9:;
     mff_cycles(0x84D9, 4);
     a = 0x20;
     z = (a) == 0;
@@ -1798,7 +1925,6 @@ L_84ED:;
 /*  $84DD (bank 3) - lifted by port/tools/lift.py */
 void func_84DD_b3(void) {
     REGS_IN;
-L_84DD:;
     mff_cycles(0x84DD, 4);
     a = 0x40;
     z = (a) == 0;
@@ -1826,19 +1952,20 @@ L_84ED:;
 /*  $84E1 (bank 3) - lifted by port/tools/lift.py */
 void func_84E1_b3(void) {
     REGS_IN;
-L_84E1:;
     mff_cycles(0x84E1, 8);
     a = 0x10;
     a |= RAM(0x0730 + x);
     n = (a) >> 7;
     z = (a) == 0;
-    if (!z) { mff_cycles(0x84E6, 1); goto L_84ED; }
-    mff_cycles(0x84E8, 6);
-    a = 0x08;
-    a ^= RAM(0x0730 + x);
-    n = (a) >> 7;
-    z = (a) == 0;
-L_84ED:;
+    if (z) {
+        mff_cycles(0x84E8, 6);
+        a = 0x08;
+        a ^= RAM(0x0730 + x);
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x84E6, 1);
+    }
     mff_cycles(0x84ED, 11);
     RAM(0x0730 + x) = a;
     SYNC_OUT;
@@ -1848,7 +1975,6 @@ L_84ED:;
 /*  $84E8 (bank 3) - lifted by port/tools/lift.py */
 void func_84E8_b3(void) {
     REGS_IN;
-L_84E8:;
     mff_cycles(0x84E8, 17);
     a = 0x08;
     a ^= RAM(0x0730 + x);
@@ -1862,7 +1988,6 @@ L_84E8:;
 /*  $84F1 (bank 3) - lifted by port/tools/lift.py */
 void func_84F1_b3(void) {
     REGS_IN;
-L_84F1:;
     mff_cycles(0x84F1, 11);
     a = 0x00;
     n = (a) >> 7;
@@ -1884,7 +2009,6 @@ L_84F1:;
 /*  $84FF (bank 3) - lifted by port/tools/lift.py */
 void func_84FF_b3(void) {
     REGS_IN;
-L_84FF:;
     mff_cycles(0x84FF, 14);
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
@@ -1897,7 +2021,6 @@ L_84FF:;
 /*  $8505 (bank 3) - lifted by port/tools/lift.py */
 void func_8505_b3(void) {
     REGS_IN;
-L_8505:;
     mff_cycles(0x8505, 20);
     a = RAM(0x0730 + x);
     a &= 0xF8;
@@ -1912,7 +2035,6 @@ L_8505:;
 /*  $8510 (bank 3) - lifted by port/tools/lift.py */
 void func_8510_b3(void) {
     REGS_IN;
-L_8510:;
     mff_cycles(0x8510, 12);
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
@@ -1925,7 +2047,6 @@ L_8510:;
 /*  $8515 (bank 3) - lifted by port/tools/lift.py */
 void func_8515_b3(void) {
     REGS_IN;
-L_8515:;
     mff_cycles(0x8515, 14);
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
@@ -1938,22 +2059,29 @@ L_8515:;
 /*  $851B (bank 3) - lifted by port/tools/lift.py */
 void func_851B_b3(void) {
     REGS_IN;
-L_851B:;
     mff_cycles(0x851B, 4);
     a = 0x00;
     z = (a) == 0;
-    if (z) { mff_cycles(0x851D, 1); goto L_8529; }
-    mff_cycles(0x851F, 4);
-    a = 0x04;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x8521, 1); goto L_8529; }
-    mff_cycles(0x8523, 4);
-    a = 0x08;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x8525, 1); goto L_8529; }
-    mff_cycles(0x8527, 2);
-    a = 0x0C;
-L_8529:;
+    if (!z) {
+        mff_cycles(0x851F, 4);
+        a = 0x04;
+        z = (a) == 0;
+        if (z) {
+            mff_cycles(0x8523, 4);
+            a = 0x08;
+            z = (a) == 0;
+            if (z) {
+                mff_cycles(0x8527, 2);
+                a = 0x0C;
+            } else {
+                mff_cycles(0x8525, 1);
+            }
+        } else {
+            mff_cycles(0x8521, 1);
+        }
+    } else {
+        mff_cycles(0x851D, 1);
+    }
     mff_cycles(0x8529, 19);
     RAM(SND_TMP + 1) = a;
     a = x;
@@ -1969,12 +2097,14 @@ L_8529:;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
-    if (c) { mff_cycles(0x853C, 1); goto L_8540; }
-    mff_cycles(0x853E, 3);
-    a = RAM(SND_TMP + 2);
-    n = (a) >> 7;
-    z = (a) == 0;
-L_8540:;
+    if (!c) {
+        mff_cycles(0x853E, 3);
+        a = RAM(SND_TMP + 2);
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x853C, 1);
+    }
     mff_cycles(0x8540, 7);
     RAM(0x0744 + y) = a;
     if (z) { mff_cycles(0x8543, 1); goto L_8566; }
@@ -2019,12 +2149,14 @@ L_8566:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x0728 + x) = a;
-    if (!c) { mff_cycles(0x856F, 1); goto L_8574; }
-    mff_cycles(0x8571, 7);
-    t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-L_8574:;
+    if (c) {
+        mff_cycles(0x8571, 7);
+        t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+    } else {
+        mff_cycles(0x856F, 1);
+    }
     mff_cycles(0x8574, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -2033,18 +2165,22 @@ L_8574:;
 /*  $851F (bank 3) - lifted by port/tools/lift.py */
 void func_851F_b3(void) {
     REGS_IN;
-L_851F:;
     mff_cycles(0x851F, 4);
     a = 0x04;
     z = (a) == 0;
-    if (!z) { mff_cycles(0x8521, 1); goto L_8529; }
-    mff_cycles(0x8523, 4);
-    a = 0x08;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x8525, 1); goto L_8529; }
-    mff_cycles(0x8527, 2);
-    a = 0x0C;
-L_8529:;
+    if (z) {
+        mff_cycles(0x8523, 4);
+        a = 0x08;
+        z = (a) == 0;
+        if (z) {
+            mff_cycles(0x8527, 2);
+            a = 0x0C;
+        } else {
+            mff_cycles(0x8525, 1);
+        }
+    } else {
+        mff_cycles(0x8521, 1);
+    }
     mff_cycles(0x8529, 19);
     RAM(SND_TMP + 1) = a;
     a = x;
@@ -2060,12 +2196,14 @@ L_8529:;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
-    if (c) { mff_cycles(0x853C, 1); goto L_8540; }
-    mff_cycles(0x853E, 3);
-    a = RAM(SND_TMP + 2);
-    n = (a) >> 7;
-    z = (a) == 0;
-L_8540:;
+    if (!c) {
+        mff_cycles(0x853E, 3);
+        a = RAM(SND_TMP + 2);
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x853C, 1);
+    }
     mff_cycles(0x8540, 7);
     RAM(0x0744 + y) = a;
     if (z) { mff_cycles(0x8543, 1); goto L_8566; }
@@ -2110,12 +2248,14 @@ L_8566:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x0728 + x) = a;
-    if (!c) { mff_cycles(0x856F, 1); goto L_8574; }
-    mff_cycles(0x8571, 7);
-    t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-L_8574:;
+    if (c) {
+        mff_cycles(0x8571, 7);
+        t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+    } else {
+        mff_cycles(0x856F, 1);
+    }
     mff_cycles(0x8574, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -2124,14 +2264,15 @@ L_8574:;
 /*  $8523 (bank 3) - lifted by port/tools/lift.py */
 void func_8523_b3(void) {
     REGS_IN;
-L_8523:;
     mff_cycles(0x8523, 4);
     a = 0x08;
     z = (a) == 0;
-    if (!z) { mff_cycles(0x8525, 1); goto L_8529; }
-    mff_cycles(0x8527, 2);
-    a = 0x0C;
-L_8529:;
+    if (z) {
+        mff_cycles(0x8527, 2);
+        a = 0x0C;
+    } else {
+        mff_cycles(0x8525, 1);
+    }
     mff_cycles(0x8529, 19);
     RAM(SND_TMP + 1) = a;
     a = x;
@@ -2147,12 +2288,14 @@ L_8529:;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
-    if (c) { mff_cycles(0x853C, 1); goto L_8540; }
-    mff_cycles(0x853E, 3);
-    a = RAM(SND_TMP + 2);
-    n = (a) >> 7;
-    z = (a) == 0;
-L_8540:;
+    if (!c) {
+        mff_cycles(0x853E, 3);
+        a = RAM(SND_TMP + 2);
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x853C, 1);
+    }
     mff_cycles(0x8540, 7);
     RAM(0x0744 + y) = a;
     if (z) { mff_cycles(0x8543, 1); goto L_8566; }
@@ -2197,12 +2340,14 @@ L_8566:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x0728 + x) = a;
-    if (!c) { mff_cycles(0x856F, 1); goto L_8574; }
-    mff_cycles(0x8571, 7);
-    t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-L_8574:;
+    if (c) {
+        mff_cycles(0x8571, 7);
+        t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+    } else {
+        mff_cycles(0x856F, 1);
+    }
     mff_cycles(0x8574, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -2211,7 +2356,6 @@ L_8574:;
 /*  $8527 (bank 3) - lifted by port/tools/lift.py */
 void func_8527_b3(void) {
     REGS_IN;
-L_8527:;
     mff_cycles(0x8527, 21);
     a = 0x0C;
     RAM(SND_TMP + 1) = a;
@@ -2228,12 +2372,14 @@ L_8527:;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
-    if (c) { mff_cycles(0x853C, 1); goto L_8540; }
-    mff_cycles(0x853E, 3);
-    a = RAM(SND_TMP + 2);
-    n = (a) >> 7;
-    z = (a) == 0;
-L_8540:;
+    if (!c) {
+        mff_cycles(0x853E, 3);
+        a = RAM(SND_TMP + 2);
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x853C, 1);
+    }
     mff_cycles(0x8540, 7);
     RAM(0x0744 + y) = a;
     if (z) { mff_cycles(0x8543, 1); goto L_8566; }
@@ -2278,12 +2424,14 @@ L_8566:;
     n = (a) >> 7;
     z = (a) == 0;
     RAM(0x0728 + x) = a;
-    if (!c) { mff_cycles(0x856F, 1); goto L_8574; }
-    mff_cycles(0x8571, 7);
-    t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-L_8574:;
+    if (c) {
+        mff_cycles(0x8571, 7);
+        t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+    } else {
+        mff_cycles(0x856F, 1);
+    }
     mff_cycles(0x8574, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -2292,7 +2440,6 @@ L_8574:;
 /* snd_music_jump $855A (bank 3) - lifted by port/tools/lift.py */
 void func_855A_b3(void) {
     REGS_IN;
-L_855A:;
     mff_cycles(0x855A, 6);
     SYNC_OUT;
     if (!mff_call_at(0x055C, 0x8592, 3)) return;
@@ -2310,7 +2457,6 @@ L_855A:;
 /* snd_music_set_flags $8575 (bank 3) - lifted by port/tools/lift.py */
 void func_8575_b3(void) {
     REGS_IN;
-L_8575:;
     mff_cycles(0x8575, 20);
     a = RAM(0x0730 + x);
     a &= 0x97;
@@ -2325,7 +2471,6 @@ L_8575:;
 /* snd_music_end $8580 (bank 3) - lifted by port/tools/lift.py */
 void func_8580_b3(void) {
     REGS_IN;
-L_8580:;
     mff_cycles(0x8580, 25);
     a = mff_pull();
     a = mff_pull();
@@ -2335,11 +2480,13 @@ L_8580:;
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
     z = (a) == 0;
-    if (n) { mff_cycles(0x858C, 1); goto L_8591; }
-    mff_cycles(0x858E, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x80D8, 2); call_by_address_tail(0x80D8, 3); return;
-L_8591:;
+    if (!n) {
+        mff_cycles(0x858E, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x80D8, 2); call_by_address_tail(0x80D8, 3); return;
+    } else {
+        mff_cycles(0x858C, 1);
+    }
     mff_cycles(0x8591, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -2348,19 +2495,20 @@ L_8591:;
 /* snd_music_read $8592 (bank 3) - lifted by port/tools/lift.py */
 void func_8592_b3(void) {
     REGS_IN;
-L_8592:;
     mff_cycles(0x8592, 17);
     y = RAM(0x0728 + x);
     a = RAM(0x072C + x);
     t = (uint8_t)(RAM(0x0728 + x) + 1); RAM(0x0728 + x) = t;
     n = (t) >> 7;
     z = (t) == 0;
-    if (!z) { mff_cycles(0x859B, 1); goto L_85A0; }
-    mff_cycles(0x859D, 7);
-    t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
-    n = (t) >> 7;
-    z = (t) == 0;
-L_85A0:;
+    if (z) {
+        mff_cycles(0x859D, 7);
+        t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
+        n = (t) >> 7;
+        z = (t) == 0;
+    } else {
+        mff_cycles(0x859B, 1);
+    }
     mff_cycles(0x85A0, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0x803A, 2); call_by_address_tail(0x803A, 3); return;
@@ -2369,7 +2517,6 @@ L_85A0:;
 /* snd_key_off $85A3 (bank 3) - lifted by port/tools/lift.py */
 void func_85A3_b3(void) {
     REGS_IN;
-L_85A3:;
     mff_cycles(0x85A3, 19);
     a = RAM(0x0704 + x);
     a &= 0xF8;
@@ -2384,7 +2531,6 @@ L_85A3:;
 /* snd_key_on $85AE (bank 3) - lifted by port/tools/lift.py */
 void func_85AE_b3(void) {
     REGS_IN;
-L_85AE:;
     mff_cycles(0x85AE, 22);
     a = y;
     mff_push(a);
@@ -2431,13 +2577,14 @@ L_85D7:;
 /* snd_note_pitch $85DE (bank 3) - lifted by port/tools/lift.py */
 void func_85DE_b3(void) {
     REGS_IN;
-L_85DE:;
     mff_cycles(0x85DE, 4);
     m = 0x60; c = a >= m;
-    if (!c) { mff_cycles(0x85E0, 1); goto L_85E4; }
-    mff_cycles(0x85E2, 2);
-    a = 0x5F;
-L_85E4:;
+    if (c) {
+        mff_cycles(0x85E2, 2);
+        a = 0x5F;
+    } else {
+        mff_cycles(0x85E0, 1);
+    }
     mff_cycles(0x85E4, 12);
     RAM(SND_TMP + 2) = a;
     t = (uint8_t)(RAM(SND_TMP + 2) + 1); RAM(SND_TMP + 2) = t;
@@ -2514,10 +2661,13 @@ L_8644:;
     a &= 0x08;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!z) { mff_cycles(0x8649, 1); goto L_864C; }
-    mff_cycles(0x864B, 6);
-    SYNC_OUT;
-    mff_rts(); return;
+    if (z) {
+        mff_cycles(0x864B, 6);
+        SYNC_OUT;
+        mff_rts(); return;
+    } else {
+        mff_cycles(0x8649, 1);
+    }
 L_864C:;
     mff_cycles(0x864C, 24);
     a = 0x00;
@@ -2534,7 +2684,6 @@ L_864C:;
 /* snd_set_pitch $8636 (bank 3) - lifted by port/tools/lift.py */
 void func_8636_b3(void) {
     REGS_IN;
-L_8636:;
     mff_cycles(0x8636, 20);
     RAM(0x0724 + x) = a;
     a = RAM(SND_TMP + 2);
@@ -2543,17 +2692,22 @@ L_8636:;
     a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     n = (a) >> 7;
     mff_cycles(0x8642, 2);
-    if (n) { mff_cycles(0x8642, 1); goto L_864C; }
-    mff_cycles(0x8644, 8);
-    a = RAM(0x0704 + x);
-    a &= 0x08;
-    n = (a) >> 7;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x8649, 1); goto L_864C; }
-    mff_cycles(0x864B, 6);
-    SYNC_OUT;
-    mff_rts(); return;
-L_864C:;
+    if (!n) {
+        mff_cycles(0x8644, 8);
+        a = RAM(0x0704 + x);
+        a &= 0x08;
+        n = (a) >> 7;
+        z = (a) == 0;
+        if (z) {
+            mff_cycles(0x864B, 6);
+            SYNC_OUT;
+            mff_rts(); return;
+        } else {
+            mff_cycles(0x8649, 1);
+        }
+    } else {
+        mff_cycles(0x8642, 1);
+    }
     mff_cycles(0x864C, 24);
     a = 0x00;
     RAM(0x0708 + x) = a;
@@ -2569,17 +2723,18 @@ L_864C:;
 /*  $8644 (bank 3) - lifted by port/tools/lift.py */
 void func_8644_b3(void) {
     REGS_IN;
-L_8644:;
     mff_cycles(0x8644, 8);
     a = RAM(0x0704 + x);
     a &= 0x08;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!z) { mff_cycles(0x8649, 1); goto L_864C; }
-    mff_cycles(0x864B, 6);
-    SYNC_OUT;
-    mff_rts(); return;
-L_864C:;
+    if (z) {
+        mff_cycles(0x864B, 6);
+        SYNC_OUT;
+        mff_rts(); return;
+    } else {
+        mff_cycles(0x8649, 1);
+    }
     mff_cycles(0x864C, 24);
     a = 0x00;
     RAM(0x0708 + x) = a;
@@ -2595,7 +2750,6 @@ L_864C:;
 /* snd_set_volume $865A (bank 3) - lifted by port/tools/lift.py */
 void func_865A_b3(void) {
     REGS_IN;
-L_865A:;
     mff_cycles(0x865A, 4);
     m = 0x01; c = x >= m;
     z = ((uint8_t)(x - m)) == 0;
@@ -2623,41 +2777,42 @@ L_866B:;
 /* snd_set_instrument $866F (bank 3) - lifted by port/tools/lift.py */
 void func_866F_b3(void) {
     REGS_IN;
-L_866F:;
     mff_cycles(0x866F, 14);
     t = (uint8_t)(RAM(SND_TMP + 2) + 1); RAM(SND_TMP + 2) = t;
     a = RAM(SND_TMP + 2);
     m = RAM(0x0700 + x); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x8676, 1); goto L_86A0; }
-    mff_cycles(0x8678, 54);
-    RAM(0x0700 + x) = a;
-    y = a;
-    a = RAM(0x0704 + x);
-    a |= 0x08;
-    RAM(0x0704 + x) = a;
-    y--;
-    a = 0x00;
-    RAM(SND_TMP + 2) = a;
-    a = y;
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-    t = RAM(SND_TMP + 2); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP + 2) = t;
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-    t = RAM(SND_TMP + 2); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP + 2) = t;
-    t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-    t = RAM(SND_TMP + 2); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP + 2) = t;
-    c = 0;
-    m = nes_read(0x8A42); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    mff_cycles(0x8697, 10);
-    RAM(SND_INSTR_PTR) = a;
-    a = RAM(SND_TMP + 2);
-    m = nes_read(0x8A41); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    mff_cycles(0x869E, 3);
-    RAM(SND_INSTR_PTR + 1) = a;
-L_86A0:;
+    if (!z) {
+        mff_cycles(0x8678, 54);
+        RAM(0x0700 + x) = a;
+        y = a;
+        a = RAM(0x0704 + x);
+        a |= 0x08;
+        RAM(0x0704 + x) = a;
+        y--;
+        a = 0x00;
+        RAM(SND_TMP + 2) = a;
+        a = y;
+        t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
+        t = RAM(SND_TMP + 2); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP + 2) = t;
+        t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
+        t = RAM(SND_TMP + 2); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP + 2) = t;
+        t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
+        t = RAM(SND_TMP + 2); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP + 2) = t;
+        c = 0;
+        m = nes_read(0x8A42); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        mff_cycles(0x8697, 10);
+        RAM(SND_INSTR_PTR) = a;
+        a = RAM(SND_TMP + 2);
+        m = nes_read(0x8A41); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        n = (a) >> 7;
+        z = (a) == 0;
+        mff_cycles(0x869E, 3);
+        RAM(SND_INSTR_PTR + 1) = a;
+    } else {
+        mff_cycles(0x8676, 1);
+    }
     mff_cycles(0x86A0, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -2666,7 +2821,6 @@ L_86A0:;
 /* snd_instrument_ptr $8684 (bank 3) - lifted by port/tools/lift.py */
 void func_8684_b3(void) {
     REGS_IN;
-L_8684:;
     mff_cycles(0x8684, 36);
     y--;
     a = 0x00;
@@ -2695,7 +2849,6 @@ L_8684:;
 /* snd_set_detune $86A1 (bank 3) - lifted by port/tools/lift.py */
 void func_86A1_b3(void) {
     REGS_IN;
-L_86A1:;
     mff_cycles(0x86A1, 14);
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
@@ -2708,7 +2861,6 @@ L_86A1:;
 /* snd_set_slide $86A7 (bank 3) - lifted by port/tools/lift.py */
 void func_86A7_b3(void) {
     REGS_IN;
-L_86A7:;
     mff_cycles(0x86A7, 14);
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
@@ -2721,7 +2873,6 @@ L_86A7:;
 /* snd_set_duty $86AD (bank 3) - lifted by port/tools/lift.py */
 void func_86AD_b3(void) {
     REGS_IN;
-L_86AD:;
     mff_cycles(0x86AD, 22);
     a = RAM(0x070C + x);
     a &= 0x0F;
@@ -2737,7 +2888,6 @@ L_86AD:;
 /* snd_envelope $86BA (bank 3) - lifted by port/tools/lift.py */
 void func_86BA_b3(void) {
     REGS_IN;
-L_86BA:;
     mff_cycles(0x86BA, 19);
     a = RAM(0x0710 + x);
     RAM(SND_TMP + 3) = a;
@@ -2764,7 +2914,6 @@ L_86BA:;
 /* snd_env_attack $86D1 (bank 3) - lifted by port/tools/lift.py */
 void func_86D1_b3(void) {
     REGS_IN;
-L_86D1:;
     mff_cycles(0x86D1, 7);
     y = 0x00;
     a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
@@ -2822,19 +2971,23 @@ L_871D:;
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
     z = (a) == 0;
-    if (!n) { mff_cycles(0x8726, 1); goto L_872B; }
-    mff_cycles(0x8728, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x88A0, 2); call_by_address_tail(0x88A0, 3); return;
-L_872B:;
+    if (n) {
+        mff_cycles(0x8728, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x88A0, 2); call_by_address_tail(0x88A0, 3); return;
+    } else {
+        mff_cycles(0x8726, 1);
+    }
     mff_cycles(0x872B, 8);
     a = RAM(SND_FADE_LEVEL);
     y = RAM(SND_FADE_SPEED);
     n = (y) >> 7;
-    if (n) { mff_cycles(0x872F, 1); goto L_8733; }
-    mff_cycles(0x8731, 2);
-    a ^= 0xFF;
-L_8733:;
+    if (!n) {
+        mff_cycles(0x8731, 2);
+        a ^= 0xFF;
+    } else {
+        mff_cycles(0x872F, 1);
+    }
     mff_cycles(0x8733, 4);
     m = 0xFF; c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
@@ -2904,12 +3057,14 @@ L_8763:;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!c) { mff_cycles(0x877E, 1); goto L_8782; }
-    mff_cycles(0x8780, 2);
-    a ^= 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_8782:;
+    if (c) {
+        mff_cycles(0x8780, 2);
+        a ^= 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x877E, 1);
+    }
     mff_cycles(0x8782, 2);
     if (z) { mff_cycles(0x8782, 1); goto L_8797; }
     mff_cycles(0x8784, 9);
@@ -2925,9 +3080,12 @@ L_8782:;
     if (c) { mff_cycles(0x878F, 1); goto L_87A5; }
     mff_cycles(0x8791, 5);
     m = RAM(SND_TMP + 2); c = a >= m;
-    if (!c) { mff_cycles(0x8793, 1); goto L_8797; }
-    mff_cycles(0x8795, 3);
-    RAM(SND_TMP + 2) = a;
+    if (c) {
+        mff_cycles(0x8795, 3);
+        RAM(SND_TMP + 2) = a;
+    } else {
+        mff_cycles(0x8793, 1);
+    }
 L_8797:;
     mff_cycles(0x8797, 19);
     a = 0x10;
@@ -2973,12 +3131,14 @@ L_87AA:;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!c) { mff_cycles(0x87C9, 1); goto L_87CD; }
-    mff_cycles(0x87CB, 2);
-    a ^= 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_87CD:;
+    if (c) {
+        mff_cycles(0x87CB, 2);
+        a ^= 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x87C9, 1);
+    }
     mff_cycles(0x87CD, 2);
     if (z) { mff_cycles(0x87CD, 2); goto L_880C; }
     mff_cycles(0x87CF, 9);
@@ -3035,34 +3195,42 @@ L_880C:;
 L_8814:;
     mff_cycles(0x8814, 4);
     m = 0x28; c = x >= m;
-    if (c) { mff_cycles(0x8816, 1); goto L_8835; }
-    mff_cycles(0x8818, 5);
-    a = RAM(SND_EFFECT_LOOP);
-    n = (a) >> 7;
-    if (!n) { mff_cycles(0x881A, 1); goto L_8835; }
-    mff_cycles(0x881C, 5);
-    a = RAM(SND_EFFECT_PITCH_SCALE);
-    z = (a) == 0;
-    if (z) { mff_cycles(0x881E, 1); goto L_8835; }
-    mff_cycles(0x8820, 18);
-    RAM(SND_TMP + 3) = a;
-    RAM(SND_TMP) = y;
-    a = RAM(SND_TMP + 1);
-    n = (a) >> 7;
-    z = (a) == 0;
-    mff_push(a);
-    SYNC_OUT;
-    if (!mff_call_at(0x0829, 0x8006, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x882A, 19);
-    a = mff_pull();
-    c = 0;
-    m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP + 1) = a;
-    a = 0x00;
-    m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    y = a;
-L_8835:;
+    if (!c) {
+        mff_cycles(0x8818, 5);
+        a = RAM(SND_EFFECT_LOOP);
+        n = (a) >> 7;
+        if (n) {
+            mff_cycles(0x881C, 5);
+            a = RAM(SND_EFFECT_PITCH_SCALE);
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0x8820, 18);
+                RAM(SND_TMP + 3) = a;
+                RAM(SND_TMP) = y;
+                a = RAM(SND_TMP + 1);
+                n = (a) >> 7;
+                z = (a) == 0;
+                mff_push(a);
+                SYNC_OUT;
+                if (!mff_call_at(0x0829, 0x8006, 3)) return;
+                SYNC_IN;
+                mff_cycles(0x882A, 19);
+                a = mff_pull();
+                c = 0;
+                m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+                RAM(SND_TMP + 1) = a;
+                a = 0x00;
+                m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+                y = a;
+            } else {
+                mff_cycles(0x881E, 1);
+            }
+        } else {
+            mff_cycles(0x881A, 1);
+        }
+    } else {
+        mff_cycles(0x8816, 1);
+    }
     mff_cycles(0x8835, 6);
     a = x;
     a &= 0x03;
@@ -3083,12 +3251,14 @@ L_8849:;
     mff_cycles(0x8849, 4);
     a = y;
     y = 0x08;
-L_884C:;
-    mff_cycles(0x884C, 6);
-    y--;
-    m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
-    mff_cycles(0x8850, 2);
-    if (!c) { mff_cycles(0x884C, 1); goto L_884C; }
+    for (;;) {
+        mff_cycles(0x884C, 6);
+        y--;
+        m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
+        mff_cycles(0x8850, 2);
+        if (c) break;
+        mff_cycles(0x884C, 1);
+    }
     mff_cycles(0x8852, 29);
     RAM(SND_TMP) = a;
     a = y;
@@ -3103,34 +3273,43 @@ L_884C:;
     a &= 0x38;
     a ^= 0x38;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8865, 1); goto L_8870; }
-L_8867:;
-    mff_cycles(0x8867, 16);
-    t = RAM(SND_TMP); c = t & 1; t >>= 1; RAM(SND_TMP) = t;
-    t = RAM(SND_TMP + 1); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_TMP + 1) = t;
-    c = 1;
-    m = 0x08; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x8867, 1); goto L_8867; }
-L_8870:;
+    if (!z) {
+        for (;;) {
+            mff_cycles(0x8867, 16);
+            t = RAM(SND_TMP); c = t & 1; t >>= 1; RAM(SND_TMP) = t;
+            t = RAM(SND_TMP + 1); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_TMP + 1) = t;
+            c = 1;
+            m = 0x08; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+            z = (a) == 0;
+            if (z) break;
+            mff_cycles(0x8867, 1);
+        }
+    } else {
+        mff_cycles(0x8865, 1);
+    }
     mff_cycles(0x8870, 8);
     y = 0x00;
     a = RAM(0x0714 + x);
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8875, 1); goto L_8884; }
-    mff_cycles(0x8877, 2);
-    if (!n) { mff_cycles(0x8877, 1); goto L_887A; }
-    mff_cycles(0x8879, 2);
-    y--;
-L_887A:;
-    mff_cycles(0x887A, 16);
-    c = 0;
-    m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP + 1) = a;
-    a = y;
-    m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP) = a;
+    if (!z) {
+        mff_cycles(0x8877, 2);
+        if (n) {
+            mff_cycles(0x8879, 2);
+            y--;
+        } else {
+            mff_cycles(0x8877, 1);
+        }
+        mff_cycles(0x887A, 16);
+        c = 0;
+        m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TMP + 1) = a;
+        a = y;
+        m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TMP) = a;
+    } else {
+        mff_cycles(0x8875, 1);
+    }
 L_8884:;
     mff_cycles(0x8884, 11);
     y = 0x02;
@@ -3147,17 +3326,19 @@ L_8884:;
     a = RAM(SND_TMP);
     m = RAM(0x077C + y); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x8894, 1); goto L_88A0; }
-    mff_cycles(0x8896, 15);
-    RAM(0x077C + y) = a;
-    a |= 0x08;
-    y = 0x03;
-    n = (y) >> 7;
-    z = (y) == 0;
-    SYNC_OUT;
-    if (!mff_call_at(0x089F, 0x80EC, 3)) return;
-    SYNC_IN;
-L_88A0:;
+    if (!z) {
+        mff_cycles(0x8896, 15);
+        RAM(0x077C + y) = a;
+        a |= 0x08;
+        y = 0x03;
+        n = (y) >> 7;
+        z = (y) == 0;
+        SYNC_OUT;
+        if (!mff_call_at(0x089F, 0x80EC, 3)) return;
+        SYNC_IN;
+    } else {
+        mff_cycles(0x8894, 1);
+    }
     mff_cycles(0x88A0, 8);
     a = RAM(0x0704 + x);
     a &= 0x20;
@@ -3173,13 +3354,15 @@ L_88A0:;
     n = (t) >> 7;
     z = (t) == 0;
     FLAGS_OUT; mff_push(mff_p());
-    if (!c) { mff_cycles(0x88B0, 1); goto L_88B8; }
-    mff_cycles(0x88B2, 8);
-    a ^= 0xFF;
-    c = 0;
-    m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    y--;
-L_88B8:;
+    if (c) {
+        mff_cycles(0x88B2, 8);
+        a ^= 0xFF;
+        c = 0;
+        m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        y--;
+    } else {
+        mff_cycles(0x88B0, 1);
+    }
     mff_cycles(0x88B8, 40);
     c = 0;
     m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -3228,22 +3411,27 @@ L_88FA:;
     a &= 0x7F;
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8900, 1); goto L_8914; }
-    mff_cycles(0x8902, 13);
-    c = 0;
-    m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0708 + x) = a;
-    if (!c) { mff_cycles(0x8909, 1); goto L_8914; }
-    mff_cycles(0x890B, 13);
-    a = RAM(0x0704 + x);
-    c = 0;
-    m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0704 + x) = a;
-L_8914:;
+    if (!z) {
+        mff_cycles(0x8902, 13);
+        c = 0;
+        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(0x0708 + x) = a;
+        if (c) {
+            mff_cycles(0x890B, 13);
+            a = RAM(0x0704 + x);
+            c = 0;
+            m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(0x0704 + x) = a;
+        } else {
+            mff_cycles(0x8909, 1);
+        }
+    } else {
+        mff_cycles(0x8900, 1);
+    }
     mff_cycles(0x8914, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -3252,7 +3440,6 @@ L_8914:;
 /* snd_env_decay $86E6 (bank 3) - lifted by port/tools/lift.py */
 void func_86E6_b3(void) {
     REGS_IN;
-L_86E6:;
     mff_cycles(0x86E6, 7);
     y = 0x01;
     a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
@@ -3289,19 +3476,23 @@ L_871D:;
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
     z = (a) == 0;
-    if (!n) { mff_cycles(0x8726, 1); goto L_872B; }
-    mff_cycles(0x8728, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x88A0, 2); call_by_address_tail(0x88A0, 3); return;
-L_872B:;
+    if (n) {
+        mff_cycles(0x8728, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x88A0, 2); call_by_address_tail(0x88A0, 3); return;
+    } else {
+        mff_cycles(0x8726, 1);
+    }
     mff_cycles(0x872B, 8);
     a = RAM(SND_FADE_LEVEL);
     y = RAM(SND_FADE_SPEED);
     n = (y) >> 7;
-    if (n) { mff_cycles(0x872F, 1); goto L_8733; }
-    mff_cycles(0x8731, 2);
-    a ^= 0xFF;
-L_8733:;
+    if (!n) {
+        mff_cycles(0x8731, 2);
+        a ^= 0xFF;
+    } else {
+        mff_cycles(0x872F, 1);
+    }
     mff_cycles(0x8733, 4);
     m = 0xFF; c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
@@ -3371,12 +3562,14 @@ L_8763:;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!c) { mff_cycles(0x877E, 1); goto L_8782; }
-    mff_cycles(0x8780, 2);
-    a ^= 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_8782:;
+    if (c) {
+        mff_cycles(0x8780, 2);
+        a ^= 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x877E, 1);
+    }
     mff_cycles(0x8782, 2);
     if (z) { mff_cycles(0x8782, 1); goto L_8797; }
     mff_cycles(0x8784, 9);
@@ -3392,9 +3585,12 @@ L_8782:;
     if (c) { mff_cycles(0x878F, 1); goto L_87A5; }
     mff_cycles(0x8791, 5);
     m = RAM(SND_TMP + 2); c = a >= m;
-    if (!c) { mff_cycles(0x8793, 1); goto L_8797; }
-    mff_cycles(0x8795, 3);
-    RAM(SND_TMP + 2) = a;
+    if (c) {
+        mff_cycles(0x8795, 3);
+        RAM(SND_TMP + 2) = a;
+    } else {
+        mff_cycles(0x8793, 1);
+    }
 L_8797:;
     mff_cycles(0x8797, 19);
     a = 0x10;
@@ -3440,12 +3636,14 @@ L_87AA:;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!c) { mff_cycles(0x87C9, 1); goto L_87CD; }
-    mff_cycles(0x87CB, 2);
-    a ^= 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_87CD:;
+    if (c) {
+        mff_cycles(0x87CB, 2);
+        a ^= 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x87C9, 1);
+    }
     mff_cycles(0x87CD, 2);
     if (z) { mff_cycles(0x87CD, 2); goto L_880C; }
     mff_cycles(0x87CF, 9);
@@ -3502,34 +3700,42 @@ L_880C:;
 L_8814:;
     mff_cycles(0x8814, 4);
     m = 0x28; c = x >= m;
-    if (c) { mff_cycles(0x8816, 1); goto L_8835; }
-    mff_cycles(0x8818, 5);
-    a = RAM(SND_EFFECT_LOOP);
-    n = (a) >> 7;
-    if (!n) { mff_cycles(0x881A, 1); goto L_8835; }
-    mff_cycles(0x881C, 5);
-    a = RAM(SND_EFFECT_PITCH_SCALE);
-    z = (a) == 0;
-    if (z) { mff_cycles(0x881E, 1); goto L_8835; }
-    mff_cycles(0x8820, 18);
-    RAM(SND_TMP + 3) = a;
-    RAM(SND_TMP) = y;
-    a = RAM(SND_TMP + 1);
-    n = (a) >> 7;
-    z = (a) == 0;
-    mff_push(a);
-    SYNC_OUT;
-    if (!mff_call_at(0x0829, 0x8006, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x882A, 19);
-    a = mff_pull();
-    c = 0;
-    m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP + 1) = a;
-    a = 0x00;
-    m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    y = a;
-L_8835:;
+    if (!c) {
+        mff_cycles(0x8818, 5);
+        a = RAM(SND_EFFECT_LOOP);
+        n = (a) >> 7;
+        if (n) {
+            mff_cycles(0x881C, 5);
+            a = RAM(SND_EFFECT_PITCH_SCALE);
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0x8820, 18);
+                RAM(SND_TMP + 3) = a;
+                RAM(SND_TMP) = y;
+                a = RAM(SND_TMP + 1);
+                n = (a) >> 7;
+                z = (a) == 0;
+                mff_push(a);
+                SYNC_OUT;
+                if (!mff_call_at(0x0829, 0x8006, 3)) return;
+                SYNC_IN;
+                mff_cycles(0x882A, 19);
+                a = mff_pull();
+                c = 0;
+                m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+                RAM(SND_TMP + 1) = a;
+                a = 0x00;
+                m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+                y = a;
+            } else {
+                mff_cycles(0x881E, 1);
+            }
+        } else {
+            mff_cycles(0x881A, 1);
+        }
+    } else {
+        mff_cycles(0x8816, 1);
+    }
     mff_cycles(0x8835, 6);
     a = x;
     a &= 0x03;
@@ -3550,12 +3756,14 @@ L_8849:;
     mff_cycles(0x8849, 4);
     a = y;
     y = 0x08;
-L_884C:;
-    mff_cycles(0x884C, 6);
-    y--;
-    m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
-    mff_cycles(0x8850, 2);
-    if (!c) { mff_cycles(0x884C, 1); goto L_884C; }
+    for (;;) {
+        mff_cycles(0x884C, 6);
+        y--;
+        m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
+        mff_cycles(0x8850, 2);
+        if (c) break;
+        mff_cycles(0x884C, 1);
+    }
     mff_cycles(0x8852, 29);
     RAM(SND_TMP) = a;
     a = y;
@@ -3570,34 +3778,43 @@ L_884C:;
     a &= 0x38;
     a ^= 0x38;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8865, 1); goto L_8870; }
-L_8867:;
-    mff_cycles(0x8867, 16);
-    t = RAM(SND_TMP); c = t & 1; t >>= 1; RAM(SND_TMP) = t;
-    t = RAM(SND_TMP + 1); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_TMP + 1) = t;
-    c = 1;
-    m = 0x08; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x8867, 1); goto L_8867; }
-L_8870:;
+    if (!z) {
+        for (;;) {
+            mff_cycles(0x8867, 16);
+            t = RAM(SND_TMP); c = t & 1; t >>= 1; RAM(SND_TMP) = t;
+            t = RAM(SND_TMP + 1); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_TMP + 1) = t;
+            c = 1;
+            m = 0x08; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+            z = (a) == 0;
+            if (z) break;
+            mff_cycles(0x8867, 1);
+        }
+    } else {
+        mff_cycles(0x8865, 1);
+    }
     mff_cycles(0x8870, 8);
     y = 0x00;
     a = RAM(0x0714 + x);
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8875, 1); goto L_8884; }
-    mff_cycles(0x8877, 2);
-    if (!n) { mff_cycles(0x8877, 1); goto L_887A; }
-    mff_cycles(0x8879, 2);
-    y--;
-L_887A:;
-    mff_cycles(0x887A, 16);
-    c = 0;
-    m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP + 1) = a;
-    a = y;
-    m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP) = a;
+    if (!z) {
+        mff_cycles(0x8877, 2);
+        if (n) {
+            mff_cycles(0x8879, 2);
+            y--;
+        } else {
+            mff_cycles(0x8877, 1);
+        }
+        mff_cycles(0x887A, 16);
+        c = 0;
+        m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TMP + 1) = a;
+        a = y;
+        m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TMP) = a;
+    } else {
+        mff_cycles(0x8875, 1);
+    }
 L_8884:;
     mff_cycles(0x8884, 11);
     y = 0x02;
@@ -3614,17 +3831,19 @@ L_8884:;
     a = RAM(SND_TMP);
     m = RAM(0x077C + y); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x8894, 1); goto L_88A0; }
-    mff_cycles(0x8896, 15);
-    RAM(0x077C + y) = a;
-    a |= 0x08;
-    y = 0x03;
-    n = (y) >> 7;
-    z = (y) == 0;
-    SYNC_OUT;
-    if (!mff_call_at(0x089F, 0x80EC, 3)) return;
-    SYNC_IN;
-L_88A0:;
+    if (!z) {
+        mff_cycles(0x8896, 15);
+        RAM(0x077C + y) = a;
+        a |= 0x08;
+        y = 0x03;
+        n = (y) >> 7;
+        z = (y) == 0;
+        SYNC_OUT;
+        if (!mff_call_at(0x089F, 0x80EC, 3)) return;
+        SYNC_IN;
+    } else {
+        mff_cycles(0x8894, 1);
+    }
     mff_cycles(0x88A0, 8);
     a = RAM(0x0704 + x);
     a &= 0x20;
@@ -3640,13 +3859,15 @@ L_88A0:;
     n = (t) >> 7;
     z = (t) == 0;
     FLAGS_OUT; mff_push(mff_p());
-    if (!c) { mff_cycles(0x88B0, 1); goto L_88B8; }
-    mff_cycles(0x88B2, 8);
-    a ^= 0xFF;
-    c = 0;
-    m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    y--;
-L_88B8:;
+    if (c) {
+        mff_cycles(0x88B2, 8);
+        a ^= 0xFF;
+        c = 0;
+        m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        y--;
+    } else {
+        mff_cycles(0x88B0, 1);
+    }
     mff_cycles(0x88B8, 40);
     c = 0;
     m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -3695,22 +3916,27 @@ L_88FA:;
     a &= 0x7F;
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8900, 1); goto L_8914; }
-    mff_cycles(0x8902, 13);
-    c = 0;
-    m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0708 + x) = a;
-    if (!c) { mff_cycles(0x8909, 1); goto L_8914; }
-    mff_cycles(0x890B, 13);
-    a = RAM(0x0704 + x);
-    c = 0;
-    m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0704 + x) = a;
-L_8914:;
+    if (!z) {
+        mff_cycles(0x8902, 13);
+        c = 0;
+        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(0x0708 + x) = a;
+        if (c) {
+            mff_cycles(0x890B, 13);
+            a = RAM(0x0704 + x);
+            c = 0;
+            m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(0x0704 + x) = a;
+        } else {
+            mff_cycles(0x8909, 1);
+        }
+    } else {
+        mff_cycles(0x8900, 1);
+    }
     mff_cycles(0x8914, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -3719,7 +3945,6 @@ L_8914:;
 /* snd_env_release $8702 (bank 3) - lifted by port/tools/lift.py */
 void func_8702_b3(void) {
     REGS_IN;
-L_8702:;
     mff_cycles(0x8702, 8);
     a = x;
     a &= 0x03;
@@ -3754,19 +3979,23 @@ L_8720:;
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
     z = (a) == 0;
-    if (!n) { mff_cycles(0x8726, 1); goto L_872B; }
-    mff_cycles(0x8728, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x88A0, 2); call_by_address_tail(0x88A0, 3); return;
-L_872B:;
+    if (n) {
+        mff_cycles(0x8728, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x88A0, 2); call_by_address_tail(0x88A0, 3); return;
+    } else {
+        mff_cycles(0x8726, 1);
+    }
     mff_cycles(0x872B, 8);
     a = RAM(SND_FADE_LEVEL);
     y = RAM(SND_FADE_SPEED);
     n = (y) >> 7;
-    if (n) { mff_cycles(0x872F, 1); goto L_8733; }
-    mff_cycles(0x8731, 2);
-    a ^= 0xFF;
-L_8733:;
+    if (!n) {
+        mff_cycles(0x8731, 2);
+        a ^= 0xFF;
+    } else {
+        mff_cycles(0x872F, 1);
+    }
     mff_cycles(0x8733, 4);
     m = 0xFF; c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
@@ -3836,12 +4065,14 @@ L_8763:;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!c) { mff_cycles(0x877E, 1); goto L_8782; }
-    mff_cycles(0x8780, 2);
-    a ^= 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_8782:;
+    if (c) {
+        mff_cycles(0x8780, 2);
+        a ^= 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x877E, 1);
+    }
     mff_cycles(0x8782, 2);
     if (z) { mff_cycles(0x8782, 1); goto L_8797; }
     mff_cycles(0x8784, 9);
@@ -3857,9 +4088,12 @@ L_8782:;
     if (c) { mff_cycles(0x878F, 1); goto L_87A5; }
     mff_cycles(0x8791, 5);
     m = RAM(SND_TMP + 2); c = a >= m;
-    if (!c) { mff_cycles(0x8793, 1); goto L_8797; }
-    mff_cycles(0x8795, 3);
-    RAM(SND_TMP + 2) = a;
+    if (c) {
+        mff_cycles(0x8795, 3);
+        RAM(SND_TMP + 2) = a;
+    } else {
+        mff_cycles(0x8793, 1);
+    }
 L_8797:;
     mff_cycles(0x8797, 19);
     a = 0x10;
@@ -3905,12 +4139,14 @@ L_87AA:;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!c) { mff_cycles(0x87C9, 1); goto L_87CD; }
-    mff_cycles(0x87CB, 2);
-    a ^= 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_87CD:;
+    if (c) {
+        mff_cycles(0x87CB, 2);
+        a ^= 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x87C9, 1);
+    }
     mff_cycles(0x87CD, 2);
     if (z) { mff_cycles(0x87CD, 2); goto L_880C; }
     mff_cycles(0x87CF, 9);
@@ -3967,34 +4203,42 @@ L_880C:;
 L_8814:;
     mff_cycles(0x8814, 4);
     m = 0x28; c = x >= m;
-    if (c) { mff_cycles(0x8816, 1); goto L_8835; }
-    mff_cycles(0x8818, 5);
-    a = RAM(SND_EFFECT_LOOP);
-    n = (a) >> 7;
-    if (!n) { mff_cycles(0x881A, 1); goto L_8835; }
-    mff_cycles(0x881C, 5);
-    a = RAM(SND_EFFECT_PITCH_SCALE);
-    z = (a) == 0;
-    if (z) { mff_cycles(0x881E, 1); goto L_8835; }
-    mff_cycles(0x8820, 18);
-    RAM(SND_TMP + 3) = a;
-    RAM(SND_TMP) = y;
-    a = RAM(SND_TMP + 1);
-    n = (a) >> 7;
-    z = (a) == 0;
-    mff_push(a);
-    SYNC_OUT;
-    if (!mff_call_at(0x0829, 0x8006, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x882A, 19);
-    a = mff_pull();
-    c = 0;
-    m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP + 1) = a;
-    a = 0x00;
-    m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    y = a;
-L_8835:;
+    if (!c) {
+        mff_cycles(0x8818, 5);
+        a = RAM(SND_EFFECT_LOOP);
+        n = (a) >> 7;
+        if (n) {
+            mff_cycles(0x881C, 5);
+            a = RAM(SND_EFFECT_PITCH_SCALE);
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0x8820, 18);
+                RAM(SND_TMP + 3) = a;
+                RAM(SND_TMP) = y;
+                a = RAM(SND_TMP + 1);
+                n = (a) >> 7;
+                z = (a) == 0;
+                mff_push(a);
+                SYNC_OUT;
+                if (!mff_call_at(0x0829, 0x8006, 3)) return;
+                SYNC_IN;
+                mff_cycles(0x882A, 19);
+                a = mff_pull();
+                c = 0;
+                m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+                RAM(SND_TMP + 1) = a;
+                a = 0x00;
+                m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+                y = a;
+            } else {
+                mff_cycles(0x881E, 1);
+            }
+        } else {
+            mff_cycles(0x881A, 1);
+        }
+    } else {
+        mff_cycles(0x8816, 1);
+    }
     mff_cycles(0x8835, 6);
     a = x;
     a &= 0x03;
@@ -4015,12 +4259,14 @@ L_8849:;
     mff_cycles(0x8849, 4);
     a = y;
     y = 0x08;
-L_884C:;
-    mff_cycles(0x884C, 6);
-    y--;
-    m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
-    mff_cycles(0x8850, 2);
-    if (!c) { mff_cycles(0x884C, 1); goto L_884C; }
+    for (;;) {
+        mff_cycles(0x884C, 6);
+        y--;
+        m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
+        mff_cycles(0x8850, 2);
+        if (c) break;
+        mff_cycles(0x884C, 1);
+    }
     mff_cycles(0x8852, 29);
     RAM(SND_TMP) = a;
     a = y;
@@ -4035,34 +4281,43 @@ L_884C:;
     a &= 0x38;
     a ^= 0x38;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8865, 1); goto L_8870; }
-L_8867:;
-    mff_cycles(0x8867, 16);
-    t = RAM(SND_TMP); c = t & 1; t >>= 1; RAM(SND_TMP) = t;
-    t = RAM(SND_TMP + 1); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_TMP + 1) = t;
-    c = 1;
-    m = 0x08; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x8867, 1); goto L_8867; }
-L_8870:;
+    if (!z) {
+        for (;;) {
+            mff_cycles(0x8867, 16);
+            t = RAM(SND_TMP); c = t & 1; t >>= 1; RAM(SND_TMP) = t;
+            t = RAM(SND_TMP + 1); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_TMP + 1) = t;
+            c = 1;
+            m = 0x08; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+            z = (a) == 0;
+            if (z) break;
+            mff_cycles(0x8867, 1);
+        }
+    } else {
+        mff_cycles(0x8865, 1);
+    }
     mff_cycles(0x8870, 8);
     y = 0x00;
     a = RAM(0x0714 + x);
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8875, 1); goto L_8884; }
-    mff_cycles(0x8877, 2);
-    if (!n) { mff_cycles(0x8877, 1); goto L_887A; }
-    mff_cycles(0x8879, 2);
-    y--;
-L_887A:;
-    mff_cycles(0x887A, 16);
-    c = 0;
-    m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP + 1) = a;
-    a = y;
-    m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP) = a;
+    if (!z) {
+        mff_cycles(0x8877, 2);
+        if (n) {
+            mff_cycles(0x8879, 2);
+            y--;
+        } else {
+            mff_cycles(0x8877, 1);
+        }
+        mff_cycles(0x887A, 16);
+        c = 0;
+        m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TMP + 1) = a;
+        a = y;
+        m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TMP) = a;
+    } else {
+        mff_cycles(0x8875, 1);
+    }
 L_8884:;
     mff_cycles(0x8884, 11);
     y = 0x02;
@@ -4079,17 +4334,19 @@ L_8884:;
     a = RAM(SND_TMP);
     m = RAM(0x077C + y); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x8894, 1); goto L_88A0; }
-    mff_cycles(0x8896, 15);
-    RAM(0x077C + y) = a;
-    a |= 0x08;
-    y = 0x03;
-    n = (y) >> 7;
-    z = (y) == 0;
-    SYNC_OUT;
-    if (!mff_call_at(0x089F, 0x80EC, 3)) return;
-    SYNC_IN;
-L_88A0:;
+    if (!z) {
+        mff_cycles(0x8896, 15);
+        RAM(0x077C + y) = a;
+        a |= 0x08;
+        y = 0x03;
+        n = (y) >> 7;
+        z = (y) == 0;
+        SYNC_OUT;
+        if (!mff_call_at(0x089F, 0x80EC, 3)) return;
+        SYNC_IN;
+    } else {
+        mff_cycles(0x8894, 1);
+    }
     mff_cycles(0x88A0, 8);
     a = RAM(0x0704 + x);
     a &= 0x20;
@@ -4105,13 +4362,15 @@ L_88A0:;
     n = (t) >> 7;
     z = (t) == 0;
     FLAGS_OUT; mff_push(mff_p());
-    if (!c) { mff_cycles(0x88B0, 1); goto L_88B8; }
-    mff_cycles(0x88B2, 8);
-    a ^= 0xFF;
-    c = 0;
-    m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    y--;
-L_88B8:;
+    if (c) {
+        mff_cycles(0x88B2, 8);
+        a ^= 0xFF;
+        c = 0;
+        m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        y--;
+    } else {
+        mff_cycles(0x88B0, 1);
+    }
     mff_cycles(0x88B8, 40);
     c = 0;
     m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -4160,22 +4419,27 @@ L_88FA:;
     a &= 0x7F;
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8900, 1); goto L_8914; }
-    mff_cycles(0x8902, 13);
-    c = 0;
-    m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0708 + x) = a;
-    if (!c) { mff_cycles(0x8909, 1); goto L_8914; }
-    mff_cycles(0x890B, 13);
-    a = RAM(0x0704 + x);
-    c = 0;
-    m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0704 + x) = a;
-L_8914:;
+    if (!z) {
+        mff_cycles(0x8902, 13);
+        c = 0;
+        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(0x0708 + x) = a;
+        if (c) {
+            mff_cycles(0x890B, 13);
+            a = RAM(0x0704 + x);
+            c = 0;
+            m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(0x0704 + x) = a;
+        } else {
+            mff_cycles(0x8909, 1);
+        }
+    } else {
+        mff_cycles(0x8900, 1);
+    }
     mff_cycles(0x8914, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -4184,7 +4448,6 @@ L_8914:;
 /*  $871A (bank 3) - lifted by port/tools/lift.py */
 void func_871A_b3(void) {
     REGS_IN;
-L_871A:;
     mff_cycles(0x871A, 16);
     t = (uint8_t)(RAM(0x0704 + x) + 1); RAM(0x0704 + x) = t;
     RAM(0x0710 + x) = a;
@@ -4194,19 +4457,23 @@ L_871A:;
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
     z = (a) == 0;
-    if (!n) { mff_cycles(0x8726, 1); goto L_872B; }
-    mff_cycles(0x8728, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x88A0, 2); call_by_address_tail(0x88A0, 3); return;
-L_872B:;
+    if (n) {
+        mff_cycles(0x8728, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x88A0, 2); call_by_address_tail(0x88A0, 3); return;
+    } else {
+        mff_cycles(0x8726, 1);
+    }
     mff_cycles(0x872B, 8);
     a = RAM(SND_FADE_LEVEL);
     y = RAM(SND_FADE_SPEED);
     n = (y) >> 7;
-    if (n) { mff_cycles(0x872F, 1); goto L_8733; }
-    mff_cycles(0x8731, 2);
-    a ^= 0xFF;
-L_8733:;
+    if (!n) {
+        mff_cycles(0x8731, 2);
+        a ^= 0xFF;
+    } else {
+        mff_cycles(0x872F, 1);
+    }
     mff_cycles(0x8733, 4);
     m = 0xFF; c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
@@ -4276,12 +4543,14 @@ L_8763:;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!c) { mff_cycles(0x877E, 1); goto L_8782; }
-    mff_cycles(0x8780, 2);
-    a ^= 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_8782:;
+    if (c) {
+        mff_cycles(0x8780, 2);
+        a ^= 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x877E, 1);
+    }
     mff_cycles(0x8782, 2);
     if (z) { mff_cycles(0x8782, 1); goto L_8797; }
     mff_cycles(0x8784, 9);
@@ -4297,9 +4566,12 @@ L_8782:;
     if (c) { mff_cycles(0x878F, 1); goto L_87A5; }
     mff_cycles(0x8791, 5);
     m = RAM(SND_TMP + 2); c = a >= m;
-    if (!c) { mff_cycles(0x8793, 1); goto L_8797; }
-    mff_cycles(0x8795, 3);
-    RAM(SND_TMP + 2) = a;
+    if (c) {
+        mff_cycles(0x8795, 3);
+        RAM(SND_TMP + 2) = a;
+    } else {
+        mff_cycles(0x8793, 1);
+    }
 L_8797:;
     mff_cycles(0x8797, 19);
     a = 0x10;
@@ -4345,12 +4617,14 @@ L_87AA:;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!c) { mff_cycles(0x87C9, 1); goto L_87CD; }
-    mff_cycles(0x87CB, 2);
-    a ^= 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_87CD:;
+    if (c) {
+        mff_cycles(0x87CB, 2);
+        a ^= 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x87C9, 1);
+    }
     mff_cycles(0x87CD, 2);
     if (z) { mff_cycles(0x87CD, 2); goto L_880C; }
     mff_cycles(0x87CF, 9);
@@ -4407,34 +4681,42 @@ L_880C:;
 L_8814:;
     mff_cycles(0x8814, 4);
     m = 0x28; c = x >= m;
-    if (c) { mff_cycles(0x8816, 1); goto L_8835; }
-    mff_cycles(0x8818, 5);
-    a = RAM(SND_EFFECT_LOOP);
-    n = (a) >> 7;
-    if (!n) { mff_cycles(0x881A, 1); goto L_8835; }
-    mff_cycles(0x881C, 5);
-    a = RAM(SND_EFFECT_PITCH_SCALE);
-    z = (a) == 0;
-    if (z) { mff_cycles(0x881E, 1); goto L_8835; }
-    mff_cycles(0x8820, 18);
-    RAM(SND_TMP + 3) = a;
-    RAM(SND_TMP) = y;
-    a = RAM(SND_TMP + 1);
-    n = (a) >> 7;
-    z = (a) == 0;
-    mff_push(a);
-    SYNC_OUT;
-    if (!mff_call_at(0x0829, 0x8006, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x882A, 19);
-    a = mff_pull();
-    c = 0;
-    m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP + 1) = a;
-    a = 0x00;
-    m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    y = a;
-L_8835:;
+    if (!c) {
+        mff_cycles(0x8818, 5);
+        a = RAM(SND_EFFECT_LOOP);
+        n = (a) >> 7;
+        if (n) {
+            mff_cycles(0x881C, 5);
+            a = RAM(SND_EFFECT_PITCH_SCALE);
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0x8820, 18);
+                RAM(SND_TMP + 3) = a;
+                RAM(SND_TMP) = y;
+                a = RAM(SND_TMP + 1);
+                n = (a) >> 7;
+                z = (a) == 0;
+                mff_push(a);
+                SYNC_OUT;
+                if (!mff_call_at(0x0829, 0x8006, 3)) return;
+                SYNC_IN;
+                mff_cycles(0x882A, 19);
+                a = mff_pull();
+                c = 0;
+                m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+                RAM(SND_TMP + 1) = a;
+                a = 0x00;
+                m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+                y = a;
+            } else {
+                mff_cycles(0x881E, 1);
+            }
+        } else {
+            mff_cycles(0x881A, 1);
+        }
+    } else {
+        mff_cycles(0x8816, 1);
+    }
     mff_cycles(0x8835, 6);
     a = x;
     a &= 0x03;
@@ -4455,12 +4737,14 @@ L_8849:;
     mff_cycles(0x8849, 4);
     a = y;
     y = 0x08;
-L_884C:;
-    mff_cycles(0x884C, 6);
-    y--;
-    m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
-    mff_cycles(0x8850, 2);
-    if (!c) { mff_cycles(0x884C, 1); goto L_884C; }
+    for (;;) {
+        mff_cycles(0x884C, 6);
+        y--;
+        m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
+        mff_cycles(0x8850, 2);
+        if (c) break;
+        mff_cycles(0x884C, 1);
+    }
     mff_cycles(0x8852, 29);
     RAM(SND_TMP) = a;
     a = y;
@@ -4475,34 +4759,43 @@ L_884C:;
     a &= 0x38;
     a ^= 0x38;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8865, 1); goto L_8870; }
-L_8867:;
-    mff_cycles(0x8867, 16);
-    t = RAM(SND_TMP); c = t & 1; t >>= 1; RAM(SND_TMP) = t;
-    t = RAM(SND_TMP + 1); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_TMP + 1) = t;
-    c = 1;
-    m = 0x08; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x8867, 1); goto L_8867; }
-L_8870:;
+    if (!z) {
+        for (;;) {
+            mff_cycles(0x8867, 16);
+            t = RAM(SND_TMP); c = t & 1; t >>= 1; RAM(SND_TMP) = t;
+            t = RAM(SND_TMP + 1); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_TMP + 1) = t;
+            c = 1;
+            m = 0x08; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+            z = (a) == 0;
+            if (z) break;
+            mff_cycles(0x8867, 1);
+        }
+    } else {
+        mff_cycles(0x8865, 1);
+    }
     mff_cycles(0x8870, 8);
     y = 0x00;
     a = RAM(0x0714 + x);
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8875, 1); goto L_8884; }
-    mff_cycles(0x8877, 2);
-    if (!n) { mff_cycles(0x8877, 1); goto L_887A; }
-    mff_cycles(0x8879, 2);
-    y--;
-L_887A:;
-    mff_cycles(0x887A, 16);
-    c = 0;
-    m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP + 1) = a;
-    a = y;
-    m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP) = a;
+    if (!z) {
+        mff_cycles(0x8877, 2);
+        if (n) {
+            mff_cycles(0x8879, 2);
+            y--;
+        } else {
+            mff_cycles(0x8877, 1);
+        }
+        mff_cycles(0x887A, 16);
+        c = 0;
+        m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TMP + 1) = a;
+        a = y;
+        m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TMP) = a;
+    } else {
+        mff_cycles(0x8875, 1);
+    }
 L_8884:;
     mff_cycles(0x8884, 11);
     y = 0x02;
@@ -4519,17 +4812,19 @@ L_8884:;
     a = RAM(SND_TMP);
     m = RAM(0x077C + y); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x8894, 1); goto L_88A0; }
-    mff_cycles(0x8896, 15);
-    RAM(0x077C + y) = a;
-    a |= 0x08;
-    y = 0x03;
-    n = (y) >> 7;
-    z = (y) == 0;
-    SYNC_OUT;
-    if (!mff_call_at(0x089F, 0x80EC, 3)) return;
-    SYNC_IN;
-L_88A0:;
+    if (!z) {
+        mff_cycles(0x8896, 15);
+        RAM(0x077C + y) = a;
+        a |= 0x08;
+        y = 0x03;
+        n = (y) >> 7;
+        z = (y) == 0;
+        SYNC_OUT;
+        if (!mff_call_at(0x089F, 0x80EC, 3)) return;
+        SYNC_IN;
+    } else {
+        mff_cycles(0x8894, 1);
+    }
     mff_cycles(0x88A0, 8);
     a = RAM(0x0704 + x);
     a &= 0x20;
@@ -4545,13 +4840,15 @@ L_88A0:;
     n = (t) >> 7;
     z = (t) == 0;
     FLAGS_OUT; mff_push(mff_p());
-    if (!c) { mff_cycles(0x88B0, 1); goto L_88B8; }
-    mff_cycles(0x88B2, 8);
-    a ^= 0xFF;
-    c = 0;
-    m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    y--;
-L_88B8:;
+    if (c) {
+        mff_cycles(0x88B2, 8);
+        a ^= 0xFF;
+        c = 0;
+        m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        y--;
+    } else {
+        mff_cycles(0x88B0, 1);
+    }
     mff_cycles(0x88B8, 40);
     c = 0;
     m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -4600,22 +4897,27 @@ L_88FA:;
     a &= 0x7F;
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8900, 1); goto L_8914; }
-    mff_cycles(0x8902, 13);
-    c = 0;
-    m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0708 + x) = a;
-    if (!c) { mff_cycles(0x8909, 1); goto L_8914; }
-    mff_cycles(0x890B, 13);
-    a = RAM(0x0704 + x);
-    c = 0;
-    m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0704 + x) = a;
-L_8914:;
+    if (!z) {
+        mff_cycles(0x8902, 13);
+        c = 0;
+        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(0x0708 + x) = a;
+        if (c) {
+            mff_cycles(0x890B, 13);
+            a = RAM(0x0704 + x);
+            c = 0;
+            m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(0x0704 + x) = a;
+        } else {
+            mff_cycles(0x8909, 1);
+        }
+    } else {
+        mff_cycles(0x8900, 1);
+    }
     mff_cycles(0x8914, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -4624,7 +4926,6 @@ L_8914:;
 /* snd_output $8720 (bank 3) - lifted by port/tools/lift.py */
 void func_8720_b3(void) {
     REGS_IN;
-L_8720:;
     mff_cycles(0x8720, 4);
     m = 0x28; c = x >= m;
     if (!c) { mff_cycles(0x8722, 1); goto L_8737; }
@@ -4632,19 +4933,23 @@ L_8720:;
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
     z = (a) == 0;
-    if (!n) { mff_cycles(0x8726, 1); goto L_872B; }
-    mff_cycles(0x8728, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0x88A0, 2); call_by_address_tail(0x88A0, 3); return;
-L_872B:;
+    if (n) {
+        mff_cycles(0x8728, 3);
+        SYNC_OUT;
+        nes_cpu_instruction_boundary(0x88A0, 2); call_by_address_tail(0x88A0, 3); return;
+    } else {
+        mff_cycles(0x8726, 1);
+    }
     mff_cycles(0x872B, 8);
     a = RAM(SND_FADE_LEVEL);
     y = RAM(SND_FADE_SPEED);
     n = (y) >> 7;
-    if (n) { mff_cycles(0x872F, 1); goto L_8733; }
-    mff_cycles(0x8731, 2);
-    a ^= 0xFF;
-L_8733:;
+    if (!n) {
+        mff_cycles(0x8731, 2);
+        a ^= 0xFF;
+    } else {
+        mff_cycles(0x872F, 1);
+    }
     mff_cycles(0x8733, 4);
     m = 0xFF; c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
@@ -4714,12 +5019,14 @@ L_8763:;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!c) { mff_cycles(0x877E, 1); goto L_8782; }
-    mff_cycles(0x8780, 2);
-    a ^= 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_8782:;
+    if (c) {
+        mff_cycles(0x8780, 2);
+        a ^= 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x877E, 1);
+    }
     mff_cycles(0x8782, 2);
     if (z) { mff_cycles(0x8782, 1); goto L_8797; }
     mff_cycles(0x8784, 9);
@@ -4735,9 +5042,12 @@ L_8782:;
     if (c) { mff_cycles(0x878F, 1); goto L_87A5; }
     mff_cycles(0x8791, 5);
     m = RAM(SND_TMP + 2); c = a >= m;
-    if (!c) { mff_cycles(0x8793, 1); goto L_8797; }
-    mff_cycles(0x8795, 3);
-    RAM(SND_TMP + 2) = a;
+    if (c) {
+        mff_cycles(0x8795, 3);
+        RAM(SND_TMP + 2) = a;
+    } else {
+        mff_cycles(0x8793, 1);
+    }
 L_8797:;
     mff_cycles(0x8797, 19);
     a = 0x10;
@@ -4783,12 +5093,14 @@ L_87AA:;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
-    if (!c) { mff_cycles(0x87C9, 1); goto L_87CD; }
-    mff_cycles(0x87CB, 2);
-    a ^= 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-L_87CD:;
+    if (c) {
+        mff_cycles(0x87CB, 2);
+        a ^= 0xFF;
+        n = (a) >> 7;
+        z = (a) == 0;
+    } else {
+        mff_cycles(0x87C9, 1);
+    }
     mff_cycles(0x87CD, 2);
     if (z) { mff_cycles(0x87CD, 2); goto L_880C; }
     mff_cycles(0x87CF, 9);
@@ -4845,34 +5157,42 @@ L_880C:;
 L_8814:;
     mff_cycles(0x8814, 4);
     m = 0x28; c = x >= m;
-    if (c) { mff_cycles(0x8816, 1); goto L_8835; }
-    mff_cycles(0x8818, 5);
-    a = RAM(SND_EFFECT_LOOP);
-    n = (a) >> 7;
-    if (!n) { mff_cycles(0x881A, 1); goto L_8835; }
-    mff_cycles(0x881C, 5);
-    a = RAM(SND_EFFECT_PITCH_SCALE);
-    z = (a) == 0;
-    if (z) { mff_cycles(0x881E, 1); goto L_8835; }
-    mff_cycles(0x8820, 18);
-    RAM(SND_TMP + 3) = a;
-    RAM(SND_TMP) = y;
-    a = RAM(SND_TMP + 1);
-    n = (a) >> 7;
-    z = (a) == 0;
-    mff_push(a);
-    SYNC_OUT;
-    if (!mff_call_at(0x0829, 0x8006, 3)) return;
-    SYNC_IN;
-    mff_cycles(0x882A, 19);
-    a = mff_pull();
-    c = 0;
-    m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP + 1) = a;
-    a = 0x00;
-    m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    y = a;
-L_8835:;
+    if (!c) {
+        mff_cycles(0x8818, 5);
+        a = RAM(SND_EFFECT_LOOP);
+        n = (a) >> 7;
+        if (n) {
+            mff_cycles(0x881C, 5);
+            a = RAM(SND_EFFECT_PITCH_SCALE);
+            z = (a) == 0;
+            if (!z) {
+                mff_cycles(0x8820, 18);
+                RAM(SND_TMP + 3) = a;
+                RAM(SND_TMP) = y;
+                a = RAM(SND_TMP + 1);
+                n = (a) >> 7;
+                z = (a) == 0;
+                mff_push(a);
+                SYNC_OUT;
+                if (!mff_call_at(0x0829, 0x8006, 3)) return;
+                SYNC_IN;
+                mff_cycles(0x882A, 19);
+                a = mff_pull();
+                c = 0;
+                m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+                RAM(SND_TMP + 1) = a;
+                a = 0x00;
+                m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+                y = a;
+            } else {
+                mff_cycles(0x881E, 1);
+            }
+        } else {
+            mff_cycles(0x881A, 1);
+        }
+    } else {
+        mff_cycles(0x8816, 1);
+    }
     mff_cycles(0x8835, 6);
     a = x;
     a &= 0x03;
@@ -4893,12 +5213,14 @@ L_8849:;
     mff_cycles(0x8849, 4);
     a = y;
     y = 0x08;
-L_884C:;
-    mff_cycles(0x884C, 6);
-    y--;
-    m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
-    mff_cycles(0x8850, 2);
-    if (!c) { mff_cycles(0x884C, 1); goto L_884C; }
+    for (;;) {
+        mff_cycles(0x884C, 6);
+        y--;
+        m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
+        mff_cycles(0x8850, 2);
+        if (c) break;
+        mff_cycles(0x884C, 1);
+    }
     mff_cycles(0x8852, 29);
     RAM(SND_TMP) = a;
     a = y;
@@ -4913,34 +5235,43 @@ L_884C:;
     a &= 0x38;
     a ^= 0x38;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8865, 1); goto L_8870; }
-L_8867:;
-    mff_cycles(0x8867, 16);
-    t = RAM(SND_TMP); c = t & 1; t >>= 1; RAM(SND_TMP) = t;
-    t = RAM(SND_TMP + 1); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_TMP + 1) = t;
-    c = 1;
-    m = 0x08; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    z = (a) == 0;
-    if (!z) { mff_cycles(0x8867, 1); goto L_8867; }
-L_8870:;
+    if (!z) {
+        for (;;) {
+            mff_cycles(0x8867, 16);
+            t = RAM(SND_TMP); c = t & 1; t >>= 1; RAM(SND_TMP) = t;
+            t = RAM(SND_TMP + 1); m = t & 1; t = (uint8_t)(t >> 1 | c << 7); c = m; RAM(SND_TMP + 1) = t;
+            c = 1;
+            m = 0x08; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+            z = (a) == 0;
+            if (z) break;
+            mff_cycles(0x8867, 1);
+        }
+    } else {
+        mff_cycles(0x8865, 1);
+    }
     mff_cycles(0x8870, 8);
     y = 0x00;
     a = RAM(0x0714 + x);
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8875, 1); goto L_8884; }
-    mff_cycles(0x8877, 2);
-    if (!n) { mff_cycles(0x8877, 1); goto L_887A; }
-    mff_cycles(0x8879, 2);
-    y--;
-L_887A:;
-    mff_cycles(0x887A, 16);
-    c = 0;
-    m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP + 1) = a;
-    a = y;
-    m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(SND_TMP) = a;
+    if (!z) {
+        mff_cycles(0x8877, 2);
+        if (n) {
+            mff_cycles(0x8879, 2);
+            y--;
+        } else {
+            mff_cycles(0x8877, 1);
+        }
+        mff_cycles(0x887A, 16);
+        c = 0;
+        m = RAM(SND_TMP + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TMP + 1) = a;
+        a = y;
+        m = RAM(SND_TMP); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        RAM(SND_TMP) = a;
+    } else {
+        mff_cycles(0x8875, 1);
+    }
 L_8884:;
     mff_cycles(0x8884, 11);
     y = 0x02;
@@ -4957,17 +5288,19 @@ L_8884:;
     a = RAM(SND_TMP);
     m = RAM(0x077C + y); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
-    if (z) { mff_cycles(0x8894, 1); goto L_88A0; }
-    mff_cycles(0x8896, 15);
-    RAM(0x077C + y) = a;
-    a |= 0x08;
-    y = 0x03;
-    n = (y) >> 7;
-    z = (y) == 0;
-    SYNC_OUT;
-    if (!mff_call_at(0x089F, 0x80EC, 3)) return;
-    SYNC_IN;
-L_88A0:;
+    if (!z) {
+        mff_cycles(0x8896, 15);
+        RAM(0x077C + y) = a;
+        a |= 0x08;
+        y = 0x03;
+        n = (y) >> 7;
+        z = (y) == 0;
+        SYNC_OUT;
+        if (!mff_call_at(0x089F, 0x80EC, 3)) return;
+        SYNC_IN;
+    } else {
+        mff_cycles(0x8894, 1);
+    }
     mff_cycles(0x88A0, 8);
     a = RAM(0x0704 + x);
     a &= 0x20;
@@ -4983,13 +5316,15 @@ L_88A0:;
     n = (t) >> 7;
     z = (t) == 0;
     FLAGS_OUT; mff_push(mff_p());
-    if (!c) { mff_cycles(0x88B0, 1); goto L_88B8; }
-    mff_cycles(0x88B2, 8);
-    a ^= 0xFF;
-    c = 0;
-    m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    y--;
-L_88B8:;
+    if (c) {
+        mff_cycles(0x88B2, 8);
+        a ^= 0xFF;
+        c = 0;
+        m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        y--;
+    } else {
+        mff_cycles(0x88B0, 1);
+    }
     mff_cycles(0x88B8, 40);
     c = 0;
     m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -5038,22 +5373,27 @@ L_88FA:;
     a &= 0x7F;
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8900, 1); goto L_8914; }
-    mff_cycles(0x8902, 13);
-    c = 0;
-    m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0708 + x) = a;
-    if (!c) { mff_cycles(0x8909, 1); goto L_8914; }
-    mff_cycles(0x890B, 13);
-    a = RAM(0x0704 + x);
-    c = 0;
-    m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0704 + x) = a;
-L_8914:;
+    if (!z) {
+        mff_cycles(0x8902, 13);
+        c = 0;
+        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(0x0708 + x) = a;
+        if (c) {
+            mff_cycles(0x890B, 13);
+            a = RAM(0x0704 + x);
+            c = 0;
+            m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(0x0704 + x) = a;
+        } else {
+            mff_cycles(0x8909, 1);
+        }
+    } else {
+        mff_cycles(0x8900, 1);
+    }
     mff_cycles(0x8914, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -5062,7 +5402,6 @@ L_8914:;
 /* snd_slide $88A0 (bank 3) - lifted by port/tools/lift.py */
 void func_88A0_b3(void) {
     REGS_IN;
-L_88A0:;
     mff_cycles(0x88A0, 8);
     a = RAM(0x0704 + x);
     a &= 0x20;
@@ -5078,13 +5417,15 @@ L_88A0:;
     n = (t) >> 7;
     z = (t) == 0;
     FLAGS_OUT; mff_push(mff_p());
-    if (!c) { mff_cycles(0x88B0, 1); goto L_88B8; }
-    mff_cycles(0x88B2, 8);
-    a ^= 0xFF;
-    c = 0;
-    m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    y--;
-L_88B8:;
+    if (c) {
+        mff_cycles(0x88B2, 8);
+        a ^= 0xFF;
+        c = 0;
+        m = 0x01; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        y--;
+    } else {
+        mff_cycles(0x88B0, 1);
+    }
     mff_cycles(0x88B8, 40);
     c = 0;
     m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -5133,22 +5474,27 @@ L_88FA:;
     a &= 0x7F;
     n = (a) >> 7;
     z = (a) == 0;
-    if (z) { mff_cycles(0x8900, 1); goto L_8914; }
-    mff_cycles(0x8902, 13);
-    c = 0;
-    m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0708 + x) = a;
-    if (!c) { mff_cycles(0x8909, 1); goto L_8914; }
-    mff_cycles(0x890B, 13);
-    a = RAM(0x0704 + x);
-    c = 0;
-    m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(0x0704 + x) = a;
-L_8914:;
+    if (!z) {
+        mff_cycles(0x8902, 13);
+        c = 0;
+        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        n = (a) >> 7;
+        z = (a) == 0;
+        RAM(0x0708 + x) = a;
+        if (c) {
+            mff_cycles(0x890B, 13);
+            a = RAM(0x0704 + x);
+            c = 0;
+            m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+            n = (a) >> 7;
+            z = (a) == 0;
+            RAM(0x0704 + x) = a;
+        } else {
+            mff_cycles(0x8909, 1);
+        }
+    } else {
+        mff_cycles(0x8900, 1);
+    }
     mff_cycles(0x8914, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -5157,7 +5503,6 @@ L_8914:;
 /*  $8914 (bank 3) - lifted by port/tools/lift.py */
 void func_8914_b3(void) {
     REGS_IN;
-L_8914:;
     mff_cycles(0x8914, 6);
     SYNC_OUT;
     mff_rts(); return;

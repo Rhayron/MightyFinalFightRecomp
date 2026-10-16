@@ -56,15 +56,27 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   outro caminho (tarefa em outro ponto do código, RNG mexido pelo `$92`). **Mudança de plano:** a
   regressão da P4 é andaime original × andaime limpo (exata no jogo todo); o oráculo certifica o
   andaime nos trechos sem lag; lag fiel (NMI no PC interrompido do oráculo) fica para a P7.
-- **P4 começada.** **Mudança de plano:** em vez de ejetar o código gerado inteiro (dezenas de MB, o
-  mesmo código repetido em cada chamada), cada rotina ganha um corpo em C escrito à mão em
-  `port/src/game/` e entra no andaime por `[[replace_func]]`. Nesta etapa a rotina tem de deixar RAM,
-  registradores, flags **e ciclos** iguais aos do original; `port/tests/run_routes.sh check` compara
-  o andaime com e sem as substituições, frame a frame, nas 3 rotas do round 1 (20.195 frames cada).
-  Prontas: `rng_step`, `read_joypads`, `bank_switch`, `rendering_off/on`, `object_clear`,
-  `objects_clear_all`, `clear_ram_400_5ff`, `sound_queue_push`, todas idênticas. Correção no gerador
-  (nesrecomp `mff-scaffold`, `d4e1d94`): rotina substituída não é mais engolida pelo corpo de outra.
-  Os nomes, tipos e o `state.h` vêm depois, quando a rotina já não precisar imitar o 6502.
+- **P4 em andamento: o port já roda sem código gerado.** **Mudanças de plano:** (1) em vez de ejetar o
+  código gerado inteiro (dezenas de MB, o mesmo código repetido em cada chamada), cada rotina ganha
+  um corpo próprio em `port/src/game/` e entra no andaime por `[[replace_func]]`; (2) além das
+  escritas à mão, um *lifter* (`port/tools/lift.py`, `lift_bank.py`) converte as rotinas para C:
+  semântica tirada da ROM e cada decisão de controle e de ciclos tirada da cópia do andaime puro, com
+  nomes de RAM do `labels.toml` (`state.h`), registradores e flags em variáveis locais, flags mortas
+  removidas e `if`/laços no lugar dos `goto` nos formatos simples (`lift_structure.py`). Nesta
+  etapa a rotina tem de deixar RAM, registradores, flags **e ciclos** iguais aos do original;
+  `port/tests/run_routes.sh check` compara frame a frame (RAM, OAM, paleta e a imagem) com o andaime
+  sem substituições em 6 rotas: o round 1 com os três personagens e três *tours* de 50.000 frames
+  (bot dentro do andaime, `port/scaffold/bot.c`) que passam por todos os rounds, pelo chefe final e
+  pelo final. Hoje: todas as 952 rotinas do jogo estão em `port/src/game` (escalonador, tarefas,
+  NMI/IRQ, VRAM, RNG, controle e outras à mão; o resto convertido), e com a opção `MFF_EJECTED`
+  o port compila **sem nenhum código gerado** (`port/tools/dispatch_gen.py` gera a tabela de
+  despacho) e fica idêntico nas 6 rotas. **Mudança no andaime:** a NMI só entra no topo do laço do
+  escalonador (`$FEBD`): o driver de som lê um registrador que nunca inicializa, e o ponto exato da
+  NMI vazava para o estado dele. Agentes em paralelo adiantaram a P5 (assets: 90.490 frames
+  idênticos ao oráculo, `docs/assets.md`), a P6 (driver de som em Python idêntico ao oráculo,
+  `docs/sound.md`) e nomearam 133 variáveis de RAM (`docs/objects.md`). Falta da P4: arrumar o
+  código convertido sistema a sistema (nomes, comentários, estruturas), tirar os registradores de
+  hardware do código do jogo e os endereços crus que restam.
 
 ---
 
