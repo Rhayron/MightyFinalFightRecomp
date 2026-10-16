@@ -1,22 +1,31 @@
 #!/bin/bash
 # P4 regression runner: play every route in port/tests/routes and either
-# record the baseline (on the pure scaffold, regen.sh --pure) or check the
-# candidate (port/scaffold/build) against it, frame by frame.
+# record the baseline (on the pure scaffold, regen.sh --pure) or check a
+# candidate against it, frame by frame.
 #   port/tests/run_routes.sh baseline [ROUTE...]
 #   port/tests/run_routes.sh check [ROUTE...]
 # Routes: NAME.keyed (MFF_INPUT, nmi_input.py) or NAME.bot (one line:
 # "MFF_BOT-value frames", see port/scaffold/bot.c). Routes run in parallel.
+# Environment (for a worktree or a second build; defaults are this checkout):
+#   MFF_EXE   the candidate (default port/scaffold/build/Release/MffScaffold.exe)
+#   MFF_ROM   the dump (default rom/Mighty Final Fight (USA).nes)
+#   MFF_BASE  directory with the baselines base_ROUTE.flog/.pic (default runs/p4)
+#   MFF_OUT   where this run writes its logs (default runs/p4)
 set -e
 cd "$(dirname "$0")/../.."
 MODE=${1:-check}
 shift || true
+BASE=${MFF_BASE:-runs/p4}
+OUT=${MFF_OUT:-runs/p4}
 if [ "$MODE" = baseline ]; then
   EXE=runs/p4/pure/build/Release/MffScaffold.exe
+  OUT=$BASE
 else
-  EXE=${MFF_EXE:-port/scaffold/build/Release/MffScaffold.exe}   # MFF_EXE: another candidate build
+  EXE=${MFF_EXE:-port/scaffold/build/Release/MffScaffold.exe}
 fi
-ROM="$(pwd -W)/rom/Mighty Final Fight (USA).nes"
-mkdir -p runs/p4
+ROM=${MFF_ROM:-"$(pwd -W)/rom/Mighty Final Fight (USA).nes"}
+mkdir -p "$OUT"
+OUTW=$(cd "$OUT" && pwd -W)
 if [ $# -gt 0 ]; then
   routes=()
   for n in "$@"; do routes+=($(ls port/tests/routes/$n.keyed port/tests/routes/$n.bot 2>/dev/null || true)); done
@@ -27,7 +36,7 @@ fi
 run_one() {
   local route=$1 name ext out frames env
   name=$(basename "$route"); ext=${name##*.}; name=${name%.*}
-  out=runs/p4/$([ "$MODE" = baseline ] && echo base || echo cand)_$name.flog
+  out=$OUTW/$([ "$MODE" = baseline ] && echo base || echo cand)_$name.flog
   if [ "$ext" = keyed ]; then
     frames=$(( $(wc -l < "$route") + 300 ))
     env=(MFF_INPUT="$(pwd -W)/$route")
@@ -35,10 +44,10 @@ run_one() {
     read -r bot frames < "$route"
     env=(MFF_BOT="$bot")
   fi
-  env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "${env[@]}" MFF_FRAMELOG="$(pwd -W)/$out" \
-    MFF_PICLOG="$(pwd -W)/${out%.flog}.pic" \
-    timeout --kill-after=10 600 "$EXE" "$ROM" --smoke "$frames" --smoke-interval 1000000 --smoke-output runs/p4 \
-    > runs/p4/$name.log 2>&1 || echo "$name: exit $?" >> runs/p4/$name.log
+  env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "${env[@]}" MFF_FRAMELOG="$out" \
+    MFF_PICLOG="${out%.flog}.pic" \
+    timeout --kill-after=10 600 "$EXE" "$ROM" --smoke "$frames" --smoke-interval 1000000 --smoke-output "$OUT" \
+    > "$OUT/$name.log" 2>&1 || echo "$name: exit $?" >> "$OUT/$name.log"
 }
 
 for r in "${routes[@]}"; do run_one "$r" & done
@@ -49,11 +58,11 @@ for r in "${routes[@]}"; do
   name=$(basename "$r"); name=${name%.*}
   if [ "$MODE" = check ]; then
     echo "== $name"
-    py -3 -I port/tests/selfcheck.py runs/p4/base_$name.flog runs/p4/cand_$name.flog --max 5 \
-      --pics runs/p4/base_$name.pic runs/p4/cand_$name.pic || status=1
+    py -3 -I port/tests/selfcheck.py "$BASE/base_$name.flog" "$OUT/cand_$name.flog" --max 5 \
+      --pics "$BASE/base_$name.pic" "$OUT/cand_$name.pic" || status=1
   else
-    echo "$name: baseline $(( $(stat -c %s runs/p4/base_$name.flog) / 2340 )) frames"
+    echo "$name: baseline $(( $(stat -c %s "$BASE/base_$name.flog") / 2340 )) frames"
   fi
-  grep -h "MISMATCH\|TRAP\|exit [0-9]" runs/p4/$name.log | head -3 || true
+  grep -h "MISMATCH\|TRAP\|exit [0-9]\|reached data" "$OUT/$name.log" | head -3 || true
 done
 exit $status
