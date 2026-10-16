@@ -70,11 +70,11 @@ void func_8023_b3(void) {
     RAM(SND_TMP) = a;
     a = mff_pull();
     RAM(SND_TMP + 1) = a;
-    a = nes_read((uint16_t)(RAM16(SND_TMP) + y));
+    a = mem_read((uint16_t)(RAM16(SND_TMP) + y));
     mff_cycles(0x802E, 10);
     mff_push(a);
     y++;
-    a = nes_read((uint16_t)(RAM16(SND_TMP) + y));
+    a = mem_read((uint16_t)(RAM16(SND_TMP) + y));
     mff_cycles(0x8032, 15);
     RAM(SND_TMP + 1) = a;
     a = mff_pull();
@@ -95,7 +95,7 @@ void func_803A_b3(void) {
     if (!c) {
         mff_cycles(0x8042, 8);
         RAM(SND_TMP + 1) = a;
-        a = nes_read((uint16_t)(RAM16(SND_TMP) + y));
+        a = mem_read((uint16_t)(RAM16(SND_TMP) + y));
         n = (a) >> 7;
         z = (a) == 0;
         mff_cycles(0x8046, 6);
@@ -109,19 +109,19 @@ void func_803A_b3(void) {
     m = 0x20; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     RAM(SND_TMP + 1) = a;
     a = 0x07;
-    nes_write(0x8000, a);
+    hw_write(MMC3_BANK_SELECT, a);
     mff_cycles(0x8051, 6);
     a = 0x18;
-    nes_write(0x8001, a);
+    hw_write(MMC3_BANK_DATA, a);
     mff_cycles(0x8056, 5);
-    a = nes_read((uint16_t)(RAM16(SND_TMP) + y));
+    a = mem_read((uint16_t)(RAM16(SND_TMP) + y));
     mff_cycles(0x8058, 9);
     mff_push(a);
     a = 0x07;
-    nes_write(0x8000, a);
+    hw_write(MMC3_BANK_SELECT, a);
     mff_cycles(0x805E, 6);
     a = 0x17;
-    nes_write(0x8001, a);
+    hw_write(MMC3_BANK_DATA, a);
     mff_cycles(0x8063, 20);
     a = 0x20;
     c = 0;
@@ -286,7 +286,7 @@ void func_80D8_b3(void) {
         mff_cycles(0x80E4, 1);
     }
     mff_cycles(0x80E8, 5);
-    nes_write((uint16_t)(0x4000 + y), a);
+    hw_write((uint16_t)(APU_PULSE1 + y), a);
     mff_cycles(0x80EB, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -308,7 +308,7 @@ void func_80EC_b3(void) {
     a = mff_pull();
     n = (a) >> 7;
     z = (a) == 0;
-    nes_write((uint16_t)(0x4000 + y), a);
+    hw_write((uint16_t)(APU_PULSE1 + y), a);
     mff_cycles(0x80FD, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -348,28 +348,28 @@ void func_8106_b3(void) {
     }
 L_810D:;
     mff_cycles(0x810D, 4);
-    m = nes_read(0x8A40); c = a >= m;
+    m = prg_read(0x8A40); c = a >= m;
     mff_cycles(0x8110, 2);
     if (!c) { mff_cycles(0x8110, 1); goto L_8118; }
     mff_cycles(0x8112, 6);
     c = 1;
-    m = nes_read(0x8A40); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = prg_read(0x8A40); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x8116, 2);
     if (c) { mff_cycles(0x810D, 1); goto L_810D; }
 L_8118:;
     mff_cycles(0x8118, 8);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     x = a;
-    y = nes_read((uint16_t)(0x8A44 + x));
+    y = prg_read((uint16_t)(0x8A44 + x));
     mff_cycles(0x811D, 6);
     a = y;
-    a |= nes_read((uint16_t)(0x8A43 + x));
+    a |= prg_read((uint16_t)(0x8A43 + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8121, 2);
     if (z) { mff_cycles(0x8121, 1); goto L_816E; }
     mff_cycles(0x8123, 4);
-    a = nes_read((uint16_t)(0x8A43 + x));
+    a = prg_read((uint16_t)(0x8A43 + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8126, 6);
@@ -444,7 +444,7 @@ L_8118:;
         y = 0x27;
         for (;;) {
             mff_cycles(0x8168, 9);
-            RAM(0x0700 + y) = a;
+            RAM(SND_INSTRUMENT + y) = a;
             y--;
             n = (y) >> 7;
             z = (y) == 0;
@@ -471,7 +471,7 @@ L_816F:;
     x = 0x53;
     for (;;) {
         mff_cycles(0x8181, 9);
-        RAM(0x0728 + x) = a;
+        RAM(SND_M_INSTRUMENT + x) = a;
         x--;
         n = (x) >> 7;
         if (n) break;
@@ -498,7 +498,7 @@ L_816F:;
         if (!mff_call_at(0x0195, 0x803A, 3)) return;
         SYNC_IN;
         mff_cycles(0x8196, 12);
-        RAM(0x0754 + x) = a;
+        RAM(SND_MUSIC_PTR_HI + x) = a;
         t = (uint8_t)(RAM(SND_TMP) + 1); RAM(SND_TMP) = t;
         z = (t) == 0;
         if (z) {
@@ -516,7 +516,7 @@ L_816F:;
         if (!mff_call_at(0x01A5, 0x803A, 3)) return;
         SYNC_IN;
         mff_cycles(0x81A6, 9);
-        RAM(0x0750 + x) = a;
+        RAM(SND_MUSIC_PTR_LO + x) = a;
         x--;
         n = (x) >> 7;
         if (n) break;
@@ -535,9 +535,9 @@ L_816F:;
         mff_cycles(0x81B5, 11);
         m = RAM(TASKS + 1); c = a >= m;
         y++;
-        nes_write(RAM16((uint8_t)(RNG + x)), a);
+        mem_write(RAM16((uint8_t)(RNG + x)), a);
         mff_cycles(0x81BA, 6);
-        nes_write(RAM16((uint8_t)(0x1E + x)), a);
+        mem_write(RAM16((uint8_t)(0x1E + x)), a);
         mff_cycles(0x81BC, 0);
         mff_unreachable(0x81BC); return;   /* data: the branch above always goes */
     } else {
@@ -558,13 +558,13 @@ L_816F:;
             if (!mff_call_at(0x01FC, 0x80D8, 3)) return;
             SYNC_IN;
             mff_cycles(0x81FD, 10);
-            a = RAM(0x0754 + x);
-            a |= RAM(0x0750 + x);
+            a = RAM(SND_MUSIC_PTR_HI + x);
+            a |= RAM(SND_MUSIC_PTR_LO + x);
             z = (a) == 0;
             if (!z) {
                 mff_cycles(0x8205, 7);
                 a = 0xFF;
-                RAM(0x077C + x) = a;
+                RAM(SND_PERIOD_HI_CACHE + x) = a;
             } else {
                 mff_cycles(0x8203, 1);
             }
@@ -581,14 +581,14 @@ L_816F:;
     a = mff_pull();
     RAM(SND_EFFECT_CHANNELS) = a;
     a = 0x08;
-    nes_write(0x4001, a);
+    hw_write(APU_PULSE1 + 1, a);
     mff_cycles(0x8215, 4);
-    nes_write(0x4005, a);
+    hw_write(APU_PULSE2 + 1, a);
     mff_cycles(0x8218, 6);
     a = 0x0F;
     n = (a) >> 7;
     z = (a) == 0;
-    nes_write(0x4015, a);
+    hw_write(APU_STATUS, a);
     mff_cycles(0x821D, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -608,9 +608,9 @@ void func_81AE_b3(void) {
     mff_cycles(0x81B5, 11);
     m = RAM(TASKS + 1); c = a >= m;
     y++;
-    nes_write(RAM16((uint8_t)(RNG + x)), a);
+    mem_write(RAM16((uint8_t)(RNG + x)), a);
     mff_cycles(0x81BA, 6);
-    nes_write(RAM16((uint8_t)(0x1E + x)), a);
+    mem_write(RAM16((uint8_t)(0x1E + x)), a);
     mff_cycles(0x81BC, 0);
     mff_unreachable(0x81BC); return;   /* data: the branch above always goes */
 }
@@ -726,8 +726,8 @@ void func_81E4_b3(void) {
     x = 0x03;
     for (;;) {
         mff_cycles(0x81E8, 14);
-        RAM(0x0754 + x) = a;
-        RAM(0x0750 + x) = a;
+        RAM(SND_MUSIC_PTR_HI + x) = a;
+        RAM(SND_MUSIC_PTR_LO + x) = a;
         x--;
         n = (x) >> 7;
         if (n) break;
@@ -748,13 +748,13 @@ void func_81E4_b3(void) {
             if (!mff_call_at(0x01FC, 0x80D8, 3)) return;
             SYNC_IN;
             mff_cycles(0x81FD, 10);
-            a = RAM(0x0754 + x);
-            a |= RAM(0x0750 + x);
+            a = RAM(SND_MUSIC_PTR_HI + x);
+            a |= RAM(SND_MUSIC_PTR_LO + x);
             z = (a) == 0;
             if (!z) {
                 mff_cycles(0x8205, 7);
                 a = 0xFF;
-                RAM(0x077C + x) = a;
+                RAM(SND_PERIOD_HI_CACHE + x) = a;
             } else {
                 mff_cycles(0x8203, 1);
             }
@@ -771,14 +771,14 @@ void func_81E4_b3(void) {
     a = mff_pull();
     RAM(SND_EFFECT_CHANNELS) = a;
     a = 0x08;
-    nes_write(0x4001, a);
+    hw_write(APU_PULSE1 + 1, a);
     mff_cycles(0x8215, 4);
-    nes_write(0x4005, a);
+    hw_write(APU_PULSE2 + 1, a);
     mff_cycles(0x8218, 6);
     a = 0x0F;
     n = (a) >> 7;
     z = (a) == 0;
-    nes_write(0x4015, a);
+    hw_write(APU_STATUS, a);
     mff_cycles(0x821D, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -802,13 +802,13 @@ void func_81F1_b3(void) {
             if (!mff_call_at(0x01FC, 0x80D8, 3)) return;
             SYNC_IN;
             mff_cycles(0x81FD, 10);
-            a = RAM(0x0754 + x);
-            a |= RAM(0x0750 + x);
+            a = RAM(SND_MUSIC_PTR_HI + x);
+            a |= RAM(SND_MUSIC_PTR_LO + x);
             z = (a) == 0;
             if (!z) {
                 mff_cycles(0x8205, 7);
                 a = 0xFF;
-                RAM(0x077C + x) = a;
+                RAM(SND_PERIOD_HI_CACHE + x) = a;
             } else {
                 mff_cycles(0x8203, 1);
             }
@@ -825,14 +825,14 @@ void func_81F1_b3(void) {
     a = mff_pull();
     RAM(SND_EFFECT_CHANNELS) = a;
     a = 0x08;
-    nes_write(0x4001, a);
+    hw_write(APU_PULSE1 + 1, a);
     mff_cycles(0x8215, 4);
-    nes_write(0x4005, a);
+    hw_write(APU_PULSE2 + 1, a);
     mff_cycles(0x8218, 6);
     a = 0x0F;
     n = (a) >> 7;
     z = (a) == 0;
-    nes_write(0x4015, a);
+    hw_write(APU_STATUS, a);
     mff_cycles(0x821D, 6);
     SYNC_OUT;
     mff_rts(); return;
@@ -1061,7 +1061,7 @@ L_82A6:;
 void func_82DE_b3(void) {
     REGS_IN;
     mff_cycles(0x82DE, 6);
-    y = RAM(0x0700 + x);
+    y = RAM(SND_INSTRUMENT + x);
     n = (y) >> 7;
     z = (y) == 0;
     if (!z) {
@@ -1102,13 +1102,13 @@ L_82FA:;
     mff_rts(); return;
 L_82FB:;
     mff_cycles(0x82FB, 9);
-    t = (uint8_t)(RAM(0x0710 + x) - 1); RAM(0x0710 + x) = t;
+    t = (uint8_t)(RAM(SND_LEVEL + x) - 1); RAM(SND_LEVEL + x) = t;
     n = (t) >> 7;
     z = (t) == 0;
     if (!z) { mff_cycles(0x82FA, 2); goto L_82FA; }
 L_8300:;
     mff_cycles(0x8300, 8);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0x04;
     n = (a) >> 7;
     z = (a) == 0;
@@ -1191,23 +1191,23 @@ void func_8333_b3(void) {
     z = (y) == 0;
     if (z) {
         mff_cycles(0x8339, 21);
-        RAM(0x0710 + x) = a;
-        a = RAM(0x0704 + x);
+        RAM(SND_LEVEL + x) = a;
+        a = RAM(SND_ENV + x);
         a &= 0xF8;
         a |= 0x04;
         n = (a) >> 7;
         z = (a) == 0;
-        RAM(0x0704 + x) = a;
+        RAM(SND_ENV + x) = a;
         SYNC_OUT;
         nes_cpu_instruction_boundary(0x80D8, 2); call_by_address_tail(0x80D8, 3); return;
     } else {
         mff_cycles(0x8337, 1);
     }
     mff_cycles(0x8349, 21);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a |= 0x20;
-    RAM(0x0704 + x) = a;
-    a = RAM(0x0718 + x);
+    RAM(SND_ENV + x) = a;
+    a = RAM(SND_SLIDE_AMOUNT + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = 0x54;
     if (!c) {
@@ -1217,7 +1217,7 @@ void func_8333_b3(void) {
         mff_cycles(0x8357, 1);
     }
     mff_cycles(0x835B, 9);
-    RAM(0x071C + x) = a;
+    RAM(SND_TARGET + x) = a;
     a = y;
     n = (a) >> 7;
     z = (a) == 0;
@@ -1246,7 +1246,7 @@ void func_8333_b3(void) {
     SYNC_IN;
     mff_cycles(0x836E, 13);
     a = 0xFF;
-    RAM(0x077C + x) = a;
+    RAM(SND_PERIOD_HI_CACHE + x) = a;
     y--;
     a = x;
     z = (a) == 0;
@@ -1301,18 +1301,18 @@ void func_8393_b3(void) {
     a = x;
     a |= 0x28;
     x = a;
-    a = RAM(0x0728 + x);
-    a |= RAM(0x072C + x);
+    a = RAM(SND_M_INSTRUMENT + x);
+    a |= RAM(SND_M_ENV + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (z) { mff_cycles(0x839D, 1); goto L_83CC; }
     mff_cycles(0x839F, 6);
-    a = RAM(0x0738 + x);
+    a = RAM(SND_M_LEVEL + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (z) { mff_cycles(0x83A2, 1); goto L_83CD; }
     mff_cycles(0x83A4, 6);
-    y = RAM(0x0700 + x);
+    y = RAM(SND_INSTRUMENT + x);
     n = (y) >> 7;
     z = (y) == 0;
     if (!z) {
@@ -1328,12 +1328,12 @@ void func_8393_b3(void) {
         mff_cycles(0x83A7, 1);
     }
     mff_cycles(0x83AF, 16);
-    a = RAM(0x0740 + x);
+    a = RAM(SND_M_SLIDE + x);
     c = 1;
     m = RAM(SND_TICKS); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0740 + x) = a;
+    RAM(SND_M_SLIDE + x) = a;
     if (z) { mff_cycles(0x83B8, 1); goto L_83BC; }
     mff_cycles(0x83BA, 2);
     if (c) { mff_cycles(0x83BA, 1); goto L_83BF; }
@@ -1344,12 +1344,12 @@ L_83BC:;
     SYNC_IN;
 L_83BF:;
     mff_cycles(0x83BF, 16);
-    a = RAM(0x0738 + x);
+    a = RAM(SND_M_LEVEL + x);
     c = 1;
     m = RAM(SND_TICKS); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0738 + x) = a;
+    RAM(SND_M_LEVEL + x) = a;
     if (z) { mff_cycles(0x83C8, 1); goto L_83CD; }
     mff_cycles(0x83CA, 2);
     if (!c) { mff_cycles(0x83CA, 1); goto L_83CD; }
@@ -1386,13 +1386,13 @@ L_83CD:;
     a &= 0x07;
     y = a;
     y--;
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     n = (t) >> 7;
     if (!n) { mff_cycles(0x83E8, 1); goto L_83EF; }
     mff_cycles(0x83EA, 4);
-    a = nes_read((uint16_t)(0x8915 + y));
+    a = prg_read((uint16_t)(0x8915 + y));
     z = (a) == 0;
     mff_cycles(0x83ED, 2);
     if (!z) { mff_cycles(0x83ED, 2); goto L_8406; }
@@ -1400,14 +1400,14 @@ L_83EF:;
     mff_cycles(0x83EF, 8);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-    a = nes_read((uint16_t)(0x891C + y));
+    a = prg_read((uint16_t)(0x891C + y));
     mff_cycles(0x83F4, 2);
     if (c) {
         mff_cycles(0x83F6, 24);
         RAM(SND_TMP + 2) = a;
-        a = RAM(0x0730 + x);
+        a = RAM(SND_M_LFO + x);
         a &= 0xEF;
-        RAM(0x0730 + x) = a;
+        RAM(SND_M_LFO + x) = a;
         a = RAM(SND_TMP + 2);
         t = a; c = t & 1; t >>= 1; a = t;
         c = 0;
@@ -1418,8 +1418,8 @@ L_83EF:;
 L_8406:;
     mff_cycles(0x8406, 21);
     c = 0;
-    m = RAM(0x0738 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0738 + x) = a;
+    m = RAM(SND_M_LEVEL + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_M_LEVEL + x) = a;
     y = a;
     a = mff_pull();
     a &= 0x1F;
@@ -1439,7 +1439,7 @@ L_8406:;
     mff_cycles(0x8419, 19);
     mff_push(a);
     RAM(SND_TMP + 3) = y;
-    a = RAM(0x073C + x);
+    a = RAM(SND_M_DETUNE + x);
     n = (a) >> 7;
     z = (a) == 0;
     RAM(SND_TMP) = a;
@@ -1456,16 +1456,16 @@ L_8406:;
         mff_cycles(0x8426, 1);
     }
     mff_cycles(0x842A, 19);
-    RAM(0x0740 + x) = a;
+    RAM(SND_M_SLIDE + x) = a;
     a = mff_pull();
     y = a;
     y--;
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!n) { mff_cycles(0x8433, 1); goto L_8440; }
     mff_cycles(0x8435, 6);
-    a = RAM(0x0718 + x);
+    a = RAM(SND_SLIDE_AMOUNT + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) { mff_cycles(0x8438, 1); goto L_8454; }
@@ -1491,7 +1491,7 @@ L_8440:;
         a &= 0x03;
         y = a;
         a = 0xFF;
-        RAM(0x077C + y) = a;
+        RAM(SND_PERIOD_HI_CACHE + y) = a;
         y = RAM(SND_TMP + 2);
     } else {
         mff_cycles(0x8445, 1);
@@ -1520,24 +1520,24 @@ L_8454:;
     }
     mff_cycles(0x8466, 15);
     RAM(SND_TMP + 2) = y;
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     a &= 0x0F;
     y = a;
-    a = nes_read((uint16_t)(0x8923 + y));
+    a = prg_read((uint16_t)(0x8923 + y));
     mff_cycles(0x8471, 22);
     c = 0;
     m = RAM(SND_TMP + 2); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     c = 0;
     m = RAM(SND_TRANSPOSE); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     c = 0;
-    m = RAM(0x0734 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_M_VOLUME + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     SYNC_OUT;
     if (!mff_call_at(0x047D, 0x85DE, 3)) return;
     SYNC_IN;
     mff_cycles(0x847E, 27);
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     y = a;
     a &= 0x40;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
@@ -1547,13 +1547,13 @@ L_8454:;
     a |= RAM(SND_TMP + 3);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0730 + x) = a;
+    RAM(SND_M_LFO + x) = a;
     if (n) {
         mff_cycles(0x8491, 7);
         a = 0xFF;
         n = (a) >> 7;
         z = (a) == 0;
-        RAM(0x0740 + x) = a;
+        RAM(SND_M_SLIDE + x) = a;
     } else {
         mff_cycles(0x848F, 1);
     }
@@ -1593,13 +1593,13 @@ void func_83CD_b3(void) {
     a &= 0x07;
     y = a;
     y--;
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     n = (t) >> 7;
     if (!n) { mff_cycles(0x83E8, 1); goto L_83EF; }
     mff_cycles(0x83EA, 4);
-    a = nes_read((uint16_t)(0x8915 + y));
+    a = prg_read((uint16_t)(0x8915 + y));
     z = (a) == 0;
     mff_cycles(0x83ED, 2);
     if (!z) { mff_cycles(0x83ED, 2); goto L_8406; }
@@ -1607,14 +1607,14 @@ L_83EF:;
     mff_cycles(0x83EF, 8);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-    a = nes_read((uint16_t)(0x891C + y));
+    a = prg_read((uint16_t)(0x891C + y));
     mff_cycles(0x83F4, 2);
     if (c) {
         mff_cycles(0x83F6, 24);
         RAM(SND_TMP + 2) = a;
-        a = RAM(0x0730 + x);
+        a = RAM(SND_M_LFO + x);
         a &= 0xEF;
-        RAM(0x0730 + x) = a;
+        RAM(SND_M_LFO + x) = a;
         a = RAM(SND_TMP + 2);
         t = a; c = t & 1; t >>= 1; a = t;
         c = 0;
@@ -1625,8 +1625,8 @@ L_83EF:;
 L_8406:;
     mff_cycles(0x8406, 21);
     c = 0;
-    m = RAM(0x0738 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0738 + x) = a;
+    m = RAM(SND_M_LEVEL + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_M_LEVEL + x) = a;
     y = a;
     a = mff_pull();
     a &= 0x1F;
@@ -1646,7 +1646,7 @@ L_8406:;
     mff_cycles(0x8419, 19);
     mff_push(a);
     RAM(SND_TMP + 3) = y;
-    a = RAM(0x073C + x);
+    a = RAM(SND_M_DETUNE + x);
     n = (a) >> 7;
     z = (a) == 0;
     RAM(SND_TMP) = a;
@@ -1663,16 +1663,16 @@ L_8406:;
         mff_cycles(0x8426, 1);
     }
     mff_cycles(0x842A, 19);
-    RAM(0x0740 + x) = a;
+    RAM(SND_M_SLIDE + x) = a;
     a = mff_pull();
     y = a;
     y--;
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!n) { mff_cycles(0x8433, 1); goto L_8440; }
     mff_cycles(0x8435, 6);
-    a = RAM(0x0718 + x);
+    a = RAM(SND_SLIDE_AMOUNT + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) { mff_cycles(0x8438, 1); goto L_8454; }
@@ -1698,7 +1698,7 @@ L_8440:;
         a &= 0x03;
         y = a;
         a = 0xFF;
-        RAM(0x077C + y) = a;
+        RAM(SND_PERIOD_HI_CACHE + y) = a;
         y = RAM(SND_TMP + 2);
     } else {
         mff_cycles(0x8445, 1);
@@ -1727,24 +1727,24 @@ L_8454:;
     }
     mff_cycles(0x8466, 15);
     RAM(SND_TMP + 2) = y;
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     a &= 0x0F;
     y = a;
-    a = nes_read((uint16_t)(0x8923 + y));
+    a = prg_read((uint16_t)(0x8923 + y));
     mff_cycles(0x8471, 22);
     c = 0;
     m = RAM(SND_TMP + 2); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     c = 0;
     m = RAM(SND_TRANSPOSE); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     c = 0;
-    m = RAM(0x0734 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_M_VOLUME + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     SYNC_OUT;
     if (!mff_call_at(0x047D, 0x85DE, 3)) return;
     SYNC_IN;
     mff_cycles(0x847E, 27);
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     y = a;
     a &= 0x40;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
@@ -1754,13 +1754,13 @@ L_8454:;
     a |= RAM(SND_TMP + 3);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0730 + x) = a;
+    RAM(SND_M_LFO + x) = a;
     if (n) {
         mff_cycles(0x8491, 7);
         a = 0xFF;
         n = (a) >> 7;
         z = (a) == 0;
-        RAM(0x0740 + x) = a;
+        RAM(SND_M_SLIDE + x) = a;
     } else {
         mff_cycles(0x848F, 1);
     }
@@ -1773,7 +1773,7 @@ L_8454:;
 void func_847E_b3(void) {
     REGS_IN;
     mff_cycles(0x847E, 27);
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     y = a;
     a &= 0x40;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
@@ -1783,13 +1783,13 @@ void func_847E_b3(void) {
     a |= RAM(SND_TMP + 3);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0730 + x) = a;
+    RAM(SND_M_LFO + x) = a;
     if (n) {
         mff_cycles(0x8491, 7);
         a = 0xFF;
         n = (a) >> 7;
         z = (a) == 0;
-        RAM(0x0740 + x) = a;
+        RAM(SND_M_SLIDE + x) = a;
     } else {
         mff_cycles(0x848F, 1);
     }
@@ -1805,7 +1805,7 @@ void func_8491_b3(void) {
     a = 0xFF;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0740 + x) = a;
+    RAM(SND_M_SLIDE + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -1836,31 +1836,31 @@ void func_8497_b3(void) {
     if (!mff_call_at(0x04A6, 0x8023, 3)) return;
     SYNC_IN;
     mff_cycles(0x84A7, 4);
-    m = nes_read((uint16_t)(0xDD84 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0xDD84 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x84AA, 78);
     RAM(SOUND_QUEUE + 5) = y;
     RAM(CHR_BANKS) = y;
     RAM(SPAWN_LIST_X_HI + 1) = y;
-    RAM(0xF1) = a;
+    RAM(UNK_F1) = a;
     RAM(PPUCTRL_SHADOW) = y;
-    RAM(0x5A) = y;
+    RAM(UNK_5A) = y;
     RAM(PLAYER_STAND_ANIM) = x;
-    RAM(0x05) = x;
-    RAM(0x10) = a;
+    RAM(TMP5) = x;
+    RAM(TMP16) = a;
     RAM(JOY_PRESSED + 1) = a;
     RAM(NMI_RETURN_PC + 1) = a;
     RAM(ATTACK_ID) = x;
-    RAM(0x1B) = x;
-    RAM(0x1F) = a;
+    RAM(UNK_1B) = x;
+    RAM(UNK_1F) = a;
     RAM(SCROLL_MODE) = a;
     RAM(PLAYER_X_PREV) = a;
-    RAM(0x1B) = a;
-    RAM(0x1F) = a;
+    RAM(UNK_1B) = a;
+    RAM(UNK_1F) = a;
     RAM(SCROLL_MODE) = a;
     RAM(PLAYER_X_PREV) = a;
-    RAM(0x5A) = a;
+    RAM(UNK_5A) = a;
     RAM(TASKS) = a;
     RAM(WEAPON_AMMO) = a;
     RAM(WEAPON_HELD) = x;
@@ -1873,7 +1873,7 @@ void func_8497_b3(void) {
     if (!z) { mff_cycles(0x84DF, 1); goto L_84EA; }
     mff_cycles(0x84E1, 8);
     a = 0x10;
-    a |= RAM(0x0730 + x);
+    a |= RAM(SND_M_LFO + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) { mff_cycles(0x84E6, 1); goto L_84ED; }
@@ -1881,12 +1881,12 @@ void func_8497_b3(void) {
     a = 0x08;
 L_84EA:;
     mff_cycles(0x84EA, 4);
-    a ^= RAM(0x0730 + x);
+    a ^= RAM(SND_M_LFO + x);
     n = (a) >> 7;
     z = (a) == 0;
 L_84ED:;
     mff_cycles(0x84ED, 11);
-    RAM(0x0730 + x) = a;
+    RAM(SND_M_LFO + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -1904,7 +1904,7 @@ void func_84D9_b3(void) {
     if (!z) { mff_cycles(0x84DF, 1); goto L_84EA; }
     mff_cycles(0x84E1, 8);
     a = 0x10;
-    a |= RAM(0x0730 + x);
+    a |= RAM(SND_M_LFO + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) { mff_cycles(0x84E6, 1); goto L_84ED; }
@@ -1912,12 +1912,12 @@ void func_84D9_b3(void) {
     a = 0x08;
 L_84EA:;
     mff_cycles(0x84EA, 4);
-    a ^= RAM(0x0730 + x);
+    a ^= RAM(SND_M_LFO + x);
     n = (a) >> 7;
     z = (a) == 0;
 L_84ED:;
     mff_cycles(0x84ED, 11);
-    RAM(0x0730 + x) = a;
+    RAM(SND_M_LFO + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -1931,7 +1931,7 @@ void func_84DD_b3(void) {
     if (!z) { mff_cycles(0x84DF, 1); goto L_84EA; }
     mff_cycles(0x84E1, 8);
     a = 0x10;
-    a |= RAM(0x0730 + x);
+    a |= RAM(SND_M_LFO + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) { mff_cycles(0x84E6, 1); goto L_84ED; }
@@ -1939,12 +1939,12 @@ void func_84DD_b3(void) {
     a = 0x08;
 L_84EA:;
     mff_cycles(0x84EA, 4);
-    a ^= RAM(0x0730 + x);
+    a ^= RAM(SND_M_LFO + x);
     n = (a) >> 7;
     z = (a) == 0;
 L_84ED:;
     mff_cycles(0x84ED, 11);
-    RAM(0x0730 + x) = a;
+    RAM(SND_M_LFO + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -1954,20 +1954,20 @@ void func_84E1_b3(void) {
     REGS_IN;
     mff_cycles(0x84E1, 8);
     a = 0x10;
-    a |= RAM(0x0730 + x);
+    a |= RAM(SND_M_LFO + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (z) {
         mff_cycles(0x84E8, 6);
         a = 0x08;
-        a ^= RAM(0x0730 + x);
+        a ^= RAM(SND_M_LFO + x);
         n = (a) >> 7;
         z = (a) == 0;
     } else {
         mff_cycles(0x84E6, 1);
     }
     mff_cycles(0x84ED, 11);
-    RAM(0x0730 + x) = a;
+    RAM(SND_M_LFO + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -1977,10 +1977,10 @@ void func_84E8_b3(void) {
     REGS_IN;
     mff_cycles(0x84E8, 17);
     a = 0x08;
-    a ^= RAM(0x0730 + x);
+    a ^= RAM(SND_M_LFO + x);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0730 + x) = a;
+    RAM(SND_M_LFO + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2013,7 +2013,7 @@ void func_84FF_b3(void) {
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x073C + x) = a;
+    RAM(SND_M_DETUNE + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2022,12 +2022,12 @@ void func_84FF_b3(void) {
 void func_8505_b3(void) {
     REGS_IN;
     mff_cycles(0x8505, 20);
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     a &= 0xF8;
     a |= RAM(SND_TMP + 2);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0730 + x) = a;
+    RAM(SND_M_LFO + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2051,7 +2051,7 @@ void func_8515_b3(void) {
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0734 + x) = a;
+    RAM(SND_M_VOLUME + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2092,7 +2092,7 @@ void func_851B_b3(void) {
     m = 0x12; c = a >= m;
     if (c) { mff_cycles(0x8534, 1); goto L_8547; }
     mff_cycles(0x8536, 10);
-    a = RAM(0x0744 + y);
+    a = RAM(SND_M_TARGET + y);
     c = 1;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
@@ -2106,20 +2106,20 @@ void func_851B_b3(void) {
         mff_cycles(0x853C, 1);
     }
     mff_cycles(0x8540, 7);
-    RAM(0x0744 + y) = a;
+    RAM(SND_M_TARGET + y) = a;
     if (z) { mff_cycles(0x8543, 1); goto L_8566; }
     mff_cycles(0x8545, 2);
     if (!z) { mff_cycles(0x8545, 1); goto L_8555; }
 L_8547:;
     mff_cycles(0x8547, 10);
-    a = RAM(0x0744 + y);
+    a = RAM(SND_M_TARGET + y);
     c = 1;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) { mff_cycles(0x854D, 1); goto L_8566; }
     mff_cycles(0x854F, 11);
-    RAM(0x0744 + y) = a;
+    RAM(SND_M_TARGET + y) = a;
     SYNC_OUT;
     if (!mff_call_at(0x0554, 0x8575, 3)) return;
     SYNC_IN;
@@ -2134,24 +2134,24 @@ L_8555:;
     if (!mff_call_at(0x055C, 0x8592, 3)) return;
     SYNC_IN;
     mff_cycles(0x855D, 19);
-    RAM(0x0728 + x) = a;
+    RAM(SND_M_INSTRUMENT + x) = a;
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x072C + x) = a;
+    RAM(SND_M_ENV + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 L_8566:;
     mff_cycles(0x8566, 15);
     a = 0x02;
     c = 0;
-    m = RAM(0x0728 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_M_INSTRUMENT + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0728 + x) = a;
+    RAM(SND_M_INSTRUMENT + x) = a;
     if (c) {
         mff_cycles(0x8571, 7);
-        t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
+        t = (uint8_t)(RAM(SND_M_ENV + x) + 1); RAM(SND_M_ENV + x) = t;
         n = (t) >> 7;
         z = (t) == 0;
     } else {
@@ -2191,7 +2191,7 @@ void func_851F_b3(void) {
     m = 0x12; c = a >= m;
     if (c) { mff_cycles(0x8534, 1); goto L_8547; }
     mff_cycles(0x8536, 10);
-    a = RAM(0x0744 + y);
+    a = RAM(SND_M_TARGET + y);
     c = 1;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
@@ -2205,20 +2205,20 @@ void func_851F_b3(void) {
         mff_cycles(0x853C, 1);
     }
     mff_cycles(0x8540, 7);
-    RAM(0x0744 + y) = a;
+    RAM(SND_M_TARGET + y) = a;
     if (z) { mff_cycles(0x8543, 1); goto L_8566; }
     mff_cycles(0x8545, 2);
     if (!z) { mff_cycles(0x8545, 1); goto L_8555; }
 L_8547:;
     mff_cycles(0x8547, 10);
-    a = RAM(0x0744 + y);
+    a = RAM(SND_M_TARGET + y);
     c = 1;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) { mff_cycles(0x854D, 1); goto L_8566; }
     mff_cycles(0x854F, 11);
-    RAM(0x0744 + y) = a;
+    RAM(SND_M_TARGET + y) = a;
     SYNC_OUT;
     if (!mff_call_at(0x0554, 0x8575, 3)) return;
     SYNC_IN;
@@ -2233,24 +2233,24 @@ L_8555:;
     if (!mff_call_at(0x055C, 0x8592, 3)) return;
     SYNC_IN;
     mff_cycles(0x855D, 19);
-    RAM(0x0728 + x) = a;
+    RAM(SND_M_INSTRUMENT + x) = a;
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x072C + x) = a;
+    RAM(SND_M_ENV + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 L_8566:;
     mff_cycles(0x8566, 15);
     a = 0x02;
     c = 0;
-    m = RAM(0x0728 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_M_INSTRUMENT + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0728 + x) = a;
+    RAM(SND_M_INSTRUMENT + x) = a;
     if (c) {
         mff_cycles(0x8571, 7);
-        t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
+        t = (uint8_t)(RAM(SND_M_ENV + x) + 1); RAM(SND_M_ENV + x) = t;
         n = (t) >> 7;
         z = (t) == 0;
     } else {
@@ -2283,7 +2283,7 @@ void func_8523_b3(void) {
     m = 0x12; c = a >= m;
     if (c) { mff_cycles(0x8534, 1); goto L_8547; }
     mff_cycles(0x8536, 10);
-    a = RAM(0x0744 + y);
+    a = RAM(SND_M_TARGET + y);
     c = 1;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
@@ -2297,20 +2297,20 @@ void func_8523_b3(void) {
         mff_cycles(0x853C, 1);
     }
     mff_cycles(0x8540, 7);
-    RAM(0x0744 + y) = a;
+    RAM(SND_M_TARGET + y) = a;
     if (z) { mff_cycles(0x8543, 1); goto L_8566; }
     mff_cycles(0x8545, 2);
     if (!z) { mff_cycles(0x8545, 1); goto L_8555; }
 L_8547:;
     mff_cycles(0x8547, 10);
-    a = RAM(0x0744 + y);
+    a = RAM(SND_M_TARGET + y);
     c = 1;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) { mff_cycles(0x854D, 1); goto L_8566; }
     mff_cycles(0x854F, 11);
-    RAM(0x0744 + y) = a;
+    RAM(SND_M_TARGET + y) = a;
     SYNC_OUT;
     if (!mff_call_at(0x0554, 0x8575, 3)) return;
     SYNC_IN;
@@ -2325,24 +2325,24 @@ L_8555:;
     if (!mff_call_at(0x055C, 0x8592, 3)) return;
     SYNC_IN;
     mff_cycles(0x855D, 19);
-    RAM(0x0728 + x) = a;
+    RAM(SND_M_INSTRUMENT + x) = a;
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x072C + x) = a;
+    RAM(SND_M_ENV + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 L_8566:;
     mff_cycles(0x8566, 15);
     a = 0x02;
     c = 0;
-    m = RAM(0x0728 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_M_INSTRUMENT + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0728 + x) = a;
+    RAM(SND_M_INSTRUMENT + x) = a;
     if (c) {
         mff_cycles(0x8571, 7);
-        t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
+        t = (uint8_t)(RAM(SND_M_ENV + x) + 1); RAM(SND_M_ENV + x) = t;
         n = (t) >> 7;
         z = (t) == 0;
     } else {
@@ -2367,7 +2367,7 @@ void func_8527_b3(void) {
     m = 0x12; c = a >= m;
     if (c) { mff_cycles(0x8534, 1); goto L_8547; }
     mff_cycles(0x8536, 10);
-    a = RAM(0x0744 + y);
+    a = RAM(SND_M_TARGET + y);
     c = 1;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
@@ -2381,20 +2381,20 @@ void func_8527_b3(void) {
         mff_cycles(0x853C, 1);
     }
     mff_cycles(0x8540, 7);
-    RAM(0x0744 + y) = a;
+    RAM(SND_M_TARGET + y) = a;
     if (z) { mff_cycles(0x8543, 1); goto L_8566; }
     mff_cycles(0x8545, 2);
     if (!z) { mff_cycles(0x8545, 1); goto L_8555; }
 L_8547:;
     mff_cycles(0x8547, 10);
-    a = RAM(0x0744 + y);
+    a = RAM(SND_M_TARGET + y);
     c = 1;
     m = 0x01; w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) { mff_cycles(0x854D, 1); goto L_8566; }
     mff_cycles(0x854F, 11);
-    RAM(0x0744 + y) = a;
+    RAM(SND_M_TARGET + y) = a;
     SYNC_OUT;
     if (!mff_call_at(0x0554, 0x8575, 3)) return;
     SYNC_IN;
@@ -2409,24 +2409,24 @@ L_8555:;
     if (!mff_call_at(0x055C, 0x8592, 3)) return;
     SYNC_IN;
     mff_cycles(0x855D, 19);
-    RAM(0x0728 + x) = a;
+    RAM(SND_M_INSTRUMENT + x) = a;
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x072C + x) = a;
+    RAM(SND_M_ENV + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 L_8566:;
     mff_cycles(0x8566, 15);
     a = 0x02;
     c = 0;
-    m = RAM(0x0728 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_M_INSTRUMENT + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0728 + x) = a;
+    RAM(SND_M_INSTRUMENT + x) = a;
     if (c) {
         mff_cycles(0x8571, 7);
-        t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
+        t = (uint8_t)(RAM(SND_M_ENV + x) + 1); RAM(SND_M_ENV + x) = t;
         n = (t) >> 7;
         z = (t) == 0;
     } else {
@@ -2445,11 +2445,11 @@ void func_855A_b3(void) {
     if (!mff_call_at(0x055C, 0x8592, 3)) return;
     SYNC_IN;
     mff_cycles(0x855D, 19);
-    RAM(0x0728 + x) = a;
+    RAM(SND_M_INSTRUMENT + x) = a;
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x072C + x) = a;
+    RAM(SND_M_ENV + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2458,12 +2458,12 @@ void func_855A_b3(void) {
 void func_8575_b3(void) {
     REGS_IN;
     mff_cycles(0x8575, 20);
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     a &= 0x97;
     a |= RAM(SND_TMP + 2);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0730 + x) = a;
+    RAM(SND_M_LFO + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2475,8 +2475,8 @@ void func_8580_b3(void) {
     a = mff_pull();
     a = mff_pull();
     a = 0x00;
-    RAM(0x0728 + x) = a;
-    RAM(0x072C + x) = a;
+    RAM(SND_M_INSTRUMENT + x) = a;
+    RAM(SND_M_ENV + x) = a;
     a = RAM(SND_EFFECT_CHANNELS);
     n = (a) >> 7;
     z = (a) == 0;
@@ -2496,14 +2496,14 @@ void func_8580_b3(void) {
 void func_8592_b3(void) {
     REGS_IN;
     mff_cycles(0x8592, 17);
-    y = RAM(0x0728 + x);
-    a = RAM(0x072C + x);
-    t = (uint8_t)(RAM(0x0728 + x) + 1); RAM(0x0728 + x) = t;
+    y = RAM(SND_M_INSTRUMENT + x);
+    a = RAM(SND_M_ENV + x);
+    t = (uint8_t)(RAM(SND_M_INSTRUMENT + x) + 1); RAM(SND_M_INSTRUMENT + x) = t;
     n = (t) >> 7;
     z = (t) == 0;
     if (z) {
         mff_cycles(0x859D, 7);
-        t = (uint8_t)(RAM(0x072C + x) + 1); RAM(0x072C + x) = t;
+        t = (uint8_t)(RAM(SND_M_ENV + x) + 1); RAM(SND_M_ENV + x) = t;
         n = (t) >> 7;
         z = (t) == 0;
     } else {
@@ -2518,12 +2518,12 @@ void func_8592_b3(void) {
 void func_85A3_b3(void) {
     REGS_IN;
     mff_cycles(0x85A3, 19);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0xF8;
     a |= 0x03;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2535,9 +2535,9 @@ void func_85AE_b3(void) {
     a = y;
     mff_push(a);
     y = 0x00;
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0xF8;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
     m = 0x29; c = x >= m;
     z = ((uint8_t)(x - m)) == 0;
     if (z) { mff_cycles(0x85BC, 1); goto L_85D0; }
@@ -2548,7 +2548,7 @@ void func_85AE_b3(void) {
     mff_cycles(0x85C2, 19);
     a = RAM(SND_EFFECT_ROW_FRAMES);
     RAM(SND_TMP) = a;
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     n = (a) >> 7;
     z = (a) == 0;
     RAM(SND_TMP + 3) = a;
@@ -2560,12 +2560,12 @@ void func_85AE_b3(void) {
 L_85D0:;
     mff_cycles(0x85D0, 16);
     y++;
-    t = (uint8_t)(RAM(0x0704 + x) + 1); RAM(0x0704 + x) = t;
-    t = (uint8_t)(RAM(0x0704 + x) + 1); RAM(0x0704 + x) = t;
+    t = (uint8_t)(RAM(SND_ENV + x) + 1); RAM(SND_ENV + x) = t;
+    t = (uint8_t)(RAM(SND_ENV + x) + 1); RAM(SND_ENV + x) = t;
 L_85D7:;
     mff_cycles(0x85D7, 19);
     a = y;
-    RAM(0x0710 + x) = a;
+    RAM(SND_LEVEL + x) = a;
     a = mff_pull();
     y = a;
     n = (y) >> 7;
@@ -2591,7 +2591,7 @@ void func_85DE_b3(void) {
     m = 0x28; c = x >= m;
     if (!c) { mff_cycles(0x85EA, 2); goto L_862A; }
     mff_cycles(0x85EC, 6);
-    a = RAM(0x071C + x);
+    a = RAM(SND_TARGET + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x85EF, 2); goto L_861D; }
     mff_cycles(0x85F1, 5);
@@ -2599,14 +2599,14 @@ void func_85DE_b3(void) {
     z = ((uint8_t)(a - m)) == 0;
     if (!z) { mff_cycles(0x85F3, 1); goto L_85FC; }
     mff_cycles(0x85F5, 6);
-    a = RAM(0x0730 + x);
+    a = RAM(SND_M_LFO + x);
     n = (a) >> 7;
     if (!n) { mff_cycles(0x85F8, 2); goto L_861D; }
     mff_cycles(0x85FA, 2);
     if (n) { mff_cycles(0x85FA, 2); goto L_8644; }
 L_85FC:;
     mff_cycles(0x85FC, 6);
-    a = RAM(0x0718 + x);
+    a = RAM(SND_SLIDE_AMOUNT + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x85FF, 1); goto L_861D; }
     mff_cycles(0x8601, 2);
@@ -2620,44 +2620,44 @@ L_8607:;
     a &= 0x7F;
 L_8609:;
     mff_cycles(0x8609, 28);
-    RAM(0x0718 + x) = a;
-    a = RAM(0x0704 + x);
+    RAM(SND_SLIDE_AMOUNT + x) = a;
+    a = RAM(SND_ENV + x);
     a |= 0x20;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
     a = RAM(SND_TMP + 2);
-    y = RAM(0x071C + x);
+    y = RAM(SND_TARGET + x);
     z = (y) == 0;
     RAM(SND_TMP + 2) = y;
     if (!z) { mff_cycles(0x861B, 1); goto L_8627; }
 L_861D:;
     mff_cycles(0x861D, 14);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0xDF;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
     a = RAM(SND_TMP + 2);
 L_8627:;
     mff_cycles(0x8627, 5);
-    RAM(0x071C + x) = a;
+    RAM(SND_TARGET + x) = a;
 L_862A:;
     mff_cycles(0x862A, 12);
     t = RAM(SND_TMP + 2); c = t >> 7; t = (uint8_t)(t << 1); RAM(SND_TMP + 2) = t;
     y = RAM(SND_TMP + 2);
-    a = nes_read((uint16_t)(0x8959 + y));
+    a = prg_read((uint16_t)(0x8959 + y));
     mff_cycles(0x8631, 7);
     RAM(SND_TMP + 2) = a;
-    a = nes_read((uint16_t)(0x895A + y));
+    a = prg_read((uint16_t)(0x895A + y));
     mff_cycles(0x8636, 20);
-    RAM(0x0724 + x) = a;
+    RAM(SND_PITCH_HI + x) = a;
     a = RAM(SND_TMP + 2);
-    RAM(0x0720 + x) = a;
+    RAM(SND_PITCH_LO + x) = a;
     y = 0x04;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     n = (a) >> 7;
     mff_cycles(0x8642, 2);
     if (n) { mff_cycles(0x8642, 1); goto L_864C; }
 L_8644:;
     mff_cycles(0x8644, 8);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0x08;
     n = (a) >> 7;
     z = (a) == 0;
@@ -2671,12 +2671,12 @@ L_8644:;
 L_864C:;
     mff_cycles(0x864C, 24);
     a = 0x00;
-    RAM(0x0708 + x) = a;
-    a = RAM(0x0704 + x);
+    RAM(SND_LFO + x) = a;
+    a = RAM(SND_ENV + x);
     a &= 0x37;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2685,16 +2685,16 @@ L_864C:;
 void func_8636_b3(void) {
     REGS_IN;
     mff_cycles(0x8636, 20);
-    RAM(0x0724 + x) = a;
+    RAM(SND_PITCH_HI + x) = a;
     a = RAM(SND_TMP + 2);
-    RAM(0x0720 + x) = a;
+    RAM(SND_PITCH_LO + x) = a;
     y = 0x04;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     n = (a) >> 7;
     mff_cycles(0x8642, 2);
     if (!n) {
         mff_cycles(0x8644, 8);
-        a = RAM(0x0704 + x);
+        a = RAM(SND_ENV + x);
         a &= 0x08;
         n = (a) >> 7;
         z = (a) == 0;
@@ -2710,12 +2710,12 @@ void func_8636_b3(void) {
     }
     mff_cycles(0x864C, 24);
     a = 0x00;
-    RAM(0x0708 + x) = a;
-    a = RAM(0x0704 + x);
+    RAM(SND_LFO + x) = a;
+    a = RAM(SND_ENV + x);
     a &= 0x37;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2724,7 +2724,7 @@ void func_8636_b3(void) {
 void func_8644_b3(void) {
     REGS_IN;
     mff_cycles(0x8644, 8);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0x08;
     n = (a) >> 7;
     z = (a) == 0;
@@ -2737,12 +2737,12 @@ void func_8644_b3(void) {
     }
     mff_cycles(0x864C, 24);
     a = 0x00;
-    RAM(0x0708 + x) = a;
-    a = RAM(0x0704 + x);
+    RAM(SND_LFO + x) = a;
+    a = RAM(SND_ENV + x);
     a &= 0x37;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2761,7 +2761,7 @@ void func_865A_b3(void) {
     if (!z) { mff_cycles(0x8660, 1); goto L_866B; }
 L_8662:;
     mff_cycles(0x8662, 11);
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     a &= 0xC0;
     a |= RAM(SND_TMP + 2);
     a |= 0x30;
@@ -2769,7 +2769,7 @@ L_8662:;
     z = (a) == 0;
 L_866B:;
     mff_cycles(0x866B, 11);
-    RAM(0x070C + x) = a;
+    RAM(SND_VOLUME + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2780,16 +2780,16 @@ void func_866F_b3(void) {
     mff_cycles(0x866F, 14);
     t = (uint8_t)(RAM(SND_TMP + 2) + 1); RAM(SND_TMP + 2) = t;
     a = RAM(SND_TMP + 2);
-    m = RAM(0x0700 + x); c = a >= m;
+    m = RAM(SND_INSTRUMENT + x); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
         mff_cycles(0x8678, 54);
-        RAM(0x0700 + x) = a;
+        RAM(SND_INSTRUMENT + x) = a;
         y = a;
-        a = RAM(0x0704 + x);
+        a = RAM(SND_ENV + x);
         a |= 0x08;
-        RAM(0x0704 + x) = a;
+        RAM(SND_ENV + x) = a;
         y--;
         a = 0x00;
         RAM(SND_TMP + 2) = a;
@@ -2801,11 +2801,11 @@ void func_866F_b3(void) {
         t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
         t = RAM(SND_TMP + 2); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP + 2) = t;
         c = 0;
-        m = nes_read(0x8A42); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        m = prg_read(0x8A42); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
         mff_cycles(0x8697, 10);
         RAM(SND_INSTR_PTR) = a;
         a = RAM(SND_TMP + 2);
-        m = nes_read(0x8A41); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        m = prg_read(0x8A41); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
         n = (a) >> 7;
         z = (a) == 0;
         mff_cycles(0x869E, 3);
@@ -2833,11 +2833,11 @@ void func_8684_b3(void) {
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = RAM(SND_TMP + 2); m = t >> 7; t = (uint8_t)(t << 1 | c); c = m; RAM(SND_TMP + 2) = t;
     c = 0;
-    m = nes_read(0x8A42); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = prg_read(0x8A42); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     mff_cycles(0x8697, 10);
     RAM(SND_INSTR_PTR) = a;
     a = RAM(SND_TMP + 2);
-    m = nes_read(0x8A41); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = prg_read(0x8A41); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x869E, 9);
@@ -2853,7 +2853,7 @@ void func_86A1_b3(void) {
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0714 + x) = a;
+    RAM(SND_DETUNE + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2865,7 +2865,7 @@ void func_86A7_b3(void) {
     a = RAM(SND_TMP + 2);
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0718 + x) = a;
+    RAM(SND_SLIDE_AMOUNT + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2874,13 +2874,13 @@ void func_86A7_b3(void) {
 void func_86AD_b3(void) {
     REGS_IN;
     mff_cycles(0x86AD, 22);
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     a &= 0x0F;
     a |= RAM(SND_TMP + 2);
     a |= 0x30;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x070C + x) = a;
+    RAM(SND_VOLUME + x) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2889,9 +2889,9 @@ void func_86AD_b3(void) {
 void func_86BA_b3(void) {
     REGS_IN;
     mff_cycles(0x86BA, 19);
-    a = RAM(0x0710 + x);
+    a = RAM(SND_LEVEL + x);
     RAM(SND_TMP + 3) = a;
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0x07;
     n = (a) >> 7;
     z = (a) == 0;
@@ -2899,7 +2899,7 @@ void func_86BA_b3(void) {
     if (!mff_call_at(0x06C6, 0x8023, 3)) return;
     SYNC_IN;
     mff_cycles(0x86C7, 5);
-    m = nes_read((uint16_t)(RAM16(TASKS + 6) + y)); c = a >= m;
+    m = mem_read((uint16_t)(RAM16(TASKS + 6) + y)); c = a >= m;
     mff_cycles(0x86C9, 11);
     t = (uint8_t)(RAM(TASKS + 6) + 1); RAM(TASKS + 6) = t;
     n = (t) >> 7;
@@ -2916,12 +2916,12 @@ void func_86D1_b3(void) {
     REGS_IN;
     mff_cycles(0x86D1, 7);
     y = 0x00;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x86D5, 11);
     y = a;
     a = RAM(SND_TMP + 3);
     c = 0;
-    m = nes_read((uint16_t)(0x8933 + y)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x8933 + y)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     mff_cycles(0x86DC, 2);
     if (c) { mff_cycles(0x86DC, 1); goto L_86E2; }
     mff_cycles(0x86DE, 4);
@@ -2934,7 +2934,7 @@ L_86E2:;
     if (!z) { mff_cycles(0x86E4, 2); goto L_871A; }
     mff_cycles(0x86E6, 7);
     y = 0x01;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     z = (a) == 0;
     mff_cycles(0x86EA, 2);
     if (z) { mff_cycles(0x86EA, 1); goto L_86FB; }
@@ -2942,18 +2942,18 @@ L_86E2:;
     y = a;
     a = RAM(SND_TMP + 3);
     c = 1;
-    m = nes_read((uint16_t)(0x8933 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x8933 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x86F3, 2);
     if (!c) { mff_cycles(0x86F3, 1); goto L_86FB; }
     mff_cycles(0x86F5, 7);
     y = 0x02;
-    m = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y)); c = a >= m;
+    m = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y)); c = a >= m;
     mff_cycles(0x86F9, 2);
     if (c) { mff_cycles(0x86F9, 2); goto L_871D; }
 L_86FB:;
     mff_cycles(0x86FB, 7);
     y = 0x02;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x86FF, 3);
@@ -2961,10 +2961,10 @@ L_86FB:;
     nes_cpu_instruction_boundary(0x871A, 2); call_by_address_tail(0x871A, 3); return;
 L_871A:;
     mff_cycles(0x871A, 7);
-    t = (uint8_t)(RAM(0x0704 + x) + 1); RAM(0x0704 + x) = t;
+    t = (uint8_t)(RAM(SND_ENV + x) + 1); RAM(SND_ENV + x) = t;
 L_871D:;
     mff_cycles(0x871D, 9);
-    RAM(0x0710 + x) = a;
+    RAM(SND_LEVEL + x) = a;
     m = 0x28; c = x >= m;
     if (!c) { mff_cycles(0x8722, 1); goto L_8737; }
     mff_cycles(0x8724, 5);
@@ -3008,7 +3008,7 @@ L_8740:;
     if (!z) { mff_cycles(0x8742, 1); goto L_875B; }
     mff_cycles(0x8744, 16);
     RAM(SND_TMP + 3) = a;
-    a = RAM(0x0740 + x);
+    a = RAM(SND_M_SLIDE + x);
     n = (a) >> 7;
     z = (a) == 0;
     RAM(SND_TMP) = a;
@@ -3021,7 +3021,7 @@ L_8740:;
     if (z) { mff_cycles(0x8750, 1); goto L_87AA; }
 L_8752:;
     mff_cycles(0x8752, 6);
-    a = RAM(0x0710 + x);
+    a = RAM(SND_LEVEL + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x8755, 1); goto L_87AA; }
     mff_cycles(0x8757, 4);
@@ -3030,11 +3030,11 @@ L_8752:;
     if (!z) { mff_cycles(0x8759, 1); goto L_87AA; }
 L_875B:;
     mff_cycles(0x875B, 6);
-    m = RAM(0x0710 + x); c = a >= m;
+    m = RAM(SND_LEVEL + x); c = a >= m;
     if (!c) { mff_cycles(0x875E, 1); goto L_8763; }
 L_8760:;
     mff_cycles(0x8760, 4);
-    a = RAM(0x0710 + x);
+    a = RAM(SND_LEVEL + x);
 L_8763:;
     mff_cycles(0x8763, 20);
     t = a; c = t & 1; t >>= 1; a = t;
@@ -3044,14 +3044,14 @@ L_8763:;
     a ^= 0x0F;
     RAM(SND_TMP + 2) = a;
     y = 0x06;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x876F, 4);
     m = 0x05; c = a >= m;
     if (!c) { mff_cycles(0x8771, 1); goto L_8797; }
     mff_cycles(0x8773, 19);
     RAM(SND_TMP + 3) = a;
-    y = RAM(0x0708 + x);
-    a = RAM(0x0704 + x);
+    y = RAM(SND_LFO + x);
+    a = RAM(SND_ENV + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = y;
@@ -3090,7 +3090,7 @@ L_8797:;
     mff_cycles(0x8797, 19);
     a = 0x10;
     RAM(SND_TMP + 3) = a;
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     c = 1;
     m = RAM(SND_TMP + 2); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     m = RAM(SND_TMP + 3);
@@ -3099,7 +3099,7 @@ L_8797:;
     if (!z) { mff_cycles(0x87A3, 1); goto L_87AA; }
 L_87A5:;
     mff_cycles(0x87A5, 6);
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     a &= 0xF0;
 L_87AA:;
     mff_cycles(0x87AA, 8);
@@ -3113,19 +3113,19 @@ L_87AA:;
     a = x;
     a &= 0x03;
     y = a;
-    a = RAM(0x077C + y);
+    a = RAM(SND_PERIOD_HI_CACHE + y);
     n = (a) >> 7;
     if (n) { mff_cycles(0x87B6, 2); goto L_880C; }
     mff_cycles(0x87B8, 7);
     y = 0x05;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     z = (a) == 0;
     mff_cycles(0x87BC, 2);
     if (z) { mff_cycles(0x87BC, 2); goto L_880C; }
     mff_cycles(0x87BE, 19);
     RAM(SND_TMP + 3) = a;
-    y = RAM(0x0708 + x);
-    a = RAM(0x0704 + x);
+    y = RAM(SND_LFO + x);
+    a = RAM(SND_ENV + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = y;
@@ -3161,25 +3161,25 @@ L_87AA:;
     z = (a) == 0;
     if (z) { mff_cycles(0x87E5, 2); goto L_880C; }
     mff_cycles(0x87E7, 6);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     n = (a) >> 7;
     if (n) { mff_cycles(0x87EA, 1); goto L_87FA; }
     mff_cycles(0x87EC, 20);
     c = 0;
     a = RAM(SND_TMP + 1);
-    m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_PITCH_LO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     RAM(SND_TMP + 1) = a;
     a = y;
-    m = RAM(0x0724 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_PITCH_HI + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     z = (a) == 0;
     if (!z) { mff_cycles(0x87F8, 2); goto L_8809; }
 L_87FA:;
     mff_cycles(0x87FA, 22);
     c = 1;
-    a = RAM(0x0720 + x);
+    a = RAM(SND_PITCH_LO + x);
     m = RAM(SND_TMP + 1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     RAM(SND_TMP + 1) = a;
-    a = RAM(0x0724 + x);
+    a = RAM(SND_PITCH_HI + x);
     RAM(SND_TMP) = y;
     m = RAM(SND_TMP); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
 L_8809:;
@@ -3189,9 +3189,9 @@ L_8809:;
     if (!z) { mff_cycles(0x880A, 1); goto L_8814; }
 L_880C:;
     mff_cycles(0x880C, 11);
-    a = RAM(0x0720 + x);
+    a = RAM(SND_PITCH_LO + x);
     RAM(SND_TMP + 1) = a;
-    y = RAM(0x0724 + x);
+    y = RAM(SND_PITCH_HI + x);
 L_8814:;
     mff_cycles(0x8814, 4);
     m = 0x28; c = x >= m;
@@ -3240,7 +3240,7 @@ L_8814:;
     a = y;
     a &= 0x0F;
     y = 0x07;
-    a |= nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a |= mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x8841, 10);
     RAM(SND_TMP + 1) = a;
     a = 0x00;
@@ -3254,7 +3254,7 @@ L_8849:;
     for (;;) {
         mff_cycles(0x884C, 6);
         y--;
-        m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
+        m = prg_read((uint16_t)(0x8953 + y)); c = a >= m;
         mff_cycles(0x8850, 2);
         if (c) break;
         mff_cycles(0x884C, 1);
@@ -3289,7 +3289,7 @@ L_8849:;
     }
     mff_cycles(0x8870, 8);
     y = 0x00;
-    a = RAM(0x0714 + x);
+    a = RAM(SND_DETUNE + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) {
@@ -3324,11 +3324,11 @@ L_8884:;
     a &= 0x03;
     y = a;
     a = RAM(SND_TMP);
-    m = RAM(0x077C + y); c = a >= m;
+    m = RAM(SND_PERIOD_HI_CACHE + y); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
         mff_cycles(0x8896, 15);
-        RAM(0x077C + y) = a;
+        RAM(SND_PERIOD_HI_CACHE + y) = a;
         a |= 0x08;
         y = 0x03;
         n = (y) >> 7;
@@ -3340,12 +3340,12 @@ L_8884:;
         mff_cycles(0x8894, 1);
     }
     mff_cycles(0x88A0, 8);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0x20;
     z = (a) == 0;
     if (z) { mff_cycles(0x88A5, 1); goto L_88FA; }
     mff_cycles(0x88A7, 6);
-    a = RAM(0x0718 + x);
+    a = RAM(SND_SLIDE_AMOUNT + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x88AA, 1); goto L_88F2; }
     mff_cycles(0x88AC, 9);
@@ -3365,21 +3365,21 @@ L_8884:;
     }
     mff_cycles(0x88B8, 40);
     c = 0;
-    m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0720 + x) = a;
+    m = RAM(SND_PITCH_LO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_LO + x) = a;
     a = y;
-    m = RAM(0x0724 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0724 + x) = a;
-    a = RAM(0x071C + x);
+    m = RAM(SND_PITCH_HI + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_HI + x) = a;
+    a = RAM(SND_TARGET + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     y = a;
     c = 1;
-    a = RAM(0x0720 + x);
-    m = nes_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    a = RAM(SND_PITCH_LO + x);
+    m = prg_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88D2, 10);
-    a = RAM(0x0724 + x);
+    a = RAM(SND_PITCH_HI + x);
     a &= 0x3F;
-    m = nes_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88DA, 12);
     a = 0xFF;
     m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -3392,21 +3392,21 @@ L_8884:;
     z = (a) == 0;
     if (z) { mff_cycles(0x88E4, 1); goto L_88FA; }
     mff_cycles(0x88E6, 4);
-    a = nes_read((uint16_t)(0x8959 + y));
+    a = prg_read((uint16_t)(0x8959 + y));
     mff_cycles(0x88E9, 9);
-    RAM(0x0720 + x) = a;
-    a = nes_read((uint16_t)(0x895A + y));
+    RAM(SND_PITCH_LO + x) = a;
+    a = prg_read((uint16_t)(0x895A + y));
     mff_cycles(0x88EF, 5);
-    RAM(0x0724 + x) = a;
+    RAM(SND_PITCH_HI + x) = a;
 L_88F2:;
     mff_cycles(0x88F2, 11);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0xDF;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
 L_88FA:;
     mff_cycles(0x88FA, 7);
     y = 0x04;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x88FE, 4);
     a &= 0x7F;
     n = (a) >> 7;
@@ -3414,18 +3414,18 @@ L_88FA:;
     if (!z) {
         mff_cycles(0x8902, 13);
         c = 0;
-        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        m = RAM(SND_LFO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
         n = (a) >> 7;
         z = (a) == 0;
-        RAM(0x0708 + x) = a;
+        RAM(SND_LFO + x) = a;
         if (c) {
             mff_cycles(0x890B, 13);
-            a = RAM(0x0704 + x);
+            a = RAM(SND_ENV + x);
             c = 0;
             m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
             n = (a) >> 7;
             z = (a) == 0;
-            RAM(0x0704 + x) = a;
+            RAM(SND_ENV + x) = a;
         } else {
             mff_cycles(0x8909, 1);
         }
@@ -3442,7 +3442,7 @@ void func_86E6_b3(void) {
     REGS_IN;
     mff_cycles(0x86E6, 7);
     y = 0x01;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     z = (a) == 0;
     mff_cycles(0x86EA, 2);
     if (z) { mff_cycles(0x86EA, 1); goto L_86FB; }
@@ -3450,18 +3450,18 @@ void func_86E6_b3(void) {
     y = a;
     a = RAM(SND_TMP + 3);
     c = 1;
-    m = nes_read((uint16_t)(0x8933 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x8933 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x86F3, 2);
     if (!c) { mff_cycles(0x86F3, 1); goto L_86FB; }
     mff_cycles(0x86F5, 7);
     y = 0x02;
-    m = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y)); c = a >= m;
+    m = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y)); c = a >= m;
     mff_cycles(0x86F9, 2);
     if (c) { mff_cycles(0x86F9, 2); goto L_871D; }
 L_86FB:;
     mff_cycles(0x86FB, 7);
     y = 0x02;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x86FF, 3);
@@ -3469,7 +3469,7 @@ L_86FB:;
     nes_cpu_instruction_boundary(0x871A, 2); call_by_address_tail(0x871A, 3); return;
 L_871D:;
     mff_cycles(0x871D, 9);
-    RAM(0x0710 + x) = a;
+    RAM(SND_LEVEL + x) = a;
     m = 0x28; c = x >= m;
     if (!c) { mff_cycles(0x8722, 1); goto L_8737; }
     mff_cycles(0x8724, 5);
@@ -3513,7 +3513,7 @@ L_8740:;
     if (!z) { mff_cycles(0x8742, 1); goto L_875B; }
     mff_cycles(0x8744, 16);
     RAM(SND_TMP + 3) = a;
-    a = RAM(0x0740 + x);
+    a = RAM(SND_M_SLIDE + x);
     n = (a) >> 7;
     z = (a) == 0;
     RAM(SND_TMP) = a;
@@ -3526,7 +3526,7 @@ L_8740:;
     if (z) { mff_cycles(0x8750, 1); goto L_87AA; }
 L_8752:;
     mff_cycles(0x8752, 6);
-    a = RAM(0x0710 + x);
+    a = RAM(SND_LEVEL + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x8755, 1); goto L_87AA; }
     mff_cycles(0x8757, 4);
@@ -3535,11 +3535,11 @@ L_8752:;
     if (!z) { mff_cycles(0x8759, 1); goto L_87AA; }
 L_875B:;
     mff_cycles(0x875B, 6);
-    m = RAM(0x0710 + x); c = a >= m;
+    m = RAM(SND_LEVEL + x); c = a >= m;
     if (!c) { mff_cycles(0x875E, 1); goto L_8763; }
 L_8760:;
     mff_cycles(0x8760, 4);
-    a = RAM(0x0710 + x);
+    a = RAM(SND_LEVEL + x);
 L_8763:;
     mff_cycles(0x8763, 20);
     t = a; c = t & 1; t >>= 1; a = t;
@@ -3549,14 +3549,14 @@ L_8763:;
     a ^= 0x0F;
     RAM(SND_TMP + 2) = a;
     y = 0x06;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x876F, 4);
     m = 0x05; c = a >= m;
     if (!c) { mff_cycles(0x8771, 1); goto L_8797; }
     mff_cycles(0x8773, 19);
     RAM(SND_TMP + 3) = a;
-    y = RAM(0x0708 + x);
-    a = RAM(0x0704 + x);
+    y = RAM(SND_LFO + x);
+    a = RAM(SND_ENV + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = y;
@@ -3595,7 +3595,7 @@ L_8797:;
     mff_cycles(0x8797, 19);
     a = 0x10;
     RAM(SND_TMP + 3) = a;
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     c = 1;
     m = RAM(SND_TMP + 2); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     m = RAM(SND_TMP + 3);
@@ -3604,7 +3604,7 @@ L_8797:;
     if (!z) { mff_cycles(0x87A3, 1); goto L_87AA; }
 L_87A5:;
     mff_cycles(0x87A5, 6);
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     a &= 0xF0;
 L_87AA:;
     mff_cycles(0x87AA, 8);
@@ -3618,19 +3618,19 @@ L_87AA:;
     a = x;
     a &= 0x03;
     y = a;
-    a = RAM(0x077C + y);
+    a = RAM(SND_PERIOD_HI_CACHE + y);
     n = (a) >> 7;
     if (n) { mff_cycles(0x87B6, 2); goto L_880C; }
     mff_cycles(0x87B8, 7);
     y = 0x05;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     z = (a) == 0;
     mff_cycles(0x87BC, 2);
     if (z) { mff_cycles(0x87BC, 2); goto L_880C; }
     mff_cycles(0x87BE, 19);
     RAM(SND_TMP + 3) = a;
-    y = RAM(0x0708 + x);
-    a = RAM(0x0704 + x);
+    y = RAM(SND_LFO + x);
+    a = RAM(SND_ENV + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = y;
@@ -3666,25 +3666,25 @@ L_87AA:;
     z = (a) == 0;
     if (z) { mff_cycles(0x87E5, 2); goto L_880C; }
     mff_cycles(0x87E7, 6);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     n = (a) >> 7;
     if (n) { mff_cycles(0x87EA, 1); goto L_87FA; }
     mff_cycles(0x87EC, 20);
     c = 0;
     a = RAM(SND_TMP + 1);
-    m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_PITCH_LO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     RAM(SND_TMP + 1) = a;
     a = y;
-    m = RAM(0x0724 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_PITCH_HI + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     z = (a) == 0;
     if (!z) { mff_cycles(0x87F8, 2); goto L_8809; }
 L_87FA:;
     mff_cycles(0x87FA, 22);
     c = 1;
-    a = RAM(0x0720 + x);
+    a = RAM(SND_PITCH_LO + x);
     m = RAM(SND_TMP + 1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     RAM(SND_TMP + 1) = a;
-    a = RAM(0x0724 + x);
+    a = RAM(SND_PITCH_HI + x);
     RAM(SND_TMP) = y;
     m = RAM(SND_TMP); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
 L_8809:;
@@ -3694,9 +3694,9 @@ L_8809:;
     if (!z) { mff_cycles(0x880A, 1); goto L_8814; }
 L_880C:;
     mff_cycles(0x880C, 11);
-    a = RAM(0x0720 + x);
+    a = RAM(SND_PITCH_LO + x);
     RAM(SND_TMP + 1) = a;
-    y = RAM(0x0724 + x);
+    y = RAM(SND_PITCH_HI + x);
 L_8814:;
     mff_cycles(0x8814, 4);
     m = 0x28; c = x >= m;
@@ -3745,7 +3745,7 @@ L_8814:;
     a = y;
     a &= 0x0F;
     y = 0x07;
-    a |= nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a |= mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x8841, 10);
     RAM(SND_TMP + 1) = a;
     a = 0x00;
@@ -3759,7 +3759,7 @@ L_8849:;
     for (;;) {
         mff_cycles(0x884C, 6);
         y--;
-        m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
+        m = prg_read((uint16_t)(0x8953 + y)); c = a >= m;
         mff_cycles(0x8850, 2);
         if (c) break;
         mff_cycles(0x884C, 1);
@@ -3794,7 +3794,7 @@ L_8849:;
     }
     mff_cycles(0x8870, 8);
     y = 0x00;
-    a = RAM(0x0714 + x);
+    a = RAM(SND_DETUNE + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) {
@@ -3829,11 +3829,11 @@ L_8884:;
     a &= 0x03;
     y = a;
     a = RAM(SND_TMP);
-    m = RAM(0x077C + y); c = a >= m;
+    m = RAM(SND_PERIOD_HI_CACHE + y); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
         mff_cycles(0x8896, 15);
-        RAM(0x077C + y) = a;
+        RAM(SND_PERIOD_HI_CACHE + y) = a;
         a |= 0x08;
         y = 0x03;
         n = (y) >> 7;
@@ -3845,12 +3845,12 @@ L_8884:;
         mff_cycles(0x8894, 1);
     }
     mff_cycles(0x88A0, 8);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0x20;
     z = (a) == 0;
     if (z) { mff_cycles(0x88A5, 1); goto L_88FA; }
     mff_cycles(0x88A7, 6);
-    a = RAM(0x0718 + x);
+    a = RAM(SND_SLIDE_AMOUNT + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x88AA, 1); goto L_88F2; }
     mff_cycles(0x88AC, 9);
@@ -3870,21 +3870,21 @@ L_8884:;
     }
     mff_cycles(0x88B8, 40);
     c = 0;
-    m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0720 + x) = a;
+    m = RAM(SND_PITCH_LO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_LO + x) = a;
     a = y;
-    m = RAM(0x0724 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0724 + x) = a;
-    a = RAM(0x071C + x);
+    m = RAM(SND_PITCH_HI + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_HI + x) = a;
+    a = RAM(SND_TARGET + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     y = a;
     c = 1;
-    a = RAM(0x0720 + x);
-    m = nes_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    a = RAM(SND_PITCH_LO + x);
+    m = prg_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88D2, 10);
-    a = RAM(0x0724 + x);
+    a = RAM(SND_PITCH_HI + x);
     a &= 0x3F;
-    m = nes_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88DA, 12);
     a = 0xFF;
     m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -3897,21 +3897,21 @@ L_8884:;
     z = (a) == 0;
     if (z) { mff_cycles(0x88E4, 1); goto L_88FA; }
     mff_cycles(0x88E6, 4);
-    a = nes_read((uint16_t)(0x8959 + y));
+    a = prg_read((uint16_t)(0x8959 + y));
     mff_cycles(0x88E9, 9);
-    RAM(0x0720 + x) = a;
-    a = nes_read((uint16_t)(0x895A + y));
+    RAM(SND_PITCH_LO + x) = a;
+    a = prg_read((uint16_t)(0x895A + y));
     mff_cycles(0x88EF, 5);
-    RAM(0x0724 + x) = a;
+    RAM(SND_PITCH_HI + x) = a;
 L_88F2:;
     mff_cycles(0x88F2, 11);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0xDF;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
 L_88FA:;
     mff_cycles(0x88FA, 7);
     y = 0x04;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x88FE, 4);
     a &= 0x7F;
     n = (a) >> 7;
@@ -3919,18 +3919,18 @@ L_88FA:;
     if (!z) {
         mff_cycles(0x8902, 13);
         c = 0;
-        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        m = RAM(SND_LFO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
         n = (a) >> 7;
         z = (a) == 0;
-        RAM(0x0708 + x) = a;
+        RAM(SND_LFO + x) = a;
         if (c) {
             mff_cycles(0x890B, 13);
-            a = RAM(0x0704 + x);
+            a = RAM(SND_ENV + x);
             c = 0;
             m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
             n = (a) >> 7;
             z = (a) == 0;
-            RAM(0x0704 + x) = a;
+            RAM(SND_ENV + x) = a;
         } else {
             mff_cycles(0x8909, 1);
         }
@@ -3953,7 +3953,7 @@ void func_8702_b3(void) {
     if (z) { mff_cycles(0x8707, 1); goto L_8718; }
     mff_cycles(0x8709, 7);
     y = 0x03;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     z = (a) == 0;
     mff_cycles(0x870D, 2);
     if (z) { mff_cycles(0x870D, 1); goto L_8720; }
@@ -3961,16 +3961,16 @@ void func_8702_b3(void) {
     y = a;
     a = RAM(SND_TMP + 3);
     c = 1;
-    m = nes_read((uint16_t)(0x8933 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x8933 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x8716, 2);
     if (c) { mff_cycles(0x8716, 1); goto L_871D; }
 L_8718:;
     mff_cycles(0x8718, 9);
     a = 0x00;
-    t = (uint8_t)(RAM(0x0704 + x) + 1); RAM(0x0704 + x) = t;
+    t = (uint8_t)(RAM(SND_ENV + x) + 1); RAM(SND_ENV + x) = t;
 L_871D:;
     mff_cycles(0x871D, 5);
-    RAM(0x0710 + x) = a;
+    RAM(SND_LEVEL + x) = a;
 L_8720:;
     mff_cycles(0x8720, 4);
     m = 0x28; c = x >= m;
@@ -4016,7 +4016,7 @@ L_8740:;
     if (!z) { mff_cycles(0x8742, 1); goto L_875B; }
     mff_cycles(0x8744, 16);
     RAM(SND_TMP + 3) = a;
-    a = RAM(0x0740 + x);
+    a = RAM(SND_M_SLIDE + x);
     n = (a) >> 7;
     z = (a) == 0;
     RAM(SND_TMP) = a;
@@ -4029,7 +4029,7 @@ L_8740:;
     if (z) { mff_cycles(0x8750, 1); goto L_87AA; }
 L_8752:;
     mff_cycles(0x8752, 6);
-    a = RAM(0x0710 + x);
+    a = RAM(SND_LEVEL + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x8755, 1); goto L_87AA; }
     mff_cycles(0x8757, 4);
@@ -4038,11 +4038,11 @@ L_8752:;
     if (!z) { mff_cycles(0x8759, 1); goto L_87AA; }
 L_875B:;
     mff_cycles(0x875B, 6);
-    m = RAM(0x0710 + x); c = a >= m;
+    m = RAM(SND_LEVEL + x); c = a >= m;
     if (!c) { mff_cycles(0x875E, 1); goto L_8763; }
 L_8760:;
     mff_cycles(0x8760, 4);
-    a = RAM(0x0710 + x);
+    a = RAM(SND_LEVEL + x);
 L_8763:;
     mff_cycles(0x8763, 20);
     t = a; c = t & 1; t >>= 1; a = t;
@@ -4052,14 +4052,14 @@ L_8763:;
     a ^= 0x0F;
     RAM(SND_TMP + 2) = a;
     y = 0x06;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x876F, 4);
     m = 0x05; c = a >= m;
     if (!c) { mff_cycles(0x8771, 1); goto L_8797; }
     mff_cycles(0x8773, 19);
     RAM(SND_TMP + 3) = a;
-    y = RAM(0x0708 + x);
-    a = RAM(0x0704 + x);
+    y = RAM(SND_LFO + x);
+    a = RAM(SND_ENV + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = y;
@@ -4098,7 +4098,7 @@ L_8797:;
     mff_cycles(0x8797, 19);
     a = 0x10;
     RAM(SND_TMP + 3) = a;
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     c = 1;
     m = RAM(SND_TMP + 2); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     m = RAM(SND_TMP + 3);
@@ -4107,7 +4107,7 @@ L_8797:;
     if (!z) { mff_cycles(0x87A3, 1); goto L_87AA; }
 L_87A5:;
     mff_cycles(0x87A5, 6);
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     a &= 0xF0;
 L_87AA:;
     mff_cycles(0x87AA, 8);
@@ -4121,19 +4121,19 @@ L_87AA:;
     a = x;
     a &= 0x03;
     y = a;
-    a = RAM(0x077C + y);
+    a = RAM(SND_PERIOD_HI_CACHE + y);
     n = (a) >> 7;
     if (n) { mff_cycles(0x87B6, 2); goto L_880C; }
     mff_cycles(0x87B8, 7);
     y = 0x05;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     z = (a) == 0;
     mff_cycles(0x87BC, 2);
     if (z) { mff_cycles(0x87BC, 2); goto L_880C; }
     mff_cycles(0x87BE, 19);
     RAM(SND_TMP + 3) = a;
-    y = RAM(0x0708 + x);
-    a = RAM(0x0704 + x);
+    y = RAM(SND_LFO + x);
+    a = RAM(SND_ENV + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = y;
@@ -4169,25 +4169,25 @@ L_87AA:;
     z = (a) == 0;
     if (z) { mff_cycles(0x87E5, 2); goto L_880C; }
     mff_cycles(0x87E7, 6);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     n = (a) >> 7;
     if (n) { mff_cycles(0x87EA, 1); goto L_87FA; }
     mff_cycles(0x87EC, 20);
     c = 0;
     a = RAM(SND_TMP + 1);
-    m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_PITCH_LO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     RAM(SND_TMP + 1) = a;
     a = y;
-    m = RAM(0x0724 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_PITCH_HI + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     z = (a) == 0;
     if (!z) { mff_cycles(0x87F8, 2); goto L_8809; }
 L_87FA:;
     mff_cycles(0x87FA, 22);
     c = 1;
-    a = RAM(0x0720 + x);
+    a = RAM(SND_PITCH_LO + x);
     m = RAM(SND_TMP + 1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     RAM(SND_TMP + 1) = a;
-    a = RAM(0x0724 + x);
+    a = RAM(SND_PITCH_HI + x);
     RAM(SND_TMP) = y;
     m = RAM(SND_TMP); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
 L_8809:;
@@ -4197,9 +4197,9 @@ L_8809:;
     if (!z) { mff_cycles(0x880A, 1); goto L_8814; }
 L_880C:;
     mff_cycles(0x880C, 11);
-    a = RAM(0x0720 + x);
+    a = RAM(SND_PITCH_LO + x);
     RAM(SND_TMP + 1) = a;
-    y = RAM(0x0724 + x);
+    y = RAM(SND_PITCH_HI + x);
 L_8814:;
     mff_cycles(0x8814, 4);
     m = 0x28; c = x >= m;
@@ -4248,7 +4248,7 @@ L_8814:;
     a = y;
     a &= 0x0F;
     y = 0x07;
-    a |= nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a |= mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x8841, 10);
     RAM(SND_TMP + 1) = a;
     a = 0x00;
@@ -4262,7 +4262,7 @@ L_8849:;
     for (;;) {
         mff_cycles(0x884C, 6);
         y--;
-        m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
+        m = prg_read((uint16_t)(0x8953 + y)); c = a >= m;
         mff_cycles(0x8850, 2);
         if (c) break;
         mff_cycles(0x884C, 1);
@@ -4297,7 +4297,7 @@ L_8849:;
     }
     mff_cycles(0x8870, 8);
     y = 0x00;
-    a = RAM(0x0714 + x);
+    a = RAM(SND_DETUNE + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) {
@@ -4332,11 +4332,11 @@ L_8884:;
     a &= 0x03;
     y = a;
     a = RAM(SND_TMP);
-    m = RAM(0x077C + y); c = a >= m;
+    m = RAM(SND_PERIOD_HI_CACHE + y); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
         mff_cycles(0x8896, 15);
-        RAM(0x077C + y) = a;
+        RAM(SND_PERIOD_HI_CACHE + y) = a;
         a |= 0x08;
         y = 0x03;
         n = (y) >> 7;
@@ -4348,12 +4348,12 @@ L_8884:;
         mff_cycles(0x8894, 1);
     }
     mff_cycles(0x88A0, 8);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0x20;
     z = (a) == 0;
     if (z) { mff_cycles(0x88A5, 1); goto L_88FA; }
     mff_cycles(0x88A7, 6);
-    a = RAM(0x0718 + x);
+    a = RAM(SND_SLIDE_AMOUNT + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x88AA, 1); goto L_88F2; }
     mff_cycles(0x88AC, 9);
@@ -4373,21 +4373,21 @@ L_8884:;
     }
     mff_cycles(0x88B8, 40);
     c = 0;
-    m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0720 + x) = a;
+    m = RAM(SND_PITCH_LO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_LO + x) = a;
     a = y;
-    m = RAM(0x0724 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0724 + x) = a;
-    a = RAM(0x071C + x);
+    m = RAM(SND_PITCH_HI + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_HI + x) = a;
+    a = RAM(SND_TARGET + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     y = a;
     c = 1;
-    a = RAM(0x0720 + x);
-    m = nes_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    a = RAM(SND_PITCH_LO + x);
+    m = prg_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88D2, 10);
-    a = RAM(0x0724 + x);
+    a = RAM(SND_PITCH_HI + x);
     a &= 0x3F;
-    m = nes_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88DA, 12);
     a = 0xFF;
     m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -4400,21 +4400,21 @@ L_8884:;
     z = (a) == 0;
     if (z) { mff_cycles(0x88E4, 1); goto L_88FA; }
     mff_cycles(0x88E6, 4);
-    a = nes_read((uint16_t)(0x8959 + y));
+    a = prg_read((uint16_t)(0x8959 + y));
     mff_cycles(0x88E9, 9);
-    RAM(0x0720 + x) = a;
-    a = nes_read((uint16_t)(0x895A + y));
+    RAM(SND_PITCH_LO + x) = a;
+    a = prg_read((uint16_t)(0x895A + y));
     mff_cycles(0x88EF, 5);
-    RAM(0x0724 + x) = a;
+    RAM(SND_PITCH_HI + x) = a;
 L_88F2:;
     mff_cycles(0x88F2, 11);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0xDF;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
 L_88FA:;
     mff_cycles(0x88FA, 7);
     y = 0x04;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x88FE, 4);
     a &= 0x7F;
     n = (a) >> 7;
@@ -4422,18 +4422,18 @@ L_88FA:;
     if (!z) {
         mff_cycles(0x8902, 13);
         c = 0;
-        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        m = RAM(SND_LFO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
         n = (a) >> 7;
         z = (a) == 0;
-        RAM(0x0708 + x) = a;
+        RAM(SND_LFO + x) = a;
         if (c) {
             mff_cycles(0x890B, 13);
-            a = RAM(0x0704 + x);
+            a = RAM(SND_ENV + x);
             c = 0;
             m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
             n = (a) >> 7;
             z = (a) == 0;
-            RAM(0x0704 + x) = a;
+            RAM(SND_ENV + x) = a;
         } else {
             mff_cycles(0x8909, 1);
         }
@@ -4449,8 +4449,8 @@ L_88FA:;
 void func_871A_b3(void) {
     REGS_IN;
     mff_cycles(0x871A, 16);
-    t = (uint8_t)(RAM(0x0704 + x) + 1); RAM(0x0704 + x) = t;
-    RAM(0x0710 + x) = a;
+    t = (uint8_t)(RAM(SND_ENV + x) + 1); RAM(SND_ENV + x) = t;
+    RAM(SND_LEVEL + x) = a;
     m = 0x28; c = x >= m;
     if (!c) { mff_cycles(0x8722, 1); goto L_8737; }
     mff_cycles(0x8724, 5);
@@ -4494,7 +4494,7 @@ L_8740:;
     if (!z) { mff_cycles(0x8742, 1); goto L_875B; }
     mff_cycles(0x8744, 16);
     RAM(SND_TMP + 3) = a;
-    a = RAM(0x0740 + x);
+    a = RAM(SND_M_SLIDE + x);
     n = (a) >> 7;
     z = (a) == 0;
     RAM(SND_TMP) = a;
@@ -4507,7 +4507,7 @@ L_8740:;
     if (z) { mff_cycles(0x8750, 1); goto L_87AA; }
 L_8752:;
     mff_cycles(0x8752, 6);
-    a = RAM(0x0710 + x);
+    a = RAM(SND_LEVEL + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x8755, 1); goto L_87AA; }
     mff_cycles(0x8757, 4);
@@ -4516,11 +4516,11 @@ L_8752:;
     if (!z) { mff_cycles(0x8759, 1); goto L_87AA; }
 L_875B:;
     mff_cycles(0x875B, 6);
-    m = RAM(0x0710 + x); c = a >= m;
+    m = RAM(SND_LEVEL + x); c = a >= m;
     if (!c) { mff_cycles(0x875E, 1); goto L_8763; }
 L_8760:;
     mff_cycles(0x8760, 4);
-    a = RAM(0x0710 + x);
+    a = RAM(SND_LEVEL + x);
 L_8763:;
     mff_cycles(0x8763, 20);
     t = a; c = t & 1; t >>= 1; a = t;
@@ -4530,14 +4530,14 @@ L_8763:;
     a ^= 0x0F;
     RAM(SND_TMP + 2) = a;
     y = 0x06;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x876F, 4);
     m = 0x05; c = a >= m;
     if (!c) { mff_cycles(0x8771, 1); goto L_8797; }
     mff_cycles(0x8773, 19);
     RAM(SND_TMP + 3) = a;
-    y = RAM(0x0708 + x);
-    a = RAM(0x0704 + x);
+    y = RAM(SND_LFO + x);
+    a = RAM(SND_ENV + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = y;
@@ -4576,7 +4576,7 @@ L_8797:;
     mff_cycles(0x8797, 19);
     a = 0x10;
     RAM(SND_TMP + 3) = a;
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     c = 1;
     m = RAM(SND_TMP + 2); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     m = RAM(SND_TMP + 3);
@@ -4585,7 +4585,7 @@ L_8797:;
     if (!z) { mff_cycles(0x87A3, 1); goto L_87AA; }
 L_87A5:;
     mff_cycles(0x87A5, 6);
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     a &= 0xF0;
 L_87AA:;
     mff_cycles(0x87AA, 8);
@@ -4599,19 +4599,19 @@ L_87AA:;
     a = x;
     a &= 0x03;
     y = a;
-    a = RAM(0x077C + y);
+    a = RAM(SND_PERIOD_HI_CACHE + y);
     n = (a) >> 7;
     if (n) { mff_cycles(0x87B6, 2); goto L_880C; }
     mff_cycles(0x87B8, 7);
     y = 0x05;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     z = (a) == 0;
     mff_cycles(0x87BC, 2);
     if (z) { mff_cycles(0x87BC, 2); goto L_880C; }
     mff_cycles(0x87BE, 19);
     RAM(SND_TMP + 3) = a;
-    y = RAM(0x0708 + x);
-    a = RAM(0x0704 + x);
+    y = RAM(SND_LFO + x);
+    a = RAM(SND_ENV + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = y;
@@ -4647,25 +4647,25 @@ L_87AA:;
     z = (a) == 0;
     if (z) { mff_cycles(0x87E5, 2); goto L_880C; }
     mff_cycles(0x87E7, 6);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     n = (a) >> 7;
     if (n) { mff_cycles(0x87EA, 1); goto L_87FA; }
     mff_cycles(0x87EC, 20);
     c = 0;
     a = RAM(SND_TMP + 1);
-    m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_PITCH_LO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     RAM(SND_TMP + 1) = a;
     a = y;
-    m = RAM(0x0724 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_PITCH_HI + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     z = (a) == 0;
     if (!z) { mff_cycles(0x87F8, 2); goto L_8809; }
 L_87FA:;
     mff_cycles(0x87FA, 22);
     c = 1;
-    a = RAM(0x0720 + x);
+    a = RAM(SND_PITCH_LO + x);
     m = RAM(SND_TMP + 1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     RAM(SND_TMP + 1) = a;
-    a = RAM(0x0724 + x);
+    a = RAM(SND_PITCH_HI + x);
     RAM(SND_TMP) = y;
     m = RAM(SND_TMP); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
 L_8809:;
@@ -4675,9 +4675,9 @@ L_8809:;
     if (!z) { mff_cycles(0x880A, 1); goto L_8814; }
 L_880C:;
     mff_cycles(0x880C, 11);
-    a = RAM(0x0720 + x);
+    a = RAM(SND_PITCH_LO + x);
     RAM(SND_TMP + 1) = a;
-    y = RAM(0x0724 + x);
+    y = RAM(SND_PITCH_HI + x);
 L_8814:;
     mff_cycles(0x8814, 4);
     m = 0x28; c = x >= m;
@@ -4726,7 +4726,7 @@ L_8814:;
     a = y;
     a &= 0x0F;
     y = 0x07;
-    a |= nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a |= mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x8841, 10);
     RAM(SND_TMP + 1) = a;
     a = 0x00;
@@ -4740,7 +4740,7 @@ L_8849:;
     for (;;) {
         mff_cycles(0x884C, 6);
         y--;
-        m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
+        m = prg_read((uint16_t)(0x8953 + y)); c = a >= m;
         mff_cycles(0x8850, 2);
         if (c) break;
         mff_cycles(0x884C, 1);
@@ -4775,7 +4775,7 @@ L_8849:;
     }
     mff_cycles(0x8870, 8);
     y = 0x00;
-    a = RAM(0x0714 + x);
+    a = RAM(SND_DETUNE + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) {
@@ -4810,11 +4810,11 @@ L_8884:;
     a &= 0x03;
     y = a;
     a = RAM(SND_TMP);
-    m = RAM(0x077C + y); c = a >= m;
+    m = RAM(SND_PERIOD_HI_CACHE + y); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
         mff_cycles(0x8896, 15);
-        RAM(0x077C + y) = a;
+        RAM(SND_PERIOD_HI_CACHE + y) = a;
         a |= 0x08;
         y = 0x03;
         n = (y) >> 7;
@@ -4826,12 +4826,12 @@ L_8884:;
         mff_cycles(0x8894, 1);
     }
     mff_cycles(0x88A0, 8);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0x20;
     z = (a) == 0;
     if (z) { mff_cycles(0x88A5, 1); goto L_88FA; }
     mff_cycles(0x88A7, 6);
-    a = RAM(0x0718 + x);
+    a = RAM(SND_SLIDE_AMOUNT + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x88AA, 1); goto L_88F2; }
     mff_cycles(0x88AC, 9);
@@ -4851,21 +4851,21 @@ L_8884:;
     }
     mff_cycles(0x88B8, 40);
     c = 0;
-    m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0720 + x) = a;
+    m = RAM(SND_PITCH_LO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_LO + x) = a;
     a = y;
-    m = RAM(0x0724 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0724 + x) = a;
-    a = RAM(0x071C + x);
+    m = RAM(SND_PITCH_HI + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_HI + x) = a;
+    a = RAM(SND_TARGET + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     y = a;
     c = 1;
-    a = RAM(0x0720 + x);
-    m = nes_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    a = RAM(SND_PITCH_LO + x);
+    m = prg_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88D2, 10);
-    a = RAM(0x0724 + x);
+    a = RAM(SND_PITCH_HI + x);
     a &= 0x3F;
-    m = nes_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88DA, 12);
     a = 0xFF;
     m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -4878,21 +4878,21 @@ L_8884:;
     z = (a) == 0;
     if (z) { mff_cycles(0x88E4, 1); goto L_88FA; }
     mff_cycles(0x88E6, 4);
-    a = nes_read((uint16_t)(0x8959 + y));
+    a = prg_read((uint16_t)(0x8959 + y));
     mff_cycles(0x88E9, 9);
-    RAM(0x0720 + x) = a;
-    a = nes_read((uint16_t)(0x895A + y));
+    RAM(SND_PITCH_LO + x) = a;
+    a = prg_read((uint16_t)(0x895A + y));
     mff_cycles(0x88EF, 5);
-    RAM(0x0724 + x) = a;
+    RAM(SND_PITCH_HI + x) = a;
 L_88F2:;
     mff_cycles(0x88F2, 11);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0xDF;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
 L_88FA:;
     mff_cycles(0x88FA, 7);
     y = 0x04;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x88FE, 4);
     a &= 0x7F;
     n = (a) >> 7;
@@ -4900,18 +4900,18 @@ L_88FA:;
     if (!z) {
         mff_cycles(0x8902, 13);
         c = 0;
-        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        m = RAM(SND_LFO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
         n = (a) >> 7;
         z = (a) == 0;
-        RAM(0x0708 + x) = a;
+        RAM(SND_LFO + x) = a;
         if (c) {
             mff_cycles(0x890B, 13);
-            a = RAM(0x0704 + x);
+            a = RAM(SND_ENV + x);
             c = 0;
             m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
             n = (a) >> 7;
             z = (a) == 0;
-            RAM(0x0704 + x) = a;
+            RAM(SND_ENV + x) = a;
         } else {
             mff_cycles(0x8909, 1);
         }
@@ -4970,7 +4970,7 @@ L_8740:;
     if (!z) { mff_cycles(0x8742, 1); goto L_875B; }
     mff_cycles(0x8744, 16);
     RAM(SND_TMP + 3) = a;
-    a = RAM(0x0740 + x);
+    a = RAM(SND_M_SLIDE + x);
     n = (a) >> 7;
     z = (a) == 0;
     RAM(SND_TMP) = a;
@@ -4983,7 +4983,7 @@ L_8740:;
     if (z) { mff_cycles(0x8750, 1); goto L_87AA; }
 L_8752:;
     mff_cycles(0x8752, 6);
-    a = RAM(0x0710 + x);
+    a = RAM(SND_LEVEL + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x8755, 1); goto L_87AA; }
     mff_cycles(0x8757, 4);
@@ -4992,11 +4992,11 @@ L_8752:;
     if (!z) { mff_cycles(0x8759, 1); goto L_87AA; }
 L_875B:;
     mff_cycles(0x875B, 6);
-    m = RAM(0x0710 + x); c = a >= m;
+    m = RAM(SND_LEVEL + x); c = a >= m;
     if (!c) { mff_cycles(0x875E, 1); goto L_8763; }
 L_8760:;
     mff_cycles(0x8760, 4);
-    a = RAM(0x0710 + x);
+    a = RAM(SND_LEVEL + x);
 L_8763:;
     mff_cycles(0x8763, 20);
     t = a; c = t & 1; t >>= 1; a = t;
@@ -5006,14 +5006,14 @@ L_8763:;
     a ^= 0x0F;
     RAM(SND_TMP + 2) = a;
     y = 0x06;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x876F, 4);
     m = 0x05; c = a >= m;
     if (!c) { mff_cycles(0x8771, 1); goto L_8797; }
     mff_cycles(0x8773, 19);
     RAM(SND_TMP + 3) = a;
-    y = RAM(0x0708 + x);
-    a = RAM(0x0704 + x);
+    y = RAM(SND_LFO + x);
+    a = RAM(SND_ENV + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = y;
@@ -5052,7 +5052,7 @@ L_8797:;
     mff_cycles(0x8797, 19);
     a = 0x10;
     RAM(SND_TMP + 3) = a;
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     c = 1;
     m = RAM(SND_TMP + 2); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     m = RAM(SND_TMP + 3);
@@ -5061,7 +5061,7 @@ L_8797:;
     if (!z) { mff_cycles(0x87A3, 1); goto L_87AA; }
 L_87A5:;
     mff_cycles(0x87A5, 6);
-    a = RAM(0x070C + x);
+    a = RAM(SND_VOLUME + x);
     a &= 0xF0;
 L_87AA:;
     mff_cycles(0x87AA, 8);
@@ -5075,19 +5075,19 @@ L_87AA:;
     a = x;
     a &= 0x03;
     y = a;
-    a = RAM(0x077C + y);
+    a = RAM(SND_PERIOD_HI_CACHE + y);
     n = (a) >> 7;
     if (n) { mff_cycles(0x87B6, 2); goto L_880C; }
     mff_cycles(0x87B8, 7);
     y = 0x05;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     z = (a) == 0;
     mff_cycles(0x87BC, 2);
     if (z) { mff_cycles(0x87BC, 2); goto L_880C; }
     mff_cycles(0x87BE, 19);
     RAM(SND_TMP + 3) = a;
-    y = RAM(0x0708 + x);
-    a = RAM(0x0704 + x);
+    y = RAM(SND_LFO + x);
+    a = RAM(SND_ENV + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     a = y;
@@ -5123,25 +5123,25 @@ L_87AA:;
     z = (a) == 0;
     if (z) { mff_cycles(0x87E5, 2); goto L_880C; }
     mff_cycles(0x87E7, 6);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     n = (a) >> 7;
     if (n) { mff_cycles(0x87EA, 1); goto L_87FA; }
     mff_cycles(0x87EC, 20);
     c = 0;
     a = RAM(SND_TMP + 1);
-    m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_PITCH_LO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     RAM(SND_TMP + 1) = a;
     a = y;
-    m = RAM(0x0724 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SND_PITCH_HI + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     z = (a) == 0;
     if (!z) { mff_cycles(0x87F8, 2); goto L_8809; }
 L_87FA:;
     mff_cycles(0x87FA, 22);
     c = 1;
-    a = RAM(0x0720 + x);
+    a = RAM(SND_PITCH_LO + x);
     m = RAM(SND_TMP + 1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     RAM(SND_TMP + 1) = a;
-    a = RAM(0x0724 + x);
+    a = RAM(SND_PITCH_HI + x);
     RAM(SND_TMP) = y;
     m = RAM(SND_TMP); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
 L_8809:;
@@ -5151,9 +5151,9 @@ L_8809:;
     if (!z) { mff_cycles(0x880A, 1); goto L_8814; }
 L_880C:;
     mff_cycles(0x880C, 11);
-    a = RAM(0x0720 + x);
+    a = RAM(SND_PITCH_LO + x);
     RAM(SND_TMP + 1) = a;
-    y = RAM(0x0724 + x);
+    y = RAM(SND_PITCH_HI + x);
 L_8814:;
     mff_cycles(0x8814, 4);
     m = 0x28; c = x >= m;
@@ -5202,7 +5202,7 @@ L_8814:;
     a = y;
     a &= 0x0F;
     y = 0x07;
-    a |= nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a |= mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x8841, 10);
     RAM(SND_TMP + 1) = a;
     a = 0x00;
@@ -5216,7 +5216,7 @@ L_8849:;
     for (;;) {
         mff_cycles(0x884C, 6);
         y--;
-        m = nes_read((uint16_t)(0x8953 + y)); c = a >= m;
+        m = prg_read((uint16_t)(0x8953 + y)); c = a >= m;
         mff_cycles(0x8850, 2);
         if (c) break;
         mff_cycles(0x884C, 1);
@@ -5251,7 +5251,7 @@ L_8849:;
     }
     mff_cycles(0x8870, 8);
     y = 0x00;
-    a = RAM(0x0714 + x);
+    a = RAM(SND_DETUNE + x);
     n = (a) >> 7;
     z = (a) == 0;
     if (!z) {
@@ -5286,11 +5286,11 @@ L_8884:;
     a &= 0x03;
     y = a;
     a = RAM(SND_TMP);
-    m = RAM(0x077C + y); c = a >= m;
+    m = RAM(SND_PERIOD_HI_CACHE + y); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) {
         mff_cycles(0x8896, 15);
-        RAM(0x077C + y) = a;
+        RAM(SND_PERIOD_HI_CACHE + y) = a;
         a |= 0x08;
         y = 0x03;
         n = (y) >> 7;
@@ -5302,12 +5302,12 @@ L_8884:;
         mff_cycles(0x8894, 1);
     }
     mff_cycles(0x88A0, 8);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0x20;
     z = (a) == 0;
     if (z) { mff_cycles(0x88A5, 1); goto L_88FA; }
     mff_cycles(0x88A7, 6);
-    a = RAM(0x0718 + x);
+    a = RAM(SND_SLIDE_AMOUNT + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x88AA, 1); goto L_88F2; }
     mff_cycles(0x88AC, 9);
@@ -5327,21 +5327,21 @@ L_8884:;
     }
     mff_cycles(0x88B8, 40);
     c = 0;
-    m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0720 + x) = a;
+    m = RAM(SND_PITCH_LO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_LO + x) = a;
     a = y;
-    m = RAM(0x0724 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0724 + x) = a;
-    a = RAM(0x071C + x);
+    m = RAM(SND_PITCH_HI + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_HI + x) = a;
+    a = RAM(SND_TARGET + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     y = a;
     c = 1;
-    a = RAM(0x0720 + x);
-    m = nes_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    a = RAM(SND_PITCH_LO + x);
+    m = prg_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88D2, 10);
-    a = RAM(0x0724 + x);
+    a = RAM(SND_PITCH_HI + x);
     a &= 0x3F;
-    m = nes_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88DA, 12);
     a = 0xFF;
     m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -5354,21 +5354,21 @@ L_8884:;
     z = (a) == 0;
     if (z) { mff_cycles(0x88E4, 1); goto L_88FA; }
     mff_cycles(0x88E6, 4);
-    a = nes_read((uint16_t)(0x8959 + y));
+    a = prg_read((uint16_t)(0x8959 + y));
     mff_cycles(0x88E9, 9);
-    RAM(0x0720 + x) = a;
-    a = nes_read((uint16_t)(0x895A + y));
+    RAM(SND_PITCH_LO + x) = a;
+    a = prg_read((uint16_t)(0x895A + y));
     mff_cycles(0x88EF, 5);
-    RAM(0x0724 + x) = a;
+    RAM(SND_PITCH_HI + x) = a;
 L_88F2:;
     mff_cycles(0x88F2, 11);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0xDF;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
 L_88FA:;
     mff_cycles(0x88FA, 7);
     y = 0x04;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x88FE, 4);
     a &= 0x7F;
     n = (a) >> 7;
@@ -5376,18 +5376,18 @@ L_88FA:;
     if (!z) {
         mff_cycles(0x8902, 13);
         c = 0;
-        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        m = RAM(SND_LFO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
         n = (a) >> 7;
         z = (a) == 0;
-        RAM(0x0708 + x) = a;
+        RAM(SND_LFO + x) = a;
         if (c) {
             mff_cycles(0x890B, 13);
-            a = RAM(0x0704 + x);
+            a = RAM(SND_ENV + x);
             c = 0;
             m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
             n = (a) >> 7;
             z = (a) == 0;
-            RAM(0x0704 + x) = a;
+            RAM(SND_ENV + x) = a;
         } else {
             mff_cycles(0x8909, 1);
         }
@@ -5403,12 +5403,12 @@ L_88FA:;
 void func_88A0_b3(void) {
     REGS_IN;
     mff_cycles(0x88A0, 8);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0x20;
     z = (a) == 0;
     if (z) { mff_cycles(0x88A5, 1); goto L_88FA; }
     mff_cycles(0x88A7, 6);
-    a = RAM(0x0718 + x);
+    a = RAM(SND_SLIDE_AMOUNT + x);
     z = (a) == 0;
     if (z) { mff_cycles(0x88AA, 1); goto L_88F2; }
     mff_cycles(0x88AC, 9);
@@ -5428,21 +5428,21 @@ void func_88A0_b3(void) {
     }
     mff_cycles(0x88B8, 40);
     c = 0;
-    m = RAM(0x0720 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0720 + x) = a;
+    m = RAM(SND_PITCH_LO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_LO + x) = a;
     a = y;
-    m = RAM(0x0724 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x0724 + x) = a;
-    a = RAM(0x071C + x);
+    m = RAM(SND_PITCH_HI + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    RAM(SND_PITCH_HI + x) = a;
+    a = RAM(SND_TARGET + x);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     y = a;
     c = 1;
-    a = RAM(0x0720 + x);
-    m = nes_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    a = RAM(SND_PITCH_LO + x);
+    m = prg_read((uint16_t)(0x8959 + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88D2, 10);
-    a = RAM(0x0724 + x);
+    a = RAM(SND_PITCH_HI + x);
     a &= 0x3F;
-    m = nes_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x895A + y)); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     mff_cycles(0x88DA, 12);
     a = 0xFF;
     m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -5455,21 +5455,21 @@ void func_88A0_b3(void) {
     z = (a) == 0;
     if (z) { mff_cycles(0x88E4, 1); goto L_88FA; }
     mff_cycles(0x88E6, 4);
-    a = nes_read((uint16_t)(0x8959 + y));
+    a = prg_read((uint16_t)(0x8959 + y));
     mff_cycles(0x88E9, 9);
-    RAM(0x0720 + x) = a;
-    a = nes_read((uint16_t)(0x895A + y));
+    RAM(SND_PITCH_LO + x) = a;
+    a = prg_read((uint16_t)(0x895A + y));
     mff_cycles(0x88EF, 5);
-    RAM(0x0724 + x) = a;
+    RAM(SND_PITCH_HI + x) = a;
 L_88F2:;
     mff_cycles(0x88F2, 11);
-    a = RAM(0x0704 + x);
+    a = RAM(SND_ENV + x);
     a &= 0xDF;
-    RAM(0x0704 + x) = a;
+    RAM(SND_ENV + x) = a;
 L_88FA:;
     mff_cycles(0x88FA, 7);
     y = 0x04;
-    a = nes_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
     mff_cycles(0x88FE, 4);
     a &= 0x7F;
     n = (a) >> 7;
@@ -5477,18 +5477,18 @@ L_88FA:;
     if (!z) {
         mff_cycles(0x8902, 13);
         c = 0;
-        m = RAM(0x0708 + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        m = RAM(SND_LFO + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
         n = (a) >> 7;
         z = (a) == 0;
-        RAM(0x0708 + x) = a;
+        RAM(SND_LFO + x) = a;
         if (c) {
             mff_cycles(0x890B, 13);
-            a = RAM(0x0704 + x);
+            a = RAM(SND_ENV + x);
             c = 0;
             m = 0x40; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
             n = (a) >> 7;
             z = (a) == 0;
-            RAM(0x0704 + x) = a;
+            RAM(SND_ENV + x) = a;
         } else {
             mff_cycles(0x8909, 1);
         }

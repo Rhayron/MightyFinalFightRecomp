@@ -2,11 +2,33 @@
 #ifndef MFF_STATE_H
 #define MFF_STATE_H
 
+#define TMP0                     0x0000  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP1                     0x0001  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP2                     0x0002  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP3                     0x0003  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP4                     0x0004  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP5                     0x0005  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP6                     0x0006  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP7                     0x0007  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP8                     0x0008  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP9                     0x0009  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP10                    0x000A  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP11                    0x000B  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP12                    0x000C  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP13                    0x000D  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP14                    0x000E  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP15                    0x000F  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP16                    0x0010  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP17                    0x0011  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP18                    0x0012  /* scratch: each routine's own temporaries (docs/ram_map.md) */
+#define TMP19                    0x0013  /* scratch: each routine's own temporaries (docs/ram_map.md) */
 #define JOY_PRESSED              0x0014  /* new presses, pad 1/2 (A $80 B $40 Select $20 Start $10 U D L R); START at the title: AND # ($0014-$0015) */
 #define JOY_HELD                 0x0016  /* intro pages end when any button is held ($C5D8) ($0016-$0017) */
 #define PALETTE_REQUEST          0x0018  /* nonzero: the nmi copies palette_buf ($0600-$061F) to $3F00 and clears it (0E:C061-C08B); p */
 #define VRAM_LIST_REQUEST        0x0019  /* nonzero: the nmi writes the PPU string list at $0780 ([addr hi, addr lo, count-1, bytes].. */
 #define VRAM_COLUMN_REQUEST      0x001A  /* same as vram_list_request but written with the +32 increment (PPUCTRL bit 2, 0E:C046-C057) */
+#define UNK_1B                   0x001B  /* purpose unknown: written, never read in coverage; named so no raw address remains (rename  */
+#define UNK_1F                   0x001F  /* purpose unknown: accessed only on paths no route runs; named so no raw address remains (re */
 #define MAP_SCREEN_PTR           0x0020  /* pointer to the current screen's 64-byte metatile map in the round's $A000 bank: screen num ($0020-$0021) */
 #define ROUND_TABLES             0x0022  /* round index for the per-round tables (music $C83C, $A000 bank $C1F8); follows round ($61)  */
 #define SCROLL_MODE              0x0023  /* camera direction of the last streamed column, written by the column writer (0F:E521); its  */
@@ -24,6 +46,7 @@
 #define GAME_ACTION              0x0030  /* docs/ram_map.md; $0E = skip stage (verified) */
 #define PLAYER_DIR               0x0031  /* player facing in pad bits, 1 right / 2 left (as obj_dir): 1 at round start (0F:E0A9), set  */
 #define JUMP_DIR                 0x0032  /* horizontal direction of the current jump, pad bits 1/2 (joy_held & 3 when it starts, 00:83 */
+#define UNK_33                   0x0033  /* purpose unknown: written, never read in coverage; named so no raw address remains (rename  */
 #define PLAYER_ID                0x0034  /* Cody 0, Guy 1, Haggar 2 */
 #define JUMP_MOVING              0x0035  /* nonzero when the jump started with left or right held (INC at 00:83ED, 0E:D1C7): selects t */
 #define PLAYER_GROUND_Y          0x0036  /* player's ground line: obj_y while standing (0E:CEAA-CEAD and the walk code 0E:CA6A, CA96), */
@@ -41,6 +64,7 @@
 #define CAMERA_LOCK              0x0050  /* $FF when the camera has scrolled onto a new screen and holds it (0F:E463, with camera_auto */
 #define LEVEL_SAVED              0x0051  /* player_level at the start of the round (0E:DFA8, select screen 04:91C1), put back when con */
 #define AREA_KILLS               0x0054  /* enemies defeated in the current area: INC when one dies (0C:81CE, 0C:8211, 0C:9BD3); the a */
+#define UNK_5A                   0x005A  /* purpose unknown: written, never read in coverage; named so no raw address remains (rename  */
 #define BOSS_AREA                0x005C  /* $FF in a round's last area (sub_area 2), 0 elsewhere (0F:E090-E0A5, which also queues the  */
 #define SUB_AREA                 0x0060  /* area within the round: stage_events acts at round 2/sub_area 2 and round 3/sub_area 1 (08: */
 #define ROUND                    0x0061  /* 0-based round, docs/ram_map.md (verified) */
@@ -80,21 +104,26 @@
 #define NMI_RETURN_PC            0x00A0  /* the PC the NMI interrupted (nmi_hijack_return) ($00A0-$00A1) */
 #define COMBO_TIMER              0x00A3  /* frames left to chain the next hit of a combo: $1E when a player hit connects (0C:8136), co */
 #define ATTACK_LIVE              0x00A4  /* $1E while the player's current attack can hit (0F:F43B, called when an attack starts), 0 w */
+#define UNK_A5                   0x00A5  /* purpose unknown: written, never read in coverage; named so no raw address remains (rename  */
 #define ATTACK_GROUND_Y          0x00A6  /* ground line of the player's current attack, copied from player_ground_y when a jump attack */
 #define ATTACK_ID                0x00A7  /* id of the player's current attack: indexes hit-stop $FB17 (0F:FB09), reach $F869/$F88D/$F8 */
 #define COMBO_TARGET             0x00A8  /* slot of the enemy hit by attack 6 or $0C (0C:858B, 0C:8692); the combo finisher can grab i */
 #define WEAPON_HELD              0x00A9  /* $FF while the player carries a picked-up weapon (05:A82A), 0 when it is dropped on a hit ( */
 #define TEXT_CURSOR              0x00AA  /* special screen: character position in the current text line (index at 04:9926, PPU column  */
 #define TEXT_TIMER               0x00AB  /* special screen: delay counter between text steps ($F0 after a page at 04:98BD, $0A at 04:9 */
+#define UNK_AC                   0x00AC  /* purpose unknown: unclear (RAM survey); named so no raw address remains (rename with eviden */
 #define WEAPON_AMMO              0x00AD  /* Guy's throws left with a picked-up weapon: 7 at pickup (05:A826), DEC per throw (00:8292); */
 #define CREDITS                  0x00AF  /* 3 at a new game: the continue screen's CREDIT 3 */
 #define HUD_ENEMY_SLOT           0x00B0  /* slot whose life bar the HUD shows: the enemy just hit (0C:8569, 8598, 9BC8), the held one  */
 #define HUD_ENEMY_TIMER          0x00B1  /* frames the enemy bar has been shown: 0 or 1 when hud_enemy_slot changes (0C:856D, 0F:E8C4) */
+#define UNK_B2                   0x00B2  /* purpose unknown: unclear (RAM survey); named so no raw address remains (rename with eviden */
 #define GUY_JUMP_WINDOW          0x00B3  /* Guy only: 5 when Up is pressed during a jump with animation $3B (0E:D057-D05F); landing th */
 #define DIALOGUE_CHOICE          0x00B4  /* special screen: bit 7 toggled by the pad with sound $2F (04:99FE-9A07), drawn as a two-way */
 #define SCREEN_EVENT             0x00B5  /* set by the screen-advance object when the camera is $28 pixels into the next screen (05:AA */
+#define UNK_B6                   0x00B6  /* purpose unknown: written, never read in coverage; named so no raw address remains (rename  */
 #define GAME_FINISHED            0x00B7  /* $FF after the last round (0E:DE99-DEAA, with paused $FF and the ending music $08); gamepla */
 #define INTRO_PAGE               0x00B8  /* 0..4, each drawn by $9A00 in bank 00 (main_task) */
+#define UNK_B9                   0x00B9  /* purpose unknown: unclear (RAM survey); named so no raw address remains (rename with eviden */
 #define GRAB_HIT_COUNT           0x00BA  /* hits delivered during a grab: each hit sets attack_id from $8CC1[n] and INC (00:8B33-8B48, */
 #define CAMERA_AUTOSCROLL        0x00BB  /* $FF with camera_lock (0F:E467); once the lock is lifted, walking past the screen centre st */
 #define KEEP_ON_SCREEN           0x00BC  /* $FF in areas whose script asks for it (08:8ABF, 8C43, 8CA5, 8CE1, 8D6F, 8DA8): knocked-bac */
@@ -129,10 +158,12 @@
 #define RENDER_OFF_DEPTH         0x00EE  /* rendering_off/on count; nmi takes nmi_busy while it (or $9A) is nonzero */
 #define UPDATE_SLOT              0x00EF  /* slot objects_update is running (0C:8007-8066, from 1 up to $0F) */
 #define MMC3_SELECT              0x00F0  /* last value written to MMC3 $8000 (bank_switch 0F:FF51/FF5F, sound_update 0F:FF78/FF84); th */
+#define UNK_F1                   0x00F1  /* purpose unknown: accessed only on paths no route runs; named so no raw address remains (re */
 #define PRG_BANKS                0x00F2  /* banks bank_switch last mapped at $8000/$A000 (0F:FF58, 0F:FF66); 0F:F406 saves them across ($00F2-$00F3) */
 #define BANK_REQUEST             0x00F4  /* banks wanted at $8000/$A000 (bank_switch) ($00F4-$00F5) */
 #define BANK_SWITCH_BUSY         0x00F6
 #define SOUND_DEFERRED           0x00F7
+#define UNK_F8                   0x00F8  /* purpose unknown: the NMI copies it to irq_scroll ($C031 -> $7C) but nothing writes it (alw */
 #define SCROLL_X_HI              0x00F9
 #define SCROLL_Y                 0x00FA  /* vertical scroll: the nmi writes it as the second $2005 value (0E:C0A5-C0A7). Only screen s */
 #define SCROLL_Y_HI              0x00FB  /* vertical page matched against the stage list's y page (08:803C, 08:80E1); screen setups ze */
@@ -195,6 +226,36 @@
 #define PALETTE_BASE             0x0620  /* the screen's palette as loaded (0E:C494-C49A writes it with palette_buf; 04:8D55 the chara ($0620-$063F) */
 #define ATTR_SHADOW              0x0640  /* attribute bytes of nametable rows 1-5 ($23C8-$23EF), indexed by $28, so the column rendere ($0640-$0667) */
 #define TILE_BLOCK               0x06C0  /* 4x4 tiles of the 32x32-pixel block the column renderer is drawing, expanded from 4 metatil ($06C0-$06CF) */
+#define UNK_6DA                  0x06DA  /* purpose unknown: accessed only on paths no route runs; named so no raw address remains (re */
+#define SND_INSTRUMENT           0x0700  /* per effect channel (X 0-3); the music's copy is snd_m_instrument at +$28; docs/sound.md; p ($0700-$0703) */
+#define SND_ENV                  0x0704  /* per effect channel (X 0-3); the music's copy is snd_m_env at +$28; docs/sound.md; port/too ($0704-$0707) */
+#define SND_LFO                  0x0708  /* per effect channel (X 0-3); the music's copy is snd_m_lfo at +$28; docs/sound.md; port/too ($0708-$070B) */
+#define SND_VOLUME               0x070C  /* per effect channel (X 0-3); the music's copy is snd_m_volume at +$28; docs/sound.md; port/ ($070C-$070F) */
+#define SND_LEVEL                0x0710  /* per effect channel (X 0-3); the music's copy is snd_m_level at +$28; docs/sound.md; port/t ($0710-$0713) */
+#define SND_DETUNE               0x0714  /* per effect channel (X 0-3); the music's copy is snd_m_detune at +$28; docs/sound.md; port/ ($0714-$0717) */
+#define SND_SLIDE_AMOUNT         0x0718  /* per effect channel (X 0-3); the music's copy is snd_m_slide at +$28; docs/sound.md ($0718-$071B) */
+#define SND_TARGET               0x071C  /* per effect channel (X 0-3); the music's copy is snd_m_target at +$28; docs/sound.md; port/ ($071C-$071F) */
+#define SND_PITCH_LO             0x0720  /* per effect channel (X 0-3); the music's copy is snd_m_pitch_lo at +$28; docs/sound.md; por ($0720-$0723) */
+#define SND_PITCH_HI             0x0724  /* per effect channel (X 0-3); the music's copy is snd_m_pitch_hi at +$28; docs/sound.md; por ($0724-$0727) */
+#define SND_M_INSTRUMENT         0x0728  /* per music channel (snd_instrument + $28); docs/sound.md; port/tools/sound_model.py matches ($0728-$072B) */
+#define SND_M_ENV                0x072C  /* per music channel (snd_env + $28); docs/sound.md; port/tools/sound_model.py matches the or ($072C-$072F) */
+#define SND_M_LFO                0x0730  /* per music channel (snd_lfo + $28); docs/sound.md; port/tools/sound_model.py matches the or ($0730-$0733) */
+#define SND_M_VOLUME             0x0734  /* per music channel (snd_volume + $28); docs/sound.md; port/tools/sound_model.py matches the ($0734-$0737) */
+#define SND_M_LEVEL              0x0738  /* per music channel (snd_level + $28); docs/sound.md; port/tools/sound_model.py matches the  ($0738-$073B) */
+#define SND_M_DETUNE             0x073C  /* per music channel (snd_detune + $28); docs/sound.md; port/tools/sound_model.py matches the ($073C-$073F) */
+#define SND_M_SLIDE              0x0740  /* per music channel (snd_slide + $28); docs/sound.md; port/tools/sound_model.py matches the  ($0740-$0743) */
+#define SND_M_TARGET             0x0744  /* per music channel (snd_target + $28); docs/sound.md; port/tools/sound_model.py matches the ($0744-$0747) */
+#define SND_M_PITCH_LO           0x0748  /* per music channel (snd_pitch_lo + $28); docs/sound.md; port/tools/sound_model.py matches t ($0748-$074B) */
+#define SND_M_PITCH_HI           0x074C  /* per music channel (snd_pitch_hi + $28); docs/sound.md; port/tools/sound_model.py matches t ($074C-$074F) */
+#define SND_MUSIC_PTR_LO         0x0750  /* docs/sound.md; port/tools/sound_model.py matches the oracle on every frame ($0750-$0753) */
+#define SND_MUSIC_PTR_HI         0x0754  /* docs/sound.md; port/tools/sound_model.py matches the oracle on every frame ($0754-$0757) */
+#define SND_MUSIC_FLAGS          0x0758  /* docs/sound.md; port/tools/sound_model.py matches the oracle on every frame ($0758-$075B) */
+#define SND_MUSIC_TRANSPOSE      0x075C  /* docs/sound.md; port/tools/sound_model.py matches the oracle on every frame ($075C-$075F) */
+#define SND_MUSIC_TICKS          0x0760  /* docs/sound.md; port/tools/sound_model.py matches the oracle on every frame ($0760-$0763) */
+#define SND_MUSIC_GATE_RATIO     0x0764  /* docs/sound.md; port/tools/sound_model.py matches the oracle on every frame ($0764-$0767) */
+#define SND_MUSIC_GATE           0x0768  /* docs/sound.md; port/tools/sound_model.py matches the oracle on every frame ($0768-$076B) */
+#define SND_MUSIC_LOOPS          0x076C  /* docs/sound.md; port/tools/sound_model.py matches the oracle on every frame ($076C-$077B) */
+#define SND_PERIOD_HI_CACHE      0x077C  /* docs/sound.md; port/tools/sound_model.py matches the oracle on every frame ($077C-$077F) */
 #define VRAM_BUFFER              0x0780  /* NMI upload buffer: count-prefixed strips for nmi_vram_update ($64/$65) or the write lists  ($0780-$07FF) */
 
 #endif

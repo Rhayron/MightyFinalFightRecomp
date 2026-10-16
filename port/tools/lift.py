@@ -147,6 +147,29 @@ class Names:
 
 # ---------------------------------------------------------------- the lifter
 
+REGS = {0x2000: "PPU_CTRL", 0x2001: "PPU_MASK", 0x2002: "PPU_STATUS", 0x2003: "OAM_ADDR",
+        0x2004: "OAM_DATA", 0x2005: "PPU_SCROLL", 0x2006: "PPU_ADDR", 0x2007: "PPU_DATA",
+        0x4000: "APU_PULSE1", 0x4004: "APU_PULSE2", 0x4008: "APU_TRIANGLE", 0x400C: "APU_NOISE",
+        0x4010: "APU_DMC", 0x4014: "OAM_DMA", 0x4015: "APU_STATUS", 0x4016: "JOY1", 0x4017: "JOY2",
+        0x8000: "MMC3_BANK_SELECT", 0x8001: "MMC3_BANK_DATA", 0xA000: "MMC3_MIRRORING",
+        0xA001: "MMC3_PRG_RAM", 0xC000: "MMC3_IRQ_LATCH", 0xC001: "MMC3_IRQ_RELOAD",
+        0xE000: "MMC3_IRQ_DISABLE", 0xE001: "MMC3_IRQ_ENABLE"}
+
+
+def reg_name(a):
+    """hw.h's name for a register (APU channels by their first register +
+    offset); a PRG address stays a number - a table, or an MMC3 register
+    when written."""
+    if a in REGS and a < 0x8000:
+        return REGS[a]
+    if 0x4000 <= a < 0x4014:
+        base = a & ~3
+        return f"{REGS[base]} + {a - base}"
+    if 0x2008 <= a < 0x4000:
+        return f"PPU_CTRL + 0x{a - 0x2000:X}"   # a mirror
+    return f"0x{a:04X}"
+
+
 def is_hw(a):
     return 0x2000 <= a < 0x6000 or a >= 0x8000
 
@@ -313,43 +336,58 @@ class Lifter:
     # ---- C for one instruction
 
     def ea(self, ins):
-        """(C address expression, statically RAM?, hardware?) of a memory operand."""
+        """(C address expression, kind) of a memory operand; kind is "ram"
+        (CPU RAM, known statically), "hw" (a register, hw.h), "prg" (a table
+        in PRG ROM) or "mem" (an address known only at run time)."""
         mode, arg = ins["mode"], ins["arg"]
         nm = self.nm.addr
         if mode == "zp":
-            return nm(arg), True, False
+            return nm(arg), "ram"
         if mode == "zpx":
-            return f"({nm(arg)} + x) & 0xFF" if arg else "x", True, False
+            return (f"({nm(arg)} + x) & 0xFF" if arg else "x"), "ram"
         if mode == "zpy":
-            return f"({nm(arg)} + y) & 0xFF", True, False
+            return f"({nm(arg)} + y) & 0xFF", "ram"
         if mode == "abs":
-            return nm(arg), arg < 0x2000, is_hw(arg)
+            if arg < 0x2000:
+                return nm(arg), "ram"
+            if arg < 0x6000 or arg >= 0x8000:
+                return reg_name(arg), ("prg" if arg >= 0x8000 else "hw")
+            return f"0x{arg:04X}", "mem"
         if mode in ("abx", "aby"):
             r = "x" if mode == "abx" else "y"
             if arg + 0xFF < 0x2000:
-                return f"{nm(arg)} + {r}", True, False
-            return f"(uint16_t)({nm(arg)} + {r})", False, True
+                return f"{nm(arg)} + {r}", "ram"
+            if 0x2000 <= arg and arg + 0xFF < 0x6000:
+                return f"(uint16_t)({reg_name(arg)} + {r})", "hw"
+            if arg >= 0x8000:
+                return f"(uint16_t)({reg_name(arg)} + {r})", "prg"
+            return f"(uint16_t)(0x{arg:04X} + {r})", "mem"
         if mode == "izy":
-            return f"(uint16_t)(RAM16({nm(arg)}) + y)", False, None
+            return f"(uint16_t)(RAM16({nm(arg)}) + y)", "mem"
         if mode == "izx":
-            return f"RAM16((uint8_t)({nm(arg)} + x))", False, None
+            return f"RAM16((uint8_t)({nm(arg)} + x))", "mem"
         raise Refuse(f"${ins['pc']:04X}: address mode {mode}")
 
     def load(self, ins):
         if ins["mode"] == "imm":
             return f"0x{ins['arg']:02X}"
-        e, ram, hw = self.ea(ins)
-        return f"RAM({e})" if ram else f"nes_read({e})"
+        e, kind = self.ea(ins)
+        return {"ram": f"RAM({e})", "hw": f"hw_read({e})", "prg": f"prg_read({e})",
+                "mem": f"mem_read({e})"}[kind]
 
     def store(self, ins, val):
-        e, ram, hw = self.ea(ins)
-        return f"RAM({e}) = {val};" if ram else f"nes_write({e}, {val});"
+        e, kind = self.ea(ins)
+        # a write to $8000-$FFFF is an MMC3 register write
+        if kind == "prg" and ins["mode"] == "abs" and ins["arg"] in REGS:
+            e = REGS[ins["arg"]]
+        return {"ram": f"RAM({e}) = {val};", "hw": f"hw_write({e}, {val});",
+                "prg": f"hw_write({e}, {val});", "mem": f"mem_write({e}, {val});"}[kind]
 
     def hw_access(self, ins):
         if ins["mode"] in ("imm", "imp", "acc", "rel", "zp", "zpx", "zpy") or ins["mn"] in ("JMP", "JSR"):
             return False
-        e, ram, hw = self.ea(ins)
-        return not ram
+        e, kind = self.ea(ins)
+        return kind != "ram"
 
     def sem(self, ins):
         """[(stmt, defs, uses)] for the instruction's data effect (no control)."""
@@ -381,12 +419,12 @@ class Lifter:
             out.append((f"{r}{'++' if mn[:2] == 'IN' else '--'};", {r}, set()))
             nz(r)
         elif mn in ("INC", "DEC"):
-            e, ram, hw = self.ea(ins)
+            e, kind = self.ea(ins)
             op = "+ 1" if mn == "INC" else "- 1"
-            if ram:
+            if kind == "ram":
                 out.append((f"t = (uint8_t)(RAM({e}) {op}); RAM({e}) = t;", {"t"}, set()))
             else:
-                out.append((f"t = (uint8_t)(nes_read({e}) {op}); nes_write({e}, t);", {"t"}, set()))
+                out.append((f"t = (uint8_t)(mem_read({e}) {op}); mem_write({e}, t);", {"t"}, set()))
             nz("t")
         elif mn in ("AND", "ORA", "EOR"):
             o = {"AND": "&", "ORA": "|", "EOR": "^"}[mn]
@@ -413,9 +451,9 @@ class Lifter:
             if ins["mode"] == "acc":
                 src, put = "a", "a = t;"
             else:
-                e, ram, hw = self.ea(ins)
-                src = f"RAM({e})" if ram else f"nes_read({e})"
-                put = f"RAM({e}) = t;" if ram else f"nes_write({e}, t);"
+                e, kind = self.ea(ins)
+                src = f"RAM({e})" if kind == "ram" else f"mem_read({e})"
+                put = f"RAM({e}) = t;" if kind == "ram" else f"mem_write({e}, t);"
             if mn == "ASL":
                 s = f"t = {src}; c = t >> 7; t = (uint8_t)(t << 1); {put}"
                 uses = set()

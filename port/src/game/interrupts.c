@@ -15,6 +15,7 @@
  * one charge per block.
  */
 #include "mff.h"
+#include "state.h"
 
 /* write lists at $0780: [addr hi, addr lo, count-1, bytes...] until a byte
  * with bit 7 set where an address would be. X is the read index. */
@@ -22,7 +23,7 @@ static void vram_list(void) {
     for (;;) {
         uint8_t x = g_cpu.X, y;
         mff_cycles(0xC201, 4 + 2);
-        g_cpu.A = RAM(0x0780 + x);
+        g_cpu.A = RAM(VRAM_BUFFER + x);
         mff_nz(g_cpu.A);
         if (g_cpu.N) {
             mff_cycles(0xC204, 1 + 6);
@@ -30,13 +31,13 @@ static void vram_list(void) {
             return;
         }
         mff_cycles(0xC206, 4 + 4 + 4 + 4);
-        nes_write(0x2006, g_cpu.A);
-        nes_write(0x2006, RAM(0x0781 + x));
-        y = RAM(0x0782 + x);
+        hw_write(PPU_ADDR, g_cpu.A);
+        hw_write(PPU_ADDR, RAM(VRAM_BUFFER + 1 + x));
+        y = RAM(VRAM_BUFFER + 2 + x);
         do {                                    /* count-1 + 1 bytes */
             mff_cycles(0xC212, 14);
-            g_cpu.A = RAM(0x0783 + x);
-            nes_write(0x2007, g_cpu.A);
+            g_cpu.A = RAM(VRAM_BUFFER + 3 + x);
+            hw_write(PPU_DATA, g_cpu.A);
             x++;
             y--;
             if (!(y & 0x80)) mff_cycles(0xC21A, 1);
@@ -59,7 +60,7 @@ static void vram_list(void) {
 void func_C1FD(void) {
     mff_cycles(0xC1FD, 2 + 3);
     g_cpu.X = 0;
-    RAM(0x19) = 0;
+    RAM(VRAM_LIST_REQUEST) = 0;
     vram_list();
 }
 
@@ -72,30 +73,30 @@ void func_C201(void) { vram_list(); }
 void func_C222(void) {
     uint8_t x = g_cpu.X, y;
     mff_cycles(0xC222, 4);
-    nes_read(0x2002);
+    hw_read(PPU_STATUS);
     do {
         mff_cycles(0xC225, 35);
-        nes_write(0x2000, RAM(0xFF) & 0xFE);
-        y = RAM(0x0780 + x++);
-        nes_write(0x2006, RAM(0x0780 + x++));
-        nes_write(0x2006, RAM(0x0780 + x++));
+        hw_write(PPU_CTRL, RAM(PPUCTRL_SHADOW) & 0xFE);
+        y = RAM(VRAM_BUFFER + x++);
+        hw_write(PPU_ADDR, RAM(VRAM_BUFFER + x++));
+        hw_write(PPU_ADDR, RAM(VRAM_BUFFER + x++));
         do {
             mff_cycles(0xC23E, 14);
-            g_cpu.A = RAM(0x0780 + x++);
-            nes_write(0x2007, g_cpu.A);
+            g_cpu.A = RAM(VRAM_BUFFER + x++);
+            hw_write(PPU_DATA, g_cpu.A);
             y--;
             if (y) mff_cycles(0xC246, 1);
         } while (y);
         mff_cycles(0xC248, 5);
-        g_cpu.C = x >= RAM(0x65);
-        if (x != RAM(0x65)) mff_cycles(0xC24A, 1);
-    } while (x != RAM(0x65));
+        g_cpu.C = x >= RAM(VRAM_BUFFER_LEN);
+        if (x != RAM(VRAM_BUFFER_LEN)) mff_cycles(0xC24A, 1);
+    } while (x != RAM(VRAM_BUFFER_LEN));
     mff_cycles(0xC24C, 11);
     g_cpu.X = x;
     g_cpu.Y = 0;
     g_cpu.A = 0;
     mff_nz(0);
-    RAM(0x65) = 0;
+    RAM(VRAM_BUFFER_LEN) = 0;
     mff_rts();
 }
 
@@ -108,36 +109,36 @@ void func_C09D(void) {
     int x, y;
 
     mff_cycles(0xC09D, 38);
-    nes_read(0x2002);
-    nes_write(0x2005, 0);
-    nes_write(0x2005, RAM(0xFA));
-    nes_write(0x2001, RAM(0xFE));
-    nes_write(0x2000, (RAM(0xFD) & 1) | RAM(0xFF));
+    hw_read(PPU_STATUS);
+    hw_write(PPU_SCROLL, 0);
+    hw_write(PPU_SCROLL, RAM(SCROLL_Y));
+    hw_write(PPU_MASK, RAM(PPUMASK_SHADOW));
+    hw_write(PPU_CTRL, (RAM(SCROLL_NT) & 1) | RAM(PPUCTRL_SHADOW));
     for (x = 1; x >= 0; x--) {
         mff_cycles(0xC0BA, 16 + (x ? 1 : 0));
-        nes_write(0x8000, (uint8_t)x);
-        nes_write(0x8001, RAM(0xE8 + x));
+        hw_write(MMC3_BANK_SELECT, (uint8_t)x);
+        hw_write(MMC3_BANK_DATA, RAM(CHR_BANKS + x));
     }
 
     mff_cycles(0xC0C5, 49);
-    nes_write(0x8000, RAM(0xF0));
-    nes_write(0xC000, 0x21);
-    nes_write(0xC001, 0x21);
-    RAM(0x9C) = 0x4A;
-    RAM(0x9D) = 0xC1;
-    nes_write(0xE000 + RAM(0x9B), 0xC1);
-    RAM(0x92)++;
-    RAM(0x90) = 0xFF;
+    hw_write(MMC3_BANK_SELECT, RAM(MMC3_SELECT));
+    hw_write(MMC3_IRQ_LATCH, 0x21);
+    hw_write(MMC3_IRQ_RELOAD, 0x21);
+    RAM(IRQ_HANDLER) = 0x4A;
+    RAM(IRQ_HANDLER + 1) = 0xC1;
+    hw_write(MMC3_IRQ_DISABLE + RAM(IRQ_ENABLE), 0xC1);
+    RAM(FRAME_COUNTER)++;
+    RAM(SCHED_NMI_FLAG) = 0xFF;
 
     /* nmi_task_timers, $C0E8 */
     for (x = 0, y = 4; y; x += 4, y--) {
         int c = 8 + 12;
-        if (RAM(0x80 + x) != 1) {
+        if (RAM(TASKS + x) != 1) {
             c += 1;
         } else {
             c += 8;
-            if (--RAM(0x81 + x)) c += 1;
-            else { c += 6; RAM(0x80 + x) = 4; g_cpu.A = 4; }
+            if (--RAM(TASKS + 1 + x)) c += 1;
+            else { c += 6; RAM(TASKS + x) = 4; g_cpu.A = 4; }
         }
         if (y > 1) c += 1;
         mff_cycles(0xC0E8, c);
@@ -148,10 +149,10 @@ void func_C09D(void) {
      * goes to nmi_tail */
     mff_cycles(0xC0FD, 30);
     x = g_cpu.S;                    /* LDA $0107,X: no wrap inside page 1 */
-    RAM(0xA1) = RAM(0x0107 + x);
-    RAM(0xA0) = RAM(0x0106 + x);
-    RAM(0x0107 + x) = 0xC1;
-    RAM(0x0106 + x) = 0x19;
+    RAM(NMI_RETURN_PC + 1) = RAM(STACK_PAGE + 7 + x);
+    RAM(NMI_RETURN_PC) = RAM(STACK_PAGE + 6 + x);
+    RAM(STACK_PAGE + 7 + x) = 0xC1;
+    RAM(STACK_PAGE + 6 + x) = 0x19;
     mff_cycles(0xC112, 26);
     g_cpu.Y = mff_pull();
     g_cpu.X = mff_pull();
@@ -169,10 +170,10 @@ void func_C000(void) {
     mff_push(g_cpu.Y);
 
     mff_cycles(0xC006, 27);
-    nes_read(0x2002);
-    nes_write(0x2000, RAM(0xFF) & 0x7F);
-    nes_write(0x2001, 0);
-    if (RAM(0xEE) | RAM(0x9A)) {
+    hw_read(PPU_STATUS);
+    hw_write(PPU_CTRL, RAM(PPUCTRL_SHADOW) & 0x7F);
+    hw_write(PPU_MASK, 0);
+    if (RAM(RENDER_OFF_DEPTH) | RAM(DRAW_BUSY)) {
         mff_jmp_charge(0xC01B, 0xC09D);
         func_C09D();
         return;
@@ -180,22 +181,22 @@ void func_C000(void) {
 
     mff_cycles(0xC019, 1);
     mff_cycles(0xC01E, 5);
-    if (RAM(0x64)) {
+    if (RAM(VRAM_REQUEST)) {
         mff_cycles(0xC022, 11);
         g_cpu.X = 0;
-        RAM(0x64) = 0;
+        RAM(VRAM_REQUEST) = 0;
         if (!mff_call(0xC026, 0xC222)) return;
     } else {
         mff_cycles(0xC020, 1);
     }
 
     mff_cycles(0xC029, 35);
-    RAM(0x7D) = RAM(0xFC);
-    RAM(0x7E) = RAM(0xFD);
-    RAM(0x7C) = RAM(0xF8);
-    nes_write(0x2003, 0);
-    nes_write(0x4014, 2);
-    if (RAM(0x19)) {
+    RAM(IRQ_SCROLL + 1) = RAM(SCROLL_X);
+    RAM(IRQ_SCROLL + 2) = RAM(SCROLL_NT);
+    RAM(IRQ_SCROLL) = RAM(UNK_F8);
+    hw_write(OAM_ADDR, 0);
+    hw_write(OAM_DMA, 2);
+    if (RAM(VRAM_LIST_REQUEST)) {
         mff_cycles(0xC043, 6);
         if (!mff_call(0xC043, 0xC1FD)) return;
     } else {
@@ -203,31 +204,31 @@ void func_C000(void) {
     }
 
     mff_cycles(0xC046, 5);
-    if (RAM(0x1A)) {
+    if (RAM(VRAM_COLUMN_REQUEST)) {
         mff_cycles(0xC04A, 22);
-        nes_write(0x2000, (RAM(0xFF) & 0x7F) | 0x04);
+        hw_write(PPU_CTRL, (RAM(PPUCTRL_SHADOW) & 0x7F) | 0x04);
         g_cpu.X = 0;
-        RAM(0x1A) = 0;
+        RAM(VRAM_COLUMN_REQUEST) = 0;
         if (!mff_call(0xC057, 0xC201)) return;
         mff_cycles(0xC05A, 9);
-        nes_write(0x2000, RAM(0xFF) & 0x7F);
+        hw_write(PPU_CTRL, RAM(PPUCTRL_SHADOW) & 0x7F);
     } else {
         mff_cycles(0xC048, 1);
     }
 
     mff_cycles(0xC061, 5);
-    if (RAM(0x18)) {                        /* palette, $0600-$061F */
+    if (RAM(PALETTE_REQUEST)) {                        /* palette, $0600-$061F */
         int i;
         mff_cycles(0xC065, 21 + 32 * 14 + 31 + 18);
-        RAM(0x18) = 0;
-        nes_read(0x2002);
-        nes_write(0x2006, 0x3F);
-        nes_write(0x2006, 0x00);
-        for (i = 0; i < 32; i++) nes_write(0x2007, RAM(0x0600 + i));
-        nes_write(0x2006, 0x3F);
-        nes_write(0x2006, 0);
-        nes_write(0x2006, 0);
-        nes_write(0x2006, 0);
+        RAM(PALETTE_REQUEST) = 0;
+        hw_read(PPU_STATUS);
+        hw_write(PPU_ADDR, 0x3F);
+        hw_write(PPU_ADDR, 0x00);
+        for (i = 0; i < 32; i++) hw_write(PPU_DATA, RAM(PALETTE_BUF + i));
+        hw_write(PPU_ADDR, 0x3F);
+        hw_write(PPU_ADDR, 0);
+        hw_write(PPU_ADDR, 0);
+        hw_write(PPU_ADDR, 0);
     } else {
         mff_cycles(0xC063, 1);
     }
@@ -237,8 +238,8 @@ void func_C000(void) {
         mff_cycles(0xC08E, 2);
         for (x = 2; x < 6; x++) {
             mff_cycles(0xC090, 18 + (x < 5 ? 1 : 0));
-            nes_write(0x8000, (uint8_t)x);
-            nes_write(0x8001, RAM(0xE8 + x));
+            hw_write(MMC3_BANK_SELECT, (uint8_t)x);
+            hw_write(MMC3_BANK_DATA, RAM(CHR_BANKS + x));
         }
     }
     func_C09D();
@@ -256,9 +257,9 @@ void func_C13B(void) {
     mff_nz(g_cpu.A);
     mff_push(g_cpu.A);
     mff_cycles(0xC141, 13);
-    nes_write(0xE000, g_cpu.A);
-    nes_write(0xE001, g_cpu.A);
-    h = (uint16_t)(RAM(0x9C) | RAM(0x9D) << 8);
+    hw_write(MMC3_IRQ_DISABLE, g_cpu.A);
+    hw_write(MMC3_IRQ_ENABLE, g_cpu.A);
+    h = (uint16_t)(RAM(IRQ_HANDLER) | RAM(IRQ_HANDLER + 1) << 8);
     nes_cpu_instruction_boundary(h, 2);
     call_by_address_tail(h, -1);
 }
@@ -279,7 +280,7 @@ void func_C1D8(void) { irq_return(); }
  * playfield scrolls 0 below the bar; elsewhere it takes scroll_x. Next
  * handler $C194 or $C1B1 after 8 or 17 more lines ($C000 latch). */
 void func_C14A(void) {
-    uint8_t r = RAM(0x61), a = RAM(0x60);
+    uint8_t r = RAM(ROUND), a = RAM(SUB_AREA);
     int special = r == 1 && (a == 1 || a == 2);
     int c = 7;
     if (r != 1) c += 1;
@@ -291,21 +292,21 @@ void func_C14A(void) {
     mff_cycles(0xC14A, c);
     if (special) {
         mff_cycles(0xC15A, 32);
-        nes_read(0x2002);
-        nes_write(0x2005, 0);
-        nes_write(0x2005, 0x22);
-        nes_write(0xC000, 0x4A);
-        RAM(0x9C) = 0x94;
-        RAM(0x9D) = 0xC1;
+        hw_read(PPU_STATUS);
+        hw_write(PPU_SCROLL, 0);
+        hw_write(PPU_SCROLL, 0x22);
+        hw_write(MMC3_IRQ_LATCH, 0x4A);
+        RAM(IRQ_HANDLER) = 0x94;
+        RAM(IRQ_HANDLER + 1) = 0xC1;
         g_cpu.A = 0xC1;
     } else {
         mff_cycles(0xC177, 33);
-        nes_read(0x2002);
-        nes_write(0x2005, RAM(0x7D));
-        nes_write(0x2005, 0x22);
-        nes_write(0xC000, 0xA1);
-        RAM(0x9C) = 0xB1;
-        RAM(0x9D) = 0xC1;
+        hw_read(PPU_STATUS);
+        hw_write(PPU_SCROLL, RAM(IRQ_SCROLL + 1));
+        hw_write(PPU_SCROLL, 0x22);
+        hw_write(MMC3_IRQ_LATCH, 0xA1);
+        RAM(IRQ_HANDLER) = 0xB1;
+        RAM(IRQ_HANDLER + 1) = 0xC1;
         g_cpu.A = 0xC1;
     }
     mff_nz(0xC1);
@@ -316,12 +317,12 @@ void func_C14A(void) {
 /* $C194: the second split of those areas, back to scroll_x. */
 void func_C194(void) {
     mff_cycles(0xC194, 33);
-    nes_read(0x2002);
-    nes_write(0x2005, RAM(0x7D));
-    nes_write(0x2005, 0x22);
-    nes_write(0xC000, 0x57);
-    RAM(0x9C) = 0xB1;
-    RAM(0x9D) = 0xC1;
+    hw_read(PPU_STATUS);
+    hw_write(PPU_SCROLL, RAM(IRQ_SCROLL + 1));
+    hw_write(PPU_SCROLL, 0x22);
+    hw_write(MMC3_IRQ_LATCH, 0x57);
+    RAM(IRQ_HANDLER) = 0xB1;
+    RAM(IRQ_HANDLER + 1) = 0xC1;
     g_cpu.A = 0xC1;
     mff_nz(0xC1);
     mff_jmp_charge(0xC1AE, 0xC1D8);
@@ -331,15 +332,15 @@ void func_C194(void) {
 /* $C1B1: the status bar itself: scroll 0, CHR R0/R1 = $78/$7A, IRQ off. */
 void func_C1B1(void) {
     mff_cycles(0xC1B1, 49);
-    nes_read(0x2002);
-    nes_write(0x2005, 0);
-    nes_write(0x2005, 0);
-    nes_write(0x8000, 0);
-    nes_write(0x8001, 0x78);
-    nes_write(0x8000, 1);
-    nes_write(0x8001, 0x7A);
-    g_cpu.A = RAM(0xF0);
-    nes_write(0x8000, g_cpu.A);
-    nes_write(0xE000, g_cpu.A);
+    hw_read(PPU_STATUS);
+    hw_write(PPU_SCROLL, 0);
+    hw_write(PPU_SCROLL, 0);
+    hw_write(MMC3_BANK_SELECT, 0);
+    hw_write(MMC3_BANK_DATA, 0x78);
+    hw_write(MMC3_BANK_SELECT, 1);
+    hw_write(MMC3_BANK_DATA, 0x7A);
+    g_cpu.A = RAM(MMC3_SELECT);
+    hw_write(MMC3_BANK_SELECT, g_cpu.A);
+    hw_write(MMC3_IRQ_DISABLE, g_cpu.A);
     irq_return();
 }

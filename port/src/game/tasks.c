@@ -13,13 +13,14 @@
  * returns to its caller as the 6502 RTS does.
  */
 #include "mff.h"
+#include "state.h"
 #include "coroutine.h"
 
 void func_FEBA(void);   /* scheduler, still generated */
 
 /* task_self_index, $FF24: X = A = task_current * 4. */
 void func_FF24(void) {
-    uint8_t t = RAM(0x91);
+    uint8_t t = RAM(TASK_CURRENT);
     mff_cycles(0xFF24, 3 + 2 + 2 + 2 + 6);
     g_cpu.C = (t >> 6) & 1;
     g_cpu.A = g_cpu.X = (uint8_t)(t << 2);
@@ -45,11 +46,11 @@ void func_FF02(void) {
     if (!mff_call(0xFF02, 0xFF26)) return;
     x = g_cpu.X;
     mff_cycles(0xFF05, 3 + 4 + 3 + 4 + 2 + 4 + 6);
-    RAM(0x82 + x) = RAM(0x93);
-    RAM(0x83 + x) = RAM(0x94);
+    RAM(TASKS + 2 + x) = RAM(TASK_ENTRY);
+    RAM(TASKS + 3 + x) = RAM(TASK_ENTRY + 1);
     g_cpu.A = 8;
     mff_nz(8);
-    RAM(0x80 + x) = 8;
+    RAM(TASKS + x) = 8;
     mff_rts();
 }
 
@@ -60,7 +61,7 @@ void func_FF12(void) {
     mff_cycles(0xFF15, 2 + 4 + 6);
     g_cpu.A = 0;
     mff_nz(0);
-    RAM(0x80 + g_cpu.X) = 0;
+    RAM(TASKS + g_cpu.X) = 0;
     mff_rts();
 }
 
@@ -72,7 +73,7 @@ void func_FF1A(void) {
     mff_cycles(0xFF1D, 2 + 4 + 3);
     g_cpu.A = 0;
     mff_nz(0);
-    RAM(0x80 + g_cpu.X) = 0;
+    RAM(TASKS + g_cpu.X) = 0;
     func_FEBA();
 }
 
@@ -87,7 +88,7 @@ void func_FF31(void) {
     uint8_t x;
     mff_cycles(0xFF31, 2 + 3 + 2);
     g_cpu.A = 1;
-    RAM(0x93) = 1;
+    RAM(TASK_ENTRY) = 1;
     g_cpu.A = g_cpu.X;
     mff_cycles(0xFF36, 3);
     mff_push(g_cpu.A);
@@ -100,8 +101,8 @@ void func_FF31(void) {
     if (!mff_call(0xFF39, 0xFF24)) return;
     x = g_cpu.X;
     mff_cycles(0xFF3C, 3 + 4 + 2 + 4);
-    RAM(0x81 + x) = RAM(0x93);
-    RAM(0x80 + x) = 1;
+    RAM(TASKS + 1 + x) = RAM(TASK_ENTRY);
+    RAM(TASKS + x) = 1;
     mff_cycles(0xFF44, 2);
     g_cpu.A = x;                        /* TXA */
     mff_cycles(0xFF45, 2);
@@ -111,7 +112,7 @@ void func_FF31(void) {
     g_cpu.X = g_cpu.S;                  /* TSX */
     mff_nz(g_cpu.X);
     mff_cycles(0xFF47, 4);
-    RAM(0x82 + g_cpu.Y) = g_cpu.X;
+    RAM(TASKS + 2 + g_cpu.Y) = g_cpu.X;
     mff_cycles(0xFF49, 3);
     coroutine_yield();
 }
@@ -146,10 +147,10 @@ void func_FF2A(void) {
 static void sched_scan(void) {
 scan:
     mff_cycles(0xFEBD, 2); g_cpu.X = 0; mff_nz(0);
-    mff_cycles(0xFEBF, 3); RAM(0x90) = g_cpu.X;
+    mff_cycles(0xFEBF, 3); RAM(SCHED_NMI_FLAG) = g_cpu.X;
     mff_cycles(0xFEC1, 2); g_cpu.Y = 4; mff_nz(4);
     for (;;) {
-        mff_cycles(0xFEC3, 4); g_cpu.A = RAM(0x80 + g_cpu.X); mff_nz(g_cpu.A);
+        mff_cycles(0xFEC3, 4); g_cpu.A = RAM(TASKS + g_cpu.X); mff_nz(g_cpu.A);
         mff_cycles(0xFEC5, 2); g_cpu.C = g_cpu.A >= 4; mff_nz((uint8_t)(g_cpu.A - 4));
         mff_cycles(0xFEC7, 2);
         if (g_cpu.C) { maybe_trigger_vblank(1); break; }
@@ -163,7 +164,7 @@ scan:
         mff_cycles(0xFED0, 3);
         goto scan;
     }
-    mff_cycles(0xFED3, 3); g_cpu.A = RAM(0x90); mff_nz(g_cpu.A);
+    mff_cycles(0xFED3, 3); g_cpu.A = RAM(SCHED_NMI_FLAG); mff_nz(g_cpu.A);
     mff_cycles(0xFED5, 2);
     if (!g_cpu.Z) { mff_cycles(0xFEBD, 1); goto scan; }
 
@@ -171,29 +172,29 @@ scan:
     mff_cycles(0xFED7, 2); g_cpu.Y--; mff_nz(g_cpu.Y);
     mff_cycles(0xFED8, 2); g_cpu.A = g_cpu.Y; mff_nz(g_cpu.A);
     mff_cycles(0xFED9, 2); g_cpu.A ^= 3; mff_nz(g_cpu.A);
-    mff_cycles(0xFEDB, 3); RAM(0x91) = g_cpu.A;
-    mff_cycles(0xFEDD, 4); g_cpu.Y = RAM(0x80 + g_cpu.X); mff_nz(g_cpu.Y);
+    mff_cycles(0xFEDB, 3); RAM(TASK_CURRENT) = g_cpu.A;
+    mff_cycles(0xFEDD, 4); g_cpu.Y = RAM(TASKS + g_cpu.X); mff_nz(g_cpu.Y);
     mff_cycles(0xFEDF, 2); g_cpu.A = 2; mff_nz(2);
-    mff_cycles(0xFEE1, 4); RAM(0x80 + g_cpu.X) = 2;
+    mff_cycles(0xFEE1, 4); RAM(TASKS + g_cpu.X) = 2;
     mff_cycles(0xFEE3, 2); g_cpu.C = g_cpu.Y >= 8; mff_nz((uint8_t)(g_cpu.Y - 8));
     mff_cycles(0xFEE5, 2);
     if (g_cpu.Z) {                                  /* new: start it */
         uint16_t jt;
-        mff_cycles(0xFEE7, 4); g_cpu.A = RAM(0x82 + g_cpu.X); mff_nz(g_cpu.A);
-        mff_cycles(0xFEE9, 3); RAM(0x93) = g_cpu.A;
-        mff_cycles(0xFEEB, 4); g_cpu.A = RAM(0x83 + g_cpu.X); mff_nz(g_cpu.A);
-        mff_cycles(0xFEED, 3); RAM(0x94) = g_cpu.A;
+        mff_cycles(0xFEE7, 4); g_cpu.A = RAM(TASKS + 2 + g_cpu.X); mff_nz(g_cpu.A);
+        mff_cycles(0xFEE9, 3); RAM(TASK_ENTRY) = g_cpu.A;
+        mff_cycles(0xFEEB, 4); g_cpu.A = RAM(TASKS + 3 + g_cpu.X); mff_nz(g_cpu.A);
+        mff_cycles(0xFEED, 3); RAM(TASK_ENTRY + 1) = g_cpu.A;
         mff_cycles(0xFEEF, 5);
         jt = nes_read16zp(0x93);
         nes_cpu_instruction_boundary(jt, 2);
-        coroutine_start(RAM(0x91), jt);
+        coroutine_start(RAM(TASK_CURRENT), jt);
         return;
     }
     maybe_trigger_vblank(1);                        /* waiting: resume it */
-    mff_cycles(0xFEF2, 4); g_cpu.A = RAM(0x82 + g_cpu.X); mff_nz(g_cpu.A);
+    mff_cycles(0xFEF2, 4); g_cpu.A = RAM(TASKS + 2 + g_cpu.X); mff_nz(g_cpu.A);
     mff_cycles(0xFEF4, 2); g_cpu.X = g_cpu.A; mff_nz(g_cpu.X);
     mff_cycles(0xFEF5, 2); g_cpu.S = g_cpu.X;
-    mff_cycles(0xFEF6, 3); g_cpu.A = RAM(0x91); mff_nz(g_cpu.A);
+    mff_cycles(0xFEF6, 3); g_cpu.A = RAM(TASK_CURRENT); mff_nz(g_cpu.A);
     mff_cycles(0xFEF8, 2);
     if (!g_cpu.Z) {
         maybe_trigger_vblank(1);
@@ -207,7 +208,7 @@ scan:
     mff_cycles(0xFF00, 2); g_cpu.X = g_cpu.A; mff_nz(g_cpu.X);
     mff_cycles(0xFF01, 6);
     g_cpu.S += 2;                                   /* the RTS into the task */
-    coroutine_resume(RAM(0x91));
+    coroutine_resume(RAM(TASK_CURRENT));
 }
 
 /* scheduler, $FEBA. Never returns (a JMP $FEBA from inside a task restarts

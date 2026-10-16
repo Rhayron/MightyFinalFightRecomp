@@ -2000,3 +2000,337 @@ bank = 0x06
 addr = 0x88FA
 name = "snd_lfo_step"
 comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x0000
+name = "tmp0"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0001
+name = "tmp1"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0002
+name = "tmp2"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0003
+name = "tmp3"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0004
+name = "tmp4"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0005
+name = "tmp5"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0006
+name = "tmp6"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0007
+name = "tmp7"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0008
+name = "tmp8"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0009
+name = "tmp9"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x000A
+name = "tmp10"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x000B
+name = "tmp11"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x000C
+name = "tmp12"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x000D
+name = "tmp13"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x000E
+name = "tmp14"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x000F
+name = "tmp15"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0010
+name = "tmp16"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0011
+name = "tmp17"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0012
+name = "tmp18"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0013
+name = "tmp19"
+comment = "scratch: each routine's own temporaries (docs/ram_map.md)"
+
+[[ram]]
+addr = 0x0700
+size = 4
+name = "snd_instrument"
+comment = "per effect channel (X 0-3); the music's copy is snd_m_instrument at +$28; docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0728
+size = 4
+name = "snd_m_instrument"
+comment = "per music channel (snd_instrument + $28); docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0704
+size = 4
+name = "snd_env"
+comment = "per effect channel (X 0-3); the music's copy is snd_m_env at +$28; docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x072C
+size = 4
+name = "snd_m_env"
+comment = "per music channel (snd_env + $28); docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0708
+size = 4
+name = "snd_lfo"
+comment = "per effect channel (X 0-3); the music's copy is snd_m_lfo at +$28; docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0730
+size = 4
+name = "snd_m_lfo"
+comment = "per music channel (snd_lfo + $28); docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x070C
+size = 4
+name = "snd_volume"
+comment = "per effect channel (X 0-3); the music's copy is snd_m_volume at +$28; docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0734
+size = 4
+name = "snd_m_volume"
+comment = "per music channel (snd_volume + $28); docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0710
+size = 4
+name = "snd_level"
+comment = "per effect channel (X 0-3); the music's copy is snd_m_level at +$28; docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0738
+size = 4
+name = "snd_m_level"
+comment = "per music channel (snd_level + $28); docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0714
+size = 4
+name = "snd_detune"
+comment = "per effect channel (X 0-3); the music's copy is snd_m_detune at +$28; docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x073C
+size = 4
+name = "snd_m_detune"
+comment = "per music channel (snd_detune + $28); docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0740
+size = 4
+name = "snd_m_slide"
+comment = "per music channel (snd_slide + $28); docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x071C
+size = 4
+name = "snd_target"
+comment = "per effect channel (X 0-3); the music's copy is snd_m_target at +$28; docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0744
+size = 4
+name = "snd_m_target"
+comment = "per music channel (snd_target + $28); docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0720
+size = 4
+name = "snd_pitch_lo"
+comment = "per effect channel (X 0-3); the music's copy is snd_m_pitch_lo at +$28; docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0748
+size = 4
+name = "snd_m_pitch_lo"
+comment = "per music channel (snd_pitch_lo + $28); docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0724
+size = 4
+name = "snd_pitch_hi"
+comment = "per effect channel (X 0-3); the music's copy is snd_m_pitch_hi at +$28; docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x074C
+size = 4
+name = "snd_m_pitch_hi"
+comment = "per music channel (snd_pitch_hi + $28); docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0750
+size = 4
+name = "snd_music_ptr_lo"
+comment = "docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0754
+size = 4
+name = "snd_music_ptr_hi"
+comment = "docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0758
+size = 4
+name = "snd_music_flags"
+comment = "docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x075C
+size = 4
+name = "snd_music_transpose"
+comment = "docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0760
+size = 4
+name = "snd_music_ticks"
+comment = "docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0764
+size = 4
+name = "snd_music_gate_ratio"
+comment = "docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0768
+size = 4
+name = "snd_music_gate"
+comment = "docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x076C
+size = 16
+name = "snd_music_loops"
+comment = "docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x077C
+size = 4
+name = "snd_period_hi_cache"
+comment = "docs/sound.md; port/tools/sound_model.py matches the oracle on every frame"
+
+[[ram]]
+addr = 0x0718
+size = 4
+name = "snd_slide_amount"
+comment = "per effect channel (X 0-3); the music's copy is snd_m_slide at +$28; docs/sound.md"
+
+[[ram]]
+addr = 0x00B2
+name = "unk_b2"
+comment = "purpose unknown: unclear (RAM survey); named so no raw address remains (rename with evidence)"
+
+[[ram]]
+addr = 0x00B9
+name = "unk_b9"
+comment = "purpose unknown: unclear (RAM survey); named so no raw address remains (rename with evidence)"
+
+[[ram]]
+addr = 0x00AC
+name = "unk_ac"
+comment = "purpose unknown: unclear (RAM survey); named so no raw address remains (rename with evidence)"
+
+[[ram]]
+addr = 0x00A5
+name = "unk_a5"
+comment = "purpose unknown: written, never read in coverage; named so no raw address remains (rename with evidence)"
+
+[[ram]]
+addr = 0x00B6
+name = "unk_b6"
+comment = "purpose unknown: written, never read in coverage; named so no raw address remains (rename with evidence)"
+
+[[ram]]
+addr = 0x005A
+name = "unk_5a"
+comment = "purpose unknown: written, never read in coverage; named so no raw address remains (rename with evidence)"
+
+[[ram]]
+addr = 0x0033
+name = "unk_33"
+comment = "purpose unknown: written, never read in coverage; named so no raw address remains (rename with evidence)"
+
+[[ram]]
+addr = 0x001B
+name = "unk_1b"
+comment = "purpose unknown: written, never read in coverage; named so no raw address remains (rename with evidence)"
+
+[[ram]]
+addr = 0x001F
+name = "unk_1f"
+comment = "purpose unknown: accessed only on paths no route runs; named so no raw address remains (rename with evidence)"
+
+[[ram]]
+addr = 0x00F1
+name = "unk_f1"
+comment = "purpose unknown: accessed only on paths no route runs; named so no raw address remains (rename with evidence)"
+
+[[ram]]
+addr = 0x06DA
+name = "unk_6da"
+comment = "purpose unknown: accessed only on paths no route runs; named so no raw address remains (rename with evidence)"
+
+[[ram]]
+addr = 0x00F8
+name = "unk_f8"
+comment = "purpose unknown: the NMI copies it to irq_scroll ($C031 -> $7C) but nothing writes it (always 0 in every run)"

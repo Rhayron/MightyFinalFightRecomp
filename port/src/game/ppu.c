@@ -6,17 +6,18 @@
  * $FE is the PPUMASK value the NMI writes back.
  */
 #include "mff.h"
+#include "state.h"
 
 /* rendering_off, $C265. Returns A = 0, Z set. */
 void func_C265(void) {
     mff_cycles(0xC265, 5);
-    RAM(0xEE)++;
+    RAM(RENDER_OFF_DEPTH)++;
     mff_cycles(0xC267, 2 + 3);
     g_cpu.A = 0;
     mff_nz(0);
-    RAM(0xFE) = 0;
+    RAM(PPUMASK_SHADOW) = 0;
     mff_cycles(0xC26B, 4);
-    nes_write(0x2001, 0);
+    hw_write(PPU_MASK, 0);
     mff_cycles(0xC26E, 6);
     mff_rts();
 }
@@ -24,13 +25,13 @@ void func_C265(void) {
 /* rendering_on, $C26F: background and sprites on. Returns A = $18. */
 void func_C26F(void) {
     mff_cycles(0xC26F, 5);
-    RAM(0xEE)--;
+    RAM(RENDER_OFF_DEPTH)--;
     mff_cycles(0xC271, 2 + 3);
     g_cpu.A = 0x18;
     mff_nz(0x18);
-    RAM(0xFE) = 0x18;
+    RAM(PPUMASK_SHADOW) = 0x18;
     mff_cycles(0xC275, 4);
-    nes_write(0x2001, 0x18);
+    hw_write(PPU_MASK, 0x18);
     mff_cycles(0xC278, 6);
     mff_rts();
 }

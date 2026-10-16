@@ -6,6 +6,7 @@
  * NMI.
  */
 #include "mff.h"
+#include "state.h"
 
 /* sound_queue_push, $F34A: queue command A if the next entry is free, else
  * drop it. Also keeps the command in $D9 and uses $00/$01. Returns X kept,
@@ -14,19 +15,19 @@ void func_F34A(void) {
     uint8_t cmd = g_cpu.A, x = g_cpu.X, w, slot;
 
     mff_cycles(0xF34A, 3 + 3 + 3 + 3);
-    RAM(0xD9) = cmd;
-    RAM(0x00) = x;
-    w = RAM(0xDA);
-    RAM(0x01) = cmd;
+    RAM(MUSIC_CURRENT) = cmd;
+    RAM(TMP0) = x;
+    w = RAM(SOUND_QUEUE_WRITE);
+    RAM(TMP1) = cmd;
 
     mff_cycles(0xF352, 4 + 2);
-    slot = RAM(0xDC + w);
+    slot = RAM(SOUND_QUEUE + w);
     g_cpu.C = slot >= 0x88;
     if (slot == 0x88) {
         mff_cycles(0xF356, 2 + 3 + 4 + 2 + 2 + 2 + 3);
-        RAM(0xDC + w) = cmd;
+        RAM(SOUND_QUEUE + w) = cmd;
         g_cpu.A = (uint8_t)((w + 1) & 7);
-        RAM(0xDA) = g_cpu.A;
+        RAM(SOUND_QUEUE_WRITE) = g_cpu.A;
         mff_cycles(0xF362, 3 + 6);
     } else {
         g_cpu.A = slot;

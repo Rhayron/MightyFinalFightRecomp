@@ -12,6 +12,7 @@
 #define MFF_H
 
 #include "nes_runtime.h"
+#include "hw.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -19,6 +20,9 @@ extern uint16_t g_rts_target;   /* the runtime reads it after a call returns */
 
 /* CPU RAM, $0000-$07FF (the routines here only touch internal RAM directly) */
 #define RAM(a) g_ram[(a) & 0x7FF]
+
+/* the 6502 stack, page 1 (interrupt frames are read through it) */
+#define STACK_PAGE 0x0100
 
 /* Charge `cycles` CPU cycles at `pc`, as the generated code charges each
  * instruction before running it (frame end, MMC3 and APU clocks run from

@@ -8,6 +8,7 @@
  * sets sound_deferred $F7, and bank_switch runs it when it finishes.
  */
 #include "mff.h"
+#include "state.h"
 
 void func_FF72(void);   /* sound_update, still generated */
 
@@ -15,23 +16,23 @@ void func_FF72(void);   /* sound_update, still generated */
  * so an interrupt sees the same $F6 at any point it could land. */
 void func_FF4D(void) {
     mff_cycles(0xFF4D, 5);
-    RAM(0xF6)++;
+    RAM(BANK_SWITCH_BUSY)++;
 
     mff_cycles(0xFF4F, 38);
-    RAM(0xF0) = 6;
-    nes_write(0x8000, 6);
-    RAM(0xF2) = RAM(0xF4);
-    nes_write(0x8001, RAM(0xF2));
-    RAM(0xF0) = 7;
-    nes_write(0x8000, 7);
-    RAM(0xF3) = RAM(0xF5);
-    nes_write(0x8001, RAM(0xF3));
+    RAM(MMC3_SELECT) = 6;
+    hw_write(MMC3_BANK_SELECT, 6);
+    RAM(PRG_BANKS) = RAM(BANK_REQUEST);
+    hw_write(MMC3_BANK_DATA, RAM(PRG_BANKS));
+    RAM(MMC3_SELECT) = 7;
+    hw_write(MMC3_BANK_SELECT, 7);
+    RAM(PRG_BANKS + 1) = RAM(BANK_REQUEST + 1);
+    hw_write(MMC3_BANK_DATA, RAM(PRG_BANKS + 1));
 
     mff_cycles(0xFF6B, 5);
-    RAM(0xF6)--;
+    RAM(BANK_SWITCH_BUSY)--;
 
     mff_cycles(0xFF6D, 3);
-    g_cpu.A = RAM(0xF7);
+    g_cpu.A = RAM(SOUND_DEFERRED);
     mff_nz(g_cpu.A);
     if (g_cpu.A) {               /* an NMI deferred its sound update */
         mff_cycles(0xFF6F, 3);

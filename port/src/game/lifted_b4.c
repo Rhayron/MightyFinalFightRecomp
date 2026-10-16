@@ -30,34 +30,34 @@ void func_8000_b4(void) {
     REGS_IN;
     mff_cycles(0x8000, 7);
     x = RAM(AREA_INDEX);
-    a = nes_read((uint16_t)(0x81FE + x));
+    a = prg_read((uint16_t)(0x81FE + x));
     mff_cycles(0x8005, 7);
     RAM(SPAWN_LIST_X_HI) = a;
-    a = nes_read((uint16_t)(0x820D + x));
+    a = prg_read((uint16_t)(0x820D + x));
     mff_cycles(0x800A, 7);
     RAM(SPAWN_LIST_X_HI + 1) = a;
-    a = nes_read((uint16_t)(0x821C + x));
+    a = prg_read((uint16_t)(0x821C + x));
     mff_cycles(0x800F, 7);
     RAM(SPAWN_LIST_X) = a;
-    a = nes_read((uint16_t)(0x822B + x));
+    a = prg_read((uint16_t)(0x822B + x));
     mff_cycles(0x8014, 7);
     RAM(SPAWN_LIST_X + 1) = a;
-    a = nes_read((uint16_t)(0x823A + x));
+    a = prg_read((uint16_t)(0x823A + x));
     mff_cycles(0x8019, 7);
     RAM(SPAWN_LIST_Y_HI) = a;
-    a = nes_read((uint16_t)(0x8249 + x));
+    a = prg_read((uint16_t)(0x8249 + x));
     mff_cycles(0x801E, 7);
     RAM(SPAWN_LIST_Y_HI + 1) = a;
-    a = nes_read((uint16_t)(0x8258 + x));
+    a = prg_read((uint16_t)(0x8258 + x));
     mff_cycles(0x8023, 7);
     RAM(SPAWN_LIST_Y) = a;
-    a = nes_read((uint16_t)(0x8267 + x));
+    a = prg_read((uint16_t)(0x8267 + x));
     mff_cycles(0x8028, 7);
     RAM(SPAWN_LIST_Y + 1) = a;
-    a = nes_read((uint16_t)(0x8276 + x));
+    a = prg_read((uint16_t)(0x8276 + x));
     mff_cycles(0x802D, 7);
     RAM(SPAWN_LIST_TYPE) = a;
-    a = nes_read((uint16_t)(0x8285 + x));
+    a = prg_read((uint16_t)(0x8285 + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8032, 9);
@@ -73,17 +73,17 @@ void func_8038_b4(void) {
     y = 0x00;
 L_803A:;
     mff_cycles(0x803A, 5);
-    a = nes_read((uint16_t)(RAM16(SPAWN_LIST_Y_HI) + y));
+    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_Y_HI) + y));
     mff_cycles(0x803C, 5);
     m = RAM(SCROLL_Y_HI); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) { mff_cycles(0x803E, 1); goto L_804B; }
     mff_cycles(0x8040, 5);
-    a = nes_read((uint16_t)(RAM16(SPAWN_LIST_X) + y));
+    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X) + y));
     mff_cycles(0x8042, 10);
     c = 1;
     m = RAM(SCROLL_X); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    a = nes_read((uint16_t)(RAM16(SPAWN_LIST_X_HI) + y));
+    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X_HI) + y));
     mff_cycles(0x8047, 5);
     m = RAM(AREA_SCREEN); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
@@ -101,26 +101,26 @@ L_804B:;
     a = RAM(SCROLL_X);
     c = 0;
     m = 0xFF; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x00) = a;
+    RAM(TMP0) = a;
     a = RAM(AREA_SCREEN);
     m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     y = 0x00;
 L_805F:;
     mff_cycles(0x805F, 5);
-    a = nes_read((uint16_t)(RAM16(SPAWN_LIST_Y_HI) + y));
+    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_Y_HI) + y));
     mff_cycles(0x8061, 5);
     m = RAM(SCROLL_Y_HI); c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     if (!z) { mff_cycles(0x8063, 1); goto L_8070; }
     mff_cycles(0x8065, 5);
-    a = nes_read((uint16_t)(RAM16(SPAWN_LIST_X) + y));
+    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X) + y));
     mff_cycles(0x8067, 10);
     c = 1;
-    m = RAM(0x00); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    a = nes_read((uint16_t)(RAM16(SPAWN_LIST_X_HI) + y));
+    m = RAM(TMP0); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X_HI) + y));
     mff_cycles(0x806C, 5);
-    m = RAM(0x01); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    m = RAM(TMP1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     if (!c) { mff_cycles(0x806E, 1); goto L_8073; }
@@ -245,22 +245,22 @@ L_80B5:;
 void func_80C2_b4(void) {
     REGS_IN;
     mff_cycles(0x80C2, 5);
-    a = nes_read((uint16_t)(RAM16(SPAWN_LIST_X) + y));
+    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X) + y));
     mff_cycles(0x80C4, 13);
-    RAM(0x00) = a;
+    RAM(TMP0) = a;
     c = 1;
     m = RAM(SCROLL_X); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    a = nes_read((uint16_t)(RAM16(SPAWN_LIST_X_HI) + y));
+    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X_HI) + y));
     mff_cycles(0x80CB, 8);
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     m = RAM(AREA_SCREEN); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
     n = (a) >> 7;
     z = (a) == 0;
     if (z) {
         mff_cycles(0x80D1, 5);
-        a = nes_read((uint16_t)(RAM16(SPAWN_LIST_Y) + y));
+        a = mem_read((uint16_t)(RAM16(SPAWN_LIST_Y) + y));
         mff_cycles(0x80D3, 10);
-        RAM(0x02) = a;
+        RAM(TMP2) = a;
         c = 1;
         m = RAM(SCROLL_Y); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
         if (!c) {
@@ -271,9 +271,9 @@ void func_80C2_b4(void) {
             mff_cycles(0x80D8, 1);
         }
         mff_cycles(0x80DD, 5);
-        a = nes_read((uint16_t)(RAM16(SPAWN_LIST_Y_HI) + y));
+        a = mem_read((uint16_t)(RAM16(SPAWN_LIST_Y_HI) + y));
         mff_cycles(0x80DF, 6);
-        RAM(0x03) = a;
+        RAM(TMP3) = a;
         m = RAM(SCROLL_Y_HI); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
         n = (a) >> 7;
         z = (a) == 0;
@@ -330,66 +330,66 @@ L_8105:;
     mff_cycles(0x8105, 54);
     a = y;
     RAM(OBJ_SPAWN_INDEX + x) = a;
-    a = RAM(0x00);
+    a = RAM(TMP0);
     RAM(OBJ_X + x) = a;
-    a = RAM(0x01);
+    a = RAM(TMP1);
     RAM(OBJ_X_HI + x) = a;
-    a = RAM(0x02);
+    a = RAM(TMP2);
     RAM(OBJ_Y + x) = a;
-    a = RAM(0x03);
+    a = RAM(TMP3);
     RAM(OBJ_Y_HI + x) = a;
     a = 0x42;
-    RAM(0x04) = a;
+    RAM(TMP4) = a;
     a = 0x84;
-    RAM(0x05) = a;
-    a = nes_read((uint16_t)(RAM16(SPAWN_LIST_TYPE) + y));
+    RAM(TMP5) = a;
+    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_TYPE) + y));
     mff_cycles(0x8127, 22);
-    RAM(0x06) = y;
+    RAM(TMP6) = y;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     y = a;
-    a = RAM(0x05);
+    a = RAM(TMP5);
     m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x05) = a;
-    a = nes_read((uint16_t)(RAM16(0x04) + y));
+    RAM(TMP5) = a;
+    a = mem_read((uint16_t)(RAM16(TMP4) + y));
     mff_cycles(0x8134, 12);
     RAM(OBJ_FLAGS + x) = a;
     y++;
-    a = nes_read((uint16_t)(RAM16(0x04) + y));
+    a = mem_read((uint16_t)(RAM16(TMP4) + y));
     mff_cycles(0x813A, 17);
     RAM(OBJ_ID + x) = a;
     RAM(OBJ_SAVED_ID + x) = a;
     y++;
-    a = nes_read((uint16_t)(RAM16(0x04) + y));
+    a = mem_read((uint16_t)(RAM16(TMP4) + y));
     mff_cycles(0x8143, 12);
     RAM(OBJ_ANIM + x) = a;
     y++;
-    a = nes_read((uint16_t)(RAM16(0x04) + y));
+    a = mem_read((uint16_t)(RAM16(TMP4) + y));
     mff_cycles(0x8149, 23);
     RAM(OBJ_ATTACK + x) = a;
-    y = RAM(0x06);
+    y = RAM(TMP6);
     a = 0xE6;
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     a = 0x85;
-    RAM(0x08) = a;
-    a = nes_read((uint16_t)(RAM16(SPAWN_LIST_TYPE) + y));
+    RAM(TMP8) = a;
+    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_TYPE) + y));
     mff_cycles(0x8158, 19);
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     y = a;
-    a = RAM(0x08);
+    a = RAM(TMP8);
     m = 0x00; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x08) = a;
-    a = nes_read((uint16_t)(RAM16(0x07) + y));
+    RAM(TMP8) = a;
+    a = mem_read((uint16_t)(RAM16(TMP7) + y));
     mff_cycles(0x8163, 17);
     RAM(OBJ_LIFE + x) = a;
     RAM(OBJ_LIFE_MAX + x) = a;
     y++;
-    a = nes_read((uint16_t)(RAM16(0x07) + y));
+    a = mem_read((uint16_t)(RAM16(TMP7) + y));
     mff_cycles(0x816C, 12);
     RAM(OBJ_SPAWN_GROUP + x) = a;
     y++;
-    a = nes_read((uint16_t)(RAM16(0x07) + y));
+    a = mem_read((uint16_t)(RAM16(TMP7) + y));
     mff_cycles(0x8172, 23);
     RAM(OBJ_KIND + x) = a;
     a = 0x80;
@@ -736,24 +736,24 @@ void func_89D7_b4(void) {
     REGS_IN;
     mff_cycles(0x89D7, 7);
     y = RAM(ROUND);
-    a = nes_read((uint16_t)(0x89F5 + y));
+    a = prg_read((uint16_t)(0x89F5 + y));
     mff_cycles(0x89DC, 7);
-    RAM(0x02) = a;
-    a = nes_read((uint16_t)(0x89FA + y));
+    RAM(TMP2) = a;
+    a = prg_read((uint16_t)(0x89FA + y));
     mff_cycles(0x89E1, 11);
-    RAM(0x03) = a;
+    RAM(TMP3) = a;
     y = RAM(SUB_AREA);
-    a = nes_read((uint16_t)(RAM16(0x02) + y));
+    a = mem_read((uint16_t)(RAM16(TMP2) + y));
     mff_cycles(0x89E7, 6);
     y = a;
-    a = nes_read((uint16_t)(0x8A0E + y));
+    a = prg_read((uint16_t)(0x8A0E + y));
     mff_cycles(0x89EB, 7);
-    RAM(0x04) = a;
-    a = nes_read((uint16_t)(0x8A1D + y));
+    RAM(TMP4) = a;
+    a = prg_read((uint16_t)(0x8A1D + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x89F0, 8);
-    RAM(0x05) = a;
+    RAM(TMP5) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0004); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -763,14 +763,14 @@ void func_8A2C_b4(void) {
     REGS_IN;
     mff_cycles(0x8A2C, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8A3B + y));
+    a = prg_read((uint16_t)(0x8A3B + y));
     mff_cycles(0x8A31, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8A3F + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8A3F + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8A36, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -788,7 +788,7 @@ void func_8A44_b4(void) {
     REGS_IN;
     mff_cycles(0x8A44, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DC4 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DC4 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8A49, 2);
@@ -817,7 +817,7 @@ void func_8A53_b4(void) {
     REGS_IN;
     mff_cycles(0x8A53, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DC4 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DC4 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8A58, 2);
@@ -846,7 +846,7 @@ void func_8A62_b4(void) {
     REGS_IN;
     mff_cycles(0x8A62, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DC4 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DC4 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8A67, 2);
@@ -880,14 +880,14 @@ void func_8A76_b4(void) {
     REGS_IN;
     mff_cycles(0x8A76, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8A85 + y));
+    a = prg_read((uint16_t)(0x8A85 + y));
     mff_cycles(0x8A7B, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8A89 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8A89 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8A80, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -897,7 +897,7 @@ void func_8A8D_b4(void) {
     REGS_IN;
     mff_cycles(0x8A8D, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DC8 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DC8 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8A92, 2);
@@ -928,7 +928,7 @@ void func_8A9D_b4(void) {
     REGS_IN;
     mff_cycles(0x8A9D, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DC8 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DC8 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8AA2, 2);
@@ -965,14 +965,14 @@ void func_8AAC_b4(void) {
     REGS_IN;
     mff_cycles(0x8AAC, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8ABB + y));
+    a = prg_read((uint16_t)(0x8ABB + y));
     mff_cycles(0x8AB1, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8ABD + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8ABD + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8AB6, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -984,7 +984,7 @@ void func_8ABF_b4(void) {
     a = 0xFF;
     RAM(KEEP_ON_SCREEN) = a;
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DCC + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DCC + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8AC8, 2);
@@ -1015,14 +1015,14 @@ void func_8AD3_b4(void) {
     REGS_IN;
     mff_cycles(0x8AD3, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8AE2 + y));
+    a = prg_read((uint16_t)(0x8AE2 + y));
     mff_cycles(0x8AD8, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8AE6 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8AE6 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8ADD, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1032,7 +1032,7 @@ void func_8AEA_b4(void) {
     REGS_IN;
     mff_cycles(0x8AEA, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DCE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DCE + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8AEF, 2);
@@ -1061,7 +1061,7 @@ void func_8AF9_b4(void) {
     REGS_IN;
     mff_cycles(0x8AF9, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DCE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DCE + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8AFE, 2);
@@ -1090,7 +1090,7 @@ void func_8B08_b4(void) {
     REGS_IN;
     mff_cycles(0x8B08, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DCE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DCE + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B0D, 2);
@@ -1124,14 +1124,14 @@ void func_8B1C_b4(void) {
     REGS_IN;
     mff_cycles(0x8B1C, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8B2B + y));
+    a = prg_read((uint16_t)(0x8B2B + y));
     mff_cycles(0x8B21, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8B30 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8B30 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8B26, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1141,7 +1141,7 @@ void func_8B35_b4(void) {
     REGS_IN;
     mff_cycles(0x8B35, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DD2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD2 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B3A, 2);
@@ -1170,7 +1170,7 @@ void func_8B44_b4(void) {
     REGS_IN;
     mff_cycles(0x8B44, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DD2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD2 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B49, 2);
@@ -1204,7 +1204,7 @@ void func_8B58_b4(void) {
     REGS_IN;
     mff_cycles(0x8B58, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DD2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD2 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B5D, 2);
@@ -1235,7 +1235,7 @@ void func_8B68_b4(void) {
     REGS_IN;
     mff_cycles(0x8B68, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DD2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD2 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B6D, 2);
@@ -1269,14 +1269,14 @@ void func_8B7C_b4(void) {
     REGS_IN;
     mff_cycles(0x8B7C, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8B8B + y));
+    a = prg_read((uint16_t)(0x8B8B + y));
     mff_cycles(0x8B81, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8B8D + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8B8D + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8B86, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1286,7 +1286,7 @@ void func_8B8F_b4(void) {
     REGS_IN;
     mff_cycles(0x8B8F, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DD7 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD7 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8B94, 2);
@@ -1317,14 +1317,14 @@ void func_8B9F_b4(void) {
     REGS_IN;
     mff_cycles(0x8B9F, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8BAE + y));
+    a = prg_read((uint16_t)(0x8BAE + y));
     mff_cycles(0x8BA4, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8BB2 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8BB2 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8BA9, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1334,7 +1334,7 @@ void func_8BB6_b4(void) {
     REGS_IN;
     mff_cycles(0x8BB6, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DD9 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD9 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8BBB, 2);
@@ -1363,7 +1363,7 @@ void func_8BC5_b4(void) {
     REGS_IN;
     mff_cycles(0x8BC5, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DD9 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DD9 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8BCA, 2);
@@ -1392,14 +1392,14 @@ void func_8BE8_b4(void) {
     REGS_IN;
     mff_cycles(0x8BE8, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8BF7 + y));
+    a = prg_read((uint16_t)(0x8BF7 + y));
     mff_cycles(0x8BED, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8BFB + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8BFB + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8BF2, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1409,7 +1409,7 @@ void func_8BFF_b4(void) {
     REGS_IN;
     mff_cycles(0x8BFF, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DDD + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DDD + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C04, 2);
@@ -1438,7 +1438,7 @@ void func_8C0E_b4(void) {
     REGS_IN;
     mff_cycles(0x8C0E, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DDD + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DDD + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C13, 2);
@@ -1469,7 +1469,7 @@ void func_8C1E_b4(void) {
     REGS_IN;
     mff_cycles(0x8C1E, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DDD + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DDD + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C23, 2);
@@ -1503,14 +1503,14 @@ void func_8C32_b4(void) {
     REGS_IN;
     mff_cycles(0x8C32, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8C41 + y));
+    a = prg_read((uint16_t)(0x8C41 + y));
     mff_cycles(0x8C37, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8C42 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8C42 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8C3C, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1522,7 +1522,7 @@ void func_8C43_b4(void) {
     a = 0xFF;
     RAM(KEEP_ON_SCREEN) = a;
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DE1 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DE1 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C4C, 2);
@@ -1553,14 +1553,14 @@ void func_8C57_b4(void) {
     REGS_IN;
     mff_cycles(0x8C57, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8C66 + y));
+    a = prg_read((uint16_t)(0x8C66 + y));
     mff_cycles(0x8C5C, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8C6A + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8C6A + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8C61, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1570,7 +1570,7 @@ void func_8C6E_b4(void) {
     REGS_IN;
     mff_cycles(0x8C6E, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DE2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DE2 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C73, 2);
@@ -1599,7 +1599,7 @@ void func_8C7D_b4(void) {
     REGS_IN;
     mff_cycles(0x8C7D, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DE2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DE2 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8C82, 2);
@@ -1636,14 +1636,14 @@ void func_8C8C_b4(void) {
     REGS_IN;
     mff_cycles(0x8C8C, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8C9B + y));
+    a = prg_read((uint16_t)(0x8C9B + y));
     mff_cycles(0x8C91, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8CA0 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8CA0 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8C96, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1655,7 +1655,7 @@ void func_8CA5_b4(void) {
     a = 0xFF;
     RAM(KEEP_ON_SCREEN) = a;
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DE6 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DE6 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8CAE, 2);
@@ -1689,14 +1689,14 @@ void func_8CBD_b4(void) {
     REGS_IN;
     mff_cycles(0x8CBD, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8CCC + y));
+    a = prg_read((uint16_t)(0x8CCC + y));
     mff_cycles(0x8CC2, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8CCF + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8CCF + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8CC7, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1706,7 +1706,7 @@ void func_8CD2_b4(void) {
     REGS_IN;
     mff_cycles(0x8CD2, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DEB + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DEB + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8CD7, 2);
@@ -1737,7 +1737,7 @@ void func_8CE1_b4(void) {
     a = 0xFF;
     RAM(KEEP_ON_SCREEN) = a;
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DEB + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DEB + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8CEA, 2);
@@ -1768,14 +1768,14 @@ void func_8CF5_b4(void) {
     REGS_IN;
     mff_cycles(0x8CF5, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8D04 + y));
+    a = prg_read((uint16_t)(0x8D04 + y));
     mff_cycles(0x8CFA, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8D08 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8D08 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8CFF, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1785,7 +1785,7 @@ void func_8D0C_b4(void) {
     REGS_IN;
     mff_cycles(0x8D0C, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DEE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DEE + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D11, 2);
@@ -1814,7 +1814,7 @@ void func_8D1B_b4(void) {
     REGS_IN;
     mff_cycles(0x8D1B, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DEE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DEE + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D20, 2);
@@ -1843,7 +1843,7 @@ void func_8D2A_b4(void) {
     REGS_IN;
     mff_cycles(0x8D2A, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DEE + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DEE + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D2F, 2);
@@ -1874,14 +1874,14 @@ void func_8D3A_b4(void) {
     REGS_IN;
     mff_cycles(0x8D3A, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8D49 + y));
+    a = prg_read((uint16_t)(0x8D49 + y));
     mff_cycles(0x8D3F, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8D4D + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8D4D + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8D44, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1891,7 +1891,7 @@ void func_8D51_b4(void) {
     REGS_IN;
     mff_cycles(0x8D51, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DF2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DF2 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D56, 2);
@@ -1920,7 +1920,7 @@ void func_8D60_b4(void) {
     REGS_IN;
     mff_cycles(0x8D60, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DF2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DF2 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D65, 2);
@@ -1951,7 +1951,7 @@ void func_8D6F_b4(void) {
     a = 0xFF;
     RAM(KEEP_ON_SCREEN) = a;
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DF2 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DF2 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D78, 2);
@@ -1982,14 +1982,14 @@ void func_8D83_b4(void) {
     REGS_IN;
     mff_cycles(0x8D83, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x8D92 + y));
+    a = prg_read((uint16_t)(0x8D92 + y));
     mff_cycles(0x8D88, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x8D95 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x8D95 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x8D8D, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -1999,7 +1999,7 @@ void func_8D98_b4(void) {
     REGS_IN;
     mff_cycles(0x8D98, 7);
     a = RAM(AREA_KILLS);
-    m = nes_read((uint16_t)(0x8DF6 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0x8DF6 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0x8D9D, 2);
@@ -2128,7 +2128,7 @@ void func_9038_b4(void) {
     RAM(RNG) = a;
     a &= 0x0F;
     y = a;
-    a = nes_read((uint16_t)(0x9024 + y));
+    a = prg_read((uint16_t)(0x9024 + y));
     mff_cycles(0x9045, 10);
     RAM(SPAWN_TIMER) = a;
     a = RAM(ROUND);
@@ -2194,15 +2194,15 @@ void func_9038_b4(void) {
     RAM(RNG + 1) = a;
     a &= 0x1F;
     x = a;
-    a = nes_read((uint16_t)(0x964B + x));
+    a = prg_read((uint16_t)(0x964B + x));
     mff_cycles(0x90BB, 14);
     RAM(OBJ_X + y) = a;
     a = RAM(SCROLL_X_HI);
     c = 0;
-    m = nes_read((uint16_t)(0x966B + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = prg_read((uint16_t)(0x966B + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     mff_cycles(0x90C4, 9);
     RAM(OBJ_X_HI + y) = a;
-    a = nes_read((uint16_t)(0x968B + x));
+    a = prg_read((uint16_t)(0x968B + x));
     mff_cycles(0x90CA, 10);
     RAM(OBJ_Y + y) = a;
     a = RAM(ROUND);
@@ -2223,7 +2223,7 @@ void func_9038_b4(void) {
     RAM(RNG + 2) = a;
     a &= 0x07;
     x = a;
-    a = nes_read((uint16_t)(0x96AB + x));
+    a = prg_read((uint16_t)(0x96AB + x));
     z = (a) == 0;
     mff_cycles(0x90EA, 7);
     RAM(OBJ_Y + y) = a;
@@ -2245,7 +2245,7 @@ L_90EF:;
             RAM(RNG + 2) = a;
             a &= 0x07;
             x = a;
-            a = nes_read((uint16_t)(0x96B3 + x));
+            a = prg_read((uint16_t)(0x96B3 + x));
             mff_cycles(0x9107, 5);
             RAM(OBJ_Y + y) = a;
         } else {
@@ -2288,7 +2288,7 @@ L_910A:;
     a = RAM(SPAWN_GROUPS);
     c = 0;
     m = RAM(SPAWN_GROUPS + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     m = 0x07; c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0x912E, 1); goto L_9174; }
@@ -2333,65 +2333,65 @@ L_9158:;
     mff_cycles(0x9158, 7);
     a = 0x09;
     z = (a) == 0;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     if (!z) { mff_cycles(0x915C, 1); goto L_9174; }
 L_915E:;
     mff_cycles(0x915E, 7);
     a = 0x07;
     z = (a) == 0;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     if (!z) { mff_cycles(0x9162, 1); goto L_9174; }
 L_9164:;
     mff_cycles(0x9164, 7);
     a = 0x09;
     z = (a) == 0;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     if (!z) { mff_cycles(0x9168, 1); goto L_9174; }
 L_916A:;
     mff_cycles(0x916A, 7);
     a = 0x08;
     z = (a) == 0;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     if (!z) { mff_cycles(0x916E, 1); goto L_9174; }
 L_9170:;
     mff_cycles(0x9170, 5);
     a = 0x07;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
 L_9174:;
     mff_cycles(0x9174, 27);
     a = 0x0C;
     c = 1;
-    m = RAM(0x01); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    RAM(0x01) = a;
+    m = RAM(TMP1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    RAM(TMP1) = a;
     a = 0x05;
     c = 1;
-    m = RAM(0x01); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    RAM(0x01) = a;
+    m = RAM(TMP1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    RAM(TMP1) = a;
     y = RAM(ROUND);
-    a = nes_read((uint16_t)(0x9363 + y));
+    a = prg_read((uint16_t)(0x9363 + y));
     mff_cycles(0x9187, 7);
-    RAM(0x02) = a;
-    a = nes_read((uint16_t)(0x9368 + y));
+    RAM(TMP2) = a;
+    a = prg_read((uint16_t)(0x9368 + y));
     mff_cycles(0x918C, 11);
-    RAM(0x03) = a;
+    RAM(TMP3) = a;
     y = RAM(SUB_AREA);
-    a = nes_read((uint16_t)(RAM16(0x02) + y));
+    a = mem_read((uint16_t)(RAM16(TMP2) + y));
     mff_cycles(0x9192, 6);
     y = a;
-    a = nes_read((uint16_t)(0x937C + y));
+    a = prg_read((uint16_t)(0x937C + y));
     mff_cycles(0x9196, 7);
-    RAM(0x04) = a;
-    a = nes_read((uint16_t)(0x938B + y));
+    RAM(TMP4) = a;
+    a = prg_read((uint16_t)(0x938B + y));
     mff_cycles(0x919B, 11);
-    RAM(0x05) = a;
+    RAM(TMP5) = a;
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(RAM16(0x04) + y));
+    a = mem_read((uint16_t)(RAM16(TMP4) + y));
     mff_cycles(0x91A1, 14);
     c = 0;
-    m = RAM(0x01); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(TMP1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     x = a;
     y = RAM(SPAWN_SLOT);
-    a = nes_read((uint16_t)(0x94DD + x));
+    a = prg_read((uint16_t)(0x94DD + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x91AA, 6);
@@ -2399,17 +2399,17 @@ L_9174:;
     if (!mff_call_fn(0x11AC, func_F2A0, 0xE000)) return;
     SYNC_IN;
     mff_cycles(0x91AD, 4);
-    a = nes_read((uint16_t)(0x9456 + x));
+    a = prg_read((uint16_t)(0x9456 + x));
     mff_cycles(0x91B0, 14);
     RAM(OBJ_ID + y) = a;
     RAM(OBJ_SAVED_ID + y) = a;
-    a = nes_read((uint16_t)(0x9564 + x));
+    a = prg_read((uint16_t)(0x9564 + x));
     mff_cycles(0x91B9, 9);
     RAM(OBJ_KIND + y) = a;
-    a = nes_read((uint16_t)(0x93CF + x));
+    a = prg_read((uint16_t)(0x93CF + x));
     mff_cycles(0x91BF, 31);
     RAM(OBJ_SPAWN_GROUP + y) = a;
-    RAM(0x02) = x;
+    RAM(TMP2) = x;
     a = RAM(RNG);
     c = 0;
     m = RAM(RNG + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
@@ -2443,35 +2443,35 @@ L_9174:;
     if (z) { mff_cycles(0x91E9, 1); goto L_91FF; }
 L_91EB:;
     mff_cycles(0x91EB, 4);
-    a = nes_read((uint16_t)(0x95EB + x));
+    a = prg_read((uint16_t)(0x95EB + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x91EE, 2);
     if (!z) { mff_cycles(0x91EE, 2); goto L_9202; }
 L_91F0:;
     mff_cycles(0x91F0, 4);
-    a = nes_read((uint16_t)(0x95FB + x));
+    a = prg_read((uint16_t)(0x95FB + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x91F3, 2);
     if (!z) { mff_cycles(0x91F3, 2); goto L_9202; }
 L_91F5:;
     mff_cycles(0x91F5, 4);
-    a = nes_read((uint16_t)(0x960B + x));
+    a = prg_read((uint16_t)(0x960B + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x91F8, 2);
     if (!z) { mff_cycles(0x91F8, 2); goto L_9202; }
 L_91FA:;
     mff_cycles(0x91FA, 4);
-    a = nes_read((uint16_t)(0x961B + x));
+    a = prg_read((uint16_t)(0x961B + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x91FD, 2);
     if (!z) { mff_cycles(0x91FD, 2); goto L_9202; }
 L_91FF:;
     mff_cycles(0x91FF, 4);
-    a = nes_read((uint16_t)(0x962B + x));
+    a = prg_read((uint16_t)(0x962B + x));
     n = (a) >> 7;
     z = (a) == 0;
 L_9202:;
@@ -2487,7 +2487,7 @@ L_9209:;
     RAM(RNG + 2) = a;
     a &= 0x0F;
     x = a;
-    a = nes_read((uint16_t)(0x963B + x));
+    a = prg_read((uint16_t)(0x963B + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9215, 16);
@@ -2513,7 +2513,7 @@ L_921C:;
     mff_cycles(0x921F, 2);
     if (c) { mff_cycles(0x921B, 1); goto L_921B; }
     mff_cycles(0x9221, 149);
-    RAM(0x00) = y;
+    RAM(TMP0) = y;
     t = (uint8_t)(RAM(AREA_KILLS) + 1); RAM(AREA_KILLS) = t;
     a = RAM(PLAYER_DIR);
     RAM(OBJ_DIR + y) = a;
@@ -2547,7 +2547,7 @@ L_921C:;
     RAM(RNG) = a;
     a &= 0x07;
     x = a;
-    a = nes_read((uint16_t)(0x96BB + x));
+    a = prg_read((uint16_t)(0x96BB + x));
     mff_cycles(0x927E, 23);
     RAM(OBJ_X + y) = a;
     a = 0x30;
@@ -2586,7 +2586,7 @@ L_921C:;
     a = RAM(SPAWN_GROUPS);
     c = 0;
     m = RAM(SPAWN_GROUPS + 1); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     m = 0x07; c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0x92AF, 1); goto L_92E8; }
@@ -2626,34 +2626,34 @@ L_92D2:;
     mff_cycles(0x92D2, 7);
     a = 0x07;
     z = (a) == 0;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     if (!z) { mff_cycles(0x92D6, 1); goto L_92E8; }
 L_92D8:;
     mff_cycles(0x92D8, 7);
     a = 0x07;
     z = (a) == 0;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     if (!z) { mff_cycles(0x92DC, 1); goto L_92E8; }
 L_92DE:;
     mff_cycles(0x92DE, 7);
     a = 0x08;
     z = (a) == 0;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     if (!z) { mff_cycles(0x92E2, 1); goto L_92E8; }
 L_92E4:;
     mff_cycles(0x92E4, 5);
     a = 0x07;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
 L_92E8:;
     mff_cycles(0x92E8, 24);
     a = 0x0C;
     c = 1;
-    m = RAM(0x01); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    RAM(0x01) = a;
+    m = RAM(TMP1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    RAM(TMP1) = a;
     a = 0x05;
     c = 1;
-    m = RAM(0x01); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
-    RAM(0x01) = a;
+    m = RAM(TMP1); w = a - m - !c; v = ((a ^ m) & (a ^ w) & 0x80) != 0; c = w >= 0; a = (uint8_t)w;
+    RAM(TMP1) = a;
     m = 0x00; c = a >= m;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0x92F8, 1); goto L_92FE; }
@@ -2669,7 +2669,7 @@ L_92FE:;
     RAM(RNG) = a;
     a &= 0x01;
     x = a;
-    a = nes_read((uint16_t)(0x934D + x));
+    a = prg_read((uint16_t)(0x934D + x));
     mff_cycles(0x930B, 5);
     x = a;
     n = (x) >> 7;
@@ -2684,11 +2684,11 @@ L_930F:;
     RAM(RNG + 1) = a;
     a &= 0x01;
     x = a;
-    a = nes_read((uint16_t)(0x934B + x));
+    a = prg_read((uint16_t)(0x934B + x));
     mff_cycles(0x931C, 9);
     x = a;
-    y = RAM(0x00);
-    a = nes_read((uint16_t)(0x934F + x));
+    y = RAM(TMP0);
+    a = prg_read((uint16_t)(0x934F + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9322, 6);
@@ -2698,18 +2698,18 @@ L_930F:;
     mff_cycles(0x9325, 11);
     a = 0xD4;
     RAM(OBJ_FLAGS + y) = a;
-    a = nes_read((uint16_t)(0x9353 + x));
+    a = prg_read((uint16_t)(0x9353 + x));
     mff_cycles(0x932D, 14);
     RAM(OBJ_ID + y) = a;
     RAM(OBJ_SAVED_ID + y) = a;
-    a = nes_read((uint16_t)(0x9357 + x));
+    a = prg_read((uint16_t)(0x9357 + x));
     mff_cycles(0x9336, 9);
     RAM(OBJ_KIND + y) = a;
-    a = nes_read((uint16_t)(0x935B + x));
+    a = prg_read((uint16_t)(0x935B + x));
     mff_cycles(0x933C, 12);
     RAM(OBJ_SPAWN_GROUP + y) = a;
-    RAM(0x02) = x;
-    a = nes_read((uint16_t)(0x935F + x));
+    RAM(TMP2) = x;
+    a = prg_read((uint16_t)(0x935F + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9344, 16);
@@ -2723,8 +2723,8 @@ L_930F:;
 void func_931D_b4(void) {
     REGS_IN;
     mff_cycles(0x931D, 7);
-    y = RAM(0x00);
-    a = nes_read((uint16_t)(0x934F + x));
+    y = RAM(TMP0);
+    a = prg_read((uint16_t)(0x934F + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9322, 6);
@@ -2734,18 +2734,18 @@ void func_931D_b4(void) {
     mff_cycles(0x9325, 11);
     a = 0xD4;
     RAM(OBJ_FLAGS + y) = a;
-    a = nes_read((uint16_t)(0x9353 + x));
+    a = prg_read((uint16_t)(0x9353 + x));
     mff_cycles(0x932D, 14);
     RAM(OBJ_ID + y) = a;
     RAM(OBJ_SAVED_ID + y) = a;
-    a = nes_read((uint16_t)(0x9357 + x));
+    a = prg_read((uint16_t)(0x9357 + x));
     mff_cycles(0x9336, 9);
     RAM(OBJ_KIND + y) = a;
-    a = nes_read((uint16_t)(0x935B + x));
+    a = prg_read((uint16_t)(0x935B + x));
     mff_cycles(0x933C, 12);
     RAM(OBJ_SPAWN_GROUP + y) = a;
-    RAM(0x02) = x;
-    a = nes_read((uint16_t)(0x935F + x));
+    RAM(TMP2) = x;
+    a = prg_read((uint16_t)(0x935F + x));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9344, 16);
@@ -2760,7 +2760,7 @@ void func_96C3_b4(void) {
     REGS_IN;
     mff_cycles(0x96C3, 7);
     a = 0x00;
-    RAM(0x00) = a;
+    RAM(TMP0) = a;
     y = 0x0D;
     for (;;) {
         mff_cycles(0x96C9, 6);
@@ -2792,7 +2792,7 @@ void func_96C3_b4(void) {
                                 z = ((uint8_t)(a - m)) == 0;
                                 if (!z) {
                                     mff_cycles(0x96E9, 5);
-                                    t = (uint8_t)(RAM(0x00) + 1); RAM(0x00) = t;
+                                    t = (uint8_t)(RAM(TMP0) + 1); RAM(TMP0) = t;
                                 } else {
                                     mff_cycles(0x96E7, 1);
                                 }
@@ -2822,7 +2822,7 @@ void func_96C3_b4(void) {
         mff_cycles(0x96C9, 1);
     }
     mff_cycles(0x96F0, 7);
-    a = RAM(0x00);
+    a = RAM(TMP0);
     m = 0x02; c = a >= m;
     if (!c) {
         mff_cycles(0x96F6, 8);
@@ -2847,7 +2847,7 @@ void func_96FC_b4(void) {
     REGS_IN;
     mff_cycles(0x96FC, 7);
     a = 0x00;
-    RAM(0x00) = a;
+    RAM(TMP0) = a;
     y = 0x0D;
 L_9702:;
     mff_cycles(0x9702, 6);
@@ -2869,7 +2869,7 @@ L_9702:;
     if (!c) { mff_cycles(0x9717, 1); goto L_971B; }
 L_9719:;
     mff_cycles(0x9719, 5);
-    t = (uint8_t)(RAM(0x00) + 1); RAM(0x00) = t;
+    t = (uint8_t)(RAM(TMP0) + 1); RAM(TMP0) = t;
 L_971B:;
     mff_cycles(0x971B, 6);
     y--;
@@ -2877,7 +2877,7 @@ L_971B:;
     z = ((uint8_t)(y - m)) == 0;
     if (!z) { mff_cycles(0x9702, 1); goto L_9702; }
     mff_cycles(0x9720, 5);
-    a = RAM(0x00);
+    a = RAM(TMP0);
     z = (a) == 0;
     if (z) {
         mff_cycles(0x9724, 8);
@@ -2902,24 +2902,24 @@ void func_972A_b4(void) {
     REGS_IN;
     mff_cycles(0x972A, 7);
     y = RAM(ROUND);
-    a = nes_read((uint16_t)(0x9748 + y));
+    a = prg_read((uint16_t)(0x9748 + y));
     mff_cycles(0x972F, 7);
-    RAM(0x02) = a;
-    a = nes_read((uint16_t)(0x974D + y));
+    RAM(TMP2) = a;
+    a = prg_read((uint16_t)(0x974D + y));
     mff_cycles(0x9734, 11);
-    RAM(0x03) = a;
+    RAM(TMP3) = a;
     y = RAM(SUB_AREA);
-    a = nes_read((uint16_t)(RAM16(0x02) + y));
+    a = mem_read((uint16_t)(RAM16(TMP2) + y));
     mff_cycles(0x973A, 6);
     y = a;
-    a = nes_read((uint16_t)(0x9761 + y));
+    a = prg_read((uint16_t)(0x9761 + y));
     mff_cycles(0x973E, 7);
-    RAM(0x04) = a;
-    a = nes_read((uint16_t)(0x9770 + y));
+    RAM(TMP4) = a;
+    a = prg_read((uint16_t)(0x9770 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9743, 8);
-    RAM(0x05) = a;
+    RAM(TMP5) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0004); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -2929,7 +2929,7 @@ void func_977F_b4(void) {
     REGS_IN;
     mff_cycles(0x977F, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x99C2 + y));
+    a = prg_read((uint16_t)(0x99C2 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9784, 6);
@@ -2954,14 +2954,14 @@ void func_9788_b4(void) {
     REGS_IN;
     mff_cycles(0x9788, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x9797 + y));
+    a = prg_read((uint16_t)(0x9797 + y));
     mff_cycles(0x978D, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x979B + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x979B + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9792, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -2970,7 +2970,7 @@ void func_9788_b4(void) {
 void func_979F_b4(void) {
     REGS_IN;
     mff_cycles(0x979F, 4);
-    a = nes_read((uint16_t)(0x99C6 + y));
+    a = prg_read((uint16_t)(0x99C6 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x97A2, 6);
@@ -2986,7 +2986,7 @@ void func_979F_b4(void) {
 void func_97A6_b4(void) {
     REGS_IN;
     mff_cycles(0x97A6, 4);
-    a = nes_read((uint16_t)(0x99C6 + y));
+    a = prg_read((uint16_t)(0x99C6 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x97A9, 6);
@@ -3003,14 +3003,14 @@ void func_97B4_b4(void) {
     REGS_IN;
     mff_cycles(0x97B4, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x97C3 + y));
+    a = prg_read((uint16_t)(0x97C3 + y));
     mff_cycles(0x97B9, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x97C5 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x97C5 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x97BE, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3019,7 +3019,7 @@ void func_97B4_b4(void) {
 void func_97C7_b4(void) {
     REGS_IN;
     mff_cycles(0x97C7, 4);
-    a = nes_read((uint16_t)(0x99CA + y));
+    a = prg_read((uint16_t)(0x99CA + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x97CA, 6);
@@ -3036,14 +3036,14 @@ void func_97CE_b4(void) {
     REGS_IN;
     mff_cycles(0x97CE, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x97DD + y));
+    a = prg_read((uint16_t)(0x97DD + y));
     mff_cycles(0x97D3, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x97E1 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x97E1 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x97D8, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3052,7 +3052,7 @@ void func_97CE_b4(void) {
 void func_97E5_b4(void) {
     REGS_IN;
     mff_cycles(0x97E5, 4);
-    a = nes_read((uint16_t)(0x99CC + y));
+    a = prg_read((uint16_t)(0x99CC + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x97E8, 6);
@@ -3068,7 +3068,7 @@ void func_97E5_b4(void) {
 void func_97EC_b4(void) {
     REGS_IN;
     mff_cycles(0x97EC, 4);
-    a = nes_read((uint16_t)(0x99CC + y));
+    a = prg_read((uint16_t)(0x99CC + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x97EF, 6);
@@ -3085,14 +3085,14 @@ void func_97FA_b4(void) {
     REGS_IN;
     mff_cycles(0x97FA, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x9809 + y));
+    a = prg_read((uint16_t)(0x9809 + y));
     mff_cycles(0x97FF, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x980E + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x980E + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9804, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3101,7 +3101,7 @@ void func_97FA_b4(void) {
 void func_9813_b4(void) {
     REGS_IN;
     mff_cycles(0x9813, 4);
-    a = nes_read((uint16_t)(0x99D0 + y));
+    a = prg_read((uint16_t)(0x99D0 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9816, 6);
@@ -3117,7 +3117,7 @@ void func_9813_b4(void) {
 void func_981A_b4(void) {
     REGS_IN;
     mff_cycles(0x981A, 4);
-    a = nes_read((uint16_t)(0x99D0 + y));
+    a = prg_read((uint16_t)(0x99D0 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x981D, 6);
@@ -3133,7 +3133,7 @@ void func_981A_b4(void) {
 void func_9821_b4(void) {
     REGS_IN;
     mff_cycles(0x9821, 4);
-    a = nes_read((uint16_t)(0x99D0 + y));
+    a = prg_read((uint16_t)(0x99D0 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9824, 6);
@@ -3150,14 +3150,14 @@ void func_982F_b4(void) {
     REGS_IN;
     mff_cycles(0x982F, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x983E + y));
+    a = prg_read((uint16_t)(0x983E + y));
     mff_cycles(0x9834, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x9840 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x9840 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9839, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3166,7 +3166,7 @@ void func_982F_b4(void) {
 void func_9842_b4(void) {
     REGS_IN;
     mff_cycles(0x9842, 4);
-    a = nes_read((uint16_t)(0x99D5 + y));
+    a = prg_read((uint16_t)(0x99D5 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9845, 6);
@@ -3183,14 +3183,14 @@ void func_9849_b4(void) {
     REGS_IN;
     mff_cycles(0x9849, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x9858 + y));
+    a = prg_read((uint16_t)(0x9858 + y));
     mff_cycles(0x984E, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x985C + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x985C + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9853, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3199,7 +3199,7 @@ void func_9849_b4(void) {
 void func_9860_b4(void) {
     REGS_IN;
     mff_cycles(0x9860, 4);
-    a = nes_read((uint16_t)(0x99D7 + y));
+    a = prg_read((uint16_t)(0x99D7 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9863, 6);
@@ -3216,14 +3216,14 @@ void func_9875_b4(void) {
     REGS_IN;
     mff_cycles(0x9875, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x9884 + y));
+    a = prg_read((uint16_t)(0x9884 + y));
     mff_cycles(0x987A, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x9888 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x9888 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x987F, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3232,7 +3232,7 @@ void func_9875_b4(void) {
 void func_988C_b4(void) {
     REGS_IN;
     mff_cycles(0x988C, 4);
-    a = nes_read((uint16_t)(0x99DB + y));
+    a = prg_read((uint16_t)(0x99DB + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x988F, 6);
@@ -3248,7 +3248,7 @@ void func_988C_b4(void) {
 void func_9893_b4(void) {
     REGS_IN;
     mff_cycles(0x9893, 4);
-    a = nes_read((uint16_t)(0x99DB + y));
+    a = prg_read((uint16_t)(0x99DB + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9896, 6);
@@ -3265,14 +3265,14 @@ void func_98A1_b4(void) {
     REGS_IN;
     mff_cycles(0x98A1, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x98B0 + y));
+    a = prg_read((uint16_t)(0x98B0 + y));
     mff_cycles(0x98A6, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x98B2 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x98B2 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x98AB, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3281,7 +3281,7 @@ void func_98A1_b4(void) {
 void func_98B4_b4(void) {
     REGS_IN;
     mff_cycles(0x98B4, 4);
-    a = nes_read((uint16_t)(0x99E4 + y));
+    a = prg_read((uint16_t)(0x99E4 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x98B7, 6);
@@ -3298,14 +3298,14 @@ void func_98BB_b4(void) {
     REGS_IN;
     mff_cycles(0x98BB, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x98CA + y));
+    a = prg_read((uint16_t)(0x98CA + y));
     mff_cycles(0x98C0, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x98CE + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x98CE + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x98C5, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3314,7 +3314,7 @@ void func_98BB_b4(void) {
 void func_98D2_b4(void) {
     REGS_IN;
     mff_cycles(0x98D2, 4);
-    a = nes_read((uint16_t)(0x99E0 + y));
+    a = prg_read((uint16_t)(0x99E0 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x98D5, 6);
@@ -3330,7 +3330,7 @@ void func_98D2_b4(void) {
 void func_98D9_b4(void) {
     REGS_IN;
     mff_cycles(0x98D9, 4);
-    a = nes_read((uint16_t)(0x99E0 + y));
+    a = prg_read((uint16_t)(0x99E0 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x98DC, 6);
@@ -3346,7 +3346,7 @@ void func_98D9_b4(void) {
 void func_98E0_b4(void) {
     REGS_IN;
     mff_cycles(0x98E0, 4);
-    a = nes_read((uint16_t)(0x99E0 + y));
+    a = prg_read((uint16_t)(0x99E0 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x98E3, 6);
@@ -3363,14 +3363,14 @@ void func_98E7_b4(void) {
     REGS_IN;
     mff_cycles(0x98E7, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x98F6 + y));
+    a = prg_read((uint16_t)(0x98F6 + y));
     mff_cycles(0x98EC, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x98F8 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x98F8 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x98F1, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3379,7 +3379,7 @@ void func_98E7_b4(void) {
 void func_98FA_b4(void) {
     REGS_IN;
     mff_cycles(0x98FA, 4);
-    a = nes_read((uint16_t)(0x99ED + y));
+    a = prg_read((uint16_t)(0x99ED + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x98FD, 6);
@@ -3396,14 +3396,14 @@ void func_9901_b4(void) {
     REGS_IN;
     mff_cycles(0x9901, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x9910 + y));
+    a = prg_read((uint16_t)(0x9910 + y));
     mff_cycles(0x9906, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x9914 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x9914 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x990B, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3412,7 +3412,7 @@ void func_9901_b4(void) {
 void func_9918_b4(void) {
     REGS_IN;
     mff_cycles(0x9918, 4);
-    a = nes_read((uint16_t)(0x99EA + y));
+    a = prg_read((uint16_t)(0x99EA + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x991B, 6);
@@ -3428,7 +3428,7 @@ void func_9918_b4(void) {
 void func_991F_b4(void) {
     REGS_IN;
     mff_cycles(0x991F, 4);
-    a = nes_read((uint16_t)(0x99EB + y));
+    a = prg_read((uint16_t)(0x99EB + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9922, 6);
@@ -3444,7 +3444,7 @@ void func_991F_b4(void) {
 void func_9926_b4(void) {
     REGS_IN;
     mff_cycles(0x9926, 4);
-    a = nes_read((uint16_t)(0x99F2 + y));
+    a = prg_read((uint16_t)(0x99F2 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9929, 6);
@@ -3461,14 +3461,14 @@ void func_9947_b4(void) {
     REGS_IN;
     mff_cycles(0x9947, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x9956 + y));
+    a = prg_read((uint16_t)(0x9956 + y));
     mff_cycles(0x994C, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x995A + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x995A + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9951, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3477,7 +3477,7 @@ void func_9947_b4(void) {
 void func_995E_b4(void) {
     REGS_IN;
     mff_cycles(0x995E, 4);
-    a = nes_read((uint16_t)(0x99EC + y));
+    a = prg_read((uint16_t)(0x99EC + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9961, 6);
@@ -3493,7 +3493,7 @@ void func_995E_b4(void) {
 void func_9965_b4(void) {
     REGS_IN;
     mff_cycles(0x9965, 4);
-    a = nes_read((uint16_t)(0x99EC + y));
+    a = prg_read((uint16_t)(0x99EC + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9968, 6);
@@ -3509,7 +3509,7 @@ void func_9965_b4(void) {
 void func_996C_b4(void) {
     REGS_IN;
     mff_cycles(0x996C, 4);
-    a = nes_read((uint16_t)(0x99EC + y));
+    a = prg_read((uint16_t)(0x99EC + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x996F, 6);
@@ -3526,14 +3526,14 @@ void func_9973_b4(void) {
     REGS_IN;
     mff_cycles(0x9973, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x9982 + y));
+    a = prg_read((uint16_t)(0x9982 + y));
     mff_cycles(0x9978, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x9986 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x9986 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x997D, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3542,7 +3542,7 @@ void func_9973_b4(void) {
 void func_998A_b4(void) {
     REGS_IN;
     mff_cycles(0x998A, 4);
-    a = nes_read((uint16_t)(0x99F0 + y));
+    a = prg_read((uint16_t)(0x99F0 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x998D, 6);
@@ -3558,7 +3558,7 @@ void func_998A_b4(void) {
 void func_9991_b4(void) {
     REGS_IN;
     mff_cycles(0x9991, 4);
-    a = nes_read((uint16_t)(0x99F0 + y));
+    a = prg_read((uint16_t)(0x99F0 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x9994, 6);
@@ -3574,7 +3574,7 @@ void func_9991_b4(void) {
 void func_9998_b4(void) {
     REGS_IN;
     mff_cycles(0x9998, 4);
-    a = nes_read((uint16_t)(0x99F0 + y));
+    a = prg_read((uint16_t)(0x99F0 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x999B, 6);
@@ -3591,14 +3591,14 @@ void func_999F_b4(void) {
     REGS_IN;
     mff_cycles(0x999F, 7);
     y = RAM(SCROLL_X_HI);
-    a = nes_read((uint16_t)(0x99AE + y));
+    a = prg_read((uint16_t)(0x99AE + y));
     mff_cycles(0x99A4, 7);
-    RAM(0x06) = a;
-    a = nes_read((uint16_t)(0x99B1 + y));
+    RAM(TMP6) = a;
+    a = prg_read((uint16_t)(0x99B1 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x99A9, 8);
-    RAM(0x07) = a;
+    RAM(TMP7) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0006); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
@@ -3607,7 +3607,7 @@ void func_999F_b4(void) {
 void func_99B4_b4(void) {
     REGS_IN;
     mff_cycles(0x99B4, 4);
-    a = nes_read((uint16_t)(0x99F4 + y));
+    a = prg_read((uint16_t)(0x99F4 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0x99B7, 6);
@@ -3626,13 +3626,13 @@ void func_A000_b4(void) {
     t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
     mff_push(a);
     x = a;
-    a = nes_read((uint16_t)(0xA035 + x));
+    a = prg_read((uint16_t)(0xA035 + x));
     mff_cycles(0xA006, 7);
     RAM(CHR_BANKS + 3) = a;
-    a = nes_read((uint16_t)(0xA036 + x));
+    a = prg_read((uint16_t)(0xA036 + x));
     mff_cycles(0xA00B, 7);
     RAM(CHR_BANKS + 4) = a;
-    a = nes_read((uint16_t)(0xA0B5 + x));
+    a = prg_read((uint16_t)(0xA0B5 + x));
     mff_cycles(0xA010, 27);
     RAM(CHR_BANKS + 5) = a;
     a = mff_pull();
@@ -3641,13 +3641,13 @@ void func_A000_b4(void) {
     y = a;
     a = 0x00;
     m = 0xA1; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     a = 0x05;
-    RAM(0x00) = a;
+    RAM(TMP0) = a;
     x = 0x00;
     for (;;) {
         mff_cycles(0xA022, 5);
-        a = nes_read((uint16_t)(RAM16(0x00) + y));
+        a = mem_read((uint16_t)(RAM16(TMP0) + y));
         mff_cycles(0xA024, 18);
         RAM(PALETTE_BUF + 24 + x) = a;
         RAM(PALETTE_BASE + 24 + x) = a;
@@ -3676,13 +3676,13 @@ void func_A013_b4(void) {
     y = a;
     a = 0x00;
     m = 0xA1; w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     a = 0x05;
-    RAM(0x00) = a;
+    RAM(TMP0) = a;
     x = 0x00;
     for (;;) {
         mff_cycles(0xA022, 5);
-        a = nes_read((uint16_t)(RAM16(0x00) + y));
+        a = mem_read((uint16_t)(RAM16(TMP0) + y));
         mff_cycles(0xA024, 18);
         RAM(PALETTE_BUF + 24 + x) = a;
         RAM(PALETTE_BASE + 24 + x) = a;
@@ -3707,15 +3707,15 @@ void func_A300_b4(void) {
     REGS_IN;
     mff_cycles(0xA300, 18);
     a = 0x03;
-    RAM(0x10) = a;
+    RAM(TMP16) = a;
     a = RAM(PALETTE_REQUEST);
     a &= 0x01;
-    RAM(0x11) = a;
+    RAM(TMP17) = a;
     a = 0x00;
     RAM(PALETTE_REQUEST) = a;
     for (;;) {
         mff_cycles(0xA30E, 9);
-        x = RAM(0x10);
+        x = RAM(TMP16);
         a = RAM(BG_PAL_ANIM_ON + x);
         n = (a) >> 7;
         z = (a) == 0;
@@ -3728,13 +3728,13 @@ void func_A300_b4(void) {
             mff_cycles(0xA313, 1);
         }
         mff_cycles(0xA318, 7);
-        t = (uint8_t)(RAM(0x10) - 1); RAM(0x10) = t;
+        t = (uint8_t)(RAM(TMP16) - 1); RAM(TMP16) = t;
         n = (t) >> 7;
         if (n) break;
         mff_cycles(0xA30E, 1);
     }
     mff_cycles(0xA31C, 12);
-    a = RAM(0x11);
+    a = RAM(TMP17);
     n = (a) >> 7;
     z = (a) == 0;
     RAM(PALETTE_REQUEST) = a;
@@ -3747,12 +3747,12 @@ void func_A321_b4(void) {
     REGS_IN;
     mff_cycles(0xA321, 8);
     y = RAM(BG_PAL_ANIM_SCRIPT + x);
-    a = nes_read((uint16_t)(0xA445 + y));
+    a = prg_read((uint16_t)(0xA445 + y));
     mff_cycles(0xA327, 17);
     y = a;
     a = RAM(BG_PAL_ANIM_TIMER + x);
     t = (uint8_t)(RAM(BG_PAL_ANIM_TIMER + x) + 1); RAM(BG_PAL_ANIM_TIMER + x) = t;
-    m = nes_read((uint16_t)(0xA459 + y)); c = a >= m;
+    m = prg_read((uint16_t)(0xA459 + y)); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     mff_cycles(0xA331, 2);
@@ -3762,7 +3762,7 @@ void func_A321_b4(void) {
         RAM(BG_PAL_ANIM_TIMER + x) = a;
         a = RAM(BG_PAL_ANIM_STEP + x);
         t = (uint8_t)(RAM(BG_PAL_ANIM_STEP + x) + 1); RAM(BG_PAL_ANIM_STEP + x) = t;
-        m = nes_read((uint16_t)(0xA458 + y)); c = a >= m;
+        m = prg_read((uint16_t)(0xA458 + y)); c = a >= m;
         z = ((uint8_t)(a - m)) == 0;
         mff_cycles(0xA341, 2);
         if (z) {
@@ -3777,32 +3777,32 @@ void func_A321_b4(void) {
         c = 0;
         m = RAM(BG_PAL_ANIM_STEP + x); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
         x = a;
-        a = nes_read((uint16_t)(0xA45B + x));
+        a = prg_read((uint16_t)(0xA45B + x));
         mff_cycles(0xA351, 6);
         t = a; c = t >> 7; t = (uint8_t)(t << 1); a = t;
-        m = nes_read((uint16_t)(0xA45B + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+        m = prg_read((uint16_t)(0xA45B + x)); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
         mff_cycles(0xA355, 6);
         x = a;
-        a = nes_read((uint16_t)(0xA45A + y));
+        a = prg_read((uint16_t)(0xA45A + y));
         mff_cycles(0xA359, 7);
         y = a;
         a = 0x03;
-        RAM(0x00) = a;
+        RAM(TMP0) = a;
         for (;;) {
             mff_cycles(0xA35E, 4);
-            a = nes_read((uint16_t)(0xA370 + x));
+            a = prg_read((uint16_t)(0xA370 + x));
             mff_cycles(0xA361, 21);
             RAM(PALETTE_BUF + y) = a;
             RAM(PALETTE_BASE + y) = a;
             y++;
             x++;
-            t = (uint8_t)(RAM(0x00) - 1); RAM(0x00) = t;
+            t = (uint8_t)(RAM(TMP0) - 1); RAM(TMP0) = t;
             z = (t) == 0;
             if (z) break;
             mff_cycles(0xA35E, 1);
         }
         mff_cycles(0xA36D, 5);
-        t = (uint8_t)(RAM(0x11) + 1); RAM(0x11) = t;
+        t = (uint8_t)(RAM(TMP17) + 1); RAM(TMP17) = t;
         n = (t) >> 7;
         z = (t) == 0;
     } else {
@@ -3822,35 +3822,35 @@ void func_A700_b4(void) {
     SYNC_IN;
     mff_cycles(0xA703, 7);
     y = RAM(INTRO_PAGE);
-    a = nes_read((uint16_t)(0xA7D6 + y));
+    a = prg_read((uint16_t)(0xA7D6 + y));
     mff_cycles(0xA708, 7);
-    RAM(0x0C) = a;
-    a = nes_read((uint16_t)(0xA7DB + y));
+    RAM(TMP12) = a;
+    a = prg_read((uint16_t)(0xA7DB + y));
     mff_cycles(0xA70D, 16);
-    RAM(0x0D) = a;
+    RAM(TMP13) = a;
     a = 0x00;
-    RAM(0x0E) = a;
+    RAM(TMP14) = a;
     a = 0x00;
-    RAM(0x10) = a;
-    RAM(0x12) = a;
+    RAM(TMP16) = a;
+    RAM(TMP18) = a;
 L_A719:;
     mff_cycles(0xA719, 12);
     a = 0x00;
-    RAM(0x11) = a;
-    x = RAM(0x10);
-    a = nes_read((uint16_t)(0xA782 + x));
+    RAM(TMP17) = a;
+    x = RAM(TMP16);
+    a = prg_read((uint16_t)(0xA782 + x));
     mff_cycles(0xA722, 8);
     RAM(VRAM_BUFFER) = a;
-    a = nes_read((uint16_t)(0xA785 + x));
+    a = prg_read((uint16_t)(0xA785 + x));
     mff_cycles(0xA728, 28);
     c = 0;
-    m = RAM(0x11); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(TMP17); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     RAM(VRAM_BUFFER + 1) = a;
     a = 0x00;
     RAM(VRAM_BUFFER + 2) = a;
-    y = RAM(0x0E);
-    t = (uint8_t)(RAM(0x0E) + 1); RAM(0x0E) = t;
-    a = nes_read((uint16_t)(RAM16(0x0C) + y));
+    y = RAM(TMP14);
+    t = (uint8_t)(RAM(TMP14) + 1); RAM(TMP14) = t;
+    a = mem_read((uint16_t)(RAM16(TMP12) + y));
     mff_cycles(0xA739, 4);
     m = 0xFF; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
@@ -3865,9 +3865,9 @@ L_A719:;
         a = 0xFF;
         RAM(VRAM_BUFFER + 4) = a;
         RAM(VRAM_LIST_REQUEST) = a;
-        a = RAM(0x10);
+        a = RAM(TMP16);
         mff_push(a);
-        a = RAM(0x11);
+        a = RAM(TMP17);
         n = (a) >> 7;
         z = (a) == 0;
         mff_push(a);
@@ -3880,10 +3880,10 @@ L_A719:;
         SYNC_IN;
         mff_cycles(0xA757, 26);
         a = mff_pull();
-        RAM(0x11) = a;
+        RAM(TMP17) = a;
         a = mff_pull();
-        RAM(0x10) = a;
-        t = (uint8_t)(RAM(0x11) + 1); RAM(0x11) = t;
+        RAM(TMP16) = a;
+        t = (uint8_t)(RAM(TMP17) + 1); RAM(TMP17) = t;
         a = RAM(FRAME_COUNTER);
         a &= 0x03;
         n = (a) >> 7;
@@ -3906,8 +3906,8 @@ L_A719:;
         mff_cycles(0xA73F, 1);
     }
     mff_cycles(0xA76D, 12);
-    t = (uint8_t)(RAM(0x10) + 1); RAM(0x10) = t;
-    a = RAM(0x10);
+    t = (uint8_t)(RAM(TMP16) + 1); RAM(TMP16) = t;
+    a = RAM(TMP16);
     m = 0x03; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
@@ -3934,26 +3934,26 @@ void func_A713_b4(void) {
     REGS_IN;
     mff_cycles(0xA713, 8);
     a = 0x00;
-    RAM(0x10) = a;
-    RAM(0x12) = a;
+    RAM(TMP16) = a;
+    RAM(TMP18) = a;
 L_A719:;
     mff_cycles(0xA719, 12);
     a = 0x00;
-    RAM(0x11) = a;
-    x = RAM(0x10);
-    a = nes_read((uint16_t)(0xA782 + x));
+    RAM(TMP17) = a;
+    x = RAM(TMP16);
+    a = prg_read((uint16_t)(0xA782 + x));
     mff_cycles(0xA722, 8);
     RAM(VRAM_BUFFER) = a;
-    a = nes_read((uint16_t)(0xA785 + x));
+    a = prg_read((uint16_t)(0xA785 + x));
     mff_cycles(0xA728, 28);
     c = 0;
-    m = RAM(0x11); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(TMP17); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     RAM(VRAM_BUFFER + 1) = a;
     a = 0x00;
     RAM(VRAM_BUFFER + 2) = a;
-    y = RAM(0x0E);
-    t = (uint8_t)(RAM(0x0E) + 1); RAM(0x0E) = t;
-    a = nes_read((uint16_t)(RAM16(0x0C) + y));
+    y = RAM(TMP14);
+    t = (uint8_t)(RAM(TMP14) + 1); RAM(TMP14) = t;
+    a = mem_read((uint16_t)(RAM16(TMP12) + y));
     mff_cycles(0xA739, 4);
     m = 0xFF; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
@@ -3968,9 +3968,9 @@ L_A719:;
         a = 0xFF;
         RAM(VRAM_BUFFER + 4) = a;
         RAM(VRAM_LIST_REQUEST) = a;
-        a = RAM(0x10);
+        a = RAM(TMP16);
         mff_push(a);
-        a = RAM(0x11);
+        a = RAM(TMP17);
         n = (a) >> 7;
         z = (a) == 0;
         mff_push(a);
@@ -3983,10 +3983,10 @@ L_A719:;
         SYNC_IN;
         mff_cycles(0xA757, 26);
         a = mff_pull();
-        RAM(0x11) = a;
+        RAM(TMP17) = a;
         a = mff_pull();
-        RAM(0x10) = a;
-        t = (uint8_t)(RAM(0x11) + 1); RAM(0x11) = t;
+        RAM(TMP16) = a;
+        t = (uint8_t)(RAM(TMP17) + 1); RAM(TMP17) = t;
         a = RAM(FRAME_COUNTER);
         a &= 0x03;
         n = (a) >> 7;
@@ -4009,8 +4009,8 @@ L_A719:;
         mff_cycles(0xA73F, 1);
     }
     mff_cycles(0xA76D, 12);
-    t = (uint8_t)(RAM(0x10) + 1); RAM(0x10) = t;
-    a = RAM(0x10);
+    t = (uint8_t)(RAM(TMP16) + 1); RAM(TMP16) = t;
+    a = RAM(TMP16);
     m = 0x03; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
@@ -4039,23 +4039,23 @@ void func_A71D_b4(void) {
 L_A719:;
     mff_cycles(0xA719, 5);
     a = 0x00;
-    RAM(0x11) = a;
+    RAM(TMP17) = a;
 L_A71D:;
     mff_cycles(0xA71D, 7);
-    x = RAM(0x10);
-    a = nes_read((uint16_t)(0xA782 + x));
+    x = RAM(TMP16);
+    a = prg_read((uint16_t)(0xA782 + x));
     mff_cycles(0xA722, 8);
     RAM(VRAM_BUFFER) = a;
-    a = nes_read((uint16_t)(0xA785 + x));
+    a = prg_read((uint16_t)(0xA785 + x));
     mff_cycles(0xA728, 28);
     c = 0;
-    m = RAM(0x11); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(TMP17); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     RAM(VRAM_BUFFER + 1) = a;
     a = 0x00;
     RAM(VRAM_BUFFER + 2) = a;
-    y = RAM(0x0E);
-    t = (uint8_t)(RAM(0x0E) + 1); RAM(0x0E) = t;
-    a = nes_read((uint16_t)(RAM16(0x0C) + y));
+    y = RAM(TMP14);
+    t = (uint8_t)(RAM(TMP14) + 1); RAM(TMP14) = t;
+    a = mem_read((uint16_t)(RAM16(TMP12) + y));
     mff_cycles(0xA739, 4);
     m = 0xFF; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
@@ -4070,9 +4070,9 @@ L_A71D:;
         a = 0xFF;
         RAM(VRAM_BUFFER + 4) = a;
         RAM(VRAM_LIST_REQUEST) = a;
-        a = RAM(0x10);
+        a = RAM(TMP16);
         mff_push(a);
-        a = RAM(0x11);
+        a = RAM(TMP17);
         n = (a) >> 7;
         z = (a) == 0;
         mff_push(a);
@@ -4085,10 +4085,10 @@ L_A71D:;
         SYNC_IN;
         mff_cycles(0xA757, 26);
         a = mff_pull();
-        RAM(0x11) = a;
+        RAM(TMP17) = a;
         a = mff_pull();
-        RAM(0x10) = a;
-        t = (uint8_t)(RAM(0x11) + 1); RAM(0x11) = t;
+        RAM(TMP16) = a;
+        t = (uint8_t)(RAM(TMP17) + 1); RAM(TMP17) = t;
         a = RAM(FRAME_COUNTER);
         a &= 0x03;
         n = (a) >> 7;
@@ -4111,8 +4111,8 @@ L_A71D:;
         mff_cycles(0xA73F, 1);
     }
     mff_cycles(0xA76D, 12);
-    t = (uint8_t)(RAM(0x10) + 1); RAM(0x10) = t;
-    a = RAM(0x10);
+    t = (uint8_t)(RAM(TMP16) + 1); RAM(TMP16) = t;
+    a = RAM(TMP16);
     m = 0x03; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
@@ -4223,14 +4223,14 @@ void func_AB00_b4(void) {
     a = 0xA8;
     RAM(OBJ_Y) = a;
     y = RAM(PLAYER_ID);
-    a = nes_read((uint16_t)(0xAB2E + y));
+    a = prg_read((uint16_t)(0xAB2E + y));
     mff_cycles(0xAB24, 7);
-    RAM(0x00) = a;
-    a = nes_read((uint16_t)(0xAB31 + y));
+    RAM(TMP0) = a;
+    a = prg_read((uint16_t)(0xAB31 + y));
     n = (a) >> 7;
     z = (a) == 0;
     mff_cycles(0xAB29, 8);
-    RAM(0x01) = a;
+    RAM(TMP1) = a;
     SYNC_OUT;
     { uint16_t jt = nes_read16zp(0x0000); nes_cpu_instruction_boundary(jt, 2); call_by_address_tail(jt, -1); return; }
 }
