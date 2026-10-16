@@ -52,7 +52,82 @@ void game_on_init(void) {
 #include <stdlib.h>
 /* MFF_TRACE=N: print S, the four tasks ($80-$8F), task_current, render_off_depth
  * and bank_switch_busy at the first N frames (P3 scaffold debugging). */
+/* MFF_FRAMELOG=FILE: one record per frame for the lockstep check
+ * (port/tests/lockstep.py): u32 frame, CPU RAM [0x800], OAM [0x100],
+ * palette [0x20]. */
+static void frame_log(uint64_t frame_count) {
+    static FILE *f = NULL;
+    static int state = 0;               /* 0 unknown, 1 on, -1 off */
+    if (!state) {
+        const char *e = getenv("MFF_FRAMELOG");
+        f = (e && *e) ? fopen(e, "wb") : NULL;
+        state = f ? 1 : -1;
+    }
+    if (state < 0) return;
+    uint32_t fr = (uint32_t)frame_count;
+    fwrite(&fr, 4, 1, f);
+    fwrite(g_ram, 1, 0x800, f);
+    fwrite(g_ppu_oam, 1, 0x100, f);
+    fwrite(g_ppu_pal, 1, 0x20, f);
+    fflush(f);
+}
+
+/* MFF_INPUT=FILE (port/tests/nmi_input.py): `count rep buttons` lines keyed
+ * like port/tests/lockstep.py pairs frames - NMI count since reset ($92
+ * unwrapped from its first 0 -> 1 step) and the n-th frame showing it - so
+ * the scaffold's pads match the oracle's whatever each runner counts as a
+ * frame. Applied here, after the runner set the pads and before the NMI. */
+typedef struct { uint32_t count; uint16_t rep; uint8_t mask; } KeyedInput;
+static KeyedInput *s_in;
+static size_t s_in_n, s_in_at;
+
+static void keyed_input(void) {
+    static int state = 0;               /* 0 unknown, 1 on, -1 off */
+    static int started = 0, prev = -1;
+    static uint32_t count = 0;
+    static uint16_t rep = 0;
+    if (!state) {
+        const char *e = getenv("MFF_INPUT");
+        FILE *f = (e && *e) ? fopen(e, "r") : NULL;
+        state = -1;
+        if (f) {
+            size_t cap = 1 << 16;
+            s_in = (KeyedInput *)malloc(cap * sizeof(*s_in));
+            unsigned c, r, m;
+            while (fscanf(f, "%u %u %x", &c, &r, &m) == 3) {
+                if (s_in_n == cap) s_in = (KeyedInput *)realloc(s_in, (cap *= 2) * sizeof(*s_in));
+                s_in[s_in_n].count = c; s_in[s_in_n].rep = (uint16_t)r; s_in[s_in_n].mask = (uint8_t)m;
+                s_in_n++;
+            }
+            fclose(f);
+            state = 1;
+            fprintf(stderr, "[mff] MFF_INPUT: %zu keyed frames\n", s_in_n);
+        }
+    }
+    if (state < 0) return;
+    int v = g_ram[0x92];
+    if (!started) {
+        if (prev == 0 && v == 1) { started = 1; count = 1; rep = 0; }
+        prev = v;
+        if (!started) { g_controller1_buttons = 0; return; }
+    } else {
+        uint32_t next = count + (uint32_t)((v - prev) & 0xFF);
+        rep = (next == count) ? (uint16_t)(rep + 1) : 0;
+        count = next;
+        prev = v;
+    }
+    while (s_in_at < s_in_n && (s_in[s_in_at].count < count ||
+           (s_in[s_in_at].count == count && s_in[s_in_at].rep < rep)))
+        s_in_at++;
+    if (s_in_at < s_in_n && s_in[s_in_at].count == count)
+        g_controller1_buttons = s_in[s_in_at].mask;
+    else if (s_in_at > 0)
+        g_controller1_buttons = s_in[s_in_at - 1].mask;   /* more repeats here than in the oracle */
+}
+
 void game_on_frame(uint64_t frame_count) {
+    frame_log(frame_count);
+    keyed_input();
     static long limit = -2;
     if (limit == -2) { const char *e = getenv("MFF_TRACE"); limit = e ? atol(e) : -1; }
     if (limit < 0 || (long)frame_count >= limit) return;
