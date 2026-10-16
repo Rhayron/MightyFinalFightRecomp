@@ -1414,15 +1414,15 @@ addr = 0xE8BD   # lifted, lifted_e.c
 [[replace_func]]
 addr = 0xE954   # lifted, lifted_e.c
 [[replace_func]]
-addr = 0xE9BC   # lifted, lifted_e.c
+addr = 0xE9BC   # objects_draw, stage_draw.c
 [[replace_func]]
-addr = 0xE9FE   # lifted, lifted_e.c
+addr = 0xE9FE   # object_draw, stage_draw.c
 [[replace_func]]
-addr = 0xEA6F   # lifted, lifted_e.c
+addr = 0xEA6F   # object_draw_sprites, stage_draw.c
 [[replace_func]]
-addr = 0xEC33   # lifted, lifted_e.c
+addr = 0xEC33   # object_offscreen, stage_draw.c
 [[replace_func]]
-addr = 0xEC81   # lifted, lifted_e.c
+addr = 0xEC81   # object_free, stage_draw.c
 [[replace_func]]
 addr = 0xECCF   # lifted, lifted_e.c
 [[replace_func]]

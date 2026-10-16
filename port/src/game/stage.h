@@ -67,6 +67,13 @@ static inline void stage_jmp(uint16_t target, void (*fn)(void)) {
 /* area_flags ($2A): the area header's top bits; this one lets the camera scroll */
 #define AREA_SCROLLS    0x20
 
+/* obj_flags ($0560) bits (docs/objects.md) */
+#define OBJF_ON_SCREEN  0x80    /* object_draw sets it for a slot it places on the screen */
+#define OBJF_FACE_RIGHT 0x40    /* the art faces left: mirrored */
+#define OBJF_BEHIND     0x20    /* sprite priority: behind the background */
+#define OBJF_WORLD      0x10    /* obj_x/obj_x_hi are world coordinates */
+#define OBJF_HIDDEN     0x04    /* neither drawn nor hit */
+
 /* ---- routines (fixed bank) ---- */
 
 /* camera (stage_camera.c) */
@@ -85,6 +92,13 @@ void func_E61A(void);   /* metatile_tiles_loop */
 void func_E653(void);   /* metatile_ptr */
 void func_E66E(void);   /* screen_map_ptr */
 void func_E689(void);   /* screen_map_ptr_of */
+
+/* object drawing (stage_draw.c) */
+void func_E9BC(void);   /* objects_draw */
+void func_E9FE(void);   /* object_draw */
+void func_EA6F(void);   /* object_draw_sprites */
+void func_EC33(void);   /* object_offscreen */
+void func_EC81(void);   /* object_free */
 
 /* elsewhere */
 void func_F436(void);   /* attack_live = 0 */
