@@ -366,37 +366,37 @@ bank = 3
 addr = 0x8592   # snd_music_read, sound_music.c
 [[replace_func]]
 bank = 3
-addr = 0x85A3   # lifted, lifted_b3.c
+addr = 0x85A3   # snd_key_off, sound_voice.c
 [[replace_func]]
 bank = 3
-addr = 0x85AE   # lifted, lifted_b3.c
+addr = 0x85AE   # snd_key_on, sound_voice.c
 [[replace_func]]
 bank = 3
-addr = 0x85DE   # lifted, lifted_b3.c
+addr = 0x85DE   # snd_note_pitch, sound_voice.c
 [[replace_func]]
 bank = 3
-addr = 0x8636   # lifted, lifted_b3.c
+addr = 0x8636   # snd_set_pitch, sound_voice.c
 [[replace_func]]
 bank = 3
-addr = 0x8644   # lifted, lifted_b3.c
+addr = 0x8644   # snd_lfo_check, sound_voice.c
 [[replace_func]]
 bank = 3
-addr = 0x865A   # lifted, lifted_b3.c
+addr = 0x865A   # snd_set_volume, sound_voice.c
 [[replace_func]]
 bank = 3
-addr = 0x866F   # lifted, lifted_b3.c
+addr = 0x866F   # snd_set_instrument, sound_voice.c
 [[replace_func]]
 bank = 3
-addr = 0x8684   # lifted, lifted_b3.c
+addr = 0x8684   # snd_instrument_ptr, sound_voice.c
 [[replace_func]]
 bank = 3
-addr = 0x86A1   # lifted, lifted_b3.c
+addr = 0x86A1   # snd_set_detune, sound_voice.c
 [[replace_func]]
 bank = 3
-addr = 0x86A7   # lifted, lifted_b3.c
+addr = 0x86A7   # snd_set_slide, sound_voice.c
 [[replace_func]]
 bank = 3
-addr = 0x86AD   # lifted, lifted_b3.c
+addr = 0x86AD   # snd_set_duty, sound_voice.c
 [[replace_func]]
 bank = 3
 addr = 0x86BA   # lifted, lifted_b3.c

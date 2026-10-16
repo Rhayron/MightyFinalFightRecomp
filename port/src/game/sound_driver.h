@@ -38,7 +38,8 @@
 #define SND_REG_PERIOD_LO 0x02
 #define SND_REG_PERIOD_HI 0x03
 #define SND_TRIANGLE_REGS 0x08   /* (3 - 1) * 4: the triangle's block */
-#define SND_VOLUME_SILENT 0x30   /* $4000/$4004/$400C: constant volume 0 */
+#define SND_CONST_VOLUME  0x30   /* $4000/$4004/$400C bits 4-5: constant volume, no length counter */
+#define SND_VOLUME_SILENT 0x30   /* the same at volume 0: silent */
 #define SND_SWEEP_OFF     0x08   /* $4001/$4005: sweep off, negate set */
 #define SND_CHANNELS_ON   0x0F   /* $4015: pulse 1, pulse 2, triangle, noise */
 #define SND_PERIOD_HI_LEN 0x08   /* ORed into $4003/$4007/$400B: length index 1 */
@@ -180,5 +181,8 @@ void func_83CD_b3(void);
 void func_847E_b3(void);
 void func_8491_b3(void);
 void func_855A_b3(void);
+void func_8636_b3(void);
+void func_8644_b3(void);
+void func_8684_b3(void);
 
 #endif
