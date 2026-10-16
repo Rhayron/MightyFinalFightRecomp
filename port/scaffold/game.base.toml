@@ -1372,31 +1372,31 @@ addr = 0xE143   # lifted, lifted_e.c
 [[replace_func]]
 addr = 0xE16B   # lifted, lifted_e.c
 [[replace_func]]
-addr = 0xE2A3   # lifted, lifted_e.c
+addr = 0xE2A3   # camera_update, stage_camera.c
 [[replace_func]]
-addr = 0xE3A3   # lifted, lifted_e.c
+addr = 0xE3A3   # camera_scroll_right, stage_camera.c
 [[replace_func]]
-addr = 0xE473   # lifted, lifted_e.c
+addr = 0xE473   # camera_keep_player_on_screen, stage_camera.c
 [[replace_func]]
-addr = 0xE4DF   # lifted, lifted_e.c
+addr = 0xE4DF   # bg_column_check, stage_columns.c
 [[replace_func]]
-addr = 0xE515   # lifted, lifted_e.c
+addr = 0xE515   # bg_column_check_from, stage_columns.c
 [[replace_func]]
-addr = 0xE521   # lifted, lifted_e.c
+addr = 0xE521   # bg_column_write, stage_columns.c
 [[replace_func]]
-addr = 0xE53F   # lifted, lifted_e.c
+addr = 0xE53F   # bg_column_turn, stage_columns.c
 [[replace_func]]
-addr = 0xE560   # lifted, lifted_e.c
+addr = 0xE560   # bg_column_rows, stage_columns.c
 [[replace_func]]
-addr = 0xE60F   # lifted, lifted_e.c
+addr = 0xE60F   # metatile_tiles, stage_columns.c
 [[replace_func]]
-addr = 0xE61A   # lifted, lifted_e.c
+addr = 0xE61A   # metatile_tiles_loop, stage_columns.c
 [[replace_func]]
-addr = 0xE653   # lifted, lifted_e.c
+addr = 0xE653   # metatile_ptr, stage_columns.c
 [[replace_func]]
-addr = 0xE66E   # lifted, lifted_e.c
+addr = 0xE66E   # screen_map_ptr, stage_columns.c
 [[replace_func]]
-addr = 0xE689   # lifted, lifted_e.c
+addr = 0xE689   # screen_map_ptr_of, stage_columns.c
 [[replace_func]]
 addr = 0xE6AB   # lifted, lifted_e.c
 [[replace_func]]
