@@ -132,3 +132,97 @@ void func_FF2A(void) {
     }
     mff_rts();
 }
+
+/* ---- the scheduler, $FEBA ----
+ * S = $FF, then scan the tasks from 0: the first one ready (state >= 4)
+ * runs - a new one (8) starts at its entry ($82/$83 via $93/$94), a waiting
+ * one is resumed (TXS to its saved S, read_joypads for task 0, pull Y and X,
+ * RTS into it). When it yields, the scheduler starts over at $FEBA. The NMI
+ * sets sched_nmi_flag $90, which makes a scan in progress start again.
+ *
+ * Written instruction by instruction on g_cpu (no locals): the scaffold
+ * takes the NMI at the top of the scan ($FEBD, extras.c), where it saves the
+ * registers as they are. */
+static void sched_scan(void) {
+scan:
+    mff_cycles(0xFEBD, 2); g_cpu.X = 0; mff_nz(0);
+    mff_cycles(0xFEBF, 3); RAM(0x90) = g_cpu.X;
+    mff_cycles(0xFEC1, 2); g_cpu.Y = 4; mff_nz(4);
+    for (;;) {
+        mff_cycles(0xFEC3, 4); g_cpu.A = RAM(0x80 + g_cpu.X); mff_nz(g_cpu.A);
+        mff_cycles(0xFEC5, 2); g_cpu.C = g_cpu.A >= 4; mff_nz((uint8_t)(g_cpu.A - 4));
+        mff_cycles(0xFEC7, 2);
+        if (g_cpu.C) { maybe_trigger_vblank(1); break; }
+        mff_cycles(0xFEC9, 2); g_cpu.X++; mff_nz(g_cpu.X);
+        mff_cycles(0xFECA, 2); g_cpu.X++; mff_nz(g_cpu.X);
+        mff_cycles(0xFECB, 2); g_cpu.X++; mff_nz(g_cpu.X);
+        mff_cycles(0xFECC, 2); g_cpu.X++; mff_nz(g_cpu.X);
+        mff_cycles(0xFECD, 2); g_cpu.Y--; mff_nz(g_cpu.Y);
+        mff_cycles(0xFECE, 2);
+        if (!g_cpu.Z) { mff_cycles(0xFEC3, 1); continue; }
+        mff_cycles(0xFED0, 3);
+        goto scan;
+    }
+    mff_cycles(0xFED3, 3); g_cpu.A = RAM(0x90); mff_nz(g_cpu.A);
+    mff_cycles(0xFED5, 2);
+    if (!g_cpu.Z) { mff_cycles(0xFEBD, 1); goto scan; }
+
+    /* task (Y - 1) ^ 3, at X = 4 * task */
+    mff_cycles(0xFED7, 2); g_cpu.Y--; mff_nz(g_cpu.Y);
+    mff_cycles(0xFED8, 2); g_cpu.A = g_cpu.Y; mff_nz(g_cpu.A);
+    mff_cycles(0xFED9, 2); g_cpu.A ^= 3; mff_nz(g_cpu.A);
+    mff_cycles(0xFEDB, 3); RAM(0x91) = g_cpu.A;
+    mff_cycles(0xFEDD, 4); g_cpu.Y = RAM(0x80 + g_cpu.X); mff_nz(g_cpu.Y);
+    mff_cycles(0xFEDF, 2); g_cpu.A = 2; mff_nz(2);
+    mff_cycles(0xFEE1, 4); RAM(0x80 + g_cpu.X) = 2;
+    mff_cycles(0xFEE3, 2); g_cpu.C = g_cpu.Y >= 8; mff_nz((uint8_t)(g_cpu.Y - 8));
+    mff_cycles(0xFEE5, 2);
+    if (g_cpu.Z) {                                  /* new: start it */
+        uint16_t jt;
+        mff_cycles(0xFEE7, 4); g_cpu.A = RAM(0x82 + g_cpu.X); mff_nz(g_cpu.A);
+        mff_cycles(0xFEE9, 3); RAM(0x93) = g_cpu.A;
+        mff_cycles(0xFEEB, 4); g_cpu.A = RAM(0x83 + g_cpu.X); mff_nz(g_cpu.A);
+        mff_cycles(0xFEED, 3); RAM(0x94) = g_cpu.A;
+        mff_cycles(0xFEEF, 5);
+        jt = nes_read16zp(0x93);
+        nes_cpu_instruction_boundary(jt, 2);
+        coroutine_start(RAM(0x91), jt);
+        return;
+    }
+    maybe_trigger_vblank(1);                        /* waiting: resume it */
+    mff_cycles(0xFEF2, 4); g_cpu.A = RAM(0x82 + g_cpu.X); mff_nz(g_cpu.A);
+    mff_cycles(0xFEF4, 2); g_cpu.X = g_cpu.A; mff_nz(g_cpu.X);
+    mff_cycles(0xFEF5, 2); g_cpu.S = g_cpu.X;
+    mff_cycles(0xFEF6, 3); g_cpu.A = RAM(0x91); mff_nz(g_cpu.A);
+    mff_cycles(0xFEF8, 2);
+    if (!g_cpu.Z) {
+        maybe_trigger_vblank(1);
+    } else {
+        mff_cycles(0xFEFA, 6);
+        if (!mff_call_at(0x1EFC, 0xC279, -1)) return;
+    }
+    mff_cycles(0xFEFD, 4); g_cpu.A = mff_pull(); mff_nz(g_cpu.A);
+    mff_cycles(0xFEFE, 2); g_cpu.Y = g_cpu.A; mff_nz(g_cpu.Y);
+    mff_cycles(0xFEFF, 4); g_cpu.A = mff_pull(); mff_nz(g_cpu.A);
+    mff_cycles(0xFF00, 2); g_cpu.X = g_cpu.A; mff_nz(g_cpu.X);
+    mff_cycles(0xFF01, 6);
+    g_cpu.S += 2;                                   /* the RTS into the task */
+    coroutine_resume(RAM(0x91));
+}
+
+/* scheduler, $FEBA. Never returns (a JMP $FEBA from inside a task restarts
+ * the scheduler fiber: coroutine_scheduler_setjmp). */
+void func_FEBA(void) {
+    for (;;) {
+        mff_cycles(0xFEBA, 2); g_cpu.X = 0xFF; mff_nz(0xFF);
+        mff_cycles(0xFEBC, 2); g_cpu.S = g_cpu.X;
+        coroutine_scheduler_setjmp();
+        sched_scan();
+    }
+}
+
+/* $FEBD, the scan without the stack reset (only the scheduler jumps here) */
+void func_FEBD(void) {
+    sched_scan();
+    func_FEBA();
+}

@@ -7,6 +7,7 @@
 #include "state.h"
 #include "coroutine.h"
 
+void func_E954(void);
 void func_F090(void);
 void func_F099(void);
 void func_F0A2(void);
@@ -28,6 +29,46 @@ void func_F440(void);
 void func_F449(void);
 void func_F71A(void);
 void func_FB3E(void);
+void func_FB5B(void);
+
+/*  $9C00 (bank 5) - lifted by port/tools/lift.py */
+void func_9C00_b5(void) {
+    REGS_IN;
+L_9C00:;
+    mff_cycles(0x9C00, 5);
+    x = RAM(VRAM_BUFFER_LEN);
+    y = 0x00;
+L_9C04:;
+    mff_cycles(0x9C04, 4);
+    a = nes_read((uint16_t)(0x9C20 + y));
+    mff_cycles(0x9C07, 4);
+    m = 0xFF; c = a >= m;
+    z = ((uint8_t)(a - m)) == 0;
+    if (z) { mff_cycles(0x9C09, 1); goto L_9C12; }
+    mff_cycles(0x9C0B, 11);
+    RAM(0x0780 + x) = a;
+    y++;
+    x++;
+    z = (x) == 0;
+    if (!z) { mff_cycles(0x9C04, 1); goto L_9C04; }
+L_9C12:;
+    mff_cycles(0x9C12, 14);
+    RAM(VRAM_BUFFER_LEN) = x;
+    a = 0x00;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(SPECIAL_SCREEN_STEP) = a;
+    SYNC_OUT;
+    if (!mff_call_fn(0x1C1A, func_E954, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0x9C1B, 11);
+    a = 0xFF;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(VRAM_REQUEST) = a;
+    SYNC_OUT;
+    mff_rts(); return;
+}
 
 /*  $B300 (bank 5) - lifted by port/tools/lift.py */
 void func_B300_b5(void) {
@@ -187,7 +228,7 @@ void func_B331_b5(void) {
     REGS_IN;
 L_B331:;
     mff_cycles(0xB331, 5);
-    a = RAM(0x62);
+    a = RAM(SPECIAL_SCREEN_ID);
     n = (a) >> 7;
     z = (a) == 0;
     if (z) { mff_cycles(0xB333, 1); goto L_B336; }
@@ -317,7 +358,7 @@ L_B387:;
     if (!z) { mff_cycles(0xB3CE, 1); goto L_B3D4; }
     mff_cycles(0xB3D0, 5);
     a = 0xFC;
-    RAM(0x62) = a;
+    RAM(SPECIAL_SCREEN_ID) = a;
 L_B3D4:;
     mff_cycles(0xB3D4, 4);
     a = nes_read((uint16_t)(0xB681 + y));
@@ -343,7 +384,7 @@ L_B3E9:;
     a = 0x0C;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x37) = a;
+    RAM(ACTION_TIMER) = a;
     SYNC_OUT;
     if (!mff_call_fn(0x13FD, func_F2BE, 0xE000)) return;
     SYNC_IN;
@@ -351,7 +392,7 @@ L_B3E9:;
     a = 0xFB;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x62) = a;
+    RAM(SPECIAL_SCREEN_ID) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -444,7 +485,7 @@ L_B421:;
     a = 0xFE;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x62) = a;
+    RAM(SPECIAL_SCREEN_ID) = a;
     SYNC_OUT;
     mff_rts(); return;
 L_B45F:;
@@ -863,7 +904,7 @@ void func_B5AF_b5(void) {
 L_B5AF:;
     mff_cycles(0xB5AF, 14);
     a = RAM(RNG);
-    m = RAM(0x63); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
+    m = RAM(SPAWN_TIMER); w = a + m + c; v = (~(a ^ m) & (a ^ w) & 0x80) != 0; c = w > 0xFF; a = (uint8_t)w;
     a &= 0x07;
     y = a;
     a = nes_read((uint16_t)(0xB65E + y));
@@ -1119,7 +1160,7 @@ L_B6D8:;
     if (!z) { mff_cycles(0xB6E5, 2); goto L_B74A; }
 L_B6E7:;
     mff_cycles(0xB6E7, 5);
-    m = RAM(0x39); c = x >= m;
+    m = RAM(GRAB_SLOT); c = x >= m;
     z = ((uint8_t)(x - m)) == 0;
     if (!z) { mff_cycles(0xB6E9, 2); goto L_B74A; }
     mff_cycles(0xB6EB, 8);
@@ -1151,14 +1192,14 @@ L_B707:;
     a = 0x00;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0xA3) = a;
+    RAM(COMBO_TIMER) = a;
     SYNC_OUT;
     if (!mff_call_fn(0x170D, func_F343, 0xE000)) return;
     SYNC_IN;
     mff_cycles(0xB70E, 12);
     a = 0x80;
     RAM(OBJ_STATE + x) = a;
-    a = RAM(0x38);
+    a = RAM(GRAB_TIMER);
     n = (a) >> 7;
     if (n) { mff_cycles(0xB715, 1); goto L_B743; }
     mff_cycles(0xB717, 4);
@@ -1167,7 +1208,7 @@ L_B707:;
     mff_cycles(0xB71B, 7);
     a = 0x0C;
     z = (a) == 0;
-    RAM(0x38) = a;
+    RAM(GRAB_TIMER) = a;
     if (!z) { mff_cycles(0xB71F, 1); goto L_B743; }
 L_B721:;
     mff_cycles(0xB721, 30);
@@ -1175,8 +1216,8 @@ L_B721:;
     RAM(GAME_ACTION) = a;
     RAM(OBJ_HIT_TIMER + x) = a;
     RAM(OBJ_HELD + x) = a;
-    RAM(0x38) = a;
-    t = (uint8_t)(RAM(0x38) - 1); RAM(0x38) = t;
+    RAM(GRAB_TIMER) = a;
+    t = (uint8_t)(RAM(GRAB_TIMER) - 1); RAM(GRAB_TIMER) = t;
     y = RAM(PLAYER_ID);
     a = nes_read((uint16_t)(0xBD7C + y));
     n = (a) >> 7;
@@ -1271,7 +1312,7 @@ L_B78C:;
 L_B7A5:;
     mff_cycles(0xB7A5, 37);
     a = 0x3C;
-    RAM(0x62) = a;
+    RAM(SPECIAL_SCREEN_ID) = a;
     a = 0x80;
     RAM(OBJ_STATE + x) = a;
     RAM(OBJ_SAVED_STATE + x) = a;
@@ -1324,7 +1365,7 @@ L_B7D7:;
 L_B7EF:;
     mff_cycles(0xB7EF, 7);
     a = 0x06;
-    m = RAM(0xD9); c = a >= m;
+    m = RAM(MUSIC_CURRENT); c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0xB7F3, 1); goto L_B7F8; }
@@ -1388,6 +1429,74 @@ L_B80B:;
     mff_rts(); return;
 }
 
+/*  $B825 (bank 5) - lifted by port/tools/lift.py */
+void func_B825_b5(void) {
+    REGS_IN;
+L_B825:;
+    mff_cycles(0xB825, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x1827, 0xBCD9, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xB828, 10);
+    a = 0x20;
+    y = 0x18;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x182E, func_FB3E, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB82F, 2);
+    if (!c) { mff_cycles(0xB82F, 1); goto L_B83A; }
+    mff_cycles(0xB831, 20);
+    t = (uint8_t)(RAM(OBJ_STATE + x) + 1); RAM(OBJ_STATE + x) = t;
+    a = 0x00;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_AI_TIMER + x) = a;
+    SYNC_OUT;
+    mff_rts(); return;
+L_B83A:;
+    mff_cycles(0xB83A, 13);
+    t = (uint8_t)(RAM(OBJ_AI_TIMER + x) - 1); RAM(OBJ_AI_TIMER + x) = t;
+    a = RAM(OBJ_AI_TIMER + x);
+    n = (a) >> 7;
+    z = (a) == 0;
+    if (!n) { mff_cycles(0xB840, 1); goto L_B869; }
+    mff_cycles(0xB842, 6);
+    SYNC_OUT;
+    if (!mff_call_fn(0x1844, func_FB5B, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB845, 13);
+    y = a;
+    a = 0x0A;
+    RAM(OBJ_AI_TIMER + x) = a;
+    a = nes_read((uint16_t)(0xFBF0 + y));
+    mff_cycles(0xB84E, 9);
+    RAM(OBJ_DIR + x) = a;
+    a = nes_read((uint16_t)(0xBD1C + y));
+    mff_cycles(0xB854, 9);
+    RAM(OBJ_VX_FRAC + x) = a;
+    a = nes_read((uint16_t)(0xBD0C + y));
+    mff_cycles(0xB85A, 9);
+    RAM(OBJ_VX + x) = a;
+    a = nes_read((uint16_t)(0xBD3C + y));
+    mff_cycles(0xB860, 9);
+    RAM(OBJ_VY_FRAC + x) = a;
+    a = nes_read((uint16_t)(0xBD2C + y));
+    n = (a) >> 7;
+    z = (a) == 0;
+    mff_cycles(0xB866, 5);
+    RAM(OBJ_VY + x) = a;
+L_B869:;
+    mff_cycles(0xB869, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x186B, 0xBC6B, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xB86C, 3);
+    SYNC_OUT;
+    nes_cpu_instruction_boundary(0xBBE1, 2); call_by_address_tail(0xBBE1, 5); return;
+}
+
 /*  $B84B (bank 5) - lifted by port/tools/lift.py */
 void func_B84B_b5(void) {
     REGS_IN;
@@ -1416,6 +1525,108 @@ L_B84B:;
     mff_cycles(0xB86C, 3);
     SYNC_OUT;
     nes_cpu_instruction_boundary(0xBBE1, 2); call_by_address_tail(0xBBE1, 5); return;
+}
+
+/*  $B86F (bank 5) - lifted by port/tools/lift.py */
+void func_B86F_b5(void) {
+    REGS_IN;
+L_B86F:;
+    mff_cycles(0xB86F, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x1871, 0xBBE1, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xB872, 13);
+    t = (uint8_t)(RAM(OBJ_AI_TIMER + x) - 1); RAM(OBJ_AI_TIMER + x) = t;
+    a = RAM(OBJ_AI_TIMER + x);
+    n = (a) >> 7;
+    z = (a) == 0;
+    if (!n) { mff_cycles(0xB878, 1); goto L_B8B8; }
+    mff_cycles(0xB87A, 6);
+    SYNC_OUT;
+    if (!mff_call_fn(0x187C, func_FB5B, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB87D, 8);
+    y = a;
+    a = RAM(OBJ_AI_FLAG + x);
+    z = (a) == 0;
+    if (!z) { mff_cycles(0xB881, 1); goto L_B889; }
+    mff_cycles(0xB883, 4);
+    a = nes_read((uint16_t)(0xBD4C + y));
+    n = (a) >> 7;
+    z = (a) == 0;
+    mff_cycles(0xB886, 3);
+    SYNC_OUT;
+    nes_cpu_instruction_boundary(0xB88C, 2); call_by_address_tail(0xB88C, 5); return;
+L_B889:;
+    mff_cycles(0xB889, 4);
+    a = nes_read((uint16_t)(0xBD5C + y));
+    n = (a) >> 7;
+    z = (a) == 0;
+    mff_cycles(0xB88C, 7);
+    RAM(OBJ_TIMER + x) = a;
+    if (!n) { mff_cycles(0xB88F, 1); goto L_B8B8; }
+    mff_cycles(0xB891, 10);
+    a = 0x1C;
+    y = 0x04;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x1897, func_FB3E, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB898, 2);
+    if (c) { mff_cycles(0xB898, 1); goto L_B8C4; }
+    mff_cycles(0xB89A, 10);
+    a = 0x38;
+    y = 0x18;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x18A0, func_FB3E, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB8A1, 2);
+    if (c) { mff_cycles(0xB8A1, 1); goto L_B8AC; }
+    mff_cycles(0xB8A3, 20);
+    a = 0x00;
+    RAM(OBJ_AI_TIMER + x) = a;
+    t = (uint8_t)(RAM(OBJ_STATE + x) - 1); RAM(OBJ_STATE + x) = t;
+    n = (t) >> 7;
+    z = (t) == 0;
+    SYNC_OUT;
+    mff_rts(); return;
+L_B8AC:;
+    mff_cycles(0xB8AC, 12);
+    a = RAM(OBJ_TIMER + x);
+    a &= 0x0F;
+    y = a;
+    a = nes_read((uint16_t)(0xBD6C + y));
+    n = (a) >> 7;
+    z = (a) == 0;
+    mff_cycles(0xB8B5, 5);
+    RAM(OBJ_AI_TIMER + x) = a;
+L_B8B8:;
+    mff_cycles(0xB8B8, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x18BA, 0xBCD9, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xB8BB, 11);
+    a = RAM(OBJ_TIMER + x);
+    a &= 0x0F;
+    y = a;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    nes_cpu_instruction_boundary(0xB84B, 2); call_by_address_tail(0xB84B, 5); return;
+L_B8C4:;
+    mff_cycles(0xB8C4, 21);
+    a = 0x00;
+    RAM(OBJ_AI_COUNT + x) = a;
+    t = (uint8_t)(RAM(OBJ_STATE + x) + 1); RAM(OBJ_STATE + x) = t;
+    a = 0xC0;
+    y = 0x39;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    nes_cpu_instruction_boundary(0xF449, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_F449(); g_code_window_base = swb; } return;
 }
 
 /*  $B88C (bank 5) - lifted by port/tools/lift.py */
@@ -1489,6 +1700,95 @@ L_B8C4:;
     nes_cpu_instruction_boundary(0xF449, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_F449(); g_code_window_base = swb; } return;
 }
 
+/*  $B8D3 (bank 5) - lifted by port/tools/lift.py */
+void func_B8D3_b5(void) {
+    REGS_IN;
+L_B8D3:;
+    mff_cycles(0xB8D3, 10);
+    a = 0x1C;
+    y = 0x04;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x18D9, func_FB3E, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB8DA, 2);
+    if (c) { mff_cycles(0xB8DA, 1); goto L_B8E3; }
+    mff_cycles(0xB8DC, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x18DE, 0xBCD9, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xB8DF, 13);
+    t = (uint8_t)(RAM(OBJ_STATE + x) - 1); RAM(OBJ_STATE + x) = t;
+    n = (t) >> 7;
+    z = (t) == 0;
+    SYNC_OUT;
+    mff_rts(); return;
+L_B8E3:;
+    mff_cycles(0xB8E3, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x18E5, 0xBB0A, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xB8E6, 6);
+    a = RAM(OBJ_HIT_PLAYER + x);
+    n = (a) >> 7;
+    z = (a) == 0;
+    if (z) { mff_cycles(0xB8E9, 2); goto L_B911; }
+    mff_cycles(0xB8EB, 8);
+    a = 0x18;
+    n = (a) >> 7;
+    z = (a) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x18EF, func_F34C, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB8F0, 34);
+    a = 0x00;
+    RAM(OBJ_HIT_PLAYER + x) = a;
+    RAM(OBJ_VX_FRAC + x) = a;
+    a = 0x04;
+    RAM(OBJ_VX + x) = a;
+    a = 0x01;
+    RAM(OBJ_DIR + x) = a;
+    a = RAM(OBJ_FLAGS + x);
+    a &= 0x40;
+    n = (a) >> 7;
+    z = (a) == 0;
+    if (z) { mff_cycles(0xB907, 1); goto L_B90E; }
+    mff_cycles(0xB909, 7);
+    a = 0x02;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_DIR + x) = a;
+L_B90E:;
+    mff_cycles(0xB90E, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x1910, 0xBC6B, 5)) return;
+    SYNC_IN;
+L_B911:;
+    mff_cycles(0xB911, 6);
+    SYNC_OUT;
+    if (!mff_call_fn(0x1913, func_F343, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB914, 17);
+    a = 0x00;
+    RAM(OBJ_VX_FRAC + x) = a;
+    RAM(OBJ_VX + x) = a;
+    a = RAM(RNG);
+    n = (a) >> 7;
+    z = (a) == 0;
+    if (z) { mff_cycles(0xB91E, 1); goto L_B928; }
+    mff_cycles(0xB920, 11);
+    a = RAM(OBJ_AI_FLAG + x);
+    a ^= 0xFF;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_AI_FLAG + x) = a;
+L_B928:;
+    mff_cycles(0xB928, 6);
+    SYNC_OUT;
+    mff_rts(); return;
+}
+
 /*  $B929 (bank 5) - lifted by port/tools/lift.py */
 void func_B929_b5(void) {
     REGS_IN;
@@ -1534,6 +1834,253 @@ L_B952:;
     RAM(OBJ_STATE + x) = a;
     SYNC_OUT;
     mff_rts(); return;
+}
+
+/*  $B958 (bank 5) - lifted by port/tools/lift.py */
+void func_B958_b5(void) {
+    REGS_IN;
+L_B958:;
+    mff_cycles(0xB958, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x195A, 0xBCD9, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xB95B, 10);
+    a = RAM(OBJ_X + x);
+    m = RAM(OBJ_X); c = a >= m;
+    if (!c) { mff_cycles(0xB961, 1); goto L_B967; }
+    mff_cycles(0xB963, 4);
+    a = 0x01;
+    z = (a) == 0;
+    if (!z) { mff_cycles(0xB965, 1); goto L_B969; }
+L_B967:;
+    mff_cycles(0xB967, 2);
+    a = 0x02;
+L_B969:;
+    mff_cycles(0xB969, 18);
+    RAM(OBJ_DIR + x) = a;
+    a = 0x00;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_DOWN_TIMER + x) = a;
+    SYNC_OUT;
+    if (!mff_call_at(0x1973, 0xBBE1, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xB974, 20);
+    t = (uint8_t)(RAM(OBJ_STATE + x) + 1); RAM(OBJ_STATE + x) = t;
+    t = (uint8_t)(RAM(OBJ_STATE + x) + 1); RAM(OBJ_STATE + x) = t;
+    n = (t) >> 7;
+    z = (t) == 0;
+    SYNC_OUT;
+    mff_rts(); return;
+}
+
+/*  $B97B (bank 5) - lifted by port/tools/lift.py */
+void func_B97B_b5(void) {
+    REGS_IN;
+L_B97B:;
+    mff_cycles(0xB97B, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x197D, 0xBBE1, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xB97E, 6);
+    a = RAM(OBJ_DOWN_TIMER + x);
+    z = (a) == 0;
+    if (!z) { mff_cycles(0xB981, 1); goto L_B9A7; }
+    mff_cycles(0xB983, 10);
+    a = 0x40;
+    y = 0x10;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x1989, func_FB3E, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB98A, 2);
+    if (!c) { mff_cycles(0xB98A, 1); goto L_B9A7; }
+    mff_cycles(0xB98C, 10);
+    a = RAM(OBJ_Y + x);
+    m = RAM(OBJ_Y); c = a >= m;
+    if (!c) { mff_cycles(0xB992, 1); goto L_B998; }
+    mff_cycles(0xB994, 4);
+    a = 0x04;
+    z = (a) == 0;
+    if (!z) { mff_cycles(0xB996, 1); goto L_B99A; }
+L_B998:;
+    mff_cycles(0xB998, 2);
+    a = 0x08;
+L_B99A:;
+    mff_cycles(0xB99A, 19);
+    RAM(OBJ_DIR + x) = a;
+    a = 0x01;
+    RAM(OBJ_DOWN_TIMER + x) = a;
+    a = 0x00;
+    RAM(OBJ_AI_COUNT + x) = a;
+L_B9A7:;
+    mff_cycles(0xB9A7, 30);
+    a = 0x03;
+    RAM(OBJ_VY + x) = a;
+    a = 0x00;
+    RAM(OBJ_VY_FRAC + x) = a;
+    RAM(OBJ_VX_FRAC + x) = a;
+    RAM(OBJ_VX + x) = a;
+    a = RAM(OBJ_DOWN_TIMER + x);
+    z = (a) == 0;
+    if (!z) { mff_cycles(0xB9BA, 2); goto L_BA0A; }
+    mff_cycles(0xB9BC, 9);
+    t = (uint8_t)(RAM(OBJ_AI_TIMER + x) - 1); RAM(OBJ_AI_TIMER + x) = t;
+    n = (t) >> 7;
+    if (!n) { mff_cycles(0xB9BF, 2); goto L_BA0A; }
+    mff_cycles(0xB9C1, 8);
+    a = RAM(OBJ_AI_COUNT + x);
+    m = 0x05; c = a >= m;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!z) { mff_cycles(0xB9C6, 1); goto L_B9F8; }
+    mff_cycles(0xB9C8, 10);
+    a = 0x68;
+    y = 0x0E;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x19CE, func_FB3E, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB9CF, 2);
+    if (!c) { mff_cycles(0xB9CF, 1); goto L_B9DC; }
+    mff_cycles(0xB9D1, 14);
+    a = 0x00;
+    RAM(OBJ_AI_COUNT + x) = a;
+    a = RAM(RNG);
+    a &= 0x01;
+    z = (a) == 0;
+    if (!z) { mff_cycles(0xB9DA, 2); goto L_BA3D; }
+L_B9DC:;
+    mff_cycles(0xB9DC, 38);
+    a = 0x5A;
+    RAM(OBJ_AI_TIMER + x) = a;
+    a = 0x00;
+    RAM(OBJ_AI_COUNT + x) = a;
+    a = 0x84;
+    RAM(OBJ_TIMER + x) = a;
+    a = 0x87;
+    RAM(OBJ_STATE + x) = a;
+    a = 0xC2;
+    y = 0x33;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x19F6, func_F449, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB9F7, 6);
+    SYNC_OUT;
+    mff_rts(); return;
+L_B9F8:;
+    mff_cycles(0xB9F8, 10);
+    a = 0xBF;
+    y = 0x38;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x19FE, func_F449, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xB9FF, 20);
+    a = 0x84;
+    RAM(OBJ_TIMER + x) = a;
+    a = 0x86;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_STATE + x) = a;
+    SYNC_OUT;
+    mff_rts(); return;
+L_BA0A:;
+    mff_cycles(0xBA0A, 8);
+    a = RAM(OBJ_DIR + x);
+    m = 0x08; c = a >= m;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!z) { mff_cycles(0xBA0F, 1); goto L_BA27; }
+    mff_cycles(0xBA11, 8);
+    y = 0x01;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x1A15, func_F0F7, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xBA16, 7);
+    a = RAM(0x10);
+    a &= 0x50;
+    n = (a) >> 7;
+    z = (a) == 0;
+    if (z) { mff_cycles(0xBA1A, 1); goto L_BA3C; }
+    mff_cycles(0xBA1C, 6);
+    a = RAM(OBJ_DOWN_TIMER + x);
+    z = (a) == 0;
+    if (!z) { mff_cycles(0xBA1F, 1); goto L_BA3D; }
+    mff_cycles(0xBA21, 13);
+    a = 0x04;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_DIR + x) = a;
+    SYNC_OUT;
+    mff_rts(); return;
+L_BA27:;
+    mff_cycles(0xBA27, 8);
+    y = 0x00;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x1A2B, func_F0A2, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xBA2C, 7);
+    a = RAM(0x10);
+    a &= 0x50;
+    n = (a) >> 7;
+    z = (a) == 0;
+    if (z) { mff_cycles(0xBA30, 1); goto L_BA3C; }
+    mff_cycles(0xBA32, 6);
+    a = RAM(OBJ_DOWN_TIMER + x);
+    z = (a) == 0;
+    if (!z) { mff_cycles(0xBA35, 1); goto L_BA3D; }
+    mff_cycles(0xBA37, 7);
+    a = 0x08;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_DIR + x) = a;
+L_BA3C:;
+    mff_cycles(0xBA3C, 6);
+    SYNC_OUT;
+    mff_rts(); return;
+L_BA3D:;
+    mff_cycles(0xBA3D, 8);
+    a = RAM(OBJ_FLAGS + x);
+    a &= 0x40;
+    z = (a) == 0;
+    if (!z) { mff_cycles(0xBA42, 1); goto L_BA48; }
+    mff_cycles(0xBA44, 4);
+    a = 0x02;
+    z = (a) == 0;
+    if (!z) { mff_cycles(0xBA46, 1); goto L_BA4A; }
+L_BA48:;
+    mff_cycles(0xBA48, 2);
+    a = 0x01;
+L_BA4A:;
+    mff_cycles(0xBA4A, 34);
+    RAM(OBJ_DIR + x) = a;
+    a = 0x00;
+    RAM(OBJ_DOWN_TIMER + x) = a;
+    a = 0x24;
+    RAM(OBJ_AI_TIMER + x) = a;
+    a = 0x89;
+    RAM(OBJ_STATE + x) = a;
+    a = 0x12;
+    n = (a) >> 7;
+    z = (a) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x1A60, func_F34C, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xBA61, 7);
+    a = 0xC0;
+    y = 0x39;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    nes_cpu_instruction_boundary(0xF449, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_F449(); g_code_window_base = swb; } return;
 }
 
 /*  $B9B7 (bank 5) - lifted by port/tools/lift.py */
@@ -1702,6 +2249,226 @@ L_BA4A:;
     nes_cpu_instruction_boundary(0xF449, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_F449(); g_code_window_base = swb; } return;
 }
 
+/*  $BA68 (bank 5) - lifted by port/tools/lift.py */
+void func_BA68_b5(void) {
+    REGS_IN;
+L_BA68:;
+    mff_cycles(0xBA68, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x1A6A, 0xBCC8, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xBA6B, 8);
+    a = RAM(OBJ_X_HI + x);
+    m = 0x02; c = a >= m;
+    z = ((uint8_t)(a - m)) == 0;
+    if (z) { mff_cycles(0xBA70, 1); goto L_BA78; }
+    mff_cycles(0xBA72, 13);
+    a = 0x80;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_STATE + x) = a;
+    SYNC_OUT;
+    mff_rts(); return;
+L_BA78:;
+    mff_cycles(0xBA78, 8);
+    a = RAM(OBJ_DIR + x);
+    m = 0x02; c = a >= m;
+    n = ((uint8_t)(a - m)) >> 7;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!z) { mff_cycles(0xBA7D, 1); goto L_BA8A; }
+    mff_cycles(0xBA7F, 6);
+    SYNC_OUT;
+    if (!mff_call_fn(0x1A81, func_F1A1, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xBA82, 8);
+    a = RAM(OBJ_X + x);
+    m = 0x18; c = a >= m;
+    n = ((uint8_t)(a - m)) >> 7;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!c) { mff_cycles(0xBA87, 1); goto L_BA94; }
+    mff_cycles(0xBA89, 6);
+    SYNC_OUT;
+    mff_rts(); return;
+L_BA8A:;
+    mff_cycles(0xBA8A, 6);
+    SYNC_OUT;
+    if (!mff_call_fn(0x1A8C, func_F183, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xBA8D, 8);
+    a = RAM(OBJ_X + x);
+    m = 0xF0; c = a >= m;
+    n = ((uint8_t)(a - m)) >> 7;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!c) { mff_cycles(0xBA92, 1); goto L_BA99; }
+L_BA94:;
+    mff_cycles(0xBA94, 7);
+    a = 0x84;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_STATE + x) = a;
+L_BA99:;
+    mff_cycles(0xBA99, 6);
+    SYNC_OUT;
+    mff_rts(); return;
+}
+
+/*  $BA9A (bank 5) - lifted by port/tools/lift.py */
+void func_BA9A_b5(void) {
+    REGS_IN;
+L_BA9A:;
+    mff_cycles(0xBA9A, 8);
+    a = RAM(OBJ_ANIM_FRAME + x);
+    m = 0x01; c = a >= m;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!z) { mff_cycles(0xBA9F, 1); goto L_BAB0; }
+    mff_cycles(0xBAA1, 8);
+    a = RAM(OBJ_ANIM_TIMER + x);
+    m = 0x01; c = a >= m;
+    n = ((uint8_t)(a - m)) >> 7;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!z) { mff_cycles(0xBAA6, 1); goto L_BAB0; }
+    mff_cycles(0xBAA8, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x1AAA, 0xBBEC, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xBAAB, 8);
+    a = 0x2C;
+    n = (a) >> 7;
+    z = (a) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x1AAF, func_F34C, 0xE000)) return;
+    SYNC_IN;
+L_BAB0:;
+    mff_cycles(0xBAB0, 8);
+    a = RAM(OBJ_ANIM_FRAME + x);
+    m = 0x03; c = a >= m;
+    n = ((uint8_t)(a - m)) >> 7;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!z) { mff_cycles(0xBAB5, 1); goto L_BACF; }
+    mff_cycles(0xBAB7, 8);
+    a = RAM(OBJ_ANIM_TIMER + x);
+    m = 0x01; c = a >= m;
+    n = ((uint8_t)(a - m)) >> 7;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!z) { mff_cycles(0xBABC, 1); goto L_BACF; }
+    mff_cycles(0xBABE, 20);
+    a = 0x08;
+    RAM(OBJ_AI_TIMER + x) = a;
+    t = (uint8_t)(RAM(OBJ_AI_COUNT + x) + 1); RAM(OBJ_AI_COUNT + x) = t;
+    n = (t) >> 7;
+    z = (t) == 0;
+    SYNC_OUT;
+    if (!mff_call_at(0x1AC8, 0xBCD9, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xBAC9, 9);
+    a = RAM(OBJ_TIMER + x);
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_STATE + x) = a;
+L_BACF:;
+    mff_cycles(0xBACF, 6);
+    SYNC_OUT;
+    mff_rts(); return;
+}
+
+/*  $BAD0 (bank 5) - lifted by port/tools/lift.py */
+void func_BAD0_b5(void) {
+    REGS_IN;
+L_BAD0:;
+    mff_cycles(0xBAD0, 6);
+    SYNC_OUT;
+    if (!mff_call_at(0x1AD2, 0xBBE1, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xBAD3, 9);
+    t = (uint8_t)(RAM(OBJ_AI_TIMER + x) - 1); RAM(OBJ_AI_TIMER + x) = t;
+    n = (t) >> 7;
+    z = (t) == 0;
+    if (!z) { mff_cycles(0xBAD6, 1); goto L_BAE7; }
+    mff_cycles(0xBAD8, 13);
+    a = 0x08;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_AI_TIMER + x) = a;
+    SYNC_OUT;
+    if (!mff_call_at(0x1ADF, 0xBCD9, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xBAE0, 15);
+    a = RAM(OBJ_TIMER + x);
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_STATE + x) = a;
+    SYNC_OUT;
+    mff_rts(); return;
+L_BAE7:;
+    mff_cycles(0xBAE7, 6);
+    SYNC_OUT;
+    mff_rts(); return;
+}
+
+/*  $BB05 (bank 5) - lifted by port/tools/lift.py */
+void func_BB05_b5(void) {
+    REGS_IN;
+L_BB05:;
+    mff_cycles(0xBB05, 9);
+    t = (uint8_t)(RAM(OBJ_AI_TIMER + x) - 1); RAM(OBJ_AI_TIMER + x) = t;
+    z = (t) == 0;
+    if (z) { mff_cycles(0xBB08, 1); goto L_BB28; }
+    mff_cycles(0xBB0A, 8);
+    a = RAM(OBJ_ANIM_FRAME + x);
+    m = 0x03; c = a >= m;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!z) { mff_cycles(0xBB0F, 1); goto L_BB22; }
+    mff_cycles(0xBB11, 6);
+    a = RAM(OBJ_ANIM_TIMER + x);
+    z = (a) == 0;
+    if (!z) { mff_cycles(0xBB14, 1); goto L_BB22; }
+    mff_cycles(0xBB16, 16);
+    a = 0x85;
+    RAM(OBJ_ATTACK + x) = a;
+    a = 0x11;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_ATTACK_DAMAGE + x) = a;
+    if (!z) { mff_cycles(0xBB20, 1); goto L_BB27; }
+L_BB22:;
+    mff_cycles(0xBB22, 7);
+    a = 0x00;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_ATTACK + x) = a;
+L_BB27:;
+    mff_cycles(0xBB27, 6);
+    SYNC_OUT;
+    mff_rts(); return;
+L_BB28:;
+    mff_cycles(0xBB28, 48);
+    RAM(OBJ_VX_FRAC + x) = a;
+    RAM(OBJ_AI_TIMER + x) = a;
+    a = 0x05;
+    RAM(OBJ_VX + x) = a;
+    a = 0x80;
+    RAM(OBJ_VX_FRAC + x) = a;
+    a = 0x01;
+    RAM(OBJ_VY + x) = a;
+    a = 0xA0;
+    RAM(OBJ_VY_FRAC + x) = a;
+    a = 0xCC;
+    y = 0x39;
+    n = (y) >> 7;
+    z = (y) == 0;
+    SYNC_OUT;
+    if (!mff_call_fn(0x1B48, func_F449, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xBB49, 22);
+    a = RAM(OBJ_Y + x);
+    RAM(OBJ_GROUND_Y + x) = a;
+    t = (uint8_t)(RAM(OBJ_STATE + x) + 1); RAM(OBJ_STATE + x) = t;
+    n = (t) >> 7;
+    z = (t) == 0;
+    SYNC_OUT;
+    mff_rts(); return;
+}
+
 /*  $BB0A (bank 5) - lifted by port/tools/lift.py */
 void func_BB0A_b5(void) {
     REGS_IN;
@@ -1733,6 +2500,58 @@ L_BB27:;
     mff_cycles(0xBB27, 6);
     SYNC_OUT;
     mff_rts(); return;
+}
+
+/*  $BB53 (bank 5) - lifted by port/tools/lift.py */
+void func_BB53_b5(void) {
+    REGS_IN;
+L_BB53:;
+    mff_cycles(0xBB53, 20);
+    a = 0x90;
+    RAM(OBJ_ATTACK + x) = a;
+    a = 0x34;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_ATTACK_DAMAGE + x) = a;
+    SYNC_OUT;
+    if (!mff_call_fn(0x1B5F, func_F1FD, 0xE000)) return;
+    SYNC_IN;
+    mff_cycles(0xBB60, 10);
+    a = RAM(OBJ_Y + x);
+    m = RAM(OBJ_GROUND_Y + x); c = a >= m;
+    if (!c) { mff_cycles(0xBB66, 1); goto L_BB7F; }
+    mff_cycles(0xBB68, 15);
+    a = RAM(OBJ_GROUND_Y + x);
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_Y + x) = a;
+    SYNC_OUT;
+    if (!mff_call_at(0x1B70, 0xBCD9, 5)) return;
+    SYNC_IN;
+    mff_cycles(0xBB71, 25);
+    a = 0x00;
+    RAM(OBJ_ATTACK + x) = a;
+    RAM(OBJ_ATTACK_DAMAGE + x) = a;
+    a = 0x85;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(OBJ_STATE + x) = a;
+    SYNC_OUT;
+    mff_rts(); return;
+L_BB7F:;
+    mff_cycles(0xBB7F, 8);
+    a = RAM(OBJ_DIR + x);
+    m = 0x02; c = a >= m;
+    n = ((uint8_t)(a - m)) >> 7;
+    z = ((uint8_t)(a - m)) == 0;
+    if (!z) { mff_cycles(0xBB84, 1); goto L_BB89; }
+    mff_cycles(0xBB86, 3);
+    SYNC_OUT;
+    nes_cpu_instruction_boundary(0xF1A1, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_F1A1(); g_code_window_base = swb; } return;
+L_BB89:;
+    mff_cycles(0xBB89, 3);
+    SYNC_OUT;
+    nes_cpu_instruction_boundary(0xF183, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_F183(); g_code_window_base = swb; } return;
 }
 
 /*  $BB8C (bank 5) - lifted by port/tools/lift.py */
@@ -2019,7 +2838,7 @@ void func_BD7F_b5(void) {
 L_BD7F:;
     mff_cycles(0xBD7F, 24);
     a = 0xF9;
-    RAM(0x62) = a;
+    RAM(SPECIAL_SCREEN_ID) = a;
     a = 0x01;
     RAM(OBJ_INVULN + x) = a;
     a = RAM(OBJ_STATE + x);
@@ -2077,10 +2896,10 @@ void func_BDBF_b5(void) {
     REGS_IN;
 L_BDBF:;
     mff_cycles(0xBDBF, 31);
-    a = RAM(0x31);
+    a = RAM(PLAYER_DIR);
     a ^= 0xFF;
     a &= 0x03;
-    RAM(0x32) = a;
+    RAM(JUMP_DIR) = a;
     RAM(JOY_PRESSED) = a;
     RAM(JOY_HELD) = a;
     a = 0x01;
@@ -2121,7 +2940,7 @@ L_BDE6:;
     if (n) { mff_cycles(0xBDEC, 2); goto L_BE22; }
     mff_cycles(0xBDEE, 13);
     a = 0xFF;
-    RAM(0x62) = a;
+    RAM(SPECIAL_SCREEN_ID) = a;
     a = 0x0F;
     n = (a) >> 7;
     z = (a) == 0;
@@ -2137,12 +2956,12 @@ L_BDE6:;
     RAM(OBJ_TIMER + x) = a;
     a = 0x00;
     RAM(OBJ_DOWN_TIMER) = a;
-    RAM(0x6E) = a;
-    RAM(0x6A) = a;
+    RAM(PLAYER_NO_HIT) = a;
+    RAM(RESPAWN_TIMER1) = a;
     a = 0x01;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x69) = a;
+    RAM(RESPAWN_TIMER2) = a;
     SYNC_OUT;
     if (!mff_call_at(0x1E15, 0xCED1, 5)) return;
     SYNC_IN;
@@ -2250,17 +3069,17 @@ L_BE6F:;
     nes_cpu_instruction_boundary(0xF440, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_F440(); g_code_window_base = swb; } return;
 L_BE79:;
     mff_cycles(0xBE79, 36);
-    t = (uint8_t)(RAM(0x6B) - 1); RAM(0x6B) = t;
-    t = (uint8_t)(RAM(0x6B) - 1); RAM(0x6B) = t;
+    t = (uint8_t)(RAM(PLAYER_LEVEL) - 1); RAM(PLAYER_LEVEL) = t;
+    t = (uint8_t)(RAM(PLAYER_LEVEL) - 1); RAM(PLAYER_LEVEL) = t;
     a = 0x02;
     RAM(PLAYER_ID) = a;
     a = 0x19;
-    RAM(0x0617) = a;
+    RAM(PALETTE_BUF + 23) = a;
     a = 0x30;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0616) = a;
-    RAM(0x18) = a;
+    RAM(PALETTE_BUF + 22) = a;
+    RAM(PALETTE_REQUEST) = a;
     SYNC_OUT;
     mff_rts(); return;
 L_BE8E:;
@@ -2315,17 +3134,17 @@ void func_BE79_b5(void) {
     REGS_IN;
 L_BE79:;
     mff_cycles(0xBE79, 36);
-    t = (uint8_t)(RAM(0x6B) - 1); RAM(0x6B) = t;
-    t = (uint8_t)(RAM(0x6B) - 1); RAM(0x6B) = t;
+    t = (uint8_t)(RAM(PLAYER_LEVEL) - 1); RAM(PLAYER_LEVEL) = t;
+    t = (uint8_t)(RAM(PLAYER_LEVEL) - 1); RAM(PLAYER_LEVEL) = t;
     a = 0x02;
     RAM(PLAYER_ID) = a;
     a = 0x19;
-    RAM(0x0617) = a;
+    RAM(PALETTE_BUF + 23) = a;
     a = 0x30;
     n = (a) >> 7;
     z = (a) == 0;
-    RAM(0x0616) = a;
-    RAM(0x18) = a;
+    RAM(PALETTE_BUF + 22) = a;
+    RAM(PALETTE_REQUEST) = a;
     SYNC_OUT;
     mff_rts(); return;
 }
@@ -2436,10 +3255,10 @@ L_BF2B:;
     a = 0x36;
     RAM(CHR_BANKS + 3) = a;
     a = 0x15;
-    RAM(0x061B) = a;
+    RAM(PALETTE_BUF + 27) = a;
     a = 0x26;
-    RAM(0x061A) = a;
-    RAM(0x18) = a;
+    RAM(PALETTE_BUF + 26) = a;
+    RAM(PALETTE_REQUEST) = a;
     t = (uint8_t)(RAM(OBJ_STATE + x) + 1); RAM(OBJ_STATE + x) = t;
     n = (t) >> 7;
     z = (t) == 0;
@@ -2492,7 +3311,7 @@ L_BF75:;
     if (!z) { mff_cycles(0xBF7A, 1); goto L_BF80; }
     mff_cycles(0xBF7C, 5);
     a = 0x00;
-    RAM(0x62) = a;
+    RAM(SPECIAL_SCREEN_ID) = a;
 L_BF80:;
     mff_cycles(0xBF80, 14);
     a = 0x28;

@@ -618,3 +618,733 @@ addr = 0x00E8
 size = 6
 name = "chr_banks"
 comment = "MMC3 R0-R5 shadows: nmi writes R2-R5 ($C090) and nmi_busy R0/R1 ($C0BA) from $E8+X"
+
+# ---- object tables, part 2 (docs/objects.md). 16 slots, one byte per slot. --
+# Evidence: runs/ram/xref.py (every access) and the bot frame logs
+# (runs/p4/base_*_tour.flog, base_*_round1.flog). $0350, $0370, $0390 and $03B0
+# are never accessed and always 0.
+
+[[ram]]
+addr = 0x0310
+size = 16
+name = "obj_saved_state"
+comment = "obj_state to resume when a temporary behaviour ends: restored with obj_saved_id after a grab (00:8362) and after getting up (0C:9C2F); spawns set $80 (08:817A, 0F:F2BA)"
+
+[[ram]]
+addr = 0x0330
+size = 16
+name = "obj_saved_id"
+comment = "obj_id to resume: spawners write it with obj_id (08:813D, 08:91B3, 0F:F46D), the pit fall saves it (0C:9B4A), a grab release and getting up restore it (00:8357, 0C:9C29). Data Crystal's enemy id at $033C is slot $0C of this table"
+
+[[ram]]
+addr = 0x0340
+size = 16
+name = "obj_x_frac"
+comment = "x sub-pixel: 0F:F183 adds obj_vx_frac/obj_vx into obj_x_frac/obj_x/obj_x_hi, 0F:F1A1 subtracts"
+
+[[ram]]
+addr = 0x03A0
+size = 16
+name = "obj_y_frac"
+comment = "y sub-pixel: 0F:F1BF adds obj_vy_frac/obj_vy into obj_y_frac/obj_y, 0F:F1DF/F20E/F22E subtract"
+
+[[ram]]
+addr = 0x03D0
+size = 16
+name = "obj_pit_flag"
+comment = "common-enemy AI: 1 or 2 when its background probes (0D:AA1D; tile bit $40 = pit) find a pit next to it, and it walks away (0D:A060-A0E2); nonzero during a pit fall (id $1F, set at 0C:9B52 and 0D:A4DF) keeps the animation running (0C:9B7E). Nonzero only in rounds 2-3 (0-based) in the logs"
+
+[[ram]]
+addr = 0x03E0
+size = 16
+name = "obj_y_hi"
+comment = "vertical page of obj_y (0-$EF per page): the stage list gives it with x, x_hi and y (08:811A); y wrapping past $EF moves it (0F:F1D6, F1F4, never executed); object_draw and the background probes take other paths when it is nonzero (0F:EA14, 0F:ED0A). Always 0 in the logs"
+
+[[ram]]
+addr = 0x03F0
+size = 16
+name = "obj_held"
+comment = "nonzero while the player holds this object: the grab copies its hold timer here ($3C, Haggar $5A; 0E:CE8D); $FF on release (00:835F, 0E:D847, 0E:D870, 0F:F0F3, 0F:F912), after which the behaviour clears it and recovers (01:A70B, 03:B45B, 0D:AB7A). Thrown bodies skip held objects (0C:8282)"
+
+[[ram]]
+addr = 0x0400
+size = 16
+name = "obj_vx_frac"
+comment = "x speed, fraction byte (see obj_vx)"
+
+[[ram]]
+addr = 0x0410
+size = 16
+name = "obj_vx"
+comment = "x speed in pixels per frame, unsigned: the caller picks 0F:F183 (right) or 0F:F1A1 (left) from obj_dir"
+
+[[ram]]
+addr = 0x0420
+size = 16
+name = "obj_vy_frac"
+comment = "y speed, fraction byte (see obj_vy)"
+
+[[ram]]
+addr = 0x0430
+size = 16
+name = "obj_vy"
+comment = "signed y speed, positive = up: 0F:F1FD subtracts it from obj_y and 0F:F24C applies gravity ($99, set to $38 by objects_update) down to -7; a knockback starts at $038E (0C:838D)"
+
+[[ram]]
+addr = 0x0440
+size = 16
+name = "obj_attack"
+comment = "bit 7 = an attack is out: objects_update then tests it against the player (0C:81F8 -> 0F:F55A); bits 0-4 index the reach tables $F6AA (y) and $F6CA/$F6EA (x) at 0F:F63F. Cleared while held (0E:CE92) and when hit (0C:80D8)"
+
+[[ram]]
+addr = 0x0450
+size = 16
+name = "obj_attack_damage"
+comment = "index of the attack that hits the player: health -= $FD16[i], and $FD56[i] != 0 knocks the player down (0F:F922-F932). Common enemies use $30-$3B plus tier (0D:A45D, A6A8, A81B)"
+
+[[ram]]
+addr = 0x0460
+size = 16
+name = "obj_dir"
+comment = "direction in pad bits: 1 right, 2 left, 4 down, 8 up (0D:A953-A9BE move by them). 0F:F314 points it at the player, 0F:F32E copies bit 0 (right) into obj_flags bit 6 (three RORs and AND #$40); a knockback points it away from the player (0C:8397-83A5)"
+
+[[ram]]
+addr = 0x0470
+size = 16
+name = "obj_throw_flag"
+comment = "$FF when the player throws this held enemy with the pad held toward the facing side (0E:D7D4, 00:84CB, 00:866D); the thrown-body behaviour then shifts and steers it differently (0C:8C77, 8C98, 8D1F, 8FF9). Cleared on release (00:836A) and on getting up (0C:9C3A). Never set in the bot logs"
+
+[[ram]]
+addr = 0x0480
+size = 16
+name = "obj_spawn_index"
+comment = "entry of the stage object list the slot was spawned from, $FF = none: the list spawner skips entries already present (08:80E7) and stores it (08:8106); death and the clears put $FF back (0C:823D, 0F:ECBE, 0F:F310)"
+
+[[ram]]
+addr = 0x04B0
+size = 16
+name = "obj_hit_cooldown"
+comment = "frames before the slot can be hit again: a player hit loads $FB17[attack] (0F:FB0E); while nonzero objects_update counts it down and skips the being-hit checks (thrown bodies, weapons, the player's attack) but still runs the behaviour (0C:8067-806F -> 81F0 -> 800B). base_cody_round1.flog: 2 after attack 0, $10 after attacks $06/$14/$15, then -1 per frame"
+
+[[ram]]
+addr = 0x04C0
+size = 16
+name = "obj_invuln"
+comment = "nonzero = cannot be hit: the player hit test (0F:F747) and thrown bodies (0C:8278, 0C:82E8) skip the slot. Knockdowns use $FF/$FE/$FD as lying and getting-up stages (0C:9BFC-9C27); after getting up it is reloaded from $FC82[kind] (0C:9C51) and the behaviour counts it down (0C:9CFA). base_cody_round1.flog slot $0C: FF at landing, FE for 45 frames, FD for 23, then 3 (Two P) when id $21 returns"
+
+[[ram]]
+addr = 0x04D0
+size = 16
+name = "obj_hit_player"
+comment = "$FF when this object's attack hit the player (0C:8204, with 60 frames of player invincibility in $3B); the behaviour reads and clears it (01:A3B2-A3C1)"
+
+[[ram]]
+addr = 0x04E0
+size = 16
+name = "obj_hit_timer"
+comment = "$1E when a player hit connects (0F:FB13, from 0C:85B6), counted down by the behaviours, which react on the $1E frame (01:A71C, 03:B46C, 0D:AB82); AxL's block clears it (0C:857E) and objects_update then skips the knockback (0C:813A-8144)"
+
+[[ram]]
+addr = 0x04F0
+size = 16
+name = "obj_spawn_group"
+comment = "per-kind code from the spawn tables (Poison/AxL 4, Two P/El Gado 5, Bred/Andore 3, bosses 4, other objects $FF; 08:816C, 08:91BF): the timed spawner adds up the codes of the live enemies (08:910A-912A) to choose what comes next. Bank 0B also uses slot $0F's byte ($04FF) as a slot pointer (0B:B696, 0E:CBE1)"
+
+[[ram]]
+addr = 0x0500
+size = 16
+name = "obj_timer"
+comment = "general per-behaviour timer or step counter: phases load it and count it down (03:BBD6 $3C, 0C:9E11) or count steps (01:A5AF, 0D:A1BE); the common-enemy AI keeps its move pattern here (0D:A102). Slot 0 uses it in bank 00; the title screen uses $0500/$0510/$0520 as its own timers"
+
+[[ram]]
+addr = 0x0510
+size = 16
+name = "obj_timer2"
+comment = "second per-behaviour counter: blink frames before a dead enemy is freed ($10 at 0C:8FCB, counted at 0C:9B07), the id to turn into after a dash (0C:9DB2), attack index of some bosses (01:A36E)"
+
+[[ram]]
+addr = 0x0520
+size = 16
+name = "obj_ground_y"
+comment = "ground line while airborne: saved when a jump starts (0B:BB49, 0D:A437, 01:A55D) and restored when obj_y passes it (0B:BB63, 0D:A4CC, 0D:A8AB); objects_update and the hit test use it instead of obj_y for the airborne animations $84/$AC/$E7/$BE/$CC (0C:8108, 0F:F78E). Some behaviours use it as a counter (05:AAE7, 0C:8FD7)"
+
+[[ram]]
+addr = 0x0530
+size = 16
+name = "obj_land_y"
+comment = "line a knocked-back object lands on: objects_update sets it when a hit connects (0C:80FD-812E: obj_y, obj_y+$0A for kinds 6/$0C, obj_ground_y in the air) and the hit reactions land there (0C:8EBF, 919F, 9AE3); in base_cody_round1.flog knocked-down enemies come to rest with obj_y equal to it. Bank 01 bosses reuse it as a direction index (01:A211)"
+
+[[ram]]
+addr = 0x0540
+size = 16
+name = "obj_timer3"
+comment = "third per-behaviour counter: frames before a thrown body starts hitting others (8 at 0C:8FD2, counted at 0C:824B), attack timer of the common-enemy AI (0D:A298, 0D:A393)"
+
+[[ram]]
+addr = 0x0550
+size = 16
+name = "obj_down_timer"
+comment = "knockdown recovery: frames lying ($2D) and getting up ($17) before obj_saved_id/obj_saved_state are restored (0C:9C07-9C29); seen exactly so in base_cody_round1.flog (frames 6128-6196). Bank 01 bosses keep AI flags here (01:A26F-A2D4)"
+
+[[ram]]
+addr = 0x0570
+size = 16
+name = "obj_anim_frame"
+comment = "frame index in the animation script (bits 0-6): object_draw advances it each time obj_anim_timer reaches the script's duration and wraps it at the script's count (0F:EABA-EAC9)"
+
+[[ram]]
+addr = 0x0580
+size = 16
+name = "obj_anim"
+comment = "animation id, 0 = nothing drawn: object_draw reads the script pointer at $8000/$8080 + (id & $7F) in bank $EB93[obj_id] (0F:EA6F-EAA2); a script frame of 0 frees the slot (0F:EAE9). 0F:F288 sets it for slot X (frame and timer 0), 0F:F2A0 spawns slot Y with it"
+
+[[ram]]
+addr = 0x0590
+size = 16
+name = "obj_anim_timer"
+comment = "frames shown of the current animation frame (bits 0-6, INC per draw at 0F:EAA9); bit 7 makes the sprite blink on frame_counter bit 2 (0F:EAD1; that path never ran in coverage)"
+
+[[ram]]
+addr = 0x05A0
+size = 3
+name = "spawn_groups"
+comment = "timed-spawner scratch, not a slot table: obj_spawn_group of up to two live enemies (08:9118), summed at 08:9123; cleared at round start (0E:C82D, 0F:E0DD)"
+
+[[ram]]
+addr = 0x05B0
+size = 16
+name = "obj_kind"
+comment = "enemy kind: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 id $2E, 7 Thrasher, 8 Sodom, 9 Abigail, $0B Belger, $0C id $9D; 0 for non-enemies (spawn table 08:85E6 via 08:8172; ids $20-$35 via 0C:9D19). Indexes per-kind tables ($FC82, $FC8F, $FBCC); the HUD prefers the bar of kinds 7-9/$0B (0F:E89D); kind 3 can block (0C:84F0)"
+
+[[ram]]
+addr = 0x05C0
+size = 16
+name = "obj_tier"
+comment = "common-enemy strength tier 1/2/4 by id group ($20-$25, $26-$2B, $30-$35: 0C:9CED-9CF7), turned into 0/1/2 by the table at $A897 in bank 0D: attack damage (0D:A456-A486, A6A1, A814) and AxL's block odds (0C:851C). Bosses use it as a counter (03:B3FC)"
+
+[[ram]]
+addr = 0x05D0
+size = 16
+name = "obj_ai_timer"
+comment = "countdown of the current AI phase: walk and wait times of the common-enemy AI (0D:A0E8, A14C, A2B4), AxL's block time (0C:8566), the death blink ($10 at 0C:9BCE, counted at 0C:9BD9)"
+
+[[ram]]
+addr = 0x05E0
+size = 16
+name = "obj_ai_count"
+comment = "AI step or attack counter: approach tries and combo length of the common-enemy AI (0D:A159, A22E, A257-A28D)"
+
+[[ram]]
+addr = 0x05F0
+size = 16
+name = "obj_ai_flag"
+comment = "AI coin flip: a random 0/1 drawn when an approach starts (0D:A081) that picks between two move tables (0D:A0F4) or sides (0B:BC84); some bosses toggle it (0D:A918, 0B:B920)"
+
+# ---- system: scheduler, drawing, banks, scroll, buffers --------------------
+
+[[ram]]
+addr = 0x0090
+name = "sched_nmi_flag"
+comment = "the nmi sets it to $FF (0E:C0E1-C0E3); the scheduler clears it before scanning the tasks and scans again if it was set meanwhile (0F:FEBF, 0F:FED3). Always 0 at frame end in the logs"
+
+[[ram]]
+addr = 0x0093
+size = 2
+name = "task_entry"
+comment = "task entry pointer: reset puts main_task ($C556) here for task_spawn (0F:FEA9-FEB3, read at 0F:FF05/FF09); the scheduler copies a new task's entry here and JMPs through it (0F:FEE7-FEEF); task_wait_frame passes its sleep length through $93 (0F:FF31-FF3E)"
+
+[[ram]]
+addr = 0x0096
+name = "draw_slot"
+comment = "slot objects_draw is drawing (0F:E9D8-E9F9: 0..15 or 13..0 by draw_parity)"
+
+[[ram]]
+addr = 0x0097
+name = "oam_index"
+comment = "next free byte in oam_buffer: screens and gameplay_draw set 4 (0E:C99F, 0E:C867, 0F:F410), 0E:C31D hides every sprite from there on, object_draw adds 4 per sprite (0F:EB2C-EB82); 0 = all 64 sprites used (object_draw stops at 0F:EB84)"
+
+[[ram]]
+addr = 0x0099
+name = "gravity"
+comment = "objects_update sets $38 every frame (0C:8003-8005); 0F:F24C subtracts it from obj_vy_frac/obj_vy. Logs: 0 or $38"
+
+[[ram]]
+addr = 0x009A
+name = "draw_busy"
+comment = "nonzero while 0F:F406 redraws the objects outside the gameplay loop (scenes in banks 00/04/09; 0F:F40C-F41A); the nmi then skips its VRAM, OAM DMA and CHR work as for render_off_depth (0E:C015-C01B)"
+
+[[ram]]
+addr = 0x009B
+name = "irq_enable"
+comment = "1 = raster IRQ on: the nmi writes $E000+irq_enable ($E000 disables, $E001 enables; 0E:C0DA-C0DC). 1 from a new game (0E:C722) and after the round map (0F:E139), 0 for the round map and the ending (0F:E12F, 0E:DEAD); logs: 0 for the 146 frames of each round map"
+
+[[ram]]
+addr = 0x009E
+name = "spawn_list_next"
+comment = "next entry of the area's stage object list to spawn as the screen scrolls right: found at area start (08:8038-8073), advanced after each spawn (08:80A7-80B3). Data Crystal's 'total enemies' is this cursor"
+
+[[ram]]
+addr = 0x009F
+name = "spawn_list_prev"
+comment = "first list entry still ahead of the screen, set with spawn_list_next (08:8075) and moved back at 08:80B5-80BF; the leftward scroll mode 2 walks it (08:808A, never executed)"
+
+[[ram]]
+addr = 0x00D9
+name = "music_current"
+comment = "last command pushed through the 0F:F34A entry of sound_queue_push (music: round_music, title $0C, $F0/$F2); sound effects use the 0F:F34C entry, which does not store it. 0B:B7F1 and 0E:DFEE skip restarting a track already current. Logs: 00-07, 0C, 0D, F0, F2"
+
+[[ram]]
+addr = 0x00EF
+name = "update_slot"
+comment = "slot objects_update is running (0C:8007-8066, from 1 up to $0F)"
+
+[[ram]]
+addr = 0x00F0
+name = "mmc3_select"
+comment = "last value written to MMC3 $8000 (bank_switch 0F:FF51/FF5F, sound_update 0F:FF78/FF84); the nmi and the HUD IRQ restore $8000 from it after writing CHR R0-R5 (0E:C0C5, 0E:C1D0), so an interrupted bank_switch still writes the right register. Always 7 at frame end"
+
+[[ram]]
+addr = 0x00F2
+size = 2
+name = "prg_banks"
+comment = "banks bank_switch last mapped at $8000/$A000 (0F:FF58, 0F:FF66); 0F:F406 saves them across its frame wait and maps them back through bank_request (0F:F406-F425). sound_update maps 06/07 without touching them"
+
+[[ram]]
+addr = 0x00FA
+name = "scroll_y"
+comment = "vertical scroll: the nmi writes it as the second $2005 value (0E:C0A5-C0A7). Only screen shakes move it (00:8066-807C, 05:AC47-AC56; back to 0 at 00:80B5) and every screen setup zeroes it; logs: 0 or $FF. The stage list spawner compares list y with it (08:80D1-80DC)"
+
+[[ram]]
+addr = 0x00FB
+name = "scroll_y_hi"
+comment = "vertical page matched against the stage list's y page (08:803C, 08:80E1); screen setups zero it (0E:C72A, 0E:C877). Always 0 in the logs"
+
+[[ram]]
+addr = 0x00FD
+name = "scroll_nt"
+comment = "bit 0 goes into PPUCTRL's nametable select at the nmi (0E:C0AF-C0B5), which also copies it to $7E; only ever written 0 (0E:C728, C875, DC81, DE6A, 0F:E149)"
+
+[[ram]]
+addr = 0x0100
+size = 4
+name = "bg_pal_anim_on"
+comment = "per background palette 0-3, bit 7 = color-cycled: loaded from the area header (0E:C4A5-C4AB, tables at $AE7C by sub_area); stage effects switch palettes 2-3 (00:97CA, 05:AC04, 05:AC76); run every gameplay frame by 09:A300 (from gameplay_update, 0E:C967). The stack never reaches below $0194 in the logs"
+
+[[ram]]
+addr = 0x0104
+size = 4
+name = "bg_pal_anim_step"
+comment = "step of each palette's color script, wraps at $A458[script] (09:A338-A345); 0 at load (0E:C4B6)"
+
+[[ram]]
+addr = 0x0108
+size = 4
+name = "bg_pal_anim_script"
+comment = "script of each palette (low 7 bits of the header byte, 0E:C4AF-C4B1), looked up through $A445 in bank 09 (09:A321)"
+
+[[ram]]
+addr = 0x010C
+size = 4
+name = "bg_pal_anim_timer"
+comment = "frames on the current step, compared with $A459[script] (09:A328-A335); 0 at load (0E:C4B9)"
+
+[[ram]]
+addr = 0x0150
+name = "continue_count"
+comment = "INC each time the continue screen opens with credits left (04:9300, called at 0E:DCB6); cleared at a new game (0E:C836). After the last round the extra ending (0E:DF08-DF4A) runs only when it is 0 (0E:DF03). Logs: becomes 1 at the continue screen (base_cody_round1 frame 18587)"
+
+[[ram]]
+addr = 0x0151
+name = "saved_attack_type"
+comment = "hit reactions park the player's attack type $A7 here while they deal a landing's damage as attack 5 through 0C:84F0 (0C:8F5F-8F83, 0C:9140-9176, 0C:9705-9726)"
+
+[[ram]]
+addr = 0x0200
+size = 256
+name = "oam_buffer"
+comment = "sprite buffer, copied by OAM DMA in every nmi that is not busy (0E:C035-C03C); object_draw fills 4-byte entries from oam_index (0F:EB37-EB71) and 0E:C31D hides the rest (Y = $F8). Sprite 0 is only ever hidden (0E:C323). 0C:9D07 mixes $020F into rng"
+
+[[ram]]
+addr = 0x0600
+size = 32
+name = "palette_buf"
+comment = "palette the nmi uploads to $3F00-$3F1F when $18 is nonzero (0E:C061-C08B): background palettes 0-3, then sprite palettes 0-3"
+
+[[ram]]
+addr = 0x0620
+size = 32
+name = "palette_base"
+comment = "the screen's palette as loaded (0E:C494-C49A writes it with palette_buf; 04:8D55 the character's sprite colors); the fade-out copies it into palette_buf and darkens that by $10 a step (0E:C36E-C3B3)"
+
+[[ram]]
+addr = 0x0640
+size = 40
+name = "attr_shadow"
+comment = "attribute bytes of nametable rows 1-5 ($23C8-$23EF), indexed by $28, so the column renderer can merge the two 16-pixel halves of each byte (0F:E563-E5A8). Logs: exactly $0640-$0667 used"
+
+[[ram]]
+addr = 0x06C0
+size = 16
+name = "tile_block"
+comment = "4x4 tiles of the 32x32-pixel block the column renderer is drawing, expanded from 4 metatiles through the round bank's tables $BB00/$BC00/$BD00/$BE00 (0F:E60F-E64B); one 8-pixel column at a time goes into the VRAM strip list (0F:E571-E58C)"
+
+# ---- zero page: frame requests, scroll engine, player, areas (proposed by fork_zp) ----
+
+[[ram]]
+addr = 0x0018
+name = "palette_request"
+comment = "nonzero: the nmi copies palette_buf ($0600-$061F) to $3F00 and clears it (0E:C061-C08B); palette writers set it after filling palette_buf (0E:C396 per fade step, 0E:CEEA, 04:8957) and the palette cycling keeps bit 0 across its pass (09:A304-A31E). Logs: 00, 01, 02, $12, $FF"
+
+[[ram]]
+addr = 0x0019
+name = "vram_list_request"
+comment = "nonzero: the nmi writes the PPU string list at $0780 ([addr hi, addr lo, count-1, bytes]..., ends at a byte >= $80) with +1 increment and clears it (0E:C03F-C043, C1FD-C221); set to $FF by the screen code that fills the list (00:9A4F, 04:9446, 09:A749)"
+
+[[ram]]
+addr = 0x001A
+name = "vram_column_request"
+comment = "same as vram_list_request but written with the +32 increment (PPUCTRL bit 2, 0E:C046-C057): the column streamer queues a nametable column at $0780 and sets it (0F:E5D1-E5F2)"
+
+[[ram]]
+addr = 0x0020
+size = 2
+name = "map_screen_ptr"
+comment = "pointer to the current screen's 64-byte metatile map in the round's $A000 bank: screen number from $AE60/$AE90/$AEC0 (per sub_area) * $40 + $AF00 (0F:E66E-E6A8); read with map_cell as the index (0F:E65A)"
+
+[[ram]]
+addr = 0x0024
+name = "bg_column"
+comment = "nametable column (0-$1F) the column streamer writes next: $1F at round start (0E:C766), +1/-1 per streamed column (0F:E531-E53B); attribute bytes are queued on odd columns (0F:E58F-E5BB)"
+
+[[ram]]
+addr = 0x0025
+name = "scroll_x_prev"
+comment = "scroll_x saved after the camera update (0E:C953-C955); the streamer queues a new column whenever scroll_x crosses an 8-pixel boundary since then (0F:E4DF-E51D)"
+
+[[ram]]
+addr = 0x0027
+name = "player_x_prev"
+comment = "player obj_x saved after the camera update (0E:C94E-C951); the camera follows the player's movement since then (0F:E2E9-E2F1, E418-E443)"
+
+[[ram]]
+addr = 0x0028
+name = "map_cell"
+comment = "index into the 8x8 metatile map of the current screen (row * 8 + column): the column streamer walks it down a column (0F:E551-E5CF) and the background probes compute it from an object's x/y (0F:ED11-ED47)"
+
+[[ram]]
+addr = 0x0029
+name = "bg_screen"
+comment = "index of the screen being streamed in the area's screen list: $FF at round start (0E:C762), +1/-1 each time bg_column wraps (0F:E53F-E545); the round-start loop waits until it is no longer 0 (0E:C772)"
+
+[[ram]]
+addr = 0x002A
+name = "area_flags"
+comment = "top 3 bits of the area header byte ($AE68/$AEC8, 0E:C78A-C790, 0F:E038-E03E); bit 5 = the area scrolls (0F:E2C7). $20 in 90% of the logged frames"
+
+[[ram]]
+addr = 0x002B
+name = "area_palette"
+comment = "palette pair index in the area header ($AE70 + 2n, 0E:C44F); only 0 is ever written (0E:C799, 0F:E047)"
+
+[[ram]]
+addr = 0x002C
+name = "area_screen_count"
+comment = "screens in the area, low 5 bits of the area header byte (0E:C793, 0F:E041): the camera stops when area_screen reaches it (0F:E3A9, E451) and stage_events then walks the player out (08:895A)"
+
+[[ram]]
+addr = 0x002D
+name = "area_screen"
+comment = "screens the camera has scrolled in the area: 0 at area start (0E:C79B), INC when scroll_x wraps (0F:E44D); hit reactions use it as the x high byte of the screen edge (0C:97D7). Equal to scroll_x_hi in 98.6% of the logged frames"
+
+[[ram]]
+addr = 0x002E
+name = "camera_dir"
+comment = "1 while the camera follows a move right, 2 left (0F:E2D4, E313); written only, never read"
+
+[[ram]]
+addr = 0x002F
+name = "probe_saved_bank"
+comment = "$A000 bank saved by the background probes while they map the round's bank, restored afterwards (0F:EECD-EECF, 0F:EEE1-EEE5)"
+
+[[ram]]
+addr = 0x0031
+name = "player_dir"
+comment = "player facing in pad bits, 1 right / 2 left (as obj_dir): 1 at round start (0F:E0A9), set from the attacker after a hit (0F:F962, F9B9); hit sparks and attack reach use it (0F:F4B8, F82D). In the logs the player moves right with 1 and left with 2 (17,542 / 5,994 walking frames)"
+
+[[ram]]
+addr = 0x0032
+name = "jump_dir"
+comment = "horizontal direction of the current jump, pad bits 1/2 (joy_held & 3 when it starts, 00:83E9-83EF, 0E:D1C9-D1CB); the jump moves by it (00:83F1, 0E:D1CD, D289) and compares it with player_dir (0E:D0F9)"
+
+[[ram]]
+addr = 0x0035
+name = "jump_moving"
+comment = "nonzero when the jump started with left or right held (INC at 00:83ED, 0E:D1C7): selects the moving jump and its kick (0E:D076, D18E); cleared when the action ends"
+
+[[ram]]
+addr = 0x0036
+name = "player_ground_y"
+comment = "player's ground line: obj_y while standing (0E:CEAA-CEAD and the walk code 0E:CA6A, CA96), the line a jump lands on (0E:CFFE) and the depth the hit tests use for the player (0F:F5C2, F615, F628)"
+
+[[ram]]
+addr = 0x0037
+name = "action_timer"
+comment = "frames left in the current game_action: 3 for the landing (0E:D01E), 8 or $0C for recoveries (0E:D772, 05:A808), $3C lying down (0E:DC0B), counted down by the handlers (0E:D2B7, DCE5, DDAC). main_task also uses it for the CAPCOM PRESENTS wait ($B4, 0E:C59F-C5AE). Cody tour log: 3 at 257 of the 315 entries into game_action 2"
+
+[[ram]]
+addr = 0x0038
+name = "grab_timer"
+comment = "frames the player keeps an enemy held: $3C, Haggar $5A (0E:CE81-CE89, also copied into obj_held); counted down at 0E:D834-D838 and the hold ends when it goes negative (0E:D83B)"
+
+[[ram]]
+addr = 0x0039
+name = "grab_slot"
+comment = "slot of the enemy the player holds (0E:CE48; 0E:CC39 for the combo grab); the grab, throw and release code index the object tables with it (0E:CE8B, D7F6, D845; 00:8355)"
+
+[[ram]]
+addr = 0x003B
+name = "player_invuln"
+comment = "frames the player ignores enemy attacks after a hit: $3C when one connects (0C:8207-8209), counted down by player_state_idle and the knockdown (0E:CA24, DA3C); objects_update skips the test while nonzero (0C:81F4). Logs: set to $3C on 607 hits, always as game_action becomes 5 or 6. Data Crystal's Invincible"
+
+[[ram]]
+addr = 0x003C
+name = "spawn_slot"
+comment = "slot picked by the timed spawner (08:905B) and filled later in the same pass (08:91A5)"
+
+[[ram]]
+addr = 0x003F
+name = "area_clear"
+comment = "0 while the area's enemies are to be beaten; $FF when the area script sees its kill quota or no enemy left (08:89D2, called from the scripts at 08:8A4B-8DA4); $7F once the GO sign is up (08:89CD). Negative stops the timed spawner (08:9012); stage_events then puts up GO or, on the last screen, walks the player out (08:8956-89CF)"
+
+[[ram]]
+addr = 0x0040
+name = "probe_index"
+comment = "background probes: index into the probe offset tables ($EEEB/$EEF6, $EF23/$EF2D), stepped per probe point (0F:ECD2, ED7C, EDBD, EE89)"
+
+[[ram]]
+addr = 0x0041
+name = "probe_max"
+comment = "background probes: highest tile attribute (high nibble of $BF00[tile]) found by the last probe call (0F:ED6E-ED72, EE7B-EE7F; cleared at 0F:EECB). Bit $40 of the probe result ($10) means a pit"
+
+[[ram]]
+addr = 0x0042
+size = 3
+name = "probe_hits"
+comment = "background probes: tile attribute of each probe point, up to three (STA $0042,Y at 0F:ED6B, EE78)"
+
+[[ram]]
+addr = 0x0050
+name = "camera_lock"
+comment = "$FF when the camera has scrolled onto a new screen and holds it (0F:E463, with camera_autoscroll): the camera code skips scrolling (0F:E2C0) and the timed spawner runs only while it is set (08:9000); the screen-clear object clears it (05:AA9B). Logs: $FF in 130,128 of 181,599 gameplay frames"
+
+[[ram]]
+addr = 0x0051
+name = "level_saved"
+comment = "player_level at the start of the round (0E:DFA8, select screen 04:91C1), put back when continuing (0E:DF5A)"
+
+[[ram]]
+addr = 0x0054
+name = "area_kills"
+comment = "enemies defeated in the current area: INC when one dies (0C:81CE, 0C:8211, 0C:9BD3); the area scripts compare it with their quota ($8DC4+, 08:8A44-8AF1) to clear the area; 0 at area start (0E:C819, 0F:E0C9, 05:AA9D). Logs: counts 0,1,2,3,4 and resets"
+
+[[ram]]
+addr = 0x005C
+name = "boss_area"
+comment = "$FF in a round's last area (sub_area 2), 0 elsewhere (0F:E090-E0A5, which also queues the boss music $05 from round 1 on); changes the knockback the player takes (0E:DA57, 0E:DB2F). Logs: $FF throughout sub_area 2 of every round"
+
+[[ram]]
+addr = 0x0062
+name = "special_screen_id"
+comment = "nonzero replaces gameplay with gameplay_special_screen (0E:C8FD, bank 04 $9800): small values are text pages of the boss talk (04:9918, tables $A54C/$A4FD; first pages in the logs 1, $14, $26 and $3C-$40, all in sub_area 2), $F0-$FF are commands (04:980F-983A)"
+
+[[ram]]
+addr = 0x0063
+name = "spawn_timer"
+comment = "frames until the timed spawner (08:9000) brings the next enemy: counted down at 08:901B while fewer than two enemies are up (08:96C3) and area_clear is not negative; reloaded from $9024[rng & $0F] (08:9042). Data Crystal's enemy timer"
+
+[[ram]]
+addr = 0x0065
+name = "vram_buffer_len"
+comment = "end of the $0780 buffer in nmi_vram_update's format ([count, addr hi, addr lo, bytes]...): the HUD and text writers append there (0F:E8CA, 04:9855) and set vram_request; nmi_vram_update stops at it and resets it to 0 (0E:C248-C24E)"
+
+[[ram]]
+addr = 0x0066
+name = "special_screen_step"
+comment = "phase of gameplay_special_screen: bank 04 $9800 jumps through $9D56/$9D59 by it (04:9800-980C); INC to advance (04:9849, 98B5, 99EA), 0 at 04:9A91 and 0A:9C16"
+
+[[ram]]
+addr = 0x0067
+name = "area_index"
+comment = "area number counted over the whole game, round * 3 + sub_area (0 at a new game 0E:C756, INC with sub_area at 0E:DE8B, set on continue 0E:DF6C): picks the stage object list pointers $72-$7B (08:8000). Logs: exactly round*3+sub_area"
+
+[[ram]]
+addr = 0x0069
+name = "respawn_timer2"
+comment = "second part of the drop-in invincibility after a lost life: $B6 frames (00:8EAB), counted after respawn_timer1 with the palette flashing (0E:CEED-CEF7); enemy attacks miss while it or respawn_timer1 is nonzero (0F:F58C-F592). Logs: $1E/$B6 after every lost life, 212 frames together"
+
+[[ram]]
+addr = 0x006A
+name = "respawn_timer1"
+comment = "first part of the drop-in invincibility: $1E frames (00:8EAF), counted first with the player's palette flashing (0E:CED1-CEEA); see respawn_timer2"
+
+[[ram]]
+addr = 0x006B
+name = "player_level"
+comment = "experience level, 0-based: up when player_exp reaches the per-level threshold, which also refills health from the per-character table (0C:8AA2-8AB4); capped at 5 for Cody and Guy and 3 for Haggar (0C:89F4, 8A0A, 8A20); the HUD hides the exp digits at the top level (0F:E7B6-E7C8). Never above 0 in the bot logs"
+
+[[ram]]
+addr = 0x006C
+size = 2
+name = "player_exp"
+comment = "experience, 3 BCD digits: $6C tens/ones, $6D hundreds (HUD 0F:E7CA-E7EB). An enemy kill adds $FC10[attack id] (0C:89E3, 0C:8A31-8ACD); reset at level up and on continue. Logs: rises with area_kills (e.g. 006 -> 010 on a kill by attack $1C)"
+
+[[ram]]
+addr = 0x006E
+name = "player_no_hit"
+comment = "bit 7 set while the player's own grab, throw or special runs (0E:D5B7, D73A, D7F2, D88C; 00:864A; $FF at 00:83B6) and during the drop-in (00:8EB8): enemy attacks are not tested (0C:81F0) and 0F:F8D5 ignores hits; cleared when the move ends (0E:CF2E, 00:8606, 0C:914E)"
+
+[[ram]]
+addr = 0x006F
+name = "player_stand_anim"
+comment = "animation the player goes back to when idle: $E288[player_id] after most actions (00:82A2, 0E:D2E4, 0E:DA36), combo stances $10-$18 (0E:D46F-D792); player_state_idle compares it (0E:CB18)"
+
+[[ram]]
+addr = 0x0072
+size = 2
+name = "spawn_list_x"
+comment = "pointer to the x low bytes of the area's stage object list (08:8000-8034 from tables indexed by area_index; read at 08:80C2)"
+
+[[ram]]
+addr = 0x0074
+size = 2
+name = "spawn_list_x_hi"
+comment = "pointer to the x high bytes of the stage object list (08:8005; read at 08:80C9)"
+
+[[ram]]
+addr = 0x0076
+size = 2
+name = "spawn_list_y"
+comment = "pointer to the y bytes of the stage object list (08:8023; read at 08:80D1)"
+
+[[ram]]
+addr = 0x0078
+size = 2
+name = "spawn_list_y_hi"
+comment = "pointer to the y page bytes of the stage object list (08:8019; read at 08:80DD, 08:803A)"
+
+[[ram]]
+addr = 0x007A
+size = 2
+name = "spawn_list_type"
+comment = "pointer to the type bytes of the stage object list (08:802D); a type indexes the spawn tables at 08:8442 and 08:85E6 (08:8125, 08:8156)"
+
+[[ram]]
+addr = 0x007C
+size = 3
+name = "irq_scroll"
+comment = "scroll latched by the nmi for the raster split: $F8, scroll_x and $FD copied to $7C/$7D/$7E (0E:C029-C033); the IRQ handlers write $7D to PPUSCROLL below the status bar (0E:C17A, C197). $7C and $7E are never read"
+
+[[ram]]
+addr = 0x00A3
+name = "combo_timer"
+comment = "frames left to chain the next hit of a combo: $1E when a player hit connects (0C:8136), counted down in player_state_idle (0E:CA26-CA2A) and the hit position (0E:DDAE, DDF6, DE27); B while it runs continues the combo (0E:CB0B, DD85, DDD9). Logs: set 293 times"
+
+[[ram]]
+addr = 0x00A4
+name = "attack_live"
+comment = "$1E while the player's current attack can hit (0F:F43B, called when an attack starts), 0 when it ends (0F:F436 and the action ends); the hit test needs it (0F:F76B)"
+
+[[ram]]
+addr = 0x00A6
+name = "attack_ground_y"
+comment = "ground line of the player's current attack, copied from player_ground_y when a jump attack or special starts (0E:D0D1, D154, D71D; 00:859B); depth tests of jump attacks and thrown bodies use it (0F:F7D0, F7EF, 0C:831F)"
+
+[[ram]]
+addr = 0x00A7
+name = "attack_id"
+comment = "id of the player's current attack: indexes hit-stop $FB17 (0F:FB09), reach $F869/$F88D/$F8B1 (0F:F811-F85E), the damage routines (0C:85C8-8615) and the exp table $FC10 (0C:8A43); objects_update picks the knockback from it (0C:8146-8198)"
+
+[[ram]]
+addr = 0x00A8
+name = "combo_target"
+comment = "slot of the enemy hit by attack 6 or $0C (0C:858B, 0C:8692); the combo finisher can grab it with B+Up/Down (0E:CBA3-CC39). Logs: enemy slots $0C/$0D"
+
+[[ram]]
+addr = 0x00A9
+name = "weapon_held"
+comment = "$FF while the player carries a picked-up weapon (05:A82A), 0 when it is dropped on a hit (0F:F915-F91F, F97C) or used up (00:8298). Data Crystal: 00 dropped, FF held"
+
+[[ram]]
+addr = 0x00AA
+name = "text_cursor"
+comment = "special screen: character position in the current text line (index at 04:9926, PPU column at 04:997B, INC per character 04:9980)"
+
+[[ram]]
+addr = 0x00AB
+name = "text_timer"
+comment = "special screen: delay counter between text steps ($F0 after a page at 04:98BD, $0A at 04:9992; counted at 04:98AF, 98E9)"
+
+[[ram]]
+addr = 0x00AD
+name = "weapon_ammo"
+comment = "Guy's throws left with a picked-up weapon: 7 at pickup (05:A826), DEC per throw (00:8292); below 0 the weapon is gone (00:8296-829A)"
+
+[[ram]]
+addr = 0x00B0
+name = "hud_enemy_slot"
+comment = "slot whose life bar the HUD shows: the enemy just hit (0C:8569, 8598, 9BC8), the held one (0F:E6CF), or a live boss of kind 7-9/$0B first (0F:E89B-E8C6); 0 = none (0E:DE64). Logs: alternates between the slots being hit"
+
+[[ram]]
+addr = 0x00B1
+name = "hud_enemy_timer"
+comment = "frames the enemy bar has been shown: 0 or 1 when hud_enemy_slot changes (0C:856D, 0F:E8C4); the bar hides at $96 (0F:E8EA-E8F0) and blinks for 30 frames when the enemy is dead (0F:E8F7-E8FF)"
+
+[[ram]]
+addr = 0x00B3
+name = "guy_jump_window"
+comment = "Guy only: 5 when Up is pressed during a jump with animation $3B (0E:D057-D05F); landing then picks animation $68 (0E:D02B) and player_state_02 counts it down (0E:D2EA), where B would start a move never executed (0E:D2F8). Guess at the purpose; nonzero in 0.1% of the logged frames"
+
+[[ram]]
+addr = 0x00B4
+name = "dialogue_choice"
+comment = "special screen: bit 7 toggled by the pad with sound $2F (04:99FE-9A07), drawn as a two-way cursor (04:9A29) and compared with the script's answer byte (04:9A74-9A7A). Never set in the logs"
+
+[[ram]]
+addr = 0x00B5
+name = "screen_event"
+comment = "set by the screen-advance object when the camera is $28 pixels into the next screen (05:AAB0); stage_events then runs the round's per-screen setup (08:972A) once and clears it (08:892C-8935)"
+
+[[ram]]
+addr = 0x00B7
+name = "game_finished"
+comment = "$FF after the last round (0E:DE99-DEAA, with paused $FF and the ending music $08); gameplay then only waits for frames (0E:C8F6-C8FA). Never set in the logs"
+
+[[ram]]
+addr = 0x00BA
+name = "grab_hit_count"
+comment = "hits delivered during a grab: each hit sets attack_id from $8CC1[n] and INC (00:8B33-8B48, 8BCF-8BE4, 8C4F-8C64); after 3 the grab ends (00:8B98); 0 when the action ends"
+
+[[ram]]
+addr = 0x00BB
+name = "camera_autoscroll"
+comment = "$FF with camera_lock (0F:E467); once the lock is lifted, walking past the screen centre starts game_action $1D and the camera scrolls 1 pixel a frame by itself (0F:E3AF-E3F5, E409); cleared when that ends (0F:E394)"
+
+[[ram]]
+addr = 0x00BC
+name = "keep_on_screen"
+comment = "$FF in areas whose script asks for it (08:8ABF, 8C43, 8CA5, 8CE1, 8D6F, 8DA8): knocked-back enemies are stopped $10 pixels inside the screen edges (0C:979B-97DE and the other reactions). Logs: $FF in most boss areas (not round 1's) and in round 3 area 1 (0-based)"
+
+[[ram]]
+addr = 0x00BD
+name = "select_player"
+comment = "character the select screen starts on: 0 after the title (0E:C6F6), the last pick otherwise (04:91C5, read at 04:9104)"
+
+[[ram]]
+addr = 0x00BE
+name = "action_before_fall"
+comment = "game_action saved when the player starts falling into a pit (game_action $24: 0E:CFD3, 0F:F0DE, 0F:F176); if it was a grab (4) the held enemy is released (0F:F0E9-F0F3, 00:8DD4)"
+
+[[ram]]
+addr = 0x00BF
+name = "special_hit"
+comment = "nonzero when the special move (game_action $17, Haggar's $16) hit an enemy (0C:859E-85B4); when the move ends it costs health only then (00:8772-8781, 00:884E-885D)"

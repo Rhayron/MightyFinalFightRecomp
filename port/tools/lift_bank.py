@@ -38,8 +38,16 @@ def main():
     ap.add_argument("rom")
     ap.add_argument("banks", nargs="+", type=int)
     ap.add_argument("--skip", default="")
+    ap.add_argument("--extra", help="file of generated function names (func_XXXX[_bN]) to lift too: "
+                    "entries the map does not list but runs reach (NESRECOMP_FUNC_COUNTS)")
     a = ap.parse_args()
     skip = {int(s, 16) for s in a.skip.split(",") if s}
+    extra = set()
+    if a.extra:
+        for name in open(a.extra).read().split():
+            m = re.match(r"func_([0-9A-F]{4})(?:_b(\d+))?$", name)
+            if m:
+                extra.add((int(m.group(2)) if m.group(2) else lift.FIXED, int(m.group(1), 16)))
     rom = open(a.rom, "rb").read()
     game = tomllib.load(open(os.path.join(ROOT, "port", "scaffold", "game.toml"), "rb"))
     base = open(BASE).read()
@@ -56,8 +64,10 @@ def main():
         # drop the old lifted entries of this bank
         keep = [k for k in keep if not (("bank = %d\n" % bank) in k if bank != lift.FIXED
                                          else "bank = " not in k)]
-        starts = sorted({f["addr"] for f in game["extra_func"] if f["bank"] == bank})
+        starts = sorted({f["addr"] for f in game["extra_func"] if f["bank"] == bank} |
+                        {addr for b, addr in extra if b == bank})
         lf = lift.Lifter(rom, bank, gen, names)
+        lf.stops = {addr for b, addr in hand if b == bank}
         for fname, lo, hi in groups(bank):
             chunks, done = [], []
             for addr in starts:

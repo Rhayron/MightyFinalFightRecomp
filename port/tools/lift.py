@@ -156,6 +156,7 @@ class Lifter:
         self.gen = gen
         self.nm = names
         self.calls = set()          # prototypes needed
+        self.stops = set()          # entries written by hand: reaching one is a tail call
 
     def byte(self, pc):
         if pc >= 0xC000:
@@ -184,6 +185,9 @@ class Lifter:
         while todo:
             pc = todo.pop()
             while pc not in insns:
+                if pc != start and pc in self.stops:
+                    insns[pc] = {"pc": pc, "mn": "STOP", "n": 0, "cyc": 0, "goto": [], "end": True}
+                    break
                 if pc not in code:
                     raise Refuse(f"${pc:04X} reached but not in {body}")
                 op, stmt = code[pc]
@@ -533,6 +537,13 @@ class Lifter:
                     add(f"{call};")
                 reload_all()
                 prev_end = False
+                continue
+            if mn == "STOP":
+                flush()
+                sync_all()
+                fn = f"func_{pc:04X}" + ("" if self.bank == FIXED else f"_b{self.bank}")
+                add(f"{{ void {fn}(void); {fn}(); }} return;   /* written by hand */")
+                prev_end = True
                 continue
             if mn == "DATA":
                 flush()
