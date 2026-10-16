@@ -37,7 +37,7 @@ run_one() {
   fi
   env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "${env[@]}" MFF_FRAMELOG="$(pwd -W)/$out" \
     MFF_PICLOG="$(pwd -W)/${out%.flog}.pic" \
-    "$EXE" "$ROM" --smoke "$frames" --smoke-interval 1000000 --smoke-output runs/p4 \
+    timeout --kill-after=10 600 "$EXE" "$ROM" --smoke "$frames" --smoke-interval 1000000 --smoke-output runs/p4 \
     > runs/p4/$name.log 2>&1 || echo "$name: exit $?" >> runs/p4/$name.log
 }
 

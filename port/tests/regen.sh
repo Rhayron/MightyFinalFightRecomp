@@ -28,6 +28,7 @@ else
 fi
 LOG="$ROOT/runs/p4/build$([ "$1" = --pure ] && echo _pure || true)"
 
+py -3 -I port/tools/state_h.py > /dev/null
 py -3 -I port/tools/legacy_config.py "$ROM" --map runs/cdl/prgmap.bin --tables runs/cdl/tables.json \
     --extra runs/cdl/extra.json --base "$BASE" --out "$WORK/game.toml"
 mkdir -p "$WORK/generated"

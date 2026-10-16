@@ -13,6 +13,7 @@
 
 #include "nes_runtime.h"
 #include <stdint.h>
+#include <stdio.h>
 
 extern uint16_t g_rts_target;   /* the runtime reads it after a call returns */
 
@@ -100,6 +101,55 @@ static inline void mff_rti(uint16_t pc) {
 static inline void mff_jmp_charge(uint16_t pc, uint16_t target) {
     mff_cycles(pc, 3);
     nes_cpu_instruction_boundary(target, 2);
+}
+
+/* ---- for routines lifted by port/tools/lift.py ----
+ * A/X/Y and the flags live in locals; they meet g_cpu at calls and exits. */
+#define REGS_IN \
+    uint8_t a = g_cpu.A, x = g_cpu.X, y = g_cpu.Y, t = 0, m = 0; \
+    int w = 0, n = g_cpu.N, z = g_cpu.Z, c = g_cpu.C, v = g_cpu.V; \
+    (void)t; (void)m; (void)w; (void)n; (void)z; (void)c; (void)v
+#define FLAGS_OUT (g_cpu.N = (uint8_t)n, g_cpu.Z = (uint8_t)z, g_cpu.C = (uint8_t)c, g_cpu.V = (uint8_t)v)
+#define FLAGS_IN (n = g_cpu.N, z = g_cpu.Z, c = g_cpu.C, v = g_cpu.V)
+#define SYNC_OUT (g_cpu.A = a, g_cpu.X = x, g_cpu.Y = y, FLAGS_OUT)
+#define SYNC_IN (a = g_cpu.A, x = g_cpu.X, y = g_cpu.Y, FLAGS_IN)
+
+/* a pointer in zero page (wraps at $FF like the 6502) */
+#define RAM16(zp) ((uint16_t)(g_ram[(zp) & 0xFF] | g_ram[((zp) + 1) & 0xFF] << 8))
+
+#define mff_rti_bank(pc, b) (mff_rti(pc), g_rti_bank = (b))
+
+/* JSR as the generator emits it: push (window | rp_low), then dispatch with
+ * its bank argument, or call a function directly in a given window (0 =
+ * keep). 1 if the stack came back balanced. */
+static inline int mff_call_at(uint16_t rp_low, uint16_t target, int bank) {
+    uint8_t s = g_cpu.S;
+    uint16_t ret = (uint16_t)(g_code_window_base | rp_low);
+    g_ram[0x100 + g_cpu.S] = (uint8_t)(ret >> 8); g_cpu.S--;
+    g_ram[0x100 + g_cpu.S] = (uint8_t)ret; g_cpu.S--;
+    if (!nes_dispatch_call(target, bank)) g_cpu.S += 2;
+    return g_cpu.S == s;
+}
+static inline int mff_call_fn(uint16_t rp_low, void (*fn)(void), uint16_t window) {
+    uint8_t s = g_cpu.S;
+    uint16_t ret = (uint16_t)(g_code_window_base | rp_low);
+    g_ram[0x100 + g_cpu.S] = (uint8_t)(ret >> 8); g_cpu.S--;
+    g_ram[0x100 + g_cpu.S] = (uint8_t)ret; g_cpu.S--;
+    if (window) {
+        uint16_t swb = g_code_window_base;
+        g_code_window_base = window;
+        fn();
+        g_code_window_base = swb;
+    } else {
+        fn();
+    }
+    return g_cpu.S == s;
+}
+
+/* A lifted path that runs into data (a branch the game always takes, decoded
+ * on by the generator). Never reached in any route; say so if it is. */
+static inline void mff_unreachable(uint16_t pc) {
+    fprintf(stderr, "[mff] lifted code reached data at $%04X\n", pc);
 }
 
 static inline void mff_nz(uint8_t v) {
