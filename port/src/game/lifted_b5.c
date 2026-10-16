@@ -46,7 +46,7 @@ L_9C04:;
     z = ((uint8_t)(a - m)) == 0;
     if (z) { mff_cycles(0x9C09, 1); goto L_9C12; }
     mff_cycles(0x9C0B, 11);
-    RAM(0x0780 + x) = a;
+    RAM(VRAM_BUFFER + x) = a;
     y++;
     x++;
     z = (x) == 0;
@@ -535,8 +535,8 @@ L_B475:;
     a = 0x9E;
     RAM(OBJ_ATTACK + y) = a;
     a = 0x00;
-    RAM(OBJ_LIFE_MAX + y) = a;
     RAM(OBJ_LIFE + y) = a;
+    RAM(OBJ_LIFE_MAX + y) = a;
     RAM(OBJ_KIND + y) = a;
     RAM(OBJ_GROUND_Y + y) = a;
     RAM(OBJ_VY + y) = a;
@@ -1164,7 +1164,7 @@ L_B6E7:;
     z = ((uint8_t)(x - m)) == 0;
     if (!z) { mff_cycles(0xB6E9, 2); goto L_B74A; }
     mff_cycles(0xB6EB, 8);
-    a = RAM(OBJ_LIFE_MAX + x);
+    a = RAM(OBJ_LIFE + x);
     m = 0x26; c = a >= m;
     if (!c) { mff_cycles(0xB6F0, 2); goto L_B721; }
     mff_cycles(0xB6F2, 7);
@@ -1243,7 +1243,7 @@ L_B743:;
     nes_cpu_instruction_boundary(0xF449, 2); { uint16_t swb = g_code_window_base; g_code_window_base = 0xE000; func_F449(); g_code_window_base = swb; } return;
 L_B74A:;
     mff_cycles(0xB74A, 8);
-    a = RAM(OBJ_LIFE_MAX + x);
+    a = RAM(OBJ_LIFE + x);
     m = 0x5A; c = a >= m;
     if (c) { mff_cycles(0xB74F, 1); goto L_B78C; }
     mff_cycles(0xB751, 6);
@@ -2679,8 +2679,8 @@ L_BC0F:;
     a = 0x80;
     RAM(OBJ_VX_FRAC + y) = a;
     a = 0x00;
-    RAM(OBJ_LIFE_MAX + y) = a;
     RAM(OBJ_LIFE + y) = a;
+    RAM(OBJ_LIFE_MAX + y) = a;
     RAM(OBJ_VY + y) = a;
     RAM(OBJ_VY_FRAC + y) = a;
     a = 0x0C;

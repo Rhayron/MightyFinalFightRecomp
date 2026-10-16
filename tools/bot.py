@@ -170,7 +170,8 @@ def main():
             if ram[0x3E] < 3 and ram[0x30] != 0x09:
                 patch[0x3E] = 3     # pits kill outright and fast; never reach the continue screen
             # an enemy (a boss, mostly) still standing after LONG_FIGHT frames
-            # has run its code plenty: drop its life ($04A0+slot) to finish it
+            # has run its code plenty: drop its life (obj_life, $0490+slot, signed) to
+            # finish it ($04A0 is the maximum: cutting that only shortened the HUD bar)
             ages = mem.setdefault("ages", {})
             live = {(e[3], e[2]) for e in enemies(ram)}
             for key in list(ages):
@@ -178,8 +179,9 @@ def main():
                     del ages[key]
             for key in live:
                 ages[key] = ages.get(key, 0) + a.seg
-                if ages[key] > LONG_FIGHT and ram[0x4A0 + key[0]] > 1:
-                    patch[0x4A0 + key[0]] = 1
+                life = ram[0x490 + key[0]]
+                if ages[key] > LONG_FIGHT and 1 < life < 0x80:
+                    patch[0x490 + key[0]] = 1
             # a tour (--skip-every) counts time per area; otherwise any progress resets the clock
             mark = ((ram[0x61], ram[0x22], ram[0x60]) if a.skip_every
                     else (ram[0x61], ram[0x22], ram[0x6C], ram[0x6D]))

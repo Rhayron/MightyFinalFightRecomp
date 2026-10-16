@@ -418,7 +418,7 @@ L_F086:;
     mff_rts(); return;
 }
 
-/*  $F090 - lifted by port/tools/lift.py */
+/* obj_face_right $F090 - lifted by port/tools/lift.py */
 void func_F090(void) {
     REGS_IN;
 L_F090:;
@@ -432,7 +432,7 @@ L_F090:;
     mff_rts(); return;
 }
 
-/*  $F099 - lifted by port/tools/lift.py */
+/* obj_face_left $F099 - lifted by port/tools/lift.py */
 void func_F099(void) {
     REGS_IN;
 L_F099:;
@@ -739,7 +739,7 @@ L_F16E:;
     mff_rts(); return;
 }
 
-/*  $F183 - lifted by port/tools/lift.py */
+/* obj_move_right $F183 - lifted by port/tools/lift.py */
 void func_F183(void) {
     REGS_IN;
 L_F183:;
@@ -766,7 +766,7 @@ L_F1A0:;
     mff_rts(); return;
 }
 
-/*  $F1A1 - lifted by port/tools/lift.py */
+/* obj_move_left $F1A1 - lifted by port/tools/lift.py */
 void func_F1A1(void) {
     REGS_IN;
 L_F1A1:;
@@ -793,7 +793,7 @@ L_F1BE:;
     mff_rts(); return;
 }
 
-/*  $F1BF - lifted by port/tools/lift.py */
+/* obj_move_down $F1BF - lifted by port/tools/lift.py */
 void func_F1BF(void) {
     REGS_IN;
 L_F1BF:;
@@ -821,7 +821,7 @@ L_F1DE:;
     mff_rts(); return;
 }
 
-/*  $F1DF - lifted by port/tools/lift.py */
+/* obj_move_up $F1DF - lifted by port/tools/lift.py */
 void func_F1DF(void) {
     REGS_IN;
 L_F1DF:;
@@ -848,7 +848,7 @@ L_F1FC:;
     mff_rts(); return;
 }
 
-/*  $F1FD - lifted by port/tools/lift.py */
+/* obj_fall $F1FD - lifted by port/tools/lift.py */
 void func_F1FD(void) {
     REGS_IN;
 L_F1FD:;
@@ -929,7 +929,7 @@ L_F24B:;
     mff_rts(); return;
 }
 
-/*  $F24C - lifted by port/tools/lift.py */
+/* obj_gravity $F24C - lifted by port/tools/lift.py */
 void func_F24C(void) {
     REGS_IN;
 L_F24C:;
@@ -991,7 +991,7 @@ L_F27D:;
     mff_rts(); return;
 }
 
-/*  $F288 - lifted by port/tools/lift.py */
+/* obj_set_anim $F288 - lifted by port/tools/lift.py */
 void func_F288(void) {
     REGS_IN;
 L_F288:;
@@ -1006,7 +1006,7 @@ L_F288:;
     mff_rts(); return;
 }
 
-/*  $F294 - lifted by port/tools/lift.py */
+/* player_set_anim $F294 - lifted by port/tools/lift.py */
 void func_F294(void) {
     REGS_IN;
 L_F294:;
@@ -1021,7 +1021,7 @@ L_F294:;
     mff_rts(); return;
 }
 
-/*  $F2A0 - lifted by port/tools/lift.py */
+/* obj_spawn $F2A0 - lifted by port/tools/lift.py */
 void func_F2A0(void) {
     REGS_IN;
 L_F2A0:;
@@ -1043,7 +1043,7 @@ L_F2A0:;
     mff_rts(); return;
 }
 
-/*  $F314 - lifted by port/tools/lift.py */
+/* obj_dir_to_player $F314 - lifted by port/tools/lift.py */
 void func_F314(void) {
     REGS_IN;
 L_F314:;
@@ -1069,7 +1069,7 @@ L_F32D:;
     mff_rts(); return;
 }
 
-/*  $F32E - lifted by port/tools/lift.py */
+/* obj_flip_from_dir $F32E - lifted by port/tools/lift.py */
 void func_F32E(void) {
     REGS_IN;
 L_F32E:;
@@ -1090,7 +1090,7 @@ L_F32E:;
     mff_rts(); return;
 }
 
-/*  $F343 - lifted by port/tools/lift.py */
+/* obj_face_player $F343 - lifted by port/tools/lift.py */
 void func_F343(void) {
     REGS_IN;
 L_F343:;
@@ -1107,7 +1107,7 @@ L_F343:;
     mff_rts(); return;
 }
 
-/*  $F34C - lifted by port/tools/lift.py */
+/* sound_queue_push_sfx $F34C - lifted by port/tools/lift.py */
 void func_F34C(void) {
     REGS_IN;
 L_F34C:;
@@ -1135,7 +1135,7 @@ L_F362:;
     mff_rts(); return;
 }
 
-/*  $F365 - lifted by port/tools/lift.py */
+/* obj_dist_y $F365 - lifted by port/tools/lift.py */
 void func_F365(void) {
     REGS_IN;
 L_F365:;
@@ -1158,7 +1158,7 @@ L_F373:;
     mff_rts(); return;
 }
 
-/*  $F374 - lifted by port/tools/lift.py */
+/* obj_dist_x $F374 - lifted by port/tools/lift.py */
 void func_F374(void) {
     REGS_IN;
 L_F374:;
@@ -1185,7 +1185,7 @@ L_F38A:;
     mff_rts(); return;
 }
 
-/*  $F38B - lifted by port/tools/lift.py */
+/* obj_dir_index $F38B - lifted by port/tools/lift.py */
 void func_F38B(void) {
     REGS_IN;
 L_F38B:;
@@ -1414,7 +1414,7 @@ L_F44F:;
     mff_rts(); return;
 }
 
-/*  $F455 - lifted by port/tools/lift.py */
+/* spawn_hit_spark $F455 - lifted by port/tools/lift.py */
 void func_F455(void) {
     REGS_IN;
     goto L_F455;
@@ -1451,8 +1451,8 @@ L_F455:;
     RAM(OBJ_HIT_COOLDOWN + y) = a;
     RAM(OBJ_ATTACK + y) = a;
     RAM(OBJ_ATTACK_DAMAGE + y) = a;
-    RAM(OBJ_LIFE_MAX + y) = a;
     RAM(OBJ_LIFE + y) = a;
+    RAM(OBJ_LIFE_MAX + y) = a;
     RAM(OBJ_INVULN + y) = a;
     RAM(OBJ_HIT_PLAYER + y) = a;
     RAM(OBJ_HIT_TIMER + y) = a;
@@ -1694,7 +1694,7 @@ L_F558:;
     mff_rts(); return;
 }
 
-/*  $F55A - lifted by port/tools/lift.py */
+/* enemy_attack_test $F55A - lifted by port/tools/lift.py */
 void func_F55A(void) {
     REGS_IN;
 L_F55A:;
@@ -2140,7 +2140,7 @@ L_F6A9:;
     mff_rts(); return;
 }
 
-/*  $F71A - lifted by port/tools/lift.py */
+/* find_free_slot $F71A - lifted by port/tools/lift.py */
 void func_F71A(void) {
     REGS_IN;
 L_F71A:;
@@ -2169,7 +2169,7 @@ L_F728:;
     mff_rts(); return;
 }
 
-/*  $F72A - lifted by port/tools/lift.py */
+/* find_free_effect_slot $F72A - lifted by port/tools/lift.py */
 void func_F72A(void) {
     REGS_IN;
     goto L_F72A;
@@ -2199,7 +2199,7 @@ L_F72C:;
     mff_rts(); return;
 }
 
-/*  $F738 - lifted by port/tools/lift.py */
+/* player_attack_test $F738 - lifted by port/tools/lift.py */
 void func_F738(void) {
     REGS_IN;
 L_F738:;
@@ -2902,7 +2902,7 @@ L_F85E:;
     mff_rts(); return;
 }
 
-/*  $F8D5 - lifted by port/tools/lift.py */
+/* player_take_hit $F8D5 - lifted by port/tools/lift.py */
 void func_F8D5(void) {
     REGS_IN;
 L_F8D5:;
@@ -3522,7 +3522,7 @@ L_FA8F:;
     mff_rts(); return;
 }
 
-/*  $FAC4 - lifted by port/tools/lift.py */
+/* drop_weapon $FAC4 - lifted by port/tools/lift.py */
 void func_FAC4(void) {
     REGS_IN;
 L_FAC4:;
@@ -3558,7 +3558,7 @@ L_FAC4:;
     mff_rts(); return;
 }
 
-/*  $FB09 - lifted by port/tools/lift.py */
+/* obj_hit_start $FB09 - lifted by port/tools/lift.py */
 void func_FB09(void) {
     REGS_IN;
 L_FB09:;

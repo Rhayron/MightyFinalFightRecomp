@@ -101,6 +101,25 @@
 #define SELECT_PLAYER            0x00BD  /* character the select screen starts on: 0 after the title (0E:C6F6), the last pick otherwis */
 #define ACTION_BEFORE_FALL       0x00BE  /* game_action saved when the player starts falling into a pit (game_action $24: 0E:CFD3, 0F: */
 #define SPECIAL_HIT              0x00BF  /* nonzero when the special move (game_action $17, Haggar's $16) hit an enemy (0C:859E-85B4); */
+#define SND_FLAGS                0x00C0  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_TMP                  0x00C1  /* scratch; $C3 also gets the caller's Y in the specials (06:81AE); docs/sound.md (port/tools ($00C1-$00C4) */
+#define SND_INSTR_PTR            0x00C5  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) ($00C5-$00C6) */
+#define SND_TICKS                0x00C7  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_TEMPO_ACC            0x00C8  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_TEMPO                0x00C9  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) ($00C9-$00CA) */
+#define SND_TRANSPOSE            0x00CB  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_FADE_SPEED           0x00CC  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_FADE_LEVEL           0x00CD  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_EFFECT_PRIORITY      0x00CE  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_EFFECT_CHANNELS      0x00CF  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_EFFECT_PTR           0x00D0  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) ($00D0-$00D1) */
+#define SND_EFFECT_TRANSPOSE     0x00D2  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_EFFECT_ROW_FRAMES    0x00D3  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_EFFECT_GATE          0x00D4  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_EFFECT_GATE_LEFT     0x00D5  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_EFFECT_LOOP          0x00D6  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_EFFECT_RELAUNCH      0x00D7  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
+#define SND_EFFECT_PITCH_SCALE   0x00D8  /* docs/sound.md (port/tools/sound_model.py matches the oracle on every frame) */
 #define MUSIC_CURRENT            0x00D9  /* last command pushed through the 0F:F34A entry of sound_queue_push (music: round_music, tit */
 #define SOUND_QUEUE_WRITE        0x00DA
 #define SOUND_QUEUE_READ         0x00DB
@@ -149,8 +168,8 @@
 #define OBJ_DIR                  0x0460  /* direction in pad bits: 1 right, 2 left, 4 down, 8 up (0D:A953-A9BE move by them). 0F:F314  ($0460-$046F) */
 #define OBJ_THROW_FLAG           0x0470  /* $FF when the player throws this held enemy with the pad held toward the facing side (0E:D7 ($0470-$047F) */
 #define OBJ_SPAWN_INDEX          0x0480  /* entry of the stage object list the slot was spawned from, $FF = none: the list spawner ski ($0480-$048F) */
-#define OBJ_LIFE_MAX             0x0490  /* set with obj_life at spawn from per-type tables (08:9202, 08:9215, 08:9344) ($0490-$049F) */
-#define OBJ_LIFE                 0x04A0  /* the ENEMY bar; Abigail took no damage in 1,200 frames of hits (P0 notes) ($04A0-$04AF) */
+#define OBJ_LIFE                 0x0490  /* current life: damage is subtracted from it (0C:86E4), below 0 is death (0C:80CB, 8111, 813 ($0490-$049F) */
+#define OBJ_LIFE_MAX             0x04A0  /* maximum life, written only at spawn; the HUD bar length is obj_life_max/8 (0F:E8E0). (The  ($04A0-$04AF) */
 #define OBJ_HIT_COOLDOWN         0x04B0  /* frames before the slot can be hit again: a player hit loads $FB17[attack] (0F:FB0E); while ($04B0-$04BF) */
 #define OBJ_INVULN               0x04C0  /* nonzero = cannot be hit: the player hit test (0F:F747) and thrown bodies (0C:8278, 0C:82E8 ($04C0-$04CF) */
 #define OBJ_HIT_PLAYER           0x04D0  /* $FF when this object's attack hit the player (0C:8204, with 60 frames of player invincibil ($04D0-$04DF) */
@@ -162,7 +181,7 @@
 #define OBJ_LAND_Y               0x0530  /* line a knocked-back object lands on: objects_update sets it when a hit connects (0C:80FD-8 ($0530-$053F) */
 #define OBJ_TIMER3               0x0540  /* third per-behaviour counter: frames before a thrown body starts hitting others (8 at 0C:8F ($0540-$054F) */
 #define OBJ_DOWN_TIMER           0x0550  /* knockdown recovery: frames lying ($2D) and getting up ($17) before obj_saved_id/obj_saved_ ($0550-$055F) */
-#define OBJ_FLAGS                0x0560  /* bit 4 = drawn (object_draw) ($0560-$056F) */
+#define OBJ_FLAGS                0x0560  /* bit 4 = world coordinates: object_draw subtracts the scroll; slots with it clear are drawn ($0560-$056F) */
 #define OBJ_ANIM_FRAME           0x0570  /* frame index in the animation script (bits 0-6): object_draw advances it each time obj_anim ($0570-$057F) */
 #define OBJ_ANIM                 0x0580  /* animation id, 0 = nothing drawn: object_draw reads the script pointer at $8000/$8080 + (id ($0580-$058F) */
 #define OBJ_ANIM_TIMER           0x0590  /* frames shown of the current animation frame (bits 0-6, INC per draw at 0F:EAA9); bit 7 mak ($0590-$059F) */
@@ -176,5 +195,6 @@
 #define PALETTE_BASE             0x0620  /* the screen's palette as loaded (0E:C494-C49A writes it with palette_buf; 04:8D55 the chara ($0620-$063F) */
 #define ATTR_SHADOW              0x0640  /* attribute bytes of nametable rows 1-5 ($23C8-$23EF), indexed by $28, so the column rendere ($0640-$0667) */
 #define TILE_BLOCK               0x06C0  /* 4x4 tiles of the 32x32-pixel block the column renderer is drawing, expanded from 4 metatil ($06C0-$06CF) */
+#define VRAM_BUFFER              0x0780  /* NMI upload buffer: count-prefixed strips for nmi_vram_update ($64/$65) or the write lists  ($0780-$07FF) */
 
 #endif

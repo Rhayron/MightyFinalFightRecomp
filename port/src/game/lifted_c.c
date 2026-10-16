@@ -4847,7 +4847,7 @@ L_CBA3:;
     if (z) { mff_cycles(0xCBE4, 1); goto L_CBEE; }
     mff_cycles(0xCBE6, 10);
     y = a;
-    a = RAM(OBJ_LIFE_MAX + y);
+    a = RAM(OBJ_LIFE + y);
     m = 0x26; c = a >= m;
     n = ((uint8_t)(a - m)) >> 7;
     z = ((uint8_t)(a - m)) == 0;

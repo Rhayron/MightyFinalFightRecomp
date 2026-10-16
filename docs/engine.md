@@ -90,7 +90,8 @@ game's banks. The sound driver lives entirely in banks `$06/$07`.
 
 Sixteen slots, one byte per slot in tables `$10` apart (`obj_state` `$0300`,
 `$0310`, `obj_id` `$0320`, `$0330`, ..., `obj_x` `$0360`, `obj_y` `$03C0`,
-`obj_life_max` `$0490`, `obj_life` `$04A0`, up to `$05E0`). Slot 0 is the
+`obj_life` `$0490`, `obj_life_max` `$04A0`, up to `$05E0`; every field in
+`docs/objects.md`). Slot 0 is the
 player. `object_clear` (`0F:F2BE`) zeroes one slot, `objects_clear_all`
 (`0E:C334`) all of them; spawners copy a type's life into `$0490/$04A0` from
 per-type tables (bank `$08`).
@@ -121,8 +122,8 @@ Once a frame, in task 0:
 
 1. Special states: `game_action` 9 (continue), `$B7`, `$62`
    (`gameplay_special_screen`, bank `$04` `$9800`).
-2. `gameplay_pause_check`: START toggles `paused` (`$98`) with sound `$15`.
-   No coverage run ever paused, so this is the one gameplay path left unseen.
+2. `gameplay_pause_check`: START toggles `paused` (`$98`) with sound `$15`
+   (`inputs/10_cody_poweron.txt` pauses at frames 18909 and 18925).
 3. `gameplay_update`: `player_state` (fixed bank, dispatched on `game_action`
    through a 43-entry table: idle, jump, punch, grab, hit, knockdown, continue,
    throw...; every special move from `$0F` up goes to `player_state_default`
@@ -140,5 +141,6 @@ Once a frame, in task 0:
 - `rom_integrity_check` (`0E:C5B3`): after CAPCOM PRESENTS the game compares
   16 bytes at `$FFE0` with a copy at `$C8DD` and requires `$FFF8 = 8`;
   otherwise it hangs. Irrelevant to the port.
-- Abigail (round 3 boss) took no damage at all in 1,200 frames of the bot's
-  attacks, thrown or not (`obj_life` stayed put). Open question.
+- Abigail (round 3 boss) seemed to take no damage in 1,200 frames of the bot's
+  attacks: that watch was on `$04A0`, which is the maximum life; the current
+  life is `$0490` (docs/objects.md).

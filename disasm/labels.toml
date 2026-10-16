@@ -89,14 +89,14 @@ name = "obj_y"
 [[ram]]
 addr = 0x0490
 size = 16
-name = "obj_life_max"
-comment = "set with obj_life at spawn from per-type tables (08:9202, 08:9215, 08:9344)"
+name = "obj_life"
+comment = "current life: damage is subtracted from it (0C:86E4), below 0 is death (0C:80CB, 8111, 8134, 9BA5), the HUD bar fills from it (0F:E8F2); base_cody_round1.flog slot $0C: 40 38 30 22 14 6 -2. Set with obj_life_max at spawn (08:9202, 9215, 9344)"
 
 [[ram]]
 addr = 0x04A0
 size = 16
-name = "obj_life"
-comment = "the ENEMY bar; Abigail took no damage in 1,200 frames of hits (P0 notes)"
+name = "obj_life_max"
+comment = "maximum life, written only at spawn; the HUD bar length is obj_life_max/8 (0F:E8E0). (The P0 note that Abigail took no damage watched this byte, not obj_life)"
 
 # ---- task scheduler (cooperative, 4 tasks, one stack region each) ----------
 
@@ -385,7 +385,7 @@ comment = "Cody 0, Guy 1, Haggar 2"
 bank = 0x0E
 addr = 0xC904
 name = "gameplay_pause_check"
-comment = "START toggles $98 (paused) with sound $15; no coverage run ever paused, so the toggle is unseen"
+comment = "START toggles $98 (paused) with sound $15; inputs/10_cody_poweron.txt pauses at frames 18909/18925 (sounds $15 with $F3, then $F4)"
 
 [[label]]
 bank = 0x0E
@@ -579,7 +579,7 @@ comment = "world x high byte (object_draw subtracts $F9)"
 addr = 0x0560
 size = 16
 name = "obj_flags"
-comment = "bit 4 = drawn (object_draw)"
+comment = "bit 4 = world coordinates: object_draw subtracts the scroll; slots with it clear are drawn in screen coordinates (docs/objects.md)"
 
 [[ram]]
 addr = 0x00FC
@@ -1348,3 +1348,654 @@ comment = "game_action saved when the player starts falling into a pit (game_act
 addr = 0x00BF
 name = "special_hit"
 comment = "nonzero when the special move (game_action $17, Haggar's $16) hit an enemy (0C:859E-85B4); when the move ends it costs health only then (00:8772-8781, 00:884E-885D)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF2A0
+name = "obj_spawn"
+comment = "from the RAM/objects survey (docs/objects.md): slot Y, animation A"
+
+[[label]]
+bank = 0x0F
+addr = 0xF288
+name = "obj_set_anim"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF294
+name = "player_set_anim"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xEC81
+name = "object_free"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xEC33
+name = "object_offscreen"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF71A
+name = "find_free_slot"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF72A
+name = "find_free_effect_slot"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF183
+name = "obj_move_right"
+comment = "from the RAM/objects survey (docs/objects.md): x += speed, with the sub-pixel byte obj_x_frac"
+
+[[label]]
+bank = 0x0F
+addr = 0xF1A1
+name = "obj_move_left"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF1BF
+name = "obj_move_down"
+comment = "from the RAM/objects survey (docs/objects.md): y with obj_y_frac"
+
+[[label]]
+bank = 0x0F
+addr = 0xF1DF
+name = "obj_move_up"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF1FD
+name = "obj_fall"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF24C
+name = "obj_gravity"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF090
+name = "obj_face_right"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF099
+name = "obj_face_left"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF314
+name = "obj_dir_to_player"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF32E
+name = "obj_flip_from_dir"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF343
+name = "obj_face_player"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF365
+name = "obj_dist_y"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF374
+name = "obj_dist_x"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF38B
+name = "obj_dir_index"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xECCF
+name = "bg_probe"
+comment = "from the RAM/objects survey (docs/objects.md): background probe (pits, walls)"
+
+[[label]]
+bank = 0x0F
+addr = 0xEDBA
+name = "bg_probe_2"
+comment = "from the RAM/objects survey (docs/objects.md): second background probe entry"
+
+[[label]]
+bank = 0x0F
+addr = 0xF455
+name = "spawn_hit_spark"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFAC4
+name = "drop_weapon"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF738
+name = "player_attack_test"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF55A
+name = "enemy_attack_test"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF8D5
+name = "player_take_hit"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB09
+name = "obj_hit_start"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE89B
+name = "hud_enemy_bar"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0C
+addr = 0x84F0
+name = "obj_take_hit"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8244
+name = "thrown_body_collide"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0C
+addr = 0x822F
+name = "obj_kill"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9BFC
+name = "obj_knockdown_recover"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9B1F
+name = "obj_pit_check"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x08
+addr = 0x80A7
+name = "stage_list_spawner"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x08
+addr = 0x9000
+name = "timed_spawner"
+comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[ram]]
+addr = 0x00C0
+name = "snd_flags"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00C1
+size = 4
+name = "snd_tmp"
+comment = "scratch; $C3 also gets the caller's Y in the specials (06:81AE); docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00C5
+size = 2
+name = "snd_instr_ptr"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00C7
+name = "snd_ticks"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00C8
+name = "snd_tempo_acc"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00C9
+size = 2
+name = "snd_tempo"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00CB
+name = "snd_transpose"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00CC
+name = "snd_fade_speed"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00CD
+name = "snd_fade_level"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00CE
+name = "snd_effect_priority"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00CF
+name = "snd_effect_channels"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00D0
+size = 2
+name = "snd_effect_ptr"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00D2
+name = "snd_effect_transpose"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00D3
+name = "snd_effect_row_frames"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00D4
+name = "snd_effect_gate"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00D5
+name = "snd_effect_gate_left"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00D6
+name = "snd_effect_loop"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00D7
+name = "snd_effect_relaunch"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x00D8
+name = "snd_effect_pitch_scale"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[ram]]
+addr = 0x0780
+size = 128
+name = "vram_buffer"
+comment = "NMI upload buffer: count-prefixed strips for nmi_vram_update ($64/$65) or the write lists of $19/$1A (docs/ram_map.md); docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF34C
+name = "sound_queue_push_sfx"
+comment = "the effects' entry to the queue: like sound_queue_push but leaves $D9 (the last music command) alone; docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8006
+name = "snd_mul8"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8023
+name = "snd_jump_inline"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x803A
+name = "snd_read"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8047
+name = "snd_read_far"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x806C
+name = "snd_tick_body"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x80FE
+name = "snd_play_body"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8106
+name = "snd_command"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8118
+name = "snd_start"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x816F
+name = "snd_music_start"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x80D8
+name = "snd_silence"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x80EC
+name = "snd_reg_write"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x81AE
+name = "snd_special"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x81C5
+name = "snd_stop_all"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x81C8
+name = "snd_effect_stop"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x81D4
+name = "snd_release_changed"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x81E4
+name = "snd_music_stop"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x81F1
+name = "snd_silence_free"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x821E
+name = "snd_music_pause"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8226
+name = "snd_music_resume"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8252
+name = "snd_effect_step"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x825B
+name = "snd_effect_row"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x82DE
+name = "snd_effect_channel"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8386
+name = "snd_effect_read"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8393
+name = "snd_music_channel"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x83DA
+name = "snd_music_note"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8497
+name = "snd_music_command"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8592
+name = "snd_music_read"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8529
+name = "snd_music_loop"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x855A
+name = "snd_music_jump"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8566
+name = "snd_music_skip"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8575
+name = "snd_music_set_flags"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8580
+name = "snd_music_end"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x85A3
+name = "snd_key_off"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x85AE
+name = "snd_key_on"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x85DE
+name = "snd_note_pitch"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8636
+name = "snd_set_pitch"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x864C
+name = "snd_lfo_reset"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x865A
+name = "snd_set_volume"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x866F
+name = "snd_set_instrument"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8684
+name = "snd_instrument_ptr"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x86A1
+name = "snd_set_detune"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x86A7
+name = "snd_set_slide"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x86AD
+name = "snd_set_duty"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x86BA
+name = "snd_envelope"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x86D1
+name = "snd_env_attack"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x86E6
+name = "snd_env_decay"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8702
+name = "snd_env_release"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8720
+name = "snd_output"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8760
+name = "snd_output_volume"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x87AA
+name = "snd_output_regs"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x8849
+name = "snd_float_to_period"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x88A0
+name = "snd_slide"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"
+
+[[label]]
+bank = 0x06
+addr = 0x88FA
+name = "snd_lfo_step"
+comment = "docs/sound.md (port/tools/sound_model.py matches the oracle on every frame)"

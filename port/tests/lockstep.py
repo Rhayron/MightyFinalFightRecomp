@@ -105,9 +105,10 @@ def main():
     # nmi_return_pc (the PC the NMI interrupted; the scaffold calls the NMI between frames): the
     # scaffold's JSR/NMI frames are not byte-for-byte the 6502's
     ap.add_argument("--ignore", default="0100-01FF,0082,0086,008A,008E,00A0-00A1", help="comma-separated hex ranges")
-    # RAM the sound driver (banks $06/$07) writes: told apart, since when the
-    # post-NMI sound update runs relative to a frame's sound pushes differs
-    ap.add_argument("--sound", default="00C0-00D8,0700-075B,077C-0783")
+    # RAM the sound driver (banks $06/$07) owns, $C0-$D8 and $0700-$077F
+    # (docs/sound.md): told apart, since when the post-NMI sound update runs
+    # relative to a frame's sound pushes differs
+    ap.add_argument("--sound", default="00C0-00D8,0700-077F")
     ap.add_argument("--max", type=int, default=12)
     a = ap.parse_args()
 

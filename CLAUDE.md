@@ -56,7 +56,8 @@ inputs/*.txt or a bot session -> exe --input X --miss-log runs/<name>.miss
   MesenCE `4b8a196`) matches pixel for pixel through frame 5231 and diverges
   from frame 5232 on (an enemy's sprite row, then game state): a Mesen vs
   TriCNES disagreement, not a recompilation fault. Root cause not chased.
-- Bot coverage (`--god`) patches health, lives, enemy life (`$04A0+slot`) and
+- Bot coverage (`--god`) patches health, lives, enemy life (`obj_life`, `$0490+slot`;
+  until 2026-10-16 it wrote `$04A0`, the maximum, which only shortened the HUD bar) and
   `$0030 = $0E` (skip stage) into states; those sessions are not replayable
   as inputs and record their misses per segment. Pits (round 3) kill outright.
 - `package_cycle_windows.ps1` (nesrecomp `2b4fcdb`) reads an empty

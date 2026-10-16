@@ -12,15 +12,15 @@
  * builds that keep RAM identical play identically - which is all the P4
  * selfcheck needs; a divergence ends the comparison anyway.
  *
- * A 50,000-frame tour reaches the final boss (round 4, area 2) at ~25,000
- * and fights both phases; it never wins (phase 2 keeps to the screen edges
- * and a life of 0 does not kill without a hit), so the ending is not covered.
+ * A 50,000-frame tour reaches the final boss (round 4, area 2) at ~25,000.
+ * (Until labels.toml named them right, the life cut wrote $04A0, the
+ * maximum, which only shortens the HUD bar: no long fight ever ended.)
  *
  * RAM (docs/ram_map.md): slots $0300+i state ($80 live), $0320+i id,
  * $0360+i x, $03C0+i y, slot 0 the player; $30 game action (09 continue),
  * $34 character (the select cursor), $3A health, $3E lives, $AF credits
  * (both 0 until the first game starts), $61 round (0-4), $22/$60 round
- * tables / sub area, $04A0+i enemy life.
+ * tables / sub area, $0490+i enemy life ($04A0+i is its maximum).
  */
 #include "nes_runtime.h"
 #include <stdio.h>
@@ -45,7 +45,7 @@ static struct { uint8_t x, y; int walking, target; } s_hist[STALL];
 static int s_banned[16];
 /* god aids */
 static uint8_t s_full_hp;
-static int s_age[16], s_age_id[16];
+static int s_age[16];
 static int s_mark[3] = { -1, -1, -1 };
 static long s_mark_frame;
 
@@ -61,7 +61,9 @@ static void steps2(uint8_t m, int off2, uint8_t m2) {
 
 static int is_foe(int i) {
     uint8_t id = g_ram[0x320 + i], y = g_ram[0x3C0 + i];
-    return (g_ram[0x300 + i] & 0x80) && y >= 0x50 &&
+    /* a fighter has a maximum life (obj_life_max $04A0); thrown and flying
+     * objects (the final boss's $9D) do not */
+    return (g_ram[0x300 + i] & 0x80) && y >= 0x50 && g_ram[0x4A0 + i] &&
            ((id >= 0x20 && id <= 0x35) || (id >= 0x70 && id <= 0x9F));
 }
 
@@ -151,10 +153,15 @@ static void god(long frame) {
     if ((g_ram[0x300] & 0x80) && g_ram[0x3A] > 0 && g_ram[0x3A] < s_full_hp) g_ram[0x3A] = s_full_hp;
     if (g_ram[0x3E] < 3 && g_ram[0x30] != 0x09) g_ram[0x3E] = 3;
     for (int i = 3; i < 16; i++) {
-        if (!is_foe(i) || s_age_id[i] != g_ram[0x320 + i]) { s_age[i] = 0; s_age_id[i] = is_foe(i) ? g_ram[0x320 + i] : -1; }
-        if (!is_foe(i)) continue;
+        /* age by slot while it is live: a boss's id changes while it is hit
+         * ($74 -> $05/$02 and back), which used to restart the count */
+        if (!(g_ram[0x300 + i] & 0x80)) { s_age[i] = 0; continue; }
         s_age[i] += SEG;
-        if (s_age[i] > LONG_FIGHT && g_ram[0x4A0 + i] > 1) g_ram[0x4A0 + i] = 1;
+        if (!is_foe(i)) continue;
+        /* obj_life $0490 (signed: a dying enemy goes below 0) */
+        if (s_age[i] > LONG_FIGHT && (int8_t)g_ram[0x490 + i] > 1) g_ram[0x490 + i] = 1;
+        /* still standing long after: below 0 is the game's own death test */
+        if (s_age[i] > 2 * LONG_FIGHT && g_ram[0x490 + i] == 1) g_ram[0x490 + i] = 0xFF;
     }
     int mark[3] = { g_ram[0x61], g_ram[0x22], g_ram[0x60] };
     if (memcmp(mark, s_mark, sizeof mark)) { memcpy(s_mark, mark, sizeof mark); s_mark_frame = frame; }
