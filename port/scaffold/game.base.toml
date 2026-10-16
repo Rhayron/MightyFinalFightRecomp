@@ -246,7 +246,7 @@ bank = 3
 addr = 0x803A   # snd_read, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x806C   # lifted, lifted_b3.c
+addr = 0x806C   # snd_tick_body, sound_driver.c
 [[replace_func]]
 bank = 3
 addr = 0x80D8   # snd_silence, sound_driver.c
@@ -258,31 +258,31 @@ bank = 3
 addr = 0x80FE   # snd_play_body, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x8106   # lifted, lifted_b3.c
+addr = 0x8106   # snd_command, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x81AE   # lifted, lifted_b3.c
+addr = 0x81AE   # snd_special, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x81C5   # lifted, lifted_b3.c
+addr = 0x81C5   # snd_stop_all, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x81C8   # lifted, lifted_b3.c
+addr = 0x81C8   # snd_effect_stop, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x81D4   # lifted, lifted_b3.c
+addr = 0x81D4   # snd_release_changed, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x81E4   # lifted, lifted_b3.c
+addr = 0x81E4   # snd_music_stop, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x81F1   # lifted, lifted_b3.c
+addr = 0x81F1   # snd_silence_free, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x821E   # lifted, lifted_b3.c
+addr = 0x821E   # snd_music_pause, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x8226   # lifted, lifted_b3.c
+addr = 0x8226   # snd_music_resume, sound_driver.c
 [[replace_func]]
 bank = 3
 addr = 0x8252   # lifted, lifted_b3.c

@@ -170,10 +170,10 @@
 #define SND_INS_TREMOLO   6
 #define SND_INS_NOISE     7   /* ORed into $400E */
 
-/* routines one file runs into from another (the 6502 falls through or
- * jumps there; the lifted copies became calls) */
+/* routines another one runs into (the 6502 falls through or branches
+ * there; the lifted copies of their code became C calls) */
+void func_81C8_b3(void);
+void func_81D4_b3(void);
 void func_81F1_b3(void);
-void func_8720_b3(void);
-void func_88A0_b3(void);
 
 #endif
