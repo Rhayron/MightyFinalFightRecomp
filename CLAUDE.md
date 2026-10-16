@@ -78,8 +78,9 @@ py -3 -I tools/dis6502.py ROM BANK ADDR [N]                                    #
 
 - Names go in `disasm/labels.toml` with evidence; `code = true` decodes code no run executed.
   Never commit generated disassembly, map binaries or CDLs (they are ROM-derived).
-- Bank windows (MMC3 mode 0): even `$8000`, odd `$A000`, `$0E` `$C000`, `$0F` `$E000`, except
-  data bank `$02` at `$A000` (common enemies' data, mapped by `objects_update`).
+- Bank windows (MMC3 mode 0): even `$8000`, odd `$A000`, `$0E` `$C000`, `$0F` `$E000`. Data
+  banks follow the same rule: `object_draw` maps the sprite data `$02`/`$0A` at `$8000` with
+  `$03`/`$0B` at `$A000`; nothing maps `$02` at `$A000` (docs/objects.md).
 - Best coverage tool: `bot.py --god --skip-every 1200` (a "tour" through every area).
 - Bash heredocs turn `\\` into `\`: write scripts with the Write tool.
 

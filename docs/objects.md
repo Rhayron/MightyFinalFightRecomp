@@ -272,8 +272,9 @@ every even pass and by 1 after odd ones.
 2. Hidden (`obj_flags` bit 2): return.
 3. Banks: `$8000 = $EB93[obj_id]`, `$A000` = that + 1 (`$0A/$0B` or
    `$02/$03`, by id), so data bank `$02` is mapped at `$8000` here
-   (`0F:EA6F-EA7E`). The disassembler places bank `$02` at `$A000`
-   (`tools/cdl_report.py` `window()`, "put at `$A000` by objects_update"), but
+   (`0F:EA6F-EA7E`). The tools used to place bank `$02` at `$A000`
+   (`tools/cdl_report.py` `window()`, "put at `$A000` by objects_update"; fixed,
+   and `tools/mff_dispatch.py` now has bank `$0D` for ids below `$60`), but
    nothing ever maps it there: every write of the `$A000` request (`$F5`)
    comes from `round_bank` (`$01 $05 $07 $09 $0D`), `objects_update` (`$0D`,
    `$05`, `$0B`, `$01`, `$03`), `object_draw` (`$03`/`$0B`), an `INX` after an

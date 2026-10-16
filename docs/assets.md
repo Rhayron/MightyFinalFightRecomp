@@ -448,7 +448,10 @@ paused, hence their few OAM frames.
 The reports (one line per frame), summaries and sprite contexts of these
 runs are in `runs/assets/verify/<run>/`.
 
-## Corrections to other files (not edited here)
+## Corrections to other files
+
+Found while writing the extractor; all of them have since been made in the
+files named.
 
 - `disasm/labels.toml`, `stage_scroll` (08:8080) and `docs/engine.md`:
   the routine does not scroll. It spawns objects from the area's list

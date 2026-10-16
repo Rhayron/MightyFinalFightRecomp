@@ -15,8 +15,8 @@ def bank_window(bank):
     """CPU address where the game maps an 8 KiB PRG bank (MMC3 mode 0).
 
     Even banks at $8000, odd at $A000, $0E fixed at $C000, $0F fixed at
-    $E000. Bank $02 is the exception: objects_update maps it at $A000 and
-    object_draw at $8000 (with $03 at $A000), so reads accept either."""
+    $E000 (data bank $02 too: object_draw maps it at $8000 with $03 at
+    $A000; nothing maps it at $A000)."""
     if bank == 0x0E:
         return 0xC000
     if bank == 0x0F:
@@ -49,10 +49,7 @@ class Rom:
         """PRG offset of CPU address `addr` with 8 KiB bank `bank` mapped there."""
         if not 0x8000 <= addr <= 0xFFFF:
             raise ValueError(f"${addr:04X} is not a PRG address")
-        if bank == 0x02:
-            if addr >= 0xC000:
-                raise ValueError(f"bank 02 is never mapped at ${addr:04X}")
-        elif (addr & 0xE000) != bank_window(bank):
+        if (addr & 0xE000) != bank_window(bank):
             raise ValueError(f"bank {bank:02X} is mapped at ${bank_window(bank):04X}, not at ${addr:04X}")
         return bank * 0x2000 + (addr & 0x1FFF)
 

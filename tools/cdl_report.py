@@ -50,10 +50,10 @@ NOT_READ = {0x20, 0x4C, 0x6C, 0x8C, 0x8D, 0x8E, 0x99, 0x9D,
 def window(bank):
     """CPU address of an 8 KiB bank as the game uses it (MMC3 mode 0): code
     banks by the seeds (even $8000, odd $A000, fixed $0E/$0F), data banks by
-    who maps them - $02 is the common enemies' data, put at $A000 by
-    objects_update for ids $20-$2F; $0A is mapped at $8000 ($C?? lda #$0A /
-    bank_request); $07 is round 3's $A000 bank (round_bank)."""
-    return {0x0E: 0xC000, 0x0F: 0xE000, 0x02: 0xA000}.get(bank, 0xA000 if bank & 1 else 0x8000)
+    who maps them - $02 and $0A are object_draw's sprite data at $8000, with
+    $03/$0B at $A000 (0F:EA6F, docs/objects.md); $07 is round 3's $A000
+    bank (round_bank). Nothing maps $02 at $A000."""
+    return {0x0E: 0xC000, 0x0F: 0xE000}.get(bank, 0xA000 if bank & 1 else 0x8000)
 
 
 def resolve(bank, addr):
