@@ -1118,7 +1118,7 @@ addr = 0xAC34   # lifted, lifted_b6.c
 bank = 6
 addr = 0xACB3   # lifted, lifted_b6.c
 [[replace_func]]
-addr = 0xC1DF   # lifted, lifted_c.c
+addr = 0xC1DF   # flow_area.c
 [[replace_func]]
 addr = 0xC2D1   # flow_screen.c
 [[replace_func]]
@@ -1128,15 +1128,15 @@ addr = 0xC362   # flow_screen.c
 [[replace_func]]
 addr = 0xC36E   # flow_screen.c
 [[replace_func]]
-addr = 0xC3DD   # lifted, lifted_c.c
+addr = 0xC3DD   # flow_area.c
 [[replace_func]]
-addr = 0xC44F   # lifted, lifted_c.c
+addr = 0xC44F   # flow_area.c
 [[replace_func]]
-addr = 0xC47D   # lifted, lifted_c.c
+addr = 0xC47D   # flow_area.c
 [[replace_func]]
-addr = 0xC4BD   # lifted, lifted_c.c
+addr = 0xC4BD   # flow_area.c
 [[replace_func]]
-addr = 0xC527   # lifted, lifted_c.c
+addr = 0xC527   # flow_area.c
 [[replace_func]]
 addr = 0xC556   # lifted, lifted_c.c
 [[replace_func]]
@@ -1156,7 +1156,7 @@ addr = 0xC888   # flow_screen.c
 [[replace_func]]
 addr = 0xC8A6   # flow_screen.c
 [[replace_func]]
-addr = 0xC8B4   # lifted, lifted_c.c
+addr = 0xC8B4   # flow_area.c
 [[replace_func]]
 addr = 0xC987   # lifted, lifted_c.c
 [[replace_func]]

@@ -41,12 +41,25 @@
 #define BANKS_PLAYER        0x00    /* 00/01: player_action_dispatch, the story pages ($9A00) */
 #define BANKS_SCREENS       0x04    /* 04/05: screen_draw ($8000, X = screen) and the screens */
 #define BANKS_STAGE         0x08    /* 08/09: stage_spawns, stage_events, palette cycling */
-#define BANK_PALETTE_ANIM   0x09    /* at $A000: the area palette scripts ($A000 with A) */
+#define BANK_SPRITE_SETS    0x09    /* at $A000: the sprite sets ($A000, A = set) and the palette
+                                     * animations ($A300); also round 3's data */
 
-/* ---- the fixed-bank tables flow_*.c reads (bank 0E) ---- */
+/* ---- the fixed-bank tables flow_*.c reads (banks 0E and 0F) ---- */
 #define ROUND_BANK_TABLE    0xC1F8  /* round_bank: the $A000 bank of each round (by round_tables) */
 #define PLAYER_PAL_TABLE    0xC53E  /* 3 x 8 sprite colors, Cody, Guy, Haggar */
 #define PLAYER_PAL_END      0xC8DA  /* per player_id: the last index of its 8 colors (7, $0F, $17) */
+#define PLAYER_ANIM_STAND   0xE1E3  /* per player_id: the standing animation (1, 2, 3); 0E:CEB3 too */
+#define PLAYER_CHR_STAND    0xE22B  /* per player_id: that pose's sprite CHR bank for chr_banks+2
+                                     * (0, 4, 8) */
+
+/* ---- the round's data bank at $A000 (round_bank[round_tables]) starts with
+ * three area records of $30 bytes, one per sub_area (docs/assets.md, "Area
+ * record") ---- */
+#define AREA_RECORD(k)      (0xAE60 + 0x30 * (k))
+#define AREA_REC_SETS       0x10    /* 4 (sprite set, palette set) pairs; area_palette picks one */
+#define AREA_REC_BG_CHR     0x18    /* CHR R0/R1: the background's banks */
+#define AREA_REC_BG_PALETTE 0x1C    /* palette set n at +20n: 16 colors, then 4 palette animation
+                                     * slots (bit 7 on, bits 0-6 the animation) */
 
 /* the NES color a fade puts where darkening goes below 0: black */
 #define PAL_BLACK           0x0F
@@ -59,9 +72,10 @@ void func_E9BC(void);   /* objects_draw */
 void func_F294(void);   /* player_set_anim */
 void func_F34A(void);   /* sound_queue_push (music) */
 void func_F34C(void);   /* sound_queue_push_sfx */
-void func_F440(void);   /* 0F:F440 */
+void func_F440(void);   /* 0F:F440: chr_banks+2 = A */
 void func_FF2A(void);   /* task_wait_frames */
 void func_FF31(void);   /* task_wait_frame */
+void func_FF4C(void);   /* 0F:FF4C: an RTS that code reaches by JMP */
 void func_FF4D(void);   /* bank_switch */
 void func_C85F(void);   /* screen_clear_now */
 
