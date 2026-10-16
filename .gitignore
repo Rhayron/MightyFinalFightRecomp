@@ -1,0 +1,41 @@
+# ROM and anything derived from it (never commit)
+rom/
+*.nes
+*.zip
+*.bin
+banks/
+
+# player data
+saves/
+*.sav
+*.state
+*.cycstate
+config.ini
+keybinds.ini
+debug.ini
+
+# build + release artifacts
+build*/
+release/
+
+# local tooling / debug output
+nestopia-core/
+.mcp.json
+ghidra/
+*.cdl
+*.mlbl
+*.cht
+*.log
+fallback_telemetry.jsonl
+shots/
+screen_*.png
+cyc_shot_*.png
+tmp_*.py
+
+# coverage work: save states and bot sessions (ROM-derived)
+states/
+runs/
+
+# python
+__pycache__/
+*.pyc

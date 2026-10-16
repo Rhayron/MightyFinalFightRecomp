@@ -1,0 +1,7 @@
+# probe: tap START during the intro, then START again on what follows
+400 START
+410 -
+600 START
+610 -
+900 START
+910 -
