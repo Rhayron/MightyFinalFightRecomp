@@ -93,6 +93,16 @@ void func_E653(void);   /* metatile_ptr */
 void func_E66E(void);   /* screen_map_ptr */
 void func_E689(void);   /* screen_map_ptr_of */
 
+/* status bar (stage_hud.c) */
+void func_E6AB(void);   /* hud_update */
+void func_E6DD(void);   /* hud_player */
+void func_E7F5(void);   /* hud_next_level */
+void func_E853(void);   /* hud_close */
+void func_E856(void);   /* hud_dashes */
+void func_E89B(void);   /* hud_enemy_bar */
+void func_E8BD(void);   /* hud_enemy_bar_shown */
+void func_E954(void);   /* hud_level_gauge */
+
 /* object drawing (stage_draw.c) */
 void func_E9BC(void);   /* objects_draw */
 void func_E9FE(void);   /* object_draw */

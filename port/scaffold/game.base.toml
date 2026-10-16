@@ -1398,21 +1398,21 @@ addr = 0xE66E   # screen_map_ptr, stage_columns.c
 [[replace_func]]
 addr = 0xE689   # screen_map_ptr_of, stage_columns.c
 [[replace_func]]
-addr = 0xE6AB   # lifted, lifted_e.c
+addr = 0xE6AB   # hud_update, stage_hud.c
 [[replace_func]]
-addr = 0xE6DD   # lifted, lifted_e.c
+addr = 0xE6DD   # hud_player, stage_hud.c
 [[replace_func]]
-addr = 0xE7F5   # lifted, lifted_e.c
+addr = 0xE7F5   # hud_next_level, stage_hud.c
 [[replace_func]]
-addr = 0xE853   # lifted, lifted_e.c
+addr = 0xE853   # hud_close, stage_hud.c
 [[replace_func]]
-addr = 0xE856   # lifted, lifted_e.c
+addr = 0xE856   # hud_dashes, stage_hud.c
 [[replace_func]]
-addr = 0xE89B   # lifted, lifted_e.c
+addr = 0xE89B   # hud_enemy_bar, stage_hud.c
 [[replace_func]]
-addr = 0xE8BD   # lifted, lifted_e.c
+addr = 0xE8BD   # hud_enemy_bar_shown, stage_hud.c
 [[replace_func]]
-addr = 0xE954   # lifted, lifted_e.c
+addr = 0xE954   # hud_level_gauge, stage_hud.c
 [[replace_func]]
 addr = 0xE9BC   # objects_draw, stage_draw.c
 [[replace_func]]
