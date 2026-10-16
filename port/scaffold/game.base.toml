@@ -2212,19 +2212,19 @@ bank = 2
 addr = 0xAD58   # lifted, lifted_b2.c
 [[replace_func]]
 bank = 4
-addr = 0x8000   # lifted, lifted_b4.c
+addr = 0x8000   # stage_list_setup, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x8038   # lifted, lifted_b4.c
+addr = 0x8038   # stage_list_seek, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x8080   # lifted, lifted_b4.c
+addr = 0x8080   # stage_spawns, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x80C2   # lifted, lifted_b4.c
+addr = 0x80C2   # stage_list_in_view, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x80E4   # lifted, lifted_b4.c
+addr = 0x80E4   # stage_list_spawn, stage_spawn.c
 [[replace_func]]
 bank = 4
 addr = 0x8900   # lifted, lifted_b4.c
@@ -2389,16 +2389,16 @@ bank = 4
 addr = 0x8DA8   # lifted, lifted_b4.c
 [[replace_func]]
 bank = 4
-addr = 0x9000   # lifted, lifted_b4.c
+addr = 0x9000   # timed_spawner, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x9038   # lifted, lifted_b4.c
+addr = 0x9038   # timed_spawn, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x921C   # lifted, lifted_b4.c
+addr = 0x921C   # timed_spawn_r3a1, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x931D   # lifted, lifted_b4.c
+addr = 0x931D   # timed_spawn_r3a1_set, stage_spawn.c
 [[replace_func]]
 bank = 4
 addr = 0x96C3   # lifted, lifted_b4.c

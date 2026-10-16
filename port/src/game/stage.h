@@ -121,6 +121,19 @@ void func_EA6F(void);   /* object_draw_sprites */
 void func_EC33(void);   /* object_offscreen */
 void func_EC81(void);   /* object_free */
 
+/* ---- routines of 16 KiB bank 4 (8 KiB banks $08 at $8000, $09 at $A000) ---- */
+
+/* the stage object list and the timed spawner (stage_spawn.c) */
+void func_8000_b4(void);    /* stage_list_setup */
+void func_8038_b4(void);    /* stage_list_seek */
+void func_8080_b4(void);    /* stage_spawns */
+void func_80C2_b4(void);    /* stage_list_in_view */
+void func_80E4_b4(void);    /* stage_list_spawn */
+void func_9000_b4(void);    /* timed_spawner */
+void func_9038_b4(void);    /* timed_spawn */
+void func_921C_b4(void);    /* timed_spawn_r3a1 */
+void func_931D_b4(void);    /* timed_spawn_r3a1_set */
+
 /* elsewhere */
 void func_F436(void);   /* attack_live = 0 */
 void func_FF4D(void);   /* bank_switch */
