@@ -285,19 +285,19 @@ bank = 3
 addr = 0x8226   # snd_music_resume, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x8252   # lifted, lifted_b3.c
+addr = 0x8252   # snd_effect_step, sound_effect.c
 [[replace_func]]
 bank = 3
-addr = 0x82DE   # lifted, lifted_b3.c
+addr = 0x82DE   # snd_effect_channel, sound_effect.c
 [[replace_func]]
 bank = 3
-addr = 0x8326   # lifted, lifted_b3.c
+addr = 0x8326   # snd_effect_field, sound_effect.c
 [[replace_func]]
 bank = 3
-addr = 0x8333   # lifted, lifted_b3.c
+addr = 0x8333   # snd_effect_note, sound_effect.c
 [[replace_func]]
 bank = 3
-addr = 0x8386   # lifted, lifted_b3.c
+addr = 0x8386   # snd_effect_read, sound_effect.c
 [[replace_func]]
 bank = 3
 addr = 0x8393   # lifted, lifted_b3.c
