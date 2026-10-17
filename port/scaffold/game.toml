@@ -138,9 +138,9 @@ addr = 0xC194   # irq_split_2, interrupts.c
 [[replace_func]]
 addr = 0xC1B1   # irq_status_bar, interrupts.c
 [[replace_func]]
-addr = 0xC8ED   # gameplay, gameplay.c (lifted)
+addr = 0xC8ED   # gameplay, flow_gameplay.c
 [[replace_func]]
-addr = 0xC9A7   # gameplay_frame_end, gameplay.c (lifted)
+addr = 0xC9A7   # gameplay_frame_end, flow_gameplay.c
 [[replace_func]]
 bank = 1
 addr = 0xB300   # lifted, lifted_b1.c
@@ -1230,57 +1230,57 @@ addr = 0xC987   # flow_gameplay.c
 [[replace_func]]
 addr = 0xC99D   # flow_gameplay.c
 [[replace_func]]
-addr = 0xC9B6   # lifted, lifted_c.c
+addr = 0xC9B6   # player_states.c
 [[replace_func]]
-addr = 0xC9B9   # lifted, lifted_c.c
+addr = 0xC9B9   # player_states.c
 [[replace_func]]
-addr = 0xCA20   # lifted, lifted_c.c
+addr = 0xCA20   # player_state_idle.c
 [[replace_func]]
-addr = 0xCA3C   # lifted, lifted_c.c
+addr = 0xCA3C   # player_state_idle.c
 [[replace_func]]
-addr = 0xCAA2   # lifted, lifted_c.c
+addr = 0xCAA2   # player_state_idle.c
 [[replace_func]]
-addr = 0xCAC8   # lifted, lifted_c.c
+addr = 0xCAC8   # player_state_idle.c
 [[replace_func]]
-addr = 0xCAE5   # lifted, lifted_c.c
+addr = 0xCAE5   # player_state_idle.c
 [[replace_func]]
-addr = 0xCB07   # lifted, lifted_c.c
+addr = 0xCB07   # player_state_idle.c
 [[replace_func]]
-addr = 0xCB22   # lifted, lifted_c.c
+addr = 0xCB22   # player_state_idle.c
 [[replace_func]]
-addr = 0xCB99   # lifted, lifted_c.c
+addr = 0xCB99   # player_state_idle.c
 [[replace_func]]
-addr = 0xCBA3   # lifted, lifted_c.c
+addr = 0xCBA3   # player_state_idle.c
 [[replace_func]]
-addr = 0xCC85   # lifted, lifted_c.c
+addr = 0xCC85   # player_state_idle.c
 [[replace_func]]
-addr = 0xCCA2   # lifted, lifted_c.c
+addr = 0xCCA2   # player_state_idle.c
 [[replace_func]]
-addr = 0xCCB4   # lifted, lifted_c.c
+addr = 0xCCB4   # player_states.c
 [[replace_func]]
-addr = 0xCCB5   # lifted, lifted_c.c
+addr = 0xCCB5   # player_state_walk.c
 [[replace_func]]
-addr = 0xCCDA   # lifted, lifted_c.c
+addr = 0xCCDA   # player_state_walk.c
 [[replace_func]]
-addr = 0xCCFA   # lifted, lifted_c.c
+addr = 0xCCFA   # player_state_walk.c
 [[replace_func]]
-addr = 0xCD3B   # lifted, lifted_c.c
+addr = 0xCD3B   # player_state_walk.c
 [[replace_func]]
-addr = 0xCD57   # lifted, lifted_c.c
+addr = 0xCD57   # player_state_walk.c
 [[replace_func]]
-addr = 0xCDFB   # lifted, lifted_c.c
+addr = 0xCDFB   # player_state_walk.c
 [[replace_func]]
-addr = 0xCE11   # lifted, lifted_c.c
+addr = 0xCE11   # player_state_walk.c
 [[replace_func]]
-addr = 0xCEA4   # lifted, lifted_c.c
+addr = 0xCEA4   # player_state_walk.c
 [[replace_func]]
-addr = 0xCEAA   # lifted, lifted_c.c
+addr = 0xCEAA   # player_state_walk.c
 [[replace_func]]
-addr = 0xCED1   # lifted, lifted_c.c
+addr = 0xCED1   # player_states.c
 [[replace_func]]
-addr = 0xCF88   # lifted, lifted_c.c
+addr = 0xCF88   # player_jump.c
 [[replace_func]]
-addr = 0xCFD1   # lifted, lifted_c.c
+addr = 0xCFD1   # player_jump.c
 [[replace_func]]
 addr = 0xD00E   # player_jump.c
 [[replace_func]]
@@ -2903,17 +2903,17 @@ addr = 0xAC75   # enemy_walk.c
 bank = 6
 addr = 0xAC8E   # enemy_walk.c
 [[replace_func]]
-addr = 0xC4A5   # lifted, lifted_late.c
+addr = 0xC4A5   # flow_area.c
 [[replace_func]]
-addr = 0xC93B   # lifted, lifted_late.c
+addr = 0xC93B   # flow_gameplay.c
 [[replace_func]]
-addr = 0xCA39   # lifted, lifted_late.c
+addr = 0xCA39   # player_state_idle.c
 [[replace_func]]
-addr = 0xCAF5   # lifted, lifted_late.c
+addr = 0xCAF5   # player_state_idle.c
 [[replace_func]]
-addr = 0xCBA0   # lifted, lifted_late.c
+addr = 0xCBA0   # player_state_idle.c
 [[replace_func]]
-addr = 0xCF33   # lifted, lifted_late.c
+addr = 0xCF33   # player_state_idle.c
 [[replace_func]]
 bank = 0
 addr = 0x8177   # player_power.c
