@@ -287,16 +287,16 @@ bank = 1
 addr = 0xBE9B   # enemy_drums.c
 [[replace_func]]
 bank = 1
-addr = 0xBF38   # lifted, lifted_b1.c
+addr = 0xBF38   # boss_belger_end.c
 [[replace_func]]
 bank = 1
-addr = 0xBF48   # lifted, lifted_b1.c
+addr = 0xBF48   # boss_belger_end.c
 [[replace_func]]
 bank = 1
 addr = 0xBF95   # lifted, lifted_b1.c
 [[replace_func]]
 bank = 1
-addr = 0xBFBE   # lifted, lifted_b1.c
+addr = 0xBFBE   # boss_belger_end.c
 [[replace_func]]
 bank = 3
 addr = 0x8000   # sound_tick, sound_driver.c
@@ -650,40 +650,40 @@ bank = 5
 addr = 0xBCD9   # lifted, lifted_b5.c
 [[replace_func]]
 bank = 5
-addr = 0xBD7F   # lifted, lifted_b5.c
+addr = 0xBD7F   # boss_belger_end.c
 [[replace_func]]
 bank = 5
-addr = 0xBD9B   # lifted, lifted_b5.c
+addr = 0xBD9B   # boss_belger_end.c
 [[replace_func]]
 bank = 5
-addr = 0xBDBF   # lifted, lifted_b5.c
+addr = 0xBDBF   # boss_belger_end.c
 [[replace_func]]
 bank = 5
-addr = 0xBDE6   # lifted, lifted_b5.c
+addr = 0xBDE6   # boss_belger_end.c
 [[replace_func]]
 bank = 5
-addr = 0xBE23   # lifted, lifted_b5.c
+addr = 0xBE23   # boss_belger_end.c
 [[replace_func]]
 bank = 5
-addr = 0xBE79   # lifted, lifted_b5.c
+addr = 0xBE79   # boss_belger_end.c
 [[replace_func]]
 bank = 5
-addr = 0xBECE   # lifted, lifted_b5.c
+addr = 0xBECE   # boss_belger_end.c
 [[replace_func]]
 bank = 5
-addr = 0xBF2B   # lifted, lifted_b5.c
+addr = 0xBF2B   # boss_belger_end.c
 [[replace_func]]
 bank = 5
-addr = 0xBF5B   # lifted, lifted_b5.c
+addr = 0xBF5B   # boss_belger_end.c
 [[replace_func]]
 bank = 5
-addr = 0xBF75   # lifted, lifted_b5.c
+addr = 0xBF75   # boss_belger_end.c
 [[replace_func]]
 bank = 5
-addr = 0xBF90   # lifted, lifted_b5.c
+addr = 0xBF90   # boss_belger_end.c
 [[replace_func]]
 bank = 5
-addr = 0xBFAF   # lifted, lifted_b5.c
+addr = 0xBFAF   # boss_belger_end.c
 [[replace_func]]
 bank = 6
 addr = 0x8000   # obj_update.c
