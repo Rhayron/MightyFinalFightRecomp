@@ -2742,10 +2742,10 @@ bank = 2
 addr = 0xA851   # lifted, lifted_late.c
 [[replace_func]]
 bank = 3
-addr = 0x8118   # lifted, lifted_late.c
+addr = 0x8118   # snd_start, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x825B   # lifted, lifted_late.c
+addr = 0x825B   # snd_effect_row, sound_effect.c
 [[replace_func]]
 bank = 4
 addr = 0x80E3   # lifted, lifted_late.c
@@ -2955,10 +2955,10 @@ bank = 4
 addr = 0x8955   # lifted, lifted_late.c
 [[replace_func]]
 bank = 3
-addr = 0x822D   # lifted, lifted_late.c
+addr = 0x822D   # snd_fade_in, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x8234   # lifted, lifted_late.c
+addr = 0x8234   # snd_fade_out, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x824A   # lifted, lifted_late.c
+addr = 0x824A   # snd_pitch_scale, sound_driver.c
