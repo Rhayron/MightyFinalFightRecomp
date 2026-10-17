@@ -4,7 +4,7 @@
  * main_task (0E:C556) is task 0, which reset spawns (tasks.c). It runs once
  * through the boot screens, the story, the title, the select screen and the
  * round map, sets up a new game and goes to gameplay (0E:C8ED,
- * gameplay.c), which never comes back here. Left alone, the title restarts
+ * flow_gameplay.c), which never comes back here. Left alone, the title restarts
  * the game by JMP reset, and the boot screens show again.
  *
  *   $C556  power-on, LICENSED BY NINTENDO (180 frames), CAPCOM PRESENTS
@@ -865,7 +865,7 @@ static void title_start_game(void) {
     RAM(SPECIAL_SCREEN_ID) = a;
     RAM(SCREEN_EVENT) = a;
     RAM(UNK_B6) = a;
-    RAM(UNK_B2) = a;
+    RAM(BONUS_STAGE) = a;
     RAM(GAME_FINISHED) = a;
     RAM(CAMERA_AUTOSCROLL) = a;
     RAM(KEEP_ON_SCREEN) = a;

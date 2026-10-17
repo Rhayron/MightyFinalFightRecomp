@@ -300,7 +300,7 @@ void func_8BED_b6(void)
  * item_taken, $8C00 (name proposed): the end of every pickup: game_action
  * 2 for $0C frames (action_timer) and object_clear on the item's slot.
  * With $B2 bit 7 set (never executed) game_action becomes $29 and the
- * player's obj_state $80 first (then JMP $8C08, interpreted).
+ * player's obj_state $80 first (then JMP $8C08).
  * In: X = slot. Out: as object_clear (A = $FF).
  * Callers: JSR at 0C:8BA6, 8BD2, 8BE9; the fall-through from item_life.
  */
@@ -309,7 +309,7 @@ void func_8C00_b6(void)
     REGS_IN;
 
     mff_cycles(0x8C00, 5);
-    a = RAM(UNK_B2);
+    a = RAM(BONUS_STAGE);
     if (!(a & 0x80)) {
         mff_cycles(0x8C04, 16);
         RAM(GAME_ACTION) = 0x02;
@@ -327,4 +327,22 @@ void func_8C00_b6(void)
     SET_NZ(a);
     RAM(OBJ_STATE) = a;
     JMP_TAIL(0x8C19, 0x8C08);
+}
+
+/*
+ * $8C08: item_taken's end: action_timer = $0C and object_clear on slot X.
+ * In: X = slot. Out: as object_clear.
+ * Caller: JMP at 0C:8C19 (the $B2 path, never executed).
+ */
+void func_8C08_b6(void)
+{
+    REGS_IN;
+
+    mff_cycles(0x8C08, 11);
+    a = 0x0C;
+    SET_NZ(a);
+    RAM(ACTION_TIMER) = a;
+    CALL_FIXED(0x8C0C, func_F2BE);              /* object_clear */
+    mff_cycles(0x8C0F, 6);
+    RTS_RETURN();
 }

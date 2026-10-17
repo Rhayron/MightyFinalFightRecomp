@@ -95,8 +95,9 @@ Spawn types set `$D0` (on screen, facing right, world) or `$D4` (also hidden);
 the spawner then turns the object toward the player.
 
 `obj_kind` (`$05B0`): 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore,
-6 id `$2E`, 7 Thrasher, 8 Sodom, 9 Abigail, `$0B` Belger, `$0C` id `$9D` (the
-objects that fill the screen during the Belger fight). Kinds 7, 8, 9 and `$0B`
+6 El Gado's knife (id `$2E`), 7 Thrasher, 8 Sodom, 9 Abigail, `$0B` Belger,
+`$0C` id `$9D` (the objects that fill the screen during the Belger fight), `$0D`
+the two pieces Sodom sheds (`0C:877F`, never executed). Kinds 7, 8, 9 and `$0B`
 get the HUD life bar ahead of anyone else (`0F:E89D`); kind 3 can block
 (`0C:84F0`).
 
@@ -179,9 +180,13 @@ dispatched first without them.
      `$B0`/`$B1` select this slot's HUD bar, `0F:FB09` loads
      `obj_hit_cooldown` and sets `obj_hit_timer = $1E`, and per-character
      code (`$87B0`/`$87B3` by `player_id`, then a table per level `$6B`
-     indexed by the attack) finds the damage; bosses take `$87AB[kind - 7]`
-     less, one less again in round 4, never under 1, and `0C:86E4` subtracts
-     it from `$0490`;
+     indexed by the attack, `0C:8638-8683`; Guy's levels 0 and 1 share one
+     table) finds the damage; bosses take `$87AB[kind - 7]` less (Sodom with
+     `obj_tier` set `$87AB[3]`; Sodom first takes 5 more from attacks 5 and
+     `$13`, never executed), one less again in round 4, never under 1, and
+     `0C:86E4` subtracts it from `$0490`. Sodom at `obj_tier` 1 whose life
+     falls under `$30` would then shed two pieces into slots `$0D` and `$0B`
+     (`0C:8703`, never executed);
    - `obj_attack` is cleared and `obj_land_y` set (`obj_y`, `obj_y+$0A` for
      kinds 6 and `$0C`, `obj_ground_y` for the airborne animations);
    - if `$0490` went negative the object becomes a dying id (6 or 7 by attack,
@@ -199,7 +204,10 @@ dispatched first without them.
    `$3B = $3C` (60 frames of invincibility) and `0F:F8D5` hurts the player:
    `health -= $FD16[obj_attack_damage]`, knockdown if `$FD56[...]` or if health
    runs out, facing turned toward the attacker, a held enemy released and a held
-   weapon dropped.
+   weapon dropped (Guy keeps his). A hit while jumping or during Cody's slash
+   always knocks down, and leaves `player_dir` 2 whichever way he faces
+   (`BEQ $F9B7` lands on the knockdown's `LDA #2`; `base_guy_alt.flog` frame
+   11807).
 
 Then the slot is dispatched (`JMP $800B`).
 
@@ -304,6 +312,10 @@ every even pass and by 1 after odd ones.
 | `F090` / `F099` | face right / left (`obj_flags` bit 6 set / clear) |
 | `F314`, `F32E`, `F343` | point `obj_dir` at the player, copy it into the flags, both |
 | `F365`, `F374`, `F38B` | distance to the player in y, in x, and the direction index |
+| `FB3E`, `FB5B`, `FB72`, `FBD9` | the AI's tests around the player's ground line: within A px in x and Y in y (C set); `F38B` to his feet; to the spot `$FBCC[obj_kind]` px beside him on the object's side; `F365` from his ground line |
+| `F000` / `F051` | face right / left, then `F003` / `F054`: move, `bg_probe_2` of kind Y; a pit's edge is a wall (pushed back out, C set) for any slot but the player, who starts falling in (`F0DC`) unless coming down |
+| `F0A2` / `F0F7` | move down / up, `bg_probe` of kind Y; put back on top of a `$10` / below a `$30` (C set) |
+| `F119` | a jump's vertical step: `F20E`/`F22E` (`obj_fall`'s halves), gravity, `bg_probe`; landing on `$10` (C set) or the pit fall |
 | `ECCF`, `EDBA` | background probes around the object (tile attributes of the round's map; bit `$40` = pit) |
 | `F71A`, `F72A` | free slot in `$0D`..3 / `$0F`..`$0E` (carry set if none) |
 
@@ -322,7 +334,9 @@ bank caveat above). The ones the engine itself relies on:
 | 6, 7, `$16` | `0C:9962`, `9A3F` | Dying |
 | `$10`-`$13` | `0C:8AEE` | Items: picked up with B when the player is close (`0C:8B22-8B3F`) |
 | `$1F` | `0C:9B74` | Falling into a pit |
-| `$20`-`$35` | `0C:9CED/9CF1/9CF5` | Common enemies: low digit = kind (via `0C:9D5B`), group = tier |
+| `$20`-`$35` | `0C:9CED/9CF1/9CF5` | Common enemies: low digit = kind (via `0C:9D5B`), group = tier (below) |
+| `$2E` | `0C:9D71` | El Gado's knife |
+| `$2C` `$2D` `$2F`, `$36`-`$5F` | `0C:9D9E`-`9F12` | Common enemies' entrances (below) |
 | `$66` | `05:A712` | Dropped weapon |
 | `$74` | `0B:B30C` | Belger |
 | `$80`, `$81`/`$83`, `$90` | banks `$01`, `$03` | Thrasher, Sodom, Abigail |
@@ -330,6 +344,53 @@ bank caveat above). The ones the engine itself relies on:
 The enemy ids from Data Crystal in `docs/ram_map.md` (Poison `20 26 30`, ...) are
 these behaviour ids: `$20-$25`, `$26-$2B` and `$30-$35` are the same six
 enemies at tiers 1, 2 and 4.
+
+## The common enemies
+
+Poison, Two P, Bred, AxL, El Gado and Andore (`obj_kind` 0-5) share one
+behaviour (`port/src/game/enemy_common.c`). Its bank-`$0C` half runs every
+frame (`0C:9CED`, `9CF1`, `9CF5` for tiers 1, 2, 4): it stores the tier and
+the kind (`$9D5B` by id), counts the immunity after getting up down, clears
+`obj_attack`, stirs the RNG (`rng += sprite 3's x + rng+1 + rng+2 + C`),
+gives the frame to `0D:AB29` when the player holds it or a fresh hit makes it
+flinch (C set), keeps `obj_y` in the area's walkable band (`0C:9FF6`, which
+runs on into bank `$0D`: `$81-$B0`, `$71-$A0` in round 0 area 1 and round 3
+area 1, `$91-$B0` in round 1 area 1; not in phases 9 and `$F`, which are in
+the air) and jumps through its phase table (`$9D3B`/`$9D4B`): the AI of bank
+`$0D` (`port/src/game/enemy_ai.c` lists the phases: 0 `enemy_start`, 1
+`enemy_approach`, 2 `enemy_maneuver`, 3 `enemy_block` (AxL), 4
+`enemy_close_in`, 5 `enemy_attack`, 6 `enemy_jump_start`, 7 `enemy_retreat`,
+8 `enemy_hit_stun`, 9 `enemy_jump`, `$A` `enemy_knife_throw` (El Gado), `$B`
+`enemy_slide`, `$C` `enemy_recover`, `$D` `enemy_idle`, `$E` `enemy_charge`
+(Andore; `obj_timer` 3 is the rush), `$F` `enemy_drop_in`). `obj_tier`
+1/2/4 becomes 0/1/2 through `$A897` (bank `$0D`) for the damage indexes and
+AxL's block odds.
+
+Id `$2E` is El Gado's knife (`0C:9D71`): `0D:A5DA`, from his phase `$A`,
+puts it `$12` px ahead of him and 3 px lower with `obj_vx` `$0330`, attack
+`$87` and damage index 6, `obj_kind` 6. It flies on `obj_dir` until its
+screen x reaches `$FA` (right) or falls under 8 (left), then it is cleared.
+The player can knock it out of the air (kind 6 has knocked-down animations
+`$BA`/`$B9` and lands `$0A` lower).
+
+The ids from `$36` up, and `$2C`, `$2D`, `$2F`, are entrances
+(`port/src/game/enemy_entrances.c`): they set the enemy up and turn it into
+its plain id (`enemy_become_common`, `0C:9FBB`, `$9FCC` by id) in the phase
+it starts in: `entrance_charge`, `entrance_drop`, `entrance_stand`,
+`entrance_sit`.
+
+| Ids | Entry | Entrance |
+|---|---|---|
+| `$2C` `$2D` `$2F` | `0C:9D9E/9DA4/9DAA` | Andore charging in: once the player is within `$80` px he starts at the rush of his charge (phase `$E`, `obj_timer` 3). Never executed; no spawn table lists these ids |
+| `$36`-`$38`, `$39`-`$3B`, `$3C`-`$3E` | `0C:9E20`-`9E44` | Poison, AxL, El Gado drop onto the player: spawned hidden (stage types `$30`-`$35`, `$5A`-`$5C`, flags `$D4`), they wait until he is within 8 px in x (at once in round 3 area 1), then fall from above onto his ground line (`obj_vy` `$FF00`) with the kind's attack out (phase `$F`) |
+| `$3F`, `$4F`-`$5F` | `0C:9EC5/9EC9/9ECD` | Stand `$78` frames (phase `$D`) before the first move |
+| `$40`-`$4B` | `0C:9EF4`-`9F12` | Two P and Bred sit in wait, in one of two poses (animation `$A2`, `obj_timer3` 0/2), unhittable (`obj_invuln` `$FF`) until the player is within `$32` px in x and y or they are less than `$40` px from the screen's left edge |
+| `$4C`-`$4E` | `0C:84EF` (RTS) | El Gado by the entrance tables, but nothing sets them up: an object with these ids would stand still |
+
+The timed spawner adds `$37`, `$3A` and `$3D` (`08:9456`). In the routes'
+logs the waiting ids `$38`, `$3E`, `$43`, `$49`, `$4A`, `$4B` show up (rounds
+0-4); `$36`, `$39`, `$3A`, `$3C`, the tier-2 standing entry and `$41`/`$44`
+never ran (`runs/cdl`).
 
 ## Wrong labels
 

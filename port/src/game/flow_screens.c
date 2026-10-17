@@ -723,3 +723,70 @@ void func_9000_b2(void) {
     SYNC_OUT;
     mff_rts();
 }
+
+/* the credits screen's colors: background black with white text, and the
+ * player's 8 sprite colors by player_id (the last index of each from
+ * PLAYER_PAL_END, as player_load_graphics) */
+#define PAL_CREDITS_BG      0x9636
+#define PAL_CREDITS_PLAYERS 0x9646
+/* its music by lives: a round's tune, $00-$04 (lives mod 5) */
+#define CREDITS_MUSIC       0x965E
+
+/*
+ * credits_setup (04:9600, proposed name)
+ * The screen of the full ending's credits (stage_ending.c types them):
+ * PAL_CREDITS_BG, the player's sprite colors at sprite palettes 0-1,
+ * palette_request = $FF, CHR R0/R1 = $78/$7A, and the music
+ * CREDITS_MUSIC[lives].
+ * Out: Y = lives. Caller: player_state_transition after the last round,
+ * when no continue was used (0E:DF22).
+ */
+void func_9600_b2(void) {
+    REGS_IN;
+
+    mff_cycles(0x9600, 2);
+    y = 0x0F;
+    for (;;) {
+        mff_cycles(0x9602, 4);
+        a = prg_read((uint16_t)(PAL_CREDITS_BG + y));
+        mff_cycles(0x9605, 14);
+        RAM(PALETTE_BUF + y) = a;
+        RAM(PALETTE_BASE + y) = a;
+        y--;
+        if (y & 0x80) break;
+        mff_cycles(0x9602, 1);
+    }
+    mff_cycles(0x960E, 7);
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(PLAYER_PAL_END + y));
+    mff_cycles(0x9613, 4);
+    x = a;
+    y = 0x07;
+    for (;;) {
+        mff_cycles(0x9616, 4);
+        a = prg_read((uint16_t)(PAL_CREDITS_PLAYERS + x));
+        mff_cycles(0x9619, 16);
+        RAM(PALETTE_BUF + 16 + y) = a;
+        RAM(PALETTE_BASE + 16 + y) = a;
+        x--;
+        y--;
+        if (y & 0x80) break;
+        mff_cycles(0x9616, 1);
+    }
+    mff_cycles(0x9623, 20);
+    RAM(PALETTE_REQUEST) = y;
+    a = 0x78;
+    RAM(CHR_BANKS) = a;
+    a = 0x7A;
+    RAM(CHR_BANKS + 1) = a;
+    y = RAM(LIVES);
+    a = prg_read((uint16_t)(CREDITS_MUSIC + y));
+    SET_NZ(a);
+    mff_cycles(0x9632, 6);
+    SYNC_OUT;
+    if (!mff_call_fn(0x1634, func_F34A, 0xE000)) return;   /* sound_queue_push */
+    SYNC_IN;
+    mff_cycles(0x9635, 6);
+    SYNC_OUT;
+    mff_rts();
+}

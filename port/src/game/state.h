@@ -111,19 +111,19 @@
 #define WEAPON_HELD              0x00A9  /* $FF while the player carries a picked-up weapon (05:A82A), 0 when it is dropped on a hit ( */
 #define TEXT_CURSOR              0x00AA  /* special screen: character position in the current text line (index at 04:9926, PPU column  */
 #define TEXT_TIMER               0x00AB  /* special screen: delay counter between text steps ($F0 after a page at 04:98BD, $0A at 04:9 */
-#define UNK_AC                   0x00AC  /* purpose unknown: unclear (RAM survey); named so no raw address remains (rename with eviden */
+#define TALK_BAR_CUTS            0x00AC  /* boss talk: pieces of the boss's life bar a right answer has erased; 0 when a talk page ope */
 #define WEAPON_AMMO              0x00AD  /* Guy's throws left with a picked-up weapon: 7 at pickup (05:A826), DEC per throw (00:8292); */
 #define CREDITS                  0x00AF  /* 3 at a new game: the continue screen's CREDIT 3 */
 #define HUD_ENEMY_SLOT           0x00B0  /* slot whose life bar the HUD shows: the enemy just hit (0C:8569, 8598, 9BC8), the held one  */
 #define HUD_ENEMY_TIMER          0x00B1  /* frames the enemy bar has been shown: 0 or 1 when hud_enemy_slot changes (0C:856D, 0F:E8C4) */
-#define UNK_B2                   0x00B2  /* bonus stage flag: $FF while the drum bonus stage runs (00:94F7 sets it with the controller */
+#define BONUS_STAGE              0x00B2  /* $FF while the drum bonus stage runs (00:94F7 sets it with the controller, id $70 in slot $ */
 #define GUY_JUMP_WINDOW          0x00B3  /* Guy only: 5 when Up is pressed during a jump with animation $3B (0E:D057-D05F); landing th */
 #define DIALOGUE_CHOICE          0x00B4  /* special screen: bit 7 toggled by the pad with sound $2F (04:99FE-9A07), drawn as a two-way */
 #define SCREEN_EVENT             0x00B5  /* set by the screen-advance object when the camera is $28 pixels into the next screen (05:AA */
 #define UNK_B6                   0x00B6  /* purpose unknown: written, never read in coverage; named so no raw address remains (rename  */
 #define GAME_FINISHED            0x00B7  /* $FF after the last round (0E:DE99-DEAA, with paused $FF and the ending music $08); gamepla */
 #define INTRO_PAGE               0x00B8  /* 0..4, each drawn by $9A00 in bank 00 (main_task) */
-#define UNK_B9                   0x00B9  /* drums smashed in the bonus stage: 0 at its start (0B:B355), +1 per smashed drum (03:BD6E); */
+#define BONUS_DRUM_COUNT         0x00B9  /* drums smashed in the bonus stage: 0 when it starts (0B:B355), +1 per smashed drum (03:BD6F */
 #define GRAB_HIT_COUNT           0x00BA  /* hits delivered during a grab: each hit sets attack_id from $8CC1[n] and INC (00:8B33-8B48, */
 #define CAMERA_AUTOSCROLL        0x00BB  /* $FF with camera_lock (0F:E467); once the lock is lifted, walking past the screen centre st */
 #define KEEP_ON_SCREEN           0x00BC  /* $FF in areas whose script asks for it (08:8ABF, 8C43, 8CA5, 8CE1, 8D6F, 8DA8): knocked-bac */
@@ -217,7 +217,7 @@
 #define OBJ_ANIM                 0x0580  /* animation id, 0 = nothing drawn: object_draw reads the script pointer at $8000/$8080 + (id ($0580-$058F) */
 #define OBJ_ANIM_TIMER           0x0590  /* frames shown of the current animation frame (bits 0-6, INC per draw at 0F:EAA9); bit 7 mak ($0590-$059F) */
 #define SPAWN_GROUPS             0x05A0  /* timed-spawner scratch, not a slot table: obj_spawn_group of up to two live enemies (08:911 ($05A0-$05A2) */
-#define OBJ_KIND                 0x05B0  /* enemy kind: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 id $2E, 7 Thrasher, 8 ($05B0-$05BF) */
+#define OBJ_KIND                 0x05B0  /* enemy kind: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 El Gado's knife (id $ ($05B0-$05BF) */
 #define OBJ_TIER                 0x05C0  /* common-enemy strength tier 1/2/4 by id group ($20-$25, $26-$2B, $30-$35: 0C:9CED-9CF7), tu ($05C0-$05CF) */
 #define OBJ_AI_TIMER             0x05D0  /* countdown of the current AI phase: walk and wait times of the common-enemy AI (0D:A0E8, A1 ($05D0-$05DF) */
 #define OBJ_AI_COUNT             0x05E0  /* AI step or attack counter: approach tries and combo length of the common-enemy AI (0D:A159 ($05E0-$05EF) */

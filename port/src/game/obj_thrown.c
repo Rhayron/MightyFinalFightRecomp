@@ -261,6 +261,17 @@ void func_8D00_b6(void)
 }
 
 /*
+ * $8D4B: the RTS in the middle of phase 2, where Cody's throw steps wait
+ * for the player's animation.
+ * Caller: the BNE at 0C:8D9B (phase 3 entered on its own).
+ */
+void func_8D4B_b6(void)
+{
+    mff_cycles(0x8D4B, 6);
+    mff_rts();
+}
+
+/*
  * Phase 3, $8D88: entered on its own; see thrown_cody_turn.
  */
 void func_8D88_b6(void)
@@ -274,9 +285,9 @@ void func_8D88_b6(void)
  * left edge if keep_on_screen asks (also in round 0 at scroll_x_hi 3) and
  * past it, then JMP $8DEF; facing left it is put on the right edge (both
  * never executed) and falls into $8DEF. Before that step it waits on the
- * RTS at $8D4B: natively when phase 2 fell in here, through the
- * interpreter when the phase jump came straight to $8D88 (the scaffold
- * sends that backward branch out of the function).
+ * RTS at $8D4B: here when phase 2 fell in, through func_8D4B_b6 when the
+ * phase jump came straight to $8D88 (the scaffold sends that backward
+ * branch out of the function).
  */
 static void thrown_cody_turn(int native_rts)
 {
@@ -364,6 +375,17 @@ static void thrown_cody_turn(int native_rts)
     }
     SYNC_OUT;
     func_8DEF_b6();
+}
+
+/*
+ * $8DEE: the RTS at the end of thrown_cody_turn: the step ends there when
+ * the body was put on the screen's left edge.
+ * Caller: JMP at 0C:8DCB (never executed).
+ */
+void func_8DEE_b6(void)
+{
+    mff_cycles(0x8DEE, 6);
+    mff_rts();
 }
 
 /*
@@ -1148,7 +1170,7 @@ void func_9276_b6(void)
  * $92A3-$92D2: while the HeadSmasher (game_action $12) is on, wait (RTS);
  * then over a pit (0D:A9F6, never executed) obj_vy $FD00, otherwise fall
  * to attack_ground_y (0F:F1FD) and, reaching it (never executed), sit on
- * it and JMP $932E (the JMP obj_knockdown_recover there, interpreted).
+ * it and JMP $932E (func_932E_b6, a JMP obj_knockdown_recover).
  */
 static void thrown_smash_fall(void)
 {
@@ -1264,6 +1286,17 @@ void func_930B_b6(void)
     SET_NZ(a);
     RAM(OBJ_INVULN + x) = a;
     JMP_TAIL(0x932E, 0x9BFC);
+}
+
+/*
+ * $932E: JMP obj_knockdown_recover, the end of $930B, where the HeadSmasher
+ * body's landing jumps.
+ * Caller: JMP at 0C:92D0 (thrown_smash_fall, never executed).
+ */
+void func_932E_b6(void)
+{
+    mff_jmp_charge(0x932E, 0x9BFC);
+    call_by_address_tail(0x9BFC, 6);
 }
 
 /* ======================= Guy's throw, id $0F ======================= */
@@ -1437,6 +1470,36 @@ void func_93D1_b6(void)
     GUY_STEP(0x93D1, 0x03);
     SYNC_OUT;
     guy_step_clamp(0x93E7, 0, func_942F_b6);
+}
+
+/*
+ * $942E, $94B4, $9531, $95AE: the RTS at the end of each edge clamp
+ * (pc + $47 of the copies at $93E7, $946D, $94EA, $9567), where the JMP
+ * at pc + $24 ends the step once the body is put on the left edge.
+ * Callers: those JMPs (guy_step_clamp).
+ */
+void func_942E_b6(void)
+{
+    mff_cycles(0x942E, 6);
+    mff_rts();
+}
+
+void func_94B4_b6(void)
+{
+    mff_cycles(0x94B4, 6);
+    mff_rts();
+}
+
+void func_9531_b6(void)
+{
+    mff_cycles(0x9531, 6);
+    mff_rts();
+}
+
+void func_95AE_b6(void)
+{
+    mff_cycles(0x95AE, 6);
+    mff_rts();
 }
 
 /*

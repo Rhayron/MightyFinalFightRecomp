@@ -26,6 +26,8 @@ void func_F2A0(void);   /* obj_spawn: slot Y, animation A */
 void func_F314(void);   /* obj_dir_to_player */
 void func_F32E(void);   /* obj_flip_from_dir */
 void func_F71A(void);   /* find_free_slot: Y, carry set if none */
+void func_80E3_b4(void);
+void func_9011_b4(void);
 
 /* the five list pointers by area_index: table, then the RAM it fills, in
  * the order $8000 copies them */
@@ -339,8 +341,16 @@ void func_80C2_b4(void) {
     } else {
         mff_cycles(0x80CF, 1);
     }
-    mff_cycles(0x80E3, 6);
     SYNC_OUT;
+    func_80E3_b4();
+}
+
+/*
+ * $80E3: stage_list_in_view's RTS, which stage_list_spawn's BMI at $80F6
+ * reaches too (no route).
+ */
+void func_80E3_b4(void) {
+    mff_cycles(0x80E3, 6);
     mff_rts();
 }
 
@@ -372,7 +382,7 @@ void func_80E4_b4(void) {
             if (n) {                            /* no route */
                 mff_cycles(0x80F6, 1);
                 SYNC_OUT;
-                call_by_address_tail((uint16_t)(g_code_window_base + 0x00E3), 4);
+                func_80E3_b4();
                 return;
             }
             break;
@@ -611,9 +621,8 @@ void func_9000_b4(void) {
         a = RAM(SUB_AREA);
         SET_CMP(a, 1);
         if (!z) {
-            mff_cycles(0x9011, 6);
             SYNC_OUT;
-            mff_rts();
+            func_9011_b4();
             return;
         }
         mff_cycles(0x900F, 1);
@@ -653,6 +662,15 @@ void func_9000_b4(void) {
     }
     mff_cycles(0x9023, 6);
     SYNC_OUT;
+    mff_rts();
+}
+
+/*
+ * $9011: timed_spawner's RTS in round 4 outside area 2 with the camera free,
+ * which timed_spawn's BCS at $9059 (no free slot) reaches too.
+ */
+void func_9011_b4(void) {
+    mff_cycles(0x9011, 6);
     mff_rts();
 }
 
@@ -706,7 +724,7 @@ void func_9038_b4(void) {
     if (c) {                                    /* no free slot: the RTS at $9011 */
         mff_cycles(0x9059, 1);
         SYNC_OUT;
-        call_by_address_tail((uint16_t)(g_code_window_base + 0x1011), 4);
+        func_9011_b4();
         return;
     }
 

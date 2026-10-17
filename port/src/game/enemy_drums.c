@@ -13,9 +13,10 @@
  * shows them rolling along the street. Both drum ids share the animation
  * ($7B), the attack ($9E) and its damage ($3F). The bonus stage starts in
  * the player's end-of-area step (00:9359 picks a routine per round and
- * area from $9382; 00:94F7, for round index 1 and 3's last area, sets
- * bonus_stage ($B2) and puts id $70 in slot $0F); no route plays it, the
- * bots skip those areas.
+ * area from $9382; 00:94F7, player_exits.c, for round index 1 and 3's last
+ * area, sets bonus_stage ($B2), special screen $FD (BONUS STAGE,
+ * flow_talk.c) and puts id $70 in slot $0F); no route plays it, the bots
+ * skip those areas.
  *
  * Bank $03 (ids $91-$95) is the scaffold's bank 1, bank $0B (ids $70-$72)
  * its bank 5.
@@ -73,10 +74,6 @@
 static const uint8_t k_item_ids[] = { 0x10, 0x11, 0x12, 0x13, OBJ_WEAPON };
 
 /* ---- the bonus stage ($70, slot $0F) ---- */
-/* labels.toml still calls them unk_b2 and unk_b9 (its comments give the
- * evidence; the rename touches other systems' files) */
-#define BONUS_STAGE         UNK_B2  /* $B2: $FF while the bonus stage runs */
-#define BONUS_DRUM_COUNT    UNK_B9  /* $B9: drums smashed in it */
 #define BONUS_SLOT          0x0F
 #define BONUS_DRUMS         0x14    /* drums rolled in all */
 #define BONUS_FIRST_WAIT    0x78    /* frames before the first drum */
@@ -88,9 +85,9 @@ static const uint8_t k_item_ids[] = { 0x10, 0x11, 0x12, 0x13, OBJ_WEAPON };
 #define BONUS_LIVE_DRUMS    (OBJ_GROUND_Y + BONUS_SLOT)  /* $052F: drums rolling */
 #define ACT_BONUS_FAIL      0x29
 #define ACT_BONUS_PRIZE     0x1A
-#define SCREEN_BONUS_ALL    0xFC    /* all twenty smashed */
-#define SCREEN_BONUS_FAIL   0xFB
-#define SCREEN_BONUS_PRIZE  0xFE
+#define SCREEN_BONUS_ALL    0xFC    /* all twenty smashed: PERFECT (flow_talk.c) */
+#define SCREEN_BONUS_FAIL   0xFB    /* NO BONUS */
+#define SCREEN_BONUS_PRIZE  0xFE    /* YOU GOT and the reward by bonus_drum_count */
 /* the controller's phases ($B64E/$B652) */
 #define BONUS_PHASE_LO      0xB64E
 #define BONUS_PHASE_HI      0xB652

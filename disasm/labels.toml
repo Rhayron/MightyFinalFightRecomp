@@ -761,7 +761,7 @@ comment = "general per-behaviour timer or step counter: phases load it and count
 addr = 0x0510
 size = 16
 name = "obj_timer2"
-comment = "second per-behaviour counter: blink frames before a dead enemy is freed ($10 at 0C:8FCB, counted at 0C:9B07), the id to turn into after a dash (0C:9DB2), attack index of some bosses (01:A36E)"
+comment = "second per-behaviour counter: blink frames before a dead enemy is freed ($10 at 0C:8FCB, counted at 0C:9B07), the plain id Andore becomes after charging in (0C:9DB2, ids $2C/$2D/$2F), attack index of some bosses (01:A36E)"
 
 [[ram]]
 addr = 0x0520
@@ -779,7 +779,7 @@ comment = "line a knocked-back object lands on: objects_update sets it when a hi
 addr = 0x0540
 size = 16
 name = "obj_timer3"
-comment = "third per-behaviour counter: frames before a thrown body starts hitting others (8 at 0C:8FD2, counted at 0C:824B), attack timer of the common-enemy AI (0D:A298, 0D:A393)"
+comment = "third per-behaviour counter: frames before a thrown body starts hitting others (8 at 0C:8FD2, counted at 0C:824B), attack timer of the common-enemy AI (0D:A298, 0D:A393), the pose (0/2) of a sitting Two P or Bred, ids $40-$4B (0C:9EFA, read at 0C:9F3C)"
 
 [[ram]]
 addr = 0x0550
@@ -815,7 +815,7 @@ comment = "timed-spawner scratch, not a slot table: obj_spawn_group of up to two
 addr = 0x05B0
 size = 16
 name = "obj_kind"
-comment = "enemy kind: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 id $2E, 7 Thrasher, 8 Sodom, 9 Abigail, $0B Belger, $0C id $9D; 0 for non-enemies (spawn table 08:85E6 via 08:8172; ids $20-$35 via 0C:9D19). Indexes per-kind tables ($FC82, $FC8F, $FBCC); the HUD prefers the bar of kinds 7-9/$0B (0F:E89D); kind 3 can block (0C:84F0)"
+comment = "enemy kind: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 El Gado's knife (id $2E, 0D:A64A), 7 Thrasher, 8 Sodom, 9 Abigail, $0B Belger, $0C id $9D, $0D Sodom's pieces (0C:877F, never executed); 0 for non-enemies (spawn table 08:85E6 via 08:8172; ids $20-$35 via 0C:9D19, the entrances $36-$5F via 0C:9EE1/9F26). Indexes per-kind tables ($FC82, $FC8F, $FBCC); the HUD prefers the bar of kinds 7-9/$0B (0F:E89D); kind 3 can block (0C:84F0)"
 
 [[ram]]
 addr = 0x05C0
@@ -1524,6 +1524,248 @@ addr = 0xFB09
 name = "obj_hit_start"
 comment = "from the RAM/objects survey (docs/objects.md)"
 
+# ---- names from the P4 tidy of the fixed bank's object helpers (obj_*.c) ----
+
+[[label]]
+bank = 0x0F
+addr = 0xF03F
+name = "player_face_right"
+comment = "obj_flags of slot 0 OR #$40 (LDA $0560 / ORA #$40 / STA $0560 / RTS); 15 callers in banks 00, 03, 05, 09, 0E (00:84DD, 0E:D396); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF048
+name = "player_face_left"
+comment = "obj_flags of slot 0 AND #$BF; callers 00:8678, 940D, 9433, 95B1, 03:B909, 0E:D39B, DD17; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF20E
+name = "obj_fall_down"
+comment = "obj_fall's half for vy < 0 (BMI at $F200): obj_y -= obj_vy, next vertical page at $F0 (never executed); also obj_jump_move ($F12C); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF22E
+name = "obj_fall_up"
+comment = "obj_fall's half for vy >= 0: the same code as obj_move_up; also obj_jump_move ($F14F); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF3E6
+name = "dir_index_table"
+comment = "obj_dir_index's directions, 8 octants x 4 (LDA $F3E6,Y at $F3E2): 0 up, 4 right, 8 down, $0C left, 16 steps clockwise; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB3E
+name = "obj_near_player"
+comment = "C set when obj_dist_x <= A and obj_dist_y_feet <= Y ($00/$01 the limits, SBC at $FB4F/$FB56); 26 callers in the boss and enemy AI; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB5B
+name = "obj_dir_to_player_feet"
+comment = "obj_dir_index with the player's obj_y set to player_ground_y ($36) for the call and restored from $0F; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB72
+name = "obj_dir_to_attack_spot"
+comment = "obj_dir_index to the player's ground line moved $FBCC[obj_kind] px toward the object (ADC/SBC $FBCC,Y at $FB8D/$FBA2), the player's position restored from $0D-$0F; callers 01:A44B, ABA3, 0D:A233; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFBCC
+name = "kind_reach_x"
+comment = "per obj_kind, the x offset obj_dir_to_attack_spot puts the attack spot at (1C 16 19 19 1C 1F 00 20 20 20 20 20 00); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFBD9
+name = "obj_dist_y_feet"
+comment = "obj_dist_y with the player's obj_y set to player_ground_y for the call and restored from $0F; callers 01:A251, AB5A, AB66, 03:B5DC, B5E8, 0D:A588, $FB47; obj_move.c (tidy/fixed)"
+[[label]]
+bank = 0x0F
+addr = 0xF000
+name = "obj_walk_right"
+comment = "JSR obj_face_right, then obj_step_right ($F003); callers 00:879F, 87C6, 87D8, 03:B36C, 0D:A93E, A99E, 0E:CCEF; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF003
+name = "obj_step_right"
+comment = "obj_move_right, bg_probe_2 of kind Y ($F014), then pits: AND #$40 at $F01A; another slot is pushed back out (push_out_left, SEC), the player starts the pit fall ($F03A) unless obj_vy < 0; caller 0E:D911; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF051
+name = "obj_walk_left"
+comment = "JSR obj_face_left, then obj_step_left ($F054); callers 00:87A7, 87CC, 03:B384, 0D:A931, A9BE, 0E:CCF7; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF054
+name = "obj_step_left"
+comment = "obj_step_right's code $51 bytes on, with obj_move_left and push_out_right; caller 0E:D95E; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF0A2
+name = "obj_walk_down"
+comment = "obj_move_down, bg_probe of kind Y; $10 = $10 is pushed back up (push_out_up, SEC at $F0C0), a pit too for slots but the player, who falls in ($F0D8); callers 03:B356, 0B:BA29, 0D:A97F, 0E:CD14, D9B1; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF0DC
+name = "player_pit_fall_start"
+comment = "action_before_fall = game_action, game_action = $24, obj_state = $80; game_action 4 releases the held enemy (obj_held,Y = $FF at $F0F3); obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF0F7
+name = "obj_walk_up"
+comment = "obj_move_up, bg_probe of kind Y; $10 = $30 is pushed back down (push_out_down, SEC at $F117); callers 03:B33E, 0B:BA13, 0D:A0AA, A962, 0E:CD38, D9D9; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF119
+name = "obj_jump_move"
+comment = "vertical step of the player's jumps: obj_fall's halves ($F20E/$F22E) and obj_gravity, bg_probe of kind Y (Y + 1 going up); landing on $10 pushes up and restarts obj_vy (SEC at $F14C), $40 and up starts the pit fall ($F170); callers 00:8092, 8318, 85C1, 8814, 8881, 0E:CF8C, D5F5, D740, DB05, DBD6; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF443
+name = "obj_set_anim_chr3"
+comment = "JSR obj_set_anim, STY $EB (chr_banks+3, sprite bank R3); 17 JSRs and 6 JMPs (banks 01, 03, 05, 0C, 0D); obj_anim.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF449
+name = "obj_set_anim_chr4"
+comment = "JSR obj_set_anim, STY $EC (chr_banks+4, R4); banks 01, 0B, 0D; obj_anim.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF44F
+name = "obj_set_anim_chr5"
+comment = "JSR obj_set_anim, STY $ED (chr_banks+5, R5); 01:A4CD, 05:AB33, 0D:A59C, A692, JMPs 01:AE2E, 0D:A4C3; obj_anim.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF6AA
+name = "enemy_reach_y"
+comment = "enemy_attack_test: the reach in y by obj_attack & $1F (CMP $F6AA,Y at $F6A6); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF6CA
+name = "enemy_reach_x_back"
+comment = "enemy_attack_test: the reach in x behind the attacker (CMP $F6CA,Y at $F694; in front of it when the player's facing decides); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF6EA
+name = "enemy_reach_x_front"
+comment = "enemy_attack_test: the reach in x in front of the attacker (CMP $F6EA,Y at $F674); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF869
+name = "player_reach_y"
+comment = "player_attack_test: the reach in y by attack_id (CMP $F869,Y at $F85E); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF88D
+name = "player_reach_x_front"
+comment = "player_attack_test: the reach in x in front of the player by attack_id (CMP $F88D,Y at $F847, the player facing slot X); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF8B1
+name = "player_reach_x_back"
+comment = "player_attack_test: the reach in x behind the player by attack_id (CMP $F8B1,Y at $F835); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF9E5
+name = "obj_contact_test"
+comment = "objects_update (0C:8090): does the object in slot 2, then 1 ($10 = 2 counting down, the loop at $F9E9) touch slot X; C clear = contact; past the slot 1/2 checks never executed; obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFAC0
+name = "contact_reach"
+comment = "obj_contact_test's reach by the slot 1/2 object's obj_attack: y at $FAC0,Y ($FABA), x at $FAC2,Y ($FAA9); 0E 14 14 14, then drop_weapon's code; never read; obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF428
+name = "attack_start"
+comment = "attack_live = $1E, attack_id = 0, then sound $17 (the code of attack_swing_sound); callers 0E:D3FD, D50B, D537, D550, D589; obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF430
+name = "attack_swing_sound"
+comment = "LDA #$17 / JSR sound_queue_push_sfx; callers 09:AC33, 0E:D421, D438, D5A0, D5CE, D67D, D6B9, D6F3, D721; obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF436
+name = "attack_end"
+comment = "attack_live ($A4) = 0; about 30 callers (00, 05, 0E, player_take_hit); obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF43B
+name = "attack_begin"
+comment = "attack_live ($A4) = $1E; about 20 callers (00, 0E); obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF54C
+name = "spark_dx"
+comment = "spawn_hit_spark: the spark's x from the player's, 16-bit by player_dir & 2: +$12 / -$12 (ADC $F54C,Y at $F50F); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF550
+name = "spark_dx_haggar"
+comment = "the same for Haggar, +/-$13 (ADC $F550,Y at $F4C1); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF554
+name = "spark_dx_side"
+comment = "the same for attacks $0F-$16, +/-$1C toward the slot hit (ADC $F554,Y at $F4F0); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB06
+name = "dropped_weapon_anim"
+comment = "drop_weapon: slot 1's animation by player_id, 41 41 51 (LDA $FB06,Y at $FAE8); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB17
+name = "hit_cooldown_table"
+comment = "obj_hit_start: obj_hit_cooldown by attack_id (LDA $FB17,Y at $FB0B); base_cody_round1.flog: 2 after attack 0, $10 after $06/$14/$15; obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFD16
+name = "damage_health"
+comment = "player_take_hit: health lost by obj_attack_damage (SBC $FD16,Y at $F928); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFD56
+name = "damage_knocks_down"
+comment = "player_take_hit: nonzero = the hit knocks the player down (LDA $FD56,Y at $F92F); obj_combat.c (tidy/fixed)"
+
+
 [[label]]
 bank = 0x0F
 addr = 0xE89B
@@ -1559,6 +1801,119 @@ bank = 0x0C
 addr = 0x9B1F
 name = "obj_pit_check"
 comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0C
+addr = 0x805E
+name = "objects_next_slot"
+comment = "where every behaviour's RTS lands: objects_update pushes $805D (0C:8056-805A) before its JMP (obj_behavior_lo/hi) at 0C:805B; next slot and its checks; obj_update.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x80D3
+name = "obj_hit_by_player"
+comment = "the BPL at 0C:80CB after player_attack_test and spawn_hit_spark: obj_take_hit, obj_land_y, knockback; obj_update.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8686
+name = "damage_apply"
+comment = "the damage lookup ($8638-$8683, LDA table,Y / BNE $8686 per character and level) lands here: combo target, the bosses' cut ($87AB), obj_life -= damage (0C:86E4); obj_hits.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x87AB
+name = "boss_damage_cut"
+comment = "5 bytes by obj_kind - 7 (SBC at 0C:86D5): Thrasher 2, Sodom 4, Abigail 4, Sodom with obj_tier set 8, Belger 8; obj_hits.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9CED
+name = "enemy_common"
+comment = "behaviour of ids $20-$25 (obj_behavior_lo/hi), tier 1; $9CF1 tier 2 ($26-$2B), $9CF5 tier 4 ($30-$35): kind from $9D5B, 0D:AB29, enemy_keep_on_band, JMP through $9D3B/$9D4B; enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D3B
+name = "enemy_phase_lo"
+comment = "16 bank-$0D phase routines by obj_state & $0F (0C:9D28-9D38); enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D4B
+name = "enemy_phase_hi"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D5B
+name = "enemy_kind_by_id"
+comment = "obj_kind by id - $20 (0C:9D19): 0-5 per digit, ids $20-$35; enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D71
+name = "knife_fly"
+comment = "behaviour of id $2E, El Gado's knife (spawned by 0D:A5DA, from his phase $A): flies on obj_dir, cleared at screen x $FA / 8; enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D9E
+name = "entrance_charge"
+comment = "behaviour of ids $2C/$2D/$2F ($9D9E/$9DA4/$9DAA): Andore starts at the rush of his charge (phase $E, obj_timer 3) once the player is within $80 px; never executed; enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9E48
+name = "entrance_drop"
+comment = "ids $36-$3E (Poison, AxL, El Gado; entries $9E20-$9E44): hidden until the player is within 8 px, then fall to his ground line at phase $F; enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9EB3
+name = "drop_anim"
+comment = "by obj_kind: the drop-in's fall animation (0C:9E91); $9EB9 its sprite bank, $9EBF its damage index"
+
+[[label]]
+bank = 0x0C
+addr = 0x9ECF
+name = "entrance_stand"
+comment = "ids $3F, $4F-$5F (entries $9EC5/$9EC9/$9ECD): stand $78 frames at phase $D, standing animation (0D:AAAE); enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9F19
+name = "entrance_sit"
+comment = "ids $40-$4B (Two P, Bred; entries $9EF4-$9F12, obj_timer3 = pose 0/2): animation $A2 held, unhittable until the player is within $32 px (0F:FB3E) or screen x < $40; enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9F8D
+name = "sit_chr"
+comment = "sprite bank of the sitting frames 0-3 (0C:9F4D)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9F91
+name = "entrance_kind"
+comment = "obj_kind by id - $36, 42 bytes (0C:9EDE, 9F23)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9FBB
+name = "enemy_become_common"
+comment = "obj_id and obj_saved_id = $9FCC[id - $36], the plain id of an entrance (JMP at 0C:9EB0, 9EF1, 9F89); enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9FCC
+name = "entrance_becomes"
+comment = "the plain id ($20-$35) by id - $36, 42 bytes (0C:9FC2)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9FF6
+name = "enemy_keep_on_band"
+comment = "obj_y kept in (top, bottom] of $A046/$A049 by round and area (bands $80/$B0, $70/$A0, $90/$B0), except at obj_state $89/$8F; runs on into bank $0D; enemy_common.c (tidy/common)"
 
 [[label]]
 bank = 0x08
@@ -2870,18 +3225,18 @@ comment = "per effect channel (X 0-3); the music's copy is snd_m_slide at +$28; 
 
 [[ram]]
 addr = 0x00B2
-name = "unk_b2"
-comment = "bonus stage flag: $FF while the drum bonus stage runs (00:94F7 sets it with the controller, id $70 in slot $0F); a smashed drum then counts for the prize instead of leaving an item (03:BD68), the A+B special is off (0E:CA40, 0E:D305) and an extra-life pickup ends the stage (0C:8C00, never executed); cleared with the round state. Rename to bonus_stage proposed (tidy/enemies, enemy_drums.c)"
+name = "bonus_stage"
+comment = "$FF while the drum bonus stage runs (00:94F7 sets it with the controller, id $70 in slot $0F); a smashed drum then counts for the prize instead of leaving an item (03:BD68), the A+B special is off (0E:CA40, 0E:D305) and an extra-life pickup ends the stage (0C:8C00, never executed); cleared with the round state; enemy_drums.c (tidy/enemies)"
 
 [[ram]]
 addr = 0x00B9
-name = "unk_b9"
-comment = "drums smashed in the bonus stage: 0 at its start (0B:B355), +1 per smashed drum (03:BD6E); with 8 or more the prize is $B66C/$B681 by the count, all 20 add special screen $FC (0B:B387-B3D7); the results text reads and clears it (04:9889). Rename to bonus_drum_count proposed (tidy/enemies, enemy_drums.c)"
+name = "bonus_drum_count"
+comment = "drums smashed in the bonus stage: 0 when it starts (0B:B355), +1 per smashed drum (03:BD6F, drum_smashed); 8 or more win the prize $B66C/$B681 by the count, all $14 add special screen $FC, PERFECT (0B:B387-B3D7); the message box's YOU GOT picks its reward text by it (04:988E, table 04:98C8: nothing under 8, then 8/16/24/32 EXP, 1UP, CONTINUE, 2UP) and clears it (04:989A); enemy_drums.c (tidy/enemies), flow_talk.c (tidy/props)"
 
 [[ram]]
 addr = 0x00AC
-name = "unk_ac"
-comment = "purpose unknown: unclear (RAM survey); named so no raw address remains (rename with evidence)"
+name = "talk_bar_cuts"
+comment = "boss talk: pieces of the boss's life bar a right answer has erased; 0 when a talk page opens (04:983F), INC per right answer (04:9A8B), the next piece is erased at $2072 - it (04:9AF4); flow_talk.c (tidy/props)"
 
 [[ram]]
 addr = 0x00A5
@@ -2927,6 +3282,336 @@ comment = "written by the round map on every run (04:8D6F) and read by nothing; 
 addr = 0x00F8
 name = "unk_f8"
 comment = "purpose unknown: the NMI copies it to irq_scroll ($C031 -> $7C) but nothing writes it (always 0 in every run)"
+
+# ---- names from the P4 tidy of banks 04/05/08 (tidy/props) --------------
+
+[[label]]
+bank = 0x04
+addr = 0x8900
+name = "capcom_setup"
+comment = "screen 0, CAPCOM PRESENTS: colors, CHR $78/$7A, palette_fade_in (main_task 0E:C59C); flow_screens.c (tidy/flow)"
+
+[[label]]
+bank = 0x04
+addr = 0x8AC0
+name = "story_2_setup"
+comment = "screen 7, story page 3's picture (main_task 0E:C631); flow_screens.c (tidy/flow)"
+
+[[label]]
+bank = 0x04
+addr = 0x8C00
+name = "ending_2_setup"
+comment = "screen $0D, the second ending picture (0E:DEEF); flow_screens.c (tidy/flow)"
+
+[[label]]
+bank = 0x04
+addr = 0x8D00
+name = "round_map"
+comment = "the round map and the character's scene (0E:C715, DFC9); flow_round_map.c (tidy/flow)"
+
+[[label]]
+bank = 0x04
+addr = 0x9000
+name = "ending_1_setup"
+comment = "screen 6 again, the first ending picture (0E:DEBA); flow_screens.c (tidy/flow)"
+
+[[label]]
+bank = 0x04
+addr = 0x9100
+name = "select_screen"
+comment = "character select (0E:C6F8, DF8D); flow_select.c (tidy/flow)"
+
+[[label]]
+bank = 0x04
+addr = 0x938A
+name = "continue_loop"
+comment = "continue screen frame: START picks (JMP $9413), DOWN/UP move the cursor; continue_screen falls in, JMP back at $93C8; flow_continue.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9398
+name = "continue_walk"
+comment = "slot 1 walks the way slot 0's obj_dir says; flow_continue.c"
+
+[[label]]
+bank = 0x04
+addr = 0x93B0
+name = "continue_turn"
+comment = "slot 0's obj_timer2 turns the walker every $78 frames, scene_frame, JMP $938A; flow_continue.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9413
+name = "continue_pick"
+comment = "START on the continue screen: y $64 = game over, else credits - 1 and game_action 7 (base_cody_round1 frame 18587 continues); flow_continue.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9600
+name = "credits_setup"
+comment = "colors, CHR $78/$7A and music $965E[lives] of the full ending's credits, called at 0E:DF22 only when continue_count is 0; flow_screens.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9800
+name = "talk_screen"
+comment = "gameplay_special_screen's work (0E:C991): JMP through $9D56/$9D59 by special_screen_step; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x980F
+name = "talk_open"
+comment = "phase 0: commands $F0-$FF (ROUND CLEAR, BONUS STAGE, PERFECT, NO BONUS, YOU GOT; texts 04:9BAE) or a talk page; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x98AF
+name = "talk_wait"
+comment = "command $F0: text_timer frames, then phase 2; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x98BD
+name = "talk_hold"
+comment = "special_screen_id $F0 with text_timer $F0 after a message; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x98DD
+name = "talk_type"
+comment = "phase 1: a letter of the page every text_timer frames, START skips; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x999B
+name = "talk_page_end"
+comment = "text byte $FF: wait for A/B, or the YES/NO question; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x99D6
+name = "talk_next_page"
+comment = "text byte $F9 or A/B: the page's next page for player_id; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x99DD
+name = "talk_goto_page"
+comment = "next page from byte Y of the page, 0 ends the talk; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9A74
+name = "talk_answer"
+comment = "a kind-2 question answered right (byte 4 = dialogue_choice): the boss (obj_kind 7) loses 8 life and a bar piece; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9A8F
+name = "talk_end"
+comment = "phase 2: special_screen_id 0, the status bar's labels and level gauge back; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9A9E
+name = "talk_box_clear"
+comment = "Y = 0 into talk_text: the message box emptied; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9AA0
+name = "talk_text"
+comment = "fixed text Y (pointers $9BAE/$9BBD) copied into vram_buffer; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9AC2
+name = "talk_find_boss"
+comment = "X = the first slot from 2 with obj_kind 7 (Thrasher); flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9AD1
+name = "talk_boss_anim_e4"
+comment = "text byte $FA: Thrasher's animation $E4, CHR $28; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9AD9
+name = "talk_boss_anim_ea"
+comment = "text byte $FB (pages 9, $0A: WAHHHHH!, ARGHHHH!): animation $EA, CHR $2B; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9AF4
+name = "talk_bar_cut"
+comment = "tile $10 at $2072 - talk_bar_cuts: a piece of the boss's bar erased; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9B18
+name = "talk_fill_health"
+code = true
+comment = "text byte $FC (page $36) and command $FD: health = full for the level, bar redrawn at $2049; no route; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9B7E
+name = "talk_extra_life"
+code = true
+comment = "text byte $FE: lives + 1, sound $2D; no page uses it; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9BA4
+name = "talk_extra_credit"
+code = true
+comment = "text byte $FD: credits + 1, sound $30; no page uses it; flow_talk.c"
+
+[[label]]
+bank = 0x04
+addr = 0x9BAE
+name = "talk_text_lo"
+comment = "low bytes of the message box's 15 fixed texts (high bytes at $9BBD); flow_talk.c"
+
+[[label]]
+bank = 0x05
+addr = 0xA54C
+name = "talk_page_lo"
+comment = "low bytes of the talk pages by special_screen_id (high bytes at $A4FD): header (sound, kind, next pages, answer), then the letters; flow_talk.c"
+
+[[label]]
+bank = 0x05
+addr = 0xA700
+name = "prop_behaviors"
+comment = "16 JMPs: obj_behavior sends id $60 + k here + 3k (0C:840F/84AF); obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xA731
+name = "hidden_food"
+comment = "id $61 (stage list type $1C, round 5 area 2, hidden): a first punch from $11-$17 px to its right refills health; obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xA7A5
+name = "weapon_pickup"
+comment = "ids $69/$6A: B close above the weapon takes it (weapon_held, Guy's weapon_ammo); obj_weapons.c"
+
+[[label]]
+bank = 0x05
+addr = 0xA82A
+name = "weapon_take"
+comment = "weapon_held $FF and the slot freed (JMP at $A822); obj_weapons.c"
+
+[[label]]
+bank = 0x05
+addr = 0xA851
+name = "weapon_drop"
+code = true
+comment = "Guy's held weapon back on the floor as id $6A with his throws in obj_timer; no route; obj_weapons.c"
+
+[[label]]
+bank = 0x05
+addr = 0xA8A8
+name = "thrown_weapon"
+comment = "ids $6C/$6D (bank 00 throws: 00:81E6, 8270): flies until off screen; obj_weapons.c"
+
+[[label]]
+bank = 0x05
+addr = 0xA916
+name = "dropped_weapon"
+comment = "ids $66/$67 (0F:FAFB, 00:93E6): knocked out of the hand, flies off; obj_weapons.c"
+
+[[label]]
+bank = 0x05
+addr = 0xA957
+name = "dropped_weapon_fall"
+comment = "falls to its line; a $66 may lie as a $69 again, else it blinks out; obj_weapons.c"
+
+[[label]]
+bank = 0x05
+addr = 0xA9E4
+name = "boss_talk"
+comment = "id $6E (stage list type $18, invisible): holds the player and starts the area's boss talk (special_screen_id from $AA67); obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xAA82
+name = "go_sign"
+comment = "id $6F (08:8987): GO with sound $31, then on the next screen screen_event + 1 and the slots freed; obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xAB08
+name = "thrasher_look_in"
+comment = "id $68 (stage list type $19, round 1 area 2): Thrasher's animation $E4, waits, walks off; no route; obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xAB41
+name = "andore_charge"
+comment = "id $6B (00:92B4, round 1 area 2's exit): Andore runs at the player, who is hit; no route; obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xABC4
+name = "boss_low_palette"
+comment = "id $65 (round 1 area 3): background palette 2 runs color script 7 once slot $0C (Thrasher) is under $10 of life; obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xABE1
+name = "elevator"
+comment = "id $64 (round 4 area 2, stage list entry 0): screen shake, color scripts $0C/$0D, the lights and the floor indicator; obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xAC58
+name = "elevator_step"
+comment = "the elevator's counters; two more lights every $87 frames; obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xAC7D
+name = "elevator_lights"
+comment = "id $63 slots at y $C4, x $F7/$17 ($ACDF); obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xACE1
+name = "elevator_floor"
+comment = "the id $62 floor indicator at ($81, $AC); obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xAD37
+name = "shaft_light"
+comment = "id $63: rises 1 px a frame to line $2F, then freed; obj_props.c"
+
+[[label]]
+bank = 0x05
+addr = 0xAD58
+name = "floor_indicator"
+comment = "id $62: B1-B4 (obj62.png) by area_kills 5/$0A/$0F, sound $30 at each; obj_props.c"
+
+[[label]]
+bank = 0x08
+addr = 0x892C
+name = "events_screen_event"
+comment = "screen_setup ($972A) once when screen_event is set; stage_events.c"
+
+[[label]]
+bank = 0x08
+addr = 0x893C
+name = "events_walk_out"
+comment = "the cleared area's last screen: game_action $19 when the player stands or punches; stage_events.c"
+
+[[label]]
+bank = 0x08
+addr = 0x8956
+name = "events_area_cleared"
+comment = "area_clear negative: the walk-out or the GO sign; stage_events.c"
 
 # ---- names from the P4 tidy (sound driver, game flow and screens) ----------
 
@@ -3309,67 +3994,67 @@ name = "set_chr_bank2"
 comment = "flow_*.c (tidy/flow)"
 
 [[label]]
-bank = 0x08
+bank = 0x04
 addr = 0x8000
 name = "screen_draw"
 comment = "draws screen A from its strip script; pointers at $8100/$810E; flow_*.c (tidy/flow)"
 
 [[label]]
-bank = 0x08
+bank = 0x04
 addr = 0x8940
 name = "title_setup"
 comment = "screen 1; flow_*.c (tidy/flow)"
 
 [[label]]
-bank = 0x08
+bank = 0x04
 addr = 0x89C0
 name = "licence_setup"
 comment = "screen 4; flow_*.c (tidy/flow)"
 
 [[label]]
-bank = 0x08
+bank = 0x04
 addr = 0x8A40
 name = "story_text_setup"
 comment = "flow_*.c (tidy/flow)"
 
 [[label]]
-bank = 0x08
+bank = 0x04
 addr = 0x8B40
 name = "story_1_setup"
 comment = "screen 6; flow_*.c (tidy/flow)"
 
 [[label]]
-bank = 0x08
+bank = 0x04
 addr = 0x8F07
 name = "round_map_marker"
 comment = "flow_*.c (tidy/flow)"
 
 [[label]]
-bank = 0x08
+bank = 0x04
 addr = 0x921B
 name = "level_to_haggar"
 comment = "flow_*.c (tidy/flow)"
 
 [[label]]
-bank = 0x08
+bank = 0x04
 addr = 0x9221
 name = "level_from_haggar"
 comment = "flow_*.c (tidy/flow)"
 
 [[label]]
-bank = 0x08
+bank = 0x04
 addr = 0x9300
 name = "continue_screen"
 comment = "screen 3; flow_*.c (tidy/flow)"
 
 [[label]]
-bank = 0x08
+bank = 0x04
 addr = 0x942A
 name = "continue_draw_credits"
 comment = "flow_*.c (tidy/flow)"
 
 [[label]]
-bank = 0x08
+bank = 0x04
 addr = 0x9500
 name = "game_over_screen"
 comment = "screen 5; flow_*.c (tidy/flow)"
@@ -3379,3 +4064,353 @@ bank = 0x0A
 addr = 0x9C00
 name = "hud_draw_text"
 comment = "queues the HUD's fixed text; flow_*.c (tidy/flow)"
+
+# ---- bank 01: Thrasher, Sodom and the scene prop (ids $80-$8F, P4 tidy/b01) ----
+
+[[label]]
+bank = 0x01
+addr = 0xA000
+name = "boss_b01_entries"
+comment = "JMP table objects_update enters for ids $80-$8F: obj_behavior_lo/hi (0C:83AF/844F) point id $80+n at $A000+3n; $80 Thrasher, $81 Sodom, $83 Sodom (rounds 4-5), $8F scene prop, the rest $A030; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA030
+name = "b01_no_behavior"
+comment = "RTS: the entry of ids $82 and $84-$8E, which nothing spawns; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA031
+name = "boss_move"
+comment = "moves by obj_dir with obj_vx/vy (0F:F1DF/F1BF up/down, JMP 0F:F183/F1A1 across), stopping at the top line $A08E[tier != 0] and at $AE; $0F = 8/4 when stopped; called by every walk and rush of bank 01; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA08E
+name = "boss_top_line"
+comment = "the lowest obj_y boss_move allows going up: $85, $82 when obj_tier is set (id $83); boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA090
+name = "boss_face_player"
+comment = "0F:F374 then JMP 0F:F090 (player to the right) or 0F:F099; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA09B
+name = "scene_prop_update"
+comment = "id $8F (JMP at $A02D): made only by id $9C (03:BFE6), which the scene object $7B/$7D's Cody script spawns (0B:BE45); waits for the player within $10 px, takes a punch (spark of attack $0D, sound $18) and flies off up-right; never executed; boss_b01_scene.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA0FD
+name = "thrasher_update"
+comment = "id $80 (JMP at $A000): obj_kind 7, Thrasher; stage list type $13 (08:8442/85E6: life $48), area 2 only, round 1's boss area in every route; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA101
+name = "sodom_update"
+comment = "id $81 (JMP at $A003): obj_kind 8, Sodom; type $14 (life $58), area 5, round 2's boss area; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA13C
+name = "ts_enter"
+comment = "phase 0 of ids $80/$81 (table $A6C4): to the circling walk on screen 1, else walk in; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA169
+name = "ts_circle"
+comment = "phase 1 of ids $80/$81: attack in reach (0F:FB3E), else walk the arena's edges (obj_land_y = direction index); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA22A
+name = "ts_circle_turn"
+comment = "the circling walk's turn with obj_ai_flag 0 (JMP at $A21C): speed for the new index, then ts_corner; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA28B
+name = "ts_corner"
+comment = "a corner of the circling walk: obj_down_timer bit 0 or a jump (Thrasher) / rush (Sodom) on rng; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA2ED
+name = "boss_attack"
+comment = "phase 2 of ids $80/$81 and $83 (tables $A6C4, $AAC6): wind-up, swing ($A8B7), reach and damage by obj_timer2 (0 Thrasher's swing, 1 Sodom's); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA3EA
+name = "boss_attack_end"
+comment = "end of a swing (JMPs at $A340/$A35C): another one while obj_ai_count lasts and the player is in reach, else phase 0; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA411
+name = "swing_reach_near"
+comment = "obj_attack at the start of the swing by obj_timer2: $91 $92; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA413
+name = "swing_reach_far"
+comment = "obj_attack at full reach: $8D $8E; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA415
+name = "swing_damage"
+comment = "obj_attack_damage of the swing: $1F $27; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA417
+name = "ts_wander"
+comment = "phase 3 (Thrasher, set at $A2DF): $78 frames drifting toward a point beside the player (0F:FB72), swing in reach; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA473
+name = "boss_rush"
+comment = "phase 4 of ids $80/$81 and $83: aim (boss_aim), run, strike within $30 px, slide, pause; Sodom's (set at $A2C6, $A646, $ADA7, $AE0A); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA53B
+name = "boss_rush_pause"
+comment = "the rush's pause (JMP at $A482); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA54C
+name = "boss_rush_end"
+comment = "phase 0, obj_down_timer 1 (run-on from $A53E; JMPs at $A4AE/$A4BF never executed); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA557
+name = "ts_jump"
+comment = "phase 5 (Thrasher, set at $A2A5): two jumps on the spot, obj_attack $8F while falling; also run by ts_leap; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA5CF
+name = "ts_leap"
+comment = "phase 6 (Thrasher, set at $A286): ts_jump's jumps at obj_vx 2 until landing against x $18/$F1; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA633
+name = "ts_hurt"
+comment = "phase 7 of ids $80/$81 (set by boss_hurt_start): obj_hit_timer counts down, then phase 0 (Thrasher) or the rush (Sodom); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA651
+name = "ts_walk_in"
+comment = "phase 8 of ids $80/$81 (set at $A155): walk to screen 1 at index 4's speed; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA6C4
+name = "ts_phase_lo"
+comment = "phase table of ids $80/$81, 9 entries (jumped through at $A129); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA6CD
+name = "ts_phase_hi"
+comment = "high bytes of ts_phase_lo; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA6D6
+name = "boss_check"
+comment = "JSR from $A11D and $AA63, before the phase; C set = frame taken: held by the player (obj_held), hit (obj_hit_timer $1E/$1A/$10), Cody's throw, the drop-in ($25) knockdown; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA6FC
+name = "boss_held"
+comment = "held: faces the player, phase 0, obj_hit_timer 0, C set (run-on from $A6F9, JMP at $A6F6); boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA736
+name = "boss_hurt_start"
+comment = "obj_state $87 (the hurt phase), obj_invuln $20 at obj_tier 2; C clear; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA7BB
+name = "boss_knocked_down"
+comment = "id 5 (knocked down, 0C:983B) with obj_saved_id, obj_vy $038E, obj_invuln $FF, C set (after $A7B5; JMP at $A7B2 never executed); boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA7E1
+name = "boss_speed_walk"
+comment = "obj_vx/vy by direction index Y from $A7FA/$A80A/$A81A/$A82A: $0133 along an axis; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA83A
+name = "boss_anim_stance"
+comment = "$E4/$F0 by obj_kind - 7 ($A870), CHR from $A872/$A874; $EF (0F:F449, CHR $2C, chr_banks+5 $2E) from obj_tier 2; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA882
+name = "boss_anim_walk"
+comment = "$E5/$F2 ($A8B1), CHR $A8B3/$A8B5; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA8B7
+name = "boss_anim_swing"
+comment = "$E9/$F5 ($A8E9), CHR $A8EB/$A8ED, obj_anim_timer + 1; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA8EF
+name = "boss_anim_hurt"
+comment = "$EA/$F7 ($A910), CHR $A912; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA914
+name = "boss_chr_slot"
+comment = "chr_banks+3 offset of the first CHR byte (1, 1); the second uses $A916 indexed by this value; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA918
+name = "boss_speed_rush"
+comment = "as boss_speed_walk from $A931/$A941/$A951/$A961: $024C; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA971
+name = "boss_speed_charge"
+comment = "as boss_speed_walk from $A98A/$A99A/$A9AA/$A9BA: $0300; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA9CA
+name = "boss_aim"
+comment = "obj_dir toward the player's ground point (0F:FB5B), no steeper than the diagonals ($AA23); Y = direction index; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA9F5
+name = "boss_rush_speed"
+comment = "boss_speed_rush and the slowing per frame (obj_timer2, obj_ground_y) by index; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAA23
+name = "boss_aim_clamp"
+comment = "direction index -> index of boss_aim (1-3 -> 2-3, 5-7 -> 5-6, ...); boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAA33
+name = "sodom_rematch_update"
+comment = "id $83 (JMP at $A009): obj_kind 8, Sodom; stage list type $16 (life $68, animation $F0), areas 11 and 13 (rounds 4 and 5); obj_tier 1/2/3 by obj_life $30 and rage; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAAC6
+name = "sodom_rematch_phase_lo"
+comment = "phase table of id $83, 9 entries (jumped through at $AAB3); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAACF
+name = "sodom_rematch_phase_hi"
+comment = "high bytes of sodom_rematch_phase_lo; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAAD8
+name = "sodom_rematch_decide"
+comment = "phase 0 of id $83: approach (tier 1), enrage (tier 2: invuln $7C, tier 3), charge (tier 3); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAB0A
+name = "sodom_rematch_approach"
+comment = "phase 1 of id $83: swing in reach, line up and close in, back off or drift when near; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAB93
+name = "sodom_rematch_drift"
+comment = "drift of phase 1 (JMP at $AB2B): re-aim (0F:FB72) every 8 frames; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xABB0
+name = "sodom_rematch_drift_step"
+comment = "boss_move and boss_face_player (JMP at $AB9B); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xABB6
+name = "sodom_rematch_back_off"
+comment = "phase 5 of id $83: $64 frames away from the player, then phase 6; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAC4E
+name = "sodom_rematch_rage"
+comment = "phase 3 of id $83: the enraged charges at 3 px a frame, shaken ($AD80-$AD8B), the pause, the enrage show; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xACC1
+name = "sodom_rematch_charge_shake_y"
+comment = "the charge's y shake (JMP at $ACAC; run-on from $ACB6); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAD0B
+name = "sodom_rematch_charge_step"
+comment = "boss_move and the charge's end at a line or the arena's side; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAD50
+name = "sodom_rematch_charge_pause"
+comment = "the stance between charges (JMP at $AC5B); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAD5E
+name = "sodom_rematch_enrage_show"
+comment = "$74 frames of animations $FA then $F1 after enraging (JMP at $AC5E); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAD8C
+name = "sodom_rematch_hurt"
+comment = "phase 7 of id $83: then rush (tier 1), decide (tier 2) or charge (tier 3); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xADBA
+name = "sodom_rematch_wait"
+comment = "phase 6 of id $83: $18 frames, then rush or approach on rng by the distance (the $3C/$50 rungs at $ADDE are skipped); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAE19
+name = "sodom_rematch_follow_up"
+comment = "phase 8 of id $83: player invuln $20, damage $27, obj_attack $98 to frame 9; set only by $A3DB (never executed); boss_sodom_rematch.c (tidy/b01)"
