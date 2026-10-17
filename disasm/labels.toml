@@ -749,7 +749,7 @@ comment = "$1E when a player hit connects (0F:FB13, from 0C:85B6), counted down 
 addr = 0x04F0
 size = 16
 name = "obj_spawn_group"
-comment = "per-kind code from the spawn tables (Poison/AxL 4, Two P/El Gado 5, Bred/Andore 3, bosses 4, other objects $FF; 08:816C, 08:91BF): the timed spawner adds up the codes of the live enemies (08:910A-912A) to choose what comes next. Bank 0B also uses slot $0F's byte ($04FF) as a slot pointer (0B:B696, 0E:CBE1)"
+comment = "per-kind code from the spawn tables (Poison/AxL 4, Two P/El Gado 5, Bred/Andore 3, bosses 4, other objects $FF; 08:816C, 08:91BF): the timed spawner adds up the codes of the live enemies (08:910A-912A) to choose what comes next. Bank 0B also uses slot $0F's byte ($04FF) as a slot pointer: Belger's slot (0B:B696, read at 0E:CBE1), and the scene after Belger keeps X there around its player_state calls (0B:BDA5-BF05; boss_belger_end.c)"
 
 [[ram]]
 addr = 0x0500
@@ -3261,7 +3261,7 @@ comment = "purpose unknown: written, never read in coverage; named so no raw add
 [[ram]]
 addr = 0x001B
 name = "unk_1b"
-comment = "purpose unknown: written, never read in coverage; named so no raw address remains (rename with evidence)"
+comment = "purpose unknown: written $FF once, by the scene after Belger when it puts Belger's fall (id $9E) in a slot (0B:BFC7, boss_belger_end.c); no code in any bank reads it"
 
 [[ram]]
 addr = 0x001F

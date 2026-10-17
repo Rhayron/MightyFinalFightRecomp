@@ -37,9 +37,9 @@ void func_B318_b1(void) { behavior_jmp(0xB318, 0xB330, BANK_03); }  /* $98 none 
 void func_B31B_b1(void) { behavior_jmp(0xB31B, 0xB330, BANK_03); }  /* $99 none */
 void func_B31E_b1(void) { behavior_jmp(0xB31E, 0xB330, BANK_03); }  /* $9A none */
 void func_B321_b1(void) { behavior_jmp(0xB321, 0xBF38, BANK_03); }  /* $9B Belger down */
-void func_B324_b1(void) { behavior_jmp(0xB324, 0xBFBE, BANK_03); }  /* $9C closing scene */
+void func_B324_b1(void) { behavior_jmp(0xB324, 0xBFBE, BANK_03); }  /* $9C Cody's part of the scene after Belger */
 void func_B327_b1(void) { behavior_jmp(0xB327, 0xBF95, BANK_03); }  /* $9D Belger's shot */
-void func_B32A_b1(void) { behavior_jmp(0xB32A, 0xBF48, BANK_03); }  /* $9E closing scene */
+void func_B32A_b1(void) { behavior_jmp(0xB32A, 0xBF48, BANK_03); }  /* $9E Belger's fall */
 void func_B32D_b1(void) { behavior_jmp(0xB32D, 0xBED2, BANK_03); }  /* $9F Belger killed */
 void func_B330_b1(void) { behavior_none(0xB330); }
 
@@ -55,9 +55,9 @@ void func_B315_b5(void) { behavior_jmp(0xB315, 0xB330, BANK_0B); }  /* $77 none 
 void func_B318_b5(void) { behavior_jmp(0xB318, 0xB330, BANK_0B); }  /* $78 none */
 void func_B31B_b5(void) { behavior_jmp(0xB31B, 0xB330, BANK_0B); }  /* $79 none */
 void func_B31E_b5(void) { behavior_jmp(0xB31E, 0xB330, BANK_0B); }  /* $7A none */
-void func_B321_b5(void) { behavior_jmp(0xB321, 0xBD7F, BANK_0B); }  /* $7B closing scene */
+void func_B321_b5(void) { behavior_jmp(0xB321, 0xBD7F, BANK_0B); }  /* $7B the scene after Belger */
 void func_B324_b5(void) { behavior_jmp(0xB324, 0xB330, BANK_0B); }  /* $7C none */
-void func_B327_b5(void) { behavior_jmp(0xB327, 0xBD7F, BANK_0B); }  /* $7D closing scene */
+void func_B327_b5(void) { behavior_jmp(0xB327, 0xBD7F, BANK_0B); }  /* $7D the scene after Belger */
 void func_B32A_b5(void) { behavior_jmp(0xB32A, 0xB330, BANK_0B); }  /* $7E none */
 void func_B32D_b5(void) { behavior_jmp(0xB32D, 0xB330, BANK_0B); }  /* $7F none */
 void func_B330_b5(void) { behavior_none(0xB330); }

@@ -14,16 +14,16 @@
  *   $71   0B:B331       enemy_drums.c     (same routine; no code makes the id)
  *   $72   0B:B5D7       enemy_drums.c     bonus stage: a drum
  *   $74   0B:B696       boss_belger.c     Belger, round 5's boss
- *   $7B   0B:BD7F       boss_belger_end.c after Belger: the closing scene
- *   $7D   0B:BD7F       boss_belger_end.c (same routine; $9B becomes it)
+ *   $7B   0B:BD7F       boss_belger_end.c the scene after Belger, from phase 3
+ *   $7D   0B:BD7F       boss_belger_end.c the scene's controller ($9B becomes it)
  *   $90   03:B3F4       boss_abigail.c    Abigail, round 3's boss
  *   $91   03:BB91       enemy_drums.c     a rolling drum (round 1, second area)
  *   $94   03:BBCB       enemy_drums.c     the drum dispenser (invisible)
  *   $95   03:BD46       enemy_drums.c     a smashed drum: debris and the item
  *   $9B   03:BF38       boss_belger_end.c Belger down: waits, becomes $7D
- *   $9C   03:BFBE       boss_belger_end.c closing scene
+ *   $9C   03:BFBE       boss_belger_end.c Cody's part of the scene (then id $8F)
  *   $9D   03:BF95       boss_belger.c     Belger's shot
- *   $9E   03:BF48       boss_belger_end.c closing scene
+ *   $9E   03:BF48       boss_belger_end.c Belger's fall
  *   $9F   03:BED2       boss_belger.c     Belger killed (0C:8211)
  *   the other ids of both tables JMP to an RTS (enemy_tables.c).
  *

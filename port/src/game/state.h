@@ -27,7 +27,7 @@
 #define PALETTE_REQUEST          0x0018  /* nonzero: the nmi copies palette_buf ($0600-$061F) to $3F00 and clears it (0E:C061-C08B); p */
 #define VRAM_LIST_REQUEST        0x0019  /* nonzero: the nmi writes the PPU string list at $0780 ([addr hi, addr lo, count-1, bytes].. */
 #define VRAM_COLUMN_REQUEST      0x001A  /* same as vram_list_request but written with the +32 increment (PPUCTRL bit 2, 0E:C046-C057) */
-#define UNK_1B                   0x001B  /* purpose unknown: written, never read in coverage; named so no raw address remains (rename  */
+#define UNK_1B                   0x001B  /* purpose unknown: written $FF once, by the scene after Belger when it puts Belger's fall (i */
 #define UNK_1F                   0x001F  /* purpose unknown: accessed only on paths no route runs; named so no raw address remains (re */
 #define MAP_SCREEN_PTR           0x0020  /* pointer to the current screen's 64-byte metatile map in the round's $A000 bank: screen num ($0020-$0021) */
 #define ROUND_TABLES             0x0022  /* round index for the per-round tables (music $C83C, $A000 bank $C1F8); follows round ($61)  */

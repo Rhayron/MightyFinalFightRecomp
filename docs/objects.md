@@ -96,7 +96,7 @@ the spawner then turns the object toward the player.
 
 `obj_kind` (`$05B0`): 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore,
 6 El Gado's knife (id `$2E`), 7 Thrasher, 8 Sodom, 9 Abigail, `$0B` Belger,
-`$0C` id `$9D` (the objects that fill the screen during the Belger fight), `$0D`
+`$0C` id `$9D` (Belger's shots, fired at `0B:BBEC`), `$0D`
 the two pieces Sodom sheds (`0C:877F`, never executed). Kinds 7, 8, 9 and `$0B`
 get the HUD life bar ahead of anyone else (`0F:E89D`); kind 3 can block
 (`0C:84F0`).
@@ -128,9 +128,10 @@ the fields it cares about. The ones that matter:
   or `$0F` next to the player's fist whenever an attack connects;
   `0F:FAC4` turns slot 1 into the dropped weapon (id `$66`) when the player is
   hit while holding one.
-- **Behaviours** spawn their own projectiles and helpers (Abigail `03:BC10`,
-  stage objects `05:AC82`, common enemies `0D:A60F`, Belger `0B:B46F`) with the
-  same pattern.
+- **Behaviours** spawn their own projectiles and helpers (round 1's drum
+  dispenser `03:BC0E`, stage objects `05:AC82`, common enemies `0D:A60F`,
+  Belger's shot `0B:BBEC`, the bonus stage's drums `0B:B46F`) with the same
+  pattern.
 
 Shared helpers: `0F:F2A0` starts slot Y with animation A (frame and timer 0,
 `obj_flags = $10`, state and saved state `$80`); `0F:F288` sets the animation
@@ -190,8 +191,10 @@ dispatched first without them.
    - `obj_attack` is cleared and `obj_land_y` set (`obj_y`, `obj_y+$0A` for
      kinds 6 and `$0C`, `obj_ground_y` for the airborne animations);
    - if `$0490` went negative the object becomes a dying id (6 or 7 by attack,
-     `0C:81B8`; Belger would become `$9F` at `0C:8211`, a path no run
-     executed), `$54` is incremented and the spawn index is released
+     `0C:81B8`; Belger becomes `$9F` at `0C:8211`, which no route plays
+     (`boss_belger.c`, `boss_belger_end.c`), and a drum, any object with
+     animation `$7B`, becomes the smashed drum `$95` at `0C:821F`), `$54` is
+     incremented and the spawn index is released
      (`0C:822F`);
    - otherwise attacks `$01/$07/$0D/$18` turn it into id 2 (pushed back a
      little) and the heavier ones into id 5 (knocked down, `obj_vy = $038E`),
@@ -338,8 +341,17 @@ bank caveat above). The ones the engine itself relies on:
 | `$2E` | `0C:9D71` | El Gado's knife |
 | `$2C` `$2D` `$2F`, `$36`-`$5F` | `0C:9D9E`-`9F12` | Common enemies' entrances (below) |
 | `$66` | `05:A712` | Dropped weapon |
-| `$74` | `0B:B30C` | Belger |
-| `$80`, `$81`/`$83`, `$90` | banks `$01`, `$03` | Thrasher, Sodom, Abigail |
+| `$70`, `$72` | `0B:B331`, `B5D7` | Bonus stage after the bosses of rounds 2 and 4: its controller (slot `$0F`, put there by `00:94F7`) and its drums (`enemy_drums.c`) |
+| `$74` | `0B:B696` | Belger, two forms (`boss_belger.c`) |
+| `$7B`, `$7D` | `0B:BD7F` | The scene after Belger, Belger's slot (`boss_belger_end.c`) |
+| `$80`, `$81`/`$83` | bank `$01` | Thrasher, Sodom |
+| `$90` | `03:B3F4` | Abigail (`boss_abigail.c`) |
+| `$91`, `$94`, `$95` | `03:BB91`, `BBCB`, `BD46` | Round 1's rolling drum, its invisible dispenser, a smashed drum and the item it leaves (`enemy_drums.c`) |
+| `$9B`-`$9F` | `03:BF38`, `BFBE`, `BF95`, `BF48`, `BED2` | Belger down, Cody's part of the scene, Belger's shot, Belger's fall, Belger killed |
+
+Banks `$03` and `$0B` hold the behaviours of ids `$90-$9F` and `$70-$7F`
+behind a table of sixteen JMPs at `$B300`; the ids not listed above point at
+an RTS (`enemy_tables.c`, `enemy.h`).
 
 The enemy ids from Data Crystal in `docs/ram_map.md` (Poison `20 26 30`, ...) are
 these behaviour ids: `$20-$25`, `$26-$2B` and `$30-$35` are the same six
