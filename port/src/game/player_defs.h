@@ -138,16 +138,20 @@
 /* ---- per-character tables in the fixed bank (3 bytes each) ---- */
 /* animation ids to set (player_set_anim, $F294) */
 #define ANIM_STAND          0xE1E3   /* 01 02 03 (player_stand, $CEAA) */
+#define ANIM_WALK           0xE1E6   /* 04 05 06 */
 #define ANIM_JUMP           0xE1E9   /* 07 08 09 */
 #define ANIM_JUMP_MOVING    0xE1EC   /* 0A 0B 0C: jump with left/right */
 #define ANIM_JUMP_KICK      0xE1FE   /* 1C 1D 1E */
 #define ANIM_KNOCKED_DOWN   0xE20D   /* 2B 2C 2D */
+#define ANIM_GET_UP         0xE210   /* 2E 2F 30 */
 #define ANIM_FALL           0xE219   /* 37 38 39: falling (a jump's descent, a pit) */
 #define ANIM_JUMP_BACK      0xE21C   /* 3A 3B 3C: moving away from the facing side */
 /* CHR banks for the sprite (player_set_chr, $F440) */
+#define CHR_STAND           0xE22B   /* 00 04 08: standing and walking */
 #define CHR_JUMP            0xE22E   /* 01 05 12 */
 #define CHR_JUMP_KICK       0xE243   /* 02 06 13 */
 #define CHR_KNOCKED_DOWN    0xE255   /* 0D 15 12 */
+#define CHR_GET_UP          0xE258   /* 00 04 0B */
 /* walking speed (player_state_idle sets it each frame, 0E:CAA2) */
 #define WALK_VX_FRAC        0xE1C1   /* 4C 80 19 */
 #define WALK_VX             0xE1C4   /* 01 01 01 */
@@ -157,6 +161,7 @@
 #define JUMP_BACK_VX_FRAC   0xE1CD   /* 80 B3 33 */
 #define JUMP_BACK_VX        0xE1D0   /* 01 01 01 */
 /* animation ids to compare with obj_anim */
+#define IS_WALKING          0xE273   /* 04 05 06 */
 #define IS_JUMP_KICK_MOVING 0xE276   /* 1F 20 21 */
 #define IS_JUMP_KICK        0xE279   /* 1C 1D 1E */
 #define IS_JUMP_MOVING      0xE27F   /* 0A 0B 0C */
@@ -187,6 +192,7 @@ void func_F119(void);   /* obj_fall: slot X falls by obj_vy with gravity; C set
 void func_F183(void);   /* obj_move_right: x += vx (slot X) */
 void func_F1A1(void);   /* obj_move_left: x -= vx (slot X) */
 void func_F1BF(void);   /* obj_move_down: y += vy (slot X) */
+void func_F1DF(void);   /* obj_move_up: y -= vy (slot X) */
 void func_F1FD(void);   /* obj_fall: slot X falls by vy with gravity, no floor probe */
 void func_F288(void);   /* obj_set_anim: obj_anim[X] = A, frame and timer 0 */
 void func_F26E(void);   /* the start of a fall: obj_vy = -$40/256 for the player */
@@ -322,5 +328,28 @@ void func_8E3E_b0(void);
 void func_8FAF_b0(void);
 void func_90AC_b0(void);
 void func_90CB_b0(void);
+void func_92E1_b0(void);
+void func_9297_b0(void);
+void func_93EF_b0(void);
+void func_9410_b0(void);
+void func_943F_b0(void);
+void func_945E_b0(void);
+void func_94F2_b0(void);
+void func_94F7_b0(void);
+void func_9565_b0(void);
+void func_958B_b0(void);
+void func_95BA_b0(void);
+void func_95FA_b0(void);
+void func_9610_b0(void);
+void func_9615_b0(void);
+void func_961A_b0(void);
+void func_961F_b0(void);
+void func_963D_b0(void);
+void func_96EF_b0(void);
+void func_97A9_b0(void);
+void func_97C8_b0(void);
+void func_9819_b0(void);
+void func_984F_b0(void);
+void func_987A_b0(void);
 
 #endif

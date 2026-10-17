@@ -877,9 +877,6 @@ void func_90AC_b0(void) {
     RTS();
 }
 
-/* the getting-up animation and CHR bank */
-#define ANIM_GET_UP         0xE210   /* 2E 2F 30 */
-#define CHR_GET_UP          0xE258   /* 00 04 0B */
 /* direction presses that make the player get up sooner, by player_level */
 #define GET_UP_PRESSES      0x9147   /* 14 12 10 0E 0C 0A */
 

@@ -1785,73 +1785,73 @@ bank = 0
 addr = 0x90CB   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x9297   # lifted, lifted_b0.c
+addr = 0x9297   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x92E1   # lifted, lifted_b0.c
+addr = 0x92E1   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x93EF   # lifted, lifted_b0.c
+addr = 0x93EF   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9410   # lifted, lifted_b0.c
+addr = 0x9410   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x943F   # lifted, lifted_b0.c
+addr = 0x943F   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x945E   # lifted, lifted_b0.c
+addr = 0x945E   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x94F2   # lifted, lifted_b0.c
+addr = 0x94F2   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x94F7   # lifted, lifted_b0.c
+addr = 0x94F7   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9565   # lifted, lifted_b0.c
+addr = 0x9565   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x958B   # lifted, lifted_b0.c
+addr = 0x958B   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x95BA   # lifted, lifted_b0.c
+addr = 0x95BA   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x95FA   # lifted, lifted_b0.c
+addr = 0x95FA   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9610   # lifted, lifted_b0.c
+addr = 0x9610   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9615   # lifted, lifted_b0.c
+addr = 0x9615   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x961A   # lifted, lifted_b0.c
+addr = 0x961A   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x961F   # lifted, lifted_b0.c
+addr = 0x961F   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x963D   # lifted, lifted_b0.c
+addr = 0x963D   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x96EF   # lifted, lifted_b0.c
+addr = 0x96EF   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x97A9   # lifted, lifted_b0.c
+addr = 0x97A9   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x97C8   # lifted, lifted_b0.c
+addr = 0x97C8   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9819   # lifted, lifted_b0.c
+addr = 0x9819   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x984F   # lifted, lifted_b0.c
+addr = 0x984F   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x987A   # lifted, lifted_b0.c
+addr = 0x987A   # player_exits.c
 [[replace_func]]
 bank = 0
 addr = 0x9A00   # lifted, lifted_b0.c
