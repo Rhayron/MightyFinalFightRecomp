@@ -199,8 +199,9 @@ are entries of these tables.
 | `$05E0+i` | `obj_ai_count` | AI step/attack counter | Code |
 | `$05F0+i` | `obj_ai_flag` | AI coin flip | Code |
 
-`obj_kind`: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 id `$2E`,
-7 Thrasher, 8 Sodom, 9 Abigail, `$0B` Belger, `$0C` id `$9D`.
+`obj_kind`: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 El
+Gado's knife (id `$2E`), 7 Thrasher, 8 Sodom, 9 Abigail, `$0B` Belger, `$0C` id
+`$9D`, `$0D` Sodom's pieces (never executed).
 
 Slot 0 is the player (`$0360` x, `$03C0` y, as Data Crystal says). Enemies
 take slots `$0D` and `$0C` first (both spawners search down from `$0D`), up to
@@ -254,6 +255,8 @@ pushed back, 3/5 knocked down, 4/8/`$0E`/`$0F` thrown bodies, 6/7/`$16` dying,
 | AxL | `23` `29` `33` |
 | El Gado | `24` `2A` `34` |
 | Andore | `25` `2B` `35` |
+| El Gado's knife | `2E` |
+| Entrances: Andore charging in, dropping in, standing, sitting (`docs/objects.md`, "The common enemies") | `2C` `2D` `2F`, `36`-`5F` |
 | Thrasher (boss) | `80` |
 | Sodom easy / hard | `81` / `83` |
 | Abigail | `90` |

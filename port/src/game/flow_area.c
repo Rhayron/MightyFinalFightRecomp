@@ -84,8 +84,8 @@ void func_C1DF(void) {
  * area_load_sprite_set ($C527).
  * In: round_tables, sub_area, player_id, area_palette.
  * Callers: round_start_wait at 0E:C79D (in this port, the copies of it in
- * main_task's entries, lifted_c.c) and the next-area code at 0F:E04B
- * (func_E03B, and lifted_d.c's func_DF50/func_DFE9, which run the same code
+ * main_task's entries, flow_main_task.c) and the next-area code at 0F:E04B
+ * (func_E03B, and player_round.c's func_DF50/func_DFE9, which run the same code
  * from its start in bank 0E).
  */
 void func_C3DD(void) {
@@ -458,8 +458,8 @@ void func_C527(void) {
  * [player_id]) and chr_banks+2 = PLAYER_CHR_STAND[player_id] (0F:F440).
  * In: player_id. Out: A = that CHR bank, Y = player_id.
  * Callers: round_start_wait at 0E:C7D7 (the main_task copies in
- * lifted_c.c) and the next-area code at 0F:E077 (func_E03B, and
- * lifted_d.c's func_DF50/func_DFE9), after area_load_graphics and placing
+ * flow_main_task.c) and the next-area code at 0F:E077 (func_E03B, and
+ * player_round.c's func_DF50/func_DFE9), after area_load_graphics and placing
  * the player.
  */
 void func_C8B4(void) {
