@@ -106,9 +106,9 @@
 #define SND_CMD_STOP_MUSIC   0xF2
 #define SND_CMD_PAUSE        0xF3
 #define SND_CMD_RESUME       0xF4
-#define SND_CMD_FADE_IN      0xF5   /* Y = the speed; $F5-$F7 are never used */
-#define SND_CMD_FADE_OUT     0xF6   /* and have no lifted routine: they run */
-#define SND_CMD_PITCH_SCALE  0xF7   /* in the interpreter */
+#define SND_CMD_FADE_IN      0xF5   /* Y = the speed; the game never sends */
+#define SND_CMD_FADE_OUT     0xF6   /* $F5-$F7 */
+#define SND_CMD_PITCH_SCALE  0xF7   /* Y = the scale */
 #define SND_EFFECT_LOOPS     0x80   /* an effect's first byte: bit 7 loop, bits 0-6 priority */
 
 /* ---- music stream opcodes ($00-$18; notes $20-$FF) */
@@ -175,9 +175,12 @@
 
 /* routines another one runs into (the 6502 falls through or branches
  * there; the lifted copies of their code became C calls) */
+void func_8118_b3(void);
 void func_81C8_b3(void);
 void func_81D4_b3(void);
 void func_81F1_b3(void);
+void func_8234_b3(void);
+void func_825B_b3(void);
 void func_8326_b3(void);
 void func_83CD_b3(void);
 void func_847E_b3(void);

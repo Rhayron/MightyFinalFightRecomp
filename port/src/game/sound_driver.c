@@ -363,22 +363,11 @@ void func_80FE_b3(void) {
     mff_rts();
 }
 
-/* snd_command, $8106: one command.
- *  - $F0-$FF go to snd_special (JMP);
- *  - from the table's size ($36, at $8A40) up the command wraps around
- *    (never happens);
- *  - snd_start ($8118): the data pointer, big-endian at $8A43 + 2 * cmd;
- *    null ($10, $11): nothing. A first data byte of 0 starts a song
- *    (snd_music_start, $816F); anything else is an effect: its priority
- *    (bits 0-6) must be at least the current one ($CE), and the start
- *    clears the effect's channel state ($0700-$0727) and $D2-$D5, with
- *    $D0/$D1 pointing after the priority byte. A looping effect (bit 7,
- *    none in the game) also gets $D6 bit 7 and $D7 = 2 * cmd + 1; one of the
- *    same priority as a looping one playing clears $D7.
- * In: A = the command. Out: from the path taken (the song start ends in
- * snd_silence_free).
- * Callers: snd_play_body; snd_effect_row runs snd_start ($8118) again for
- * a looping effect (no lifted routine: the interpreter does it). */
+/* snd_command, $8106: one command. $F0-$FF go to snd_special (JMP); from
+ * the table's size ($36, at $8A40) up the command wraps around (never
+ * happens); the rest falls into snd_start.
+ * In: A = the command. Out: from snd_special or snd_start.
+ * Caller: snd_play_body. */
 void func_8106_b3(void) {
     REGS_IN;
     mff_cycles(0x8106, 4);
@@ -405,8 +394,23 @@ void func_8106_b3(void) {
         mff_cycles(0x8116, 2 + 1);              /* BCS back */
     }
     mff_cycles(0x8110, 1);
+    SYNC_OUT;
+    func_8118_b3();
+}
 
-    /* snd_start */
+/* snd_start, $8118: command A ($00-$35). The data pointer is big-endian at
+ * $8A43 + 2 * cmd; a null one ($10, $11) does nothing. A first data byte of
+ * 0 starts a song (snd_music_start, $816F); anything else is an effect: its
+ * priority (bits 0-6) must be at least the current one ($CE), and the start
+ * clears the effect's channel state ($0700-$0727) and $D2-$D5, with $D0/$D1
+ * pointing after the priority byte. A looping effect (bit 7, none in the
+ * game) also gets $D6 bit 7 and $D7 = 2 * cmd + 1; one of the same priority
+ * as a looping one playing clears $D7.
+ * Out: from the path taken (the song start ends in snd_silence_free).
+ * Callers: snd_command (fall through), snd_effect_row (a looping effect
+ * starts again). */
+void func_8118_b3(void) {
+    REGS_IN;
     mff_cycles(0x8118, 8);
     c = a >> 7;
     a = (uint8_t)(a << 1);
@@ -578,11 +582,10 @@ void func_8106_b3(void) {
 /* snd_special, $81AE: commands $F0-$FF. Keeps the caller's Y in $C3 (the
  * argument of $F5-$F7) and jumps through the table at $81B5 with A & 7:
  * $F0 snd_stop_all, $F1 snd_effect_stop, $F2 snd_music_stop, $F3
- * snd_music_pause, $F4 snd_music_resume, $F5 fade in ($822D), $F6 fade out
- * ($8234), $F7 effect pitch scale ($824A); the last three were never lifted
- * (no route runs them) and run in the interpreter. $F8-$FF repeat them.
- * The target returns to snd_play_body. Through the queue, Y is whatever
- * the game had in Y when sound_update ran.
+ * snd_music_pause, $F4 snd_music_resume, $F5 snd_fade_in, $F6 snd_fade_out,
+ * $F7 snd_pitch_scale (the game never sends the last three). $F8-$FF
+ * repeat them. The target returns to snd_play_body. Through the queue, Y
+ * is whatever the game had in Y when sound_update ran.
  * Caller: snd_command (JMP). */
 void func_81AE_b3(void) {
     REGS_IN;
@@ -757,6 +760,86 @@ void func_8226_b3(void) {
     a = RAM(SND_FLAGS) & (uint8_t)~SND_FLAG_PAUSED;
     NZ(a);
     RAM(SND_FLAGS) = a;
+    SYNC_OUT;
+    mff_rts();
+}
+
+/* snd_fade_in, $822D: command $F5 (never sent by the game). The speed
+ * in $C3 (the caller's Y) gets bit 7, the fade-in flag (ASL, then SEC /
+ * ROR unless that gave 0), and the rest is snd_fade_out's (fall through).
+ * Caller: snd_special. */
+void func_822D_b3(void) {
+    REGS_IN;
+    mff_cycles(0x822D, 7);
+    c = RAM(SND_ARG) >> 7;
+    RAM(SND_ARG) <<= 1;
+    if (RAM(SND_ARG) != 0) {
+        mff_cycles(0x8231, 7);
+        m = RAM(SND_ARG) & 1;
+        RAM(SND_ARG) = (uint8_t)(RAM(SND_ARG) >> 1 | SND_FADE_IN);
+        c = m;
+    } else {
+        mff_cycles(0x822F, 1);
+    }
+    SYNC_OUT;
+    func_8234_b3();
+}
+
+/* snd_fade_out, $8234: command $F6 (never sent by the game), $C3 = the
+ * speed (bit 7: fade in, bits 0-6: the step). Clears the fade fraction
+ * ($C0 bits 4-7) and stores the speed in $CC. The level $CD restarts at 0
+ * when the speed is 0 (no fade) or the last fade had finished ($CD = $FF);
+ * otherwise the new fade goes on from where the old one was. sound_tick
+ * advances it, snd_output applies it.
+ * Out: Y = the speed, or the level when it is written; N, Z from it.
+ * Callers: snd_special, snd_fade_in (fall through). */
+void func_8234_b3(void) {
+    REGS_IN;
+    mff_cycles(0x8234, 16);
+    a = RAM(SND_FLAGS) & 0x0F;
+    RAM(SND_FLAGS) = a;
+    y = RAM(SND_ARG);
+    NZ(y);
+    RAM(SND_FADE_SPEED) = y;
+    if (z) {
+        mff_cycles(0x823E, 1);
+    } else {
+        mff_cycles(0x8240, 7);
+        y = 0xFF;
+        CMP(y, RAM(SND_FADE_LEVEL));
+        if (!z) {
+            mff_cycles(0x8244, 1 + 6);
+            SYNC_OUT;
+            mff_rts();
+            return;
+        }
+        mff_cycles(0x8246, 2);
+        y++;
+        NZ(y);
+    }
+    mff_cycles(0x8247, 3);
+    RAM(SND_FADE_LEVEL) = y;
+    mff_cycles(0x8249, 6);
+    SYNC_OUT;
+    mff_rts();
+}
+
+/* snd_pitch_scale, $824A: command $F7 (never sent by the game): $D8 =
+ * -$C3, the scale snd_output applies to the pitch of a looping effect's
+ * channels.
+ * Out: A = $D8, N, Z, C, V from the subtraction.
+ * Caller: snd_special. */
+void func_824A_b3(void) {
+    REGS_IN;
+    mff_cycles(0x824A, 16);
+    a = 0;
+    m = RAM(SND_ARG);
+    w = a - m;
+    v = ((a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w >= 0;
+    a = (uint8_t)w;
+    NZ(a);
+    RAM(SND_EFFECT_PITCH_SCALE) = a;
     SYNC_OUT;
     mff_rts();
 }

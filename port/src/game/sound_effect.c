@@ -14,20 +14,8 @@
 
 /* snd_effect_step, $8252: counts the current row down ($D3; $D5, the frames
  * until the notes release, with it) and on its last frame reads the next
- * row (snd_effect_row, $825B):
- *  - header bit 7: the effect ends ($CE = 0); a looping one is started
- *    again (snd_start with $D7 >> 1, then the next row: through the
- *    interpreter, no effect loops), the others go to snd_effect_stop;
- *  - bit 0: cc hh ll, jump to hhll cc times ($D6 bits 0-6 count the
- *    passes, bit 7 keeps the loop flag; cc = 0 jumps always) and read the
- *    row there;
- *  - bit 1: the gate ratio $D4; bit 2: the transpose $D2 (unused);
- *  - nn: the row lasts nn + 1 frames ($D3 = nn); its notes release after
- *    ($D3 * $D4 >> 8) + 1 frames ($D5);
- *  - mm: the channels it owns. $C0 bit 0 is set (INC: the channels parse
- *    their entries this frame) and, if the mask changed, the channels that
- *    changed hands are given back (snd_release_changed). $CF = mm.
- * Out: A = $CF (N, Z from it) after a row; after the count, N, Z from $D5.
+ * row (snd_effect_row).
+ * Out: after the count, N, Z from $D5; else from snd_effect_row.
  * Caller: snd_tick_body, while $D0/$D1 is not 0. */
 void func_8252_b3(void) {
     REGS_IN;
@@ -44,6 +32,28 @@ void func_8252_b3(void) {
         return;
     }
     mff_cycles(0x8254, 1);
+    SYNC_OUT;
+    func_825B_b3();
+}
+
+/* snd_effect_row, $825B: reads the effect's next row:
+ *  - header bit 7: the effect ends ($CE = 0); a looping one (none in the
+ *    game) is started again (snd_start with $D7 >> 1) and its first row
+ *    read, the others go to snd_effect_stop;
+ *  - bit 0: cc hh ll, jump to hhll cc times ($D6 bits 0-6 count the
+ *    passes, bit 7 keeps the loop flag; cc = 0 jumps always) and read the
+ *    row there;
+ *  - bit 1: the gate ratio $D4; bit 2: the transpose $D2 (unused);
+ *  - nn: the row lasts nn + 1 frames ($D3 = nn); its notes release after
+ *    ($D3 * $D4 >> 8) + 1 frames ($D5);
+ *  - mm: the channels it owns. $C0 bit 0 is set (INC: the channels parse
+ *    their entries this frame) and, if the mask changed, the channels that
+ *    changed hands are given back (snd_release_changed). $CF = mm.
+ * Out: A = $CF (N, Z from it).
+ * Callers: snd_effect_step (fall through), and itself after a relaunch
+ * (JMP $825B, a loop here). */
+void func_825B_b3(void) {
+    REGS_IN;
 
     for (;;) {
         int jump;
@@ -70,10 +80,8 @@ void func_8252_b3(void) {
                 if (!mff_call_at(0x026C, 0x8118, 3)) return;
                 SYNC_IN;
                 mff_cycles(0x826D, 3);
-                SYNC_OUT;
                 nes_cpu_instruction_boundary(0x825B, 2);
-                call_by_address_tail(0x825B, 3);
-                return;
+                continue;
             }
             mff_cycles(0x8268, 1 + 3);
             SYNC_OUT;
