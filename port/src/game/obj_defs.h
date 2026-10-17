@@ -233,6 +233,12 @@ void func_8E5A_b6(void);
 void func_8EB4_b6(void);
 void func_8EE5_b6(void);
 void func_8F45_b6(void);
+void func_8FF9_b6(void);
+void func_917E_b6(void);
+void func_9199_b6(void);
+void func_9276_b6(void);
+void func_92F0_b6(void);
+void func_930B_b6(void);
 
 /* ---- shared copies (obj_common.c) ---- */
 void obj_phase_jump(uint16_t pc, uint16_t lo, uint16_t hi);
