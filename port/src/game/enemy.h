@@ -47,27 +47,20 @@
 
 /* ---- calls and jumps inside a behaviour bank ----
  * Through the dispatcher, as the lifted code made them: a JSR pushes
- * site + 2 (in the $A000 window) and dispatches; a JMP charges 3 cycles,
- * 2 more at the target, and leaves. */
+ * site + 2 (in the $A000 window) and dispatches; a JMP, its 3 cycles
+ * charged with the code before, charges 2 more at the target and leaves. */
 #define CALL_IN(site, target, bank) do { \
         SYNC_OUT; \
         if (!mff_call_at((uint16_t)(((site) + 2) & 0x1FFF), target, bank)) return; \
         SYNC_IN; \
     } while (0)
-#define JMP_IN(pc, target, bank) do { \
-        mff_cycles(pc, 3); \
-        SYNC_OUT; \
-        nes_cpu_instruction_boundary(target, 2); \
-        call_by_address_tail(target, bank); \
-        return; \
-    } while (0)
-/* the same JMPs with their 3 cycles already charged with the code before */
 #define GO_IN(target, bank) do { \
         SYNC_OUT; \
         nes_cpu_instruction_boundary(target, 2); \
         call_by_address_tail(target, bank); \
         return; \
     } while (0)
+/* the same JMP to a bank-0F routine, run in the $E000 window */
 #define GO_FIXED(target, fn) do { \
         SYNC_OUT; \
         nes_cpu_instruction_boundary(target, 2); \
@@ -101,14 +94,9 @@
 
 /* obj_flags ($0560) bits (docs/objects.md) */
 #define OBJF_FACE_RIGHT 0x40    /* the art faces left: mirrored */
-#define OBJF_WORLD      0x10    /* obj_x/obj_x_hi are world coordinates */
 #define OBJF_HIDDEN     0x04    /* neither drawn nor hit */
 
-/* obj_attack ($0440): bit 7 = out, bits 0-4 the reach box */
-#define ATTACK_OUT      0x80
-
-/* the sprite bank registers (chr_banks+2..+5 = MMC3 R2-R5) */
-#define CHR_BANK2       (CHR_BANKS + 2)
+/* sprite bank register R4 (chr_banks+4) */
 #define CHR_BANK4       (CHR_BANKS + 4)
 
 /* game_action ($30) values these behaviours test or set (docs/ram_map.md) */
@@ -130,6 +118,5 @@ void func_F048(void);   /* player_face_left: slot 0's obj_flags &= ~$40 */
 void func_F1BF(void);   /* obj_move_down: y += obj_vy */
 void func_F1DF(void);   /* obj_move_up: y -= obj_vy */
 void func_F34A(void);   /* sound_queue_push (music): A = command */
-void func_E954(void);   /* hud_level_gauge */
 
 #endif
