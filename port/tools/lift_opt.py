@@ -14,9 +14,9 @@ flat list of statements (labels, gotos and one-line branches) this:
    reader: "z = (a) == 0; if (z) ..." becomes "if (a == 0) ...", and a
    compare's "m = 0x06" goes into the condition too.
 
-Registers and flags still reach g_cpu exactly at calls and exits (SYNC_OUT
-reads them all), so the routine's behaviour does not change; the routes
-check it.
+Registers and flags still reach g_cpu at calls and exits: all of them
+(SYNC_OUT) or the ones the lifter's summaries say cross (g_cpu.X = x; ...),
+which are joined back on one line at the end; the routes check it.
 """
 import re
 
@@ -28,6 +28,34 @@ ASSIGN = re.compile(r"^([axynzcvmtw])\s*(=|\+=|-=|&=|\|=|\^=)\s*(.*);$")
 INCDEC = re.compile(r"^([axyt])(\+\+|--);$")
 CBRANCH = re.compile(r"^if \((.+?)\) \{ (mff_cycles\(0x[0-9A-F]{4}, \d+\);) goto L_([0-9A-F]{4}); \}$")
 SIDE = re.compile(r"\b(hw_read|mem_read|mff_pull|mff_call|nes_|call_by|func_|coroutine)")
+# the syncs the lifter writes when it knows what crosses (lift.py OUT/IN)
+STORE = re.compile(r"^g_cpu\.[AXYNZCV] = (?:\(uint8_t\))?[axynzcv];$")
+LOAD = re.compile(r"^[axynzcv] = g_cpu\.[AXYNZCV];$")
+STORE_IN = re.compile(r"g_cpu\.[AXYNZCV] = (?:\(uint8_t\))?([axynzcv]);")
+
+
+def split_if(s):
+    """'if (COND) REST' -> (COND, REST), parentheses balanced."""
+    d = 0
+    for i in range(3, len(s)):
+        d += s[i] == "("
+        d -= s[i] == ")"
+        if d == 0:
+            return s[4:i], s[i + 1:]
+    return s[4:], ""
+
+
+def join_syncs(lines):
+    """Put the register stores (or loads) of one sync back on one line."""
+    out, kinds = [], []
+    for s in lines:
+        k = "store" if STORE.match(s) else "load" if LOAD.match(s) else None
+        if k and kinds and kinds[-1] == k:
+            out[-1] += " " + s
+        else:
+            out.append(s)
+            kinds.append(k)
+    return out
 
 
 def atomize(s):
@@ -58,8 +86,12 @@ def info(s):
     if "FLAGS_IN" in s:
         return set(FLAGSET), set(), "other"
     if s.startswith("if ("):
-        # a branch that leaves (tail call): SYNC_OUT inside reads everything
-        return set(), set(ALL), "exitbranch" if "return;" in s else "other"
+        # a branch that leaves (a tail call, a bail-out after a call): it reads
+        # its condition and what it hands over in g_cpu (SYNC_OUT: everything)
+        cond, rest = split_if(s)
+        uses = set(WORD.findall(cond))
+        uses |= set(ALL) if "SYNC_OUT" in rest else set(STORE_IN.findall(rest))
+        return set(), uses, "exitbranch" if "return;" in s else "other"
     m = ASSIGN.match(s)
     if m and "{" not in s:
         var, op, rhs = m.groups()
@@ -242,4 +274,4 @@ def optimize(lines):
         flat.extend(atomize(s))
     flat = dce(flat)
     flat = fold(flat)
-    return dce(flat)
+    return join_syncs(dce(flat))

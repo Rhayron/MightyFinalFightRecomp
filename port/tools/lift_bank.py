@@ -33,7 +33,7 @@ def groups(bank):
     return [(f"lifted_b{bank}.c", 0x8000, 0xC000)]
 
 
-def lift_into(a, rom, base, keep, hand, extra, skip, gen, names):
+def lift_into(a, rom, base, keep, hand, extra, skip, gen, names, summ):
     """--into: the --extra entries of a.banks that are neither lifted nor
     hand-written yet go to one file, after the routines it already has."""
     have = set()
@@ -43,6 +43,7 @@ def lift_into(a, rom, base, keep, hand, extra, skip, gen, names):
     chunks, protos, done = [], set(), []
     for bank in sorted({b for b, _ in todo}):
         lf = lift.Lifter(rom, bank, gen, names)
+        lf.summ = summ
         lf.stops = {addr for b, addr in hand if b == bank}
         for b, addr in todo:
             if b != bank:
@@ -86,6 +87,9 @@ def main():
     ap.add_argument("--into", help="lift only the --extra entries the port does not have yet, all "
                     "into this file of port/src/game (added to what it has), and leave every other "
                     "lifted entry alone (port/tools/find_entries.py --names-out lists them)")
+    ap.add_argument("--full-syncs", action="store_true",
+                    help="every call and exit syncs all registers (default: what runs/p4/exit_use.json "
+                         "says crosses, when it exists; port/tools/exit_use.py writes it)")
     a = ap.parse_args()
     skip = {int(s, 16) for s in a.skip.split(",") if s}
     extra = set()
@@ -104,10 +108,11 @@ def main():
         hand.add((int(m.group(1)) if m.group(1) else lift.FIXED, int(m.group(2), 16)))
     gen = lift.Generated(os.path.join(ROOT, "runs", "p4", "pure", "generated"))
     names = lift.Names()
+    summ = None if a.full_syncs else lift.load_summaries()
     keep = [m.group(0) for m in LIFTED.finditer(base)]
     entries = []
     if a.into:
-        lift_into(a, rom, base, keep, hand, extra, skip, gen, names)
+        lift_into(a, rom, base, keep, hand, extra, skip, gen, names, summ)
         return
     for bank in a.banks:
         # drop the old lifted entries of this bank
@@ -116,6 +121,7 @@ def main():
         starts = sorted({f["addr"] for f in game["extra_func"] if f["bank"] == bank} |
                         {addr for b, addr in extra if b == bank})
         lf = lift.Lifter(rom, bank, gen, names)
+        lf.summ = summ
         lf.stops = {addr for b, addr in hand if b == bank}
         for fname, lo, hi in groups(bank):
             chunks, done = [], []

@@ -16,8 +16,10 @@ the same thing:
   whether it checks the stack, coroutine yields;
 - one charge per straight run of instructions, cut after every hardware
   access (the access then happens at the cycle it did) and at every call;
-- A/X/Y and the flags in locals, synced with g_cpu at calls and exits; a
-  flag computation no path reads is left out.
+- A/X/Y and the flags in locals, synced with g_cpu at calls and exits:
+  only the ones the callee reads or the caller reads back when
+  runs/p4/exit_use.json (port/tools/exit_use.py) says so, all of them
+  otherwise; a flag computation no path reads is left out.
 
 The output is then exact by construction and port/tests/run_routes.sh
 proves it; what it is not yet is idiomatic - loops and ifs come out as
@@ -26,6 +28,7 @@ coroutine starts, RTS used as a jump) are refused with a reason.
 """
 import argparse
 import glob
+import json
 import os
 import re
 import sys
@@ -48,6 +51,19 @@ BRANCH = {"BPL": ("n", False), "BMI": ("n", True), "BVC": ("v", False), "BVS": (
 
 
 FLAGS = {"n", "z", "c", "v"}
+CPU_REGS = ("a", "x", "y", "n", "z", "c", "v")
+OUT = {"a": "g_cpu.A = a;", "x": "g_cpu.X = x;", "y": "g_cpu.Y = y;", "n": "g_cpu.N = (uint8_t)n;",
+       "z": "g_cpu.Z = (uint8_t)z;", "c": "g_cpu.C = (uint8_t)c;", "v": "g_cpu.V = (uint8_t)v;"}
+IN = {"a": "a = g_cpu.A;", "x": "x = g_cpu.X;", "y": "y = g_cpu.Y;", "n": "n = g_cpu.N;",
+      "z": "z = g_cpu.Z;", "c": "c = g_cpu.C;", "v": "v = g_cpu.V;"}
+SUMMARIES = os.path.join(ROOT, "runs", "p4", "exit_use.json")
+
+
+def load_summaries(path=SUMMARIES):
+    """port/tools/exit_use.py's summaries: name -> (entry registers, exit registers)."""
+    if not path or not os.path.exists(path):
+        return None
+    return {k: (frozenset(v["entry"]), frozenset(v["exit"])) for k, v in json.load(open(path)).items()}
 
 
 class Refuse(Exception):
@@ -184,6 +200,22 @@ class Lifter:
         self.calls = set()          # prototypes needed
         self.stops = set()          # entries written by hand: reaching one is a tail call
         self.flat = False           # True: labels and gotos, no if/loop structuring
+        self.summ = None            # load_summaries(): syncs carry only what is read
+
+    def names_at(self, addr, bank):
+        """The routines a dispatch to addr can reach (bank -1: whichever is mapped)."""
+        if addr >= 0xC000:
+            return [f"func_{addr:04X}"]
+        if bank is not None and bank >= 0:
+            return [f"func_{addr:04X}_b{bank}"]
+        return [n for n in (f"func_{addr:04X}_b{b}" for b in range(FIXED)) if n in (self.summ or {})]
+
+    def need(self, names, which):
+        """The registers a sync has to carry for these routines (which: 0 their
+        entry, 1 their exit); all of them when a summary is missing."""
+        if self.flat or not self.summ or not names or any(n not in self.summ for n in names):
+            return set(CPU_REGS)
+        return set().union(*(self.summ[n][which] for n in names))
 
     def byte(self, pc):
         if pc >= 0xC000:
@@ -505,11 +537,25 @@ class Lifter:
         def add(s, defs=set(), uses=set()):
             lines.append([s, set(defs), set(uses), None])
 
-        def sync_all():
-            add("SYNC_OUT", set(), FLAGS)
+        def sync_out(regs=CPU_REGS):
+            if set(regs) >= set(CPU_REGS):
+                add("SYNC_OUT", set(), FLAGS)
+            elif regs:
+                add(" ".join(OUT[r] for r in CPU_REGS if r in regs), set(), set(regs) & FLAGS)
 
-        def reload_all():
-            add("SYNC_IN", FLAGS, set())
+        def sync_all():
+            sync_out()
+
+        def reload(regs=CPU_REGS):
+            if set(regs) >= set(CPU_REGS):
+                add("SYNC_IN", FLAGS, set())
+            elif regs:
+                add(" ".join(IN[r] for r in CPU_REGS if r in regs), set(regs) & FLAGS, set())
+
+        def out_inline(regs):
+            if set(regs) >= set(CPU_REGS):
+                return "SYNC_OUT; "
+            return "".join(OUT[r] + " " for r in CPU_REGS if r in regs)
 
         seg, seg_at = 0, None
 
@@ -557,15 +603,17 @@ class Lifter:
                         set(), {use})
                 else:
                     t, b = ins["tail"]
-                    add(f"if ({cond}) {{ mff_cycles(0x{pc:04X}, {ins['taken']}); SYNC_OUT_INLINE "
+                    regs = self.need(self.names_at((pc & 0xE000) | t, b), 0)
+                    add(f"if ({cond}) {{ mff_cycles(0x{pc:04X}, {ins['taken']}); {out_inline(regs)}"
                         f"call_by_address_tail((uint16_t)(g_code_window_base + 0x{t:04X}), {b}); return; }}",
-                        set(), {use} | FLAGS)
+                        set(), {use} | (set(regs) & FLAGS))
                 prev_end = False
                 continue
             if mn == "JSR":
                 flush()
-                sync_all()
                 kind = ins["call"]
+                callees = self.names_at(kind[1], kind[2]) if kind[0] == "dispatch" else [kind[1]]
+                sync_out(self.need(callees, 0))
                 site = pc
                 if kind[0] == "dispatch":
                     call = f"mff_call_at(0x{ins['ret']:04X}, 0x{kind[1]:04X}, {kind[2]})"
@@ -577,13 +625,13 @@ class Lifter:
                     add(f"if (!{call}) return;")
                 else:
                     add(f"{call};")
-                reload_all()
+                reload(self.need(callees, 1))
                 prev_end = False
                 continue
             if mn == "STOP":
                 flush()
-                sync_all()
                 fn = f"func_{pc:04X}" + ("" if self.bank == FIXED else f"_b{self.bank}")
+                sync_out(self.need([fn], 0))
                 add(f"{{ void {fn}(void); {fn}(); }} return;   /* written by hand */")
                 prev_end = True
                 continue
@@ -594,7 +642,7 @@ class Lifter:
                 continue
             if mn == "RTS":
                 flush()
-                sync_all()
+                sync_out(self.need([fname], 1))
                 add("mff_rts(); return;")
                 prev_end = True
                 continue
@@ -627,8 +675,8 @@ class Lifter:
                         f"call_by_address(jt); call_by_address_tail(0x{ins['cont']:04X}, {ins['bankarg']}); return; }}")
                 else:
                     flush()
-                    sync_all()
                     call = ins["call"]
+                    sync_out(self.need([call[1]] if call[0] == "direct" else self.names_at(call[1], call[2]), 0))
                     pre = f"nes_cpu_instruction_boundary(0x{ins['arg']:04X}, {ins['extra']}); " if ins["extra"] else ""
                     if call[0] == "direct":
                         self.calls.add(call[1])
@@ -690,13 +738,12 @@ class Lifter:
             out = set()
             for j in succ[i]:
                 out |= live_in[j]
-            if re.match(r"[nzcv] = ", s) and s[0] not in out:
+            if re.match(r"[nzcv] = ", s) and d and d <= flags and not (d & out):
                 continue
             if s == "SYNC_OUT":
                 s = "SYNC_OUT;"
             elif s == "SYNC_IN":
                 s = "SYNC_IN;"
-            s = s.replace("SYNC_OUT_INLINE ", "SYNC_OUT; ")
             body.append(s)
         label = self.nm.label(entry, self.bank)
         out = [f"/* {label or ''} ${entry:04X}{'' if self.bank == FIXED else f' (bank {self.bank})'}"
@@ -727,6 +774,7 @@ def main():
     gen = Generated(a.gen)
     names = Names()
     lf = Lifter(rom, a.bank, gen, names)
+    lf.summ = load_summaries()
     chunks, ok = [], []
     for s in a.addr:
         addr = int(s, 16)
