@@ -143,55 +143,55 @@ addr = 0xC8ED   # gameplay, gameplay.c (lifted)
 addr = 0xC9A7   # gameplay_frame_end, gameplay.c (lifted)
 [[replace_func]]
 bank = 1
-addr = 0xB300   # lifted, lifted_b1.c
+addr = 0xB300   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB303   # lifted, lifted_b1.c
+addr = 0xB303   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB306   # lifted, lifted_b1.c
+addr = 0xB306   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB309   # lifted, lifted_b1.c
+addr = 0xB309   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB30C   # lifted, lifted_b1.c
+addr = 0xB30C   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB30F   # lifted, lifted_b1.c
+addr = 0xB30F   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB312   # lifted, lifted_b1.c
+addr = 0xB312   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB315   # lifted, lifted_b1.c
+addr = 0xB315   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB318   # lifted, lifted_b1.c
+addr = 0xB318   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB31B   # lifted, lifted_b1.c
+addr = 0xB31B   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB31E   # lifted, lifted_b1.c
+addr = 0xB31E   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB321   # lifted, lifted_b1.c
+addr = 0xB321   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB324   # lifted, lifted_b1.c
+addr = 0xB324   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB327   # lifted, lifted_b1.c
+addr = 0xB327   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB32A   # lifted, lifted_b1.c
+addr = 0xB32A   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB32D   # lifted, lifted_b1.c
+addr = 0xB32D   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB330   # lifted, lifted_b1.c
+addr = 0xB330   # enemy_tables.c
 [[replace_func]]
 bank = 1
 addr = 0xB331   # lifted, lifted_b1.c
@@ -494,55 +494,55 @@ bank = 5
 addr = 0x9C00   # lifted, lifted_b5.c
 [[replace_func]]
 bank = 5
-addr = 0xB300   # lifted, lifted_b5.c
+addr = 0xB300   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB303   # lifted, lifted_b5.c
+addr = 0xB303   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB306   # lifted, lifted_b5.c
+addr = 0xB306   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB309   # lifted, lifted_b5.c
+addr = 0xB309   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB30C   # lifted, lifted_b5.c
+addr = 0xB30C   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB30F   # lifted, lifted_b5.c
+addr = 0xB30F   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB312   # lifted, lifted_b5.c
+addr = 0xB312   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB315   # lifted, lifted_b5.c
+addr = 0xB315   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB318   # lifted, lifted_b5.c
+addr = 0xB318   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB31B   # lifted, lifted_b5.c
+addr = 0xB31B   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB31E   # lifted, lifted_b5.c
+addr = 0xB31E   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB321   # lifted, lifted_b5.c
+addr = 0xB321   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB324   # lifted, lifted_b5.c
+addr = 0xB324   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB327   # lifted, lifted_b5.c
+addr = 0xB327   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB32A   # lifted, lifted_b5.c
+addr = 0xB32A   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB32D   # lifted, lifted_b5.c
+addr = 0xB32D   # enemy_tables.c
 [[replace_func]]
 bank = 5
-addr = 0xB330   # lifted, lifted_b5.c
+addr = 0xB330   # enemy_tables.c
 [[replace_func]]
 bank = 5
 addr = 0xB331   # enemy_drums.c
