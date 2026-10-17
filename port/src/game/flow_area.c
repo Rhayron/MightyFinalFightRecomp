@@ -27,6 +27,7 @@
 #include "flow.h"
 
 void func_C44F(void);
+void func_C4A5(void);
 
 /*
  * map_round_bank ($C1DF, proposed name)
@@ -267,11 +268,44 @@ void func_C44F(void) {
 }
 
 /*
+ * The copies of area_load_bg_palette's second loop ($C4A5, $C4D6, $C507,
+ * $31 bytes apart, each reading its own record), with Y = the offset of
+ * the set's slots and X = 0: four palette animation slots, bg_pal_anim_on =
+ * bit 7, bg_pal_anim_script = bits 0-6, step and timer 0. Then JMP $C527.
+ */
+static void area_copy_anim_slots(int area) {
+    REGS_IN;
+    uint16_t pc = (uint16_t)(0xC4A5 + 0x31 * area);
+    uint16_t set_base = (uint16_t)(AREA_RECORD(area) + AREA_REC_BG_PALETTE);
+
+    for (;;) {
+        mff_cycles(pc, 4);
+        a = prg_read((uint16_t)(set_base + y));
+        mff_cycles(pc + 3, 41);
+        mff_push(a);
+        RAM(BG_PAL_ANIM_ON + x) = a & 0x80;
+        a = mff_pull() & 0x7F;
+        RAM(BG_PAL_ANIM_SCRIPT + x) = a;
+        a = 0;
+        RAM(BG_PAL_ANIM_STEP + x) = a;
+        RAM(BG_PAL_ANIM_TIMER + x) = a;
+        y++;
+        x++;
+        c = x >= 4;
+        SET_NZ(x - 4);
+        if (z) break;
+        mff_cycles(pc, 1);
+    }
+    mff_cycles(pc + 0x1D, 3);               /* JMP $C527 */
+    SYNC_OUT;
+    nes_cpu_instruction_boundary(0xC527, 2); call_by_address_tail(0xC527, -1); return;
+}
+
+/*
  * The copies of area_load_bg_palette's two loops ($C494, $C4C5, $C4F6, $31
  * bytes apart, each reading its own record), with Y = the set's offset and
  * X = 0: 16 colors into palette_buf and palette_base $00-$0F (background
- * palettes 0-3), then four palette animation slots: bg_pal_anim_on = bit 7,
- * bg_pal_anim_script = bits 0-6, step and timer 0. Then JMP $C527.
+ * palettes 0-3), then the palette animation slots (area_copy_anim_slots).
  */
 static void area_copy_bg_palette(int area) {
     REGS_IN;
@@ -291,27 +325,8 @@ static void area_copy_bg_palette(int area) {
     }
     mff_cycles(pc + 0x0F, 2);
     x = 0;
-    for (;;) {
-        mff_cycles(pc + 0x11, 4);
-        a = prg_read((uint16_t)(set_base + y));
-        mff_cycles(pc + 0x14, 41);
-        mff_push(a);
-        RAM(BG_PAL_ANIM_ON + x) = a & 0x80;
-        a = mff_pull() & 0x7F;
-        RAM(BG_PAL_ANIM_SCRIPT + x) = a;
-        a = 0;
-        RAM(BG_PAL_ANIM_STEP + x) = a;
-        RAM(BG_PAL_ANIM_TIMER + x) = a;
-        y++;
-        x++;
-        c = x >= 4;
-        SET_NZ(x - 4);
-        if (z) break;
-        mff_cycles(pc + 0x11, 1);
-    }
-    mff_cycles(pc + 0x2E, 3);               /* JMP $C527 */
     SYNC_OUT;
-    nes_cpu_instruction_boundary(0xC527, 2); call_by_address_tail(0xC527, -1); return;
+    area_copy_anim_slots(area);
 }
 
 /*
@@ -361,10 +376,19 @@ void func_C47D(void) {
 }
 
 /*
+ * $C4A5: area 0's palette animation slot loop (area_copy_anim_slots, area
+ * 0). It is a routine of its own only because $C4BD (itself never called)
+ * branches back to it; area_load_bg_palette runs the loop inline.
+ */
+void func_C4A5(void) {
+    area_copy_anim_slots(0);
+}
+
+/*
  * $C4BD: the end of area 0's palette animation slot loop (INX, CPX #4,
  * BNE $C4A5, JMP $C527). Nothing calls or jumps here; it is one of the P0
- * map's entry points (port/scaffold/game.toml) and stays as lifted. No
- * routine starts at $C4A5, so going on there is a tail call by address.
+ * map's entry points (port/scaffold/game.toml) and stays as lifted. Going
+ * back to $C4A5 is a branch, a call to it with no charge.
  */
 void func_C4BD(void) {
     REGS_IN;
@@ -375,7 +399,7 @@ void func_C4BD(void) {
     if (!z) {
         mff_cycles(0xC4C0, 1);
         SYNC_OUT;
-        call_by_address_tail((uint16_t)(g_code_window_base + 0x04A5), -1);
+        func_C4A5();
         return;
     }
     mff_cycles(0xC4C2, 3);
