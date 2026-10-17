@@ -89,11 +89,11 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   rotina recebe e devolve de fato, para enxugar o resto.
 - **P5: o port roda no próprio runtime e sem a ROM.** `port/src/runtime` (C11) é a máquina que as
   rotinas precisam, escrita para este jogo: CPU e RAM, barramento, registradores da PPU, MMC3,
-  registradores da APU (guardados, sem som: P6), relógio de ciclos com a fronteira de frame e a NMI,
+  a APU ligada ao sintetizador 2A03 da P6, relógio de ciclos com a fronteira de frame e a NMI,
   a IRQ de raster, despacho por endereço com o achatamento de laços de JMP e as corrotinas das
   tarefas. Implementa a interface do runtime do andaime (`nes_runtime.h`), então nenhuma rotina
   mudou; `port/CMakeLists.txt` gera `MightyFinalFight` só com `port/src/game`, `dispatch.c` e o
-  runtime, nada do nesrecomp. A imagem é composta uma vez por frame (`render_frame.c`) a partir de um
+  runtime e o sintetizador (`port/src/audio`), nada do nesrecomp. A imagem é composta uma vez por frame (`render_frame.c`) a partir de um
   registro que o runtime preenche na fronteira do frame: o estado no início e uma região por split,
   aberta pelo handler de IRQ depois da linha em que o MMC3 disparou. Os dados vêm só de
   `BUILD/assets`, extraídos do dump uma vez quando o CMake configura (`-DMFF_ROM=dump`;
@@ -101,12 +101,17 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   P0 classifica como código, menos 297 que o jogo também lê como dado (as telas que a lista de cada
   área nomeia depois do fim, lidas quando a câmera para, e um byte de tabela lido além do fim; ler um
   byte que falta para a execução e diz qual). As 9 rotas ficam idênticas às bases em RAM, OAM, paleta
-  e imagem a cada frame, com a ROM fora do alcance; contra o andaime compilado com as mesmas rotinas,
-  até o ciclo de cada imagem bate. A janela mostra a imagem como a PPU desenha (`--picture
-  console`: 8 sprites por linha, a posição vertical seguindo pelos splits): nos 7.635 frames de
-  `inputs/10_cody_poweron.txt` do power-on até o primeiro lag do oráculo ela é idêntica à do
-  oráculo, pixel a pixel (`port/tests/oracle_pictures.py`). O log de imagem das rotas continua com a
-  do renderizador do andaime, que é o que as bases têm. Compilar e jogar:
+  e imagem a cada frame, com a ROM fora do alcance. Os ciclos são os do andaime mais o que ele deixa
+  de fora e o console gasta (a sequência de reset, a entrada da NMI e as instruções do `nmi_tail`:
+  85 por frame), que o jogo não vê (a NMI continua entrando só em `$FEBD`) e o som precisa. A janela
+  mostra a imagem como a PPU desenha (`--picture console`: 8 sprites por linha, a posição vertical
+  seguindo pelos splits) e toca o som (abaixo, P6). **Imagem (17/10):** em todas as rotas de
+  `inputs/` que partem do power-on (as três `10_*`, as três `01_*_s1`, `probe` e `probe2`), do
+  power-on até o primeiro lag do oráculo, as 57.175 imagens são idênticas às do oráculo pixel a
+  pixel (`port/tests/oracle_pictures.py`). O log de imagem das rotas continua com a do renderizador
+  do andaime, que é o que as bases têm. **Falta para o critério da P5:** comparar depois do primeiro
+  lag (os jogos se separam ali: o lag fiel é da P7) e nos rounds 2-5, chefes e final, que nenhuma
+  rota do power-on alcança antes de um lag. Compilar e jogar:
 
   ```bash
   cmake -S port -B build_mff -A x64 -DMFF_ROM="rom/Mighty Final Fight (USA).nes" -DMFF_SDL=ON
@@ -116,6 +121,22 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   ```
 
   Detalhes (teclas, variáveis de teste, formato dos dados) no `port/README.md`.
+- **P6: o som toca no port.** `port/src/audio/synth_2a03.c` é o 2A03 (igual ao oráculo amostra por
+  amostra com as escritas e os ciclos dele, `docs/sound.md`); o driver de som em C está em
+  `port/src/game/sound_*.c` (P4). O runtime da P5 entrega cada escrita de APU ao sintetizador no
+  relógio de frames do console (o primeiro vblank no ciclo 27.394, cada frame com o seu comprimento;
+  o relógio do runtime corre mais, porque a NMI segurada espera sem dívida, e o som atrasava 170 ms
+  em dois minutos), começa como o APU do oráculo (um clock no power-on sem os geradores de tom) e
+  toca na janela (SDL, a fila de áudio dita o ritmo) e em `MFF_WAV`. **Verificado (17/10)** nas três
+  rotas `10_*` do power-on até o primeiro lag do oráculo: a RAM do driver é a do oráculo em todo
+  frame (menos `$C3`, o Y de quem chamou, como a `docs/sound.md` explica), e cada frame tem as mesmas
+  escritas de APU na mesma ordem (156.483 escritas, `port/tests/apu_writes.py` contra a captura de
+  `port/tests/synth`), 6-7 ciclos depois das do oráculo (mediana; 96-97% a até 16 ciclos). Com o
+  sintetizador partindo assim, as escritas do oráculo nos ciclos dele dão o WAV do oráculo amostra
+  por amostra, e nos ciclos do port dão o WAV do port: a diferença é só onde as escritas caem
+  (o modelo de ciclos das rotinas convertidas, assunto da P7), inaudível (a fase do triângulo e a
+  posição do registrador de ruído); `sound_wavcmp.py` põe as passagens no piso que a P6 mediu para a
+  fase dos osciladores. **Falta:** o WAV aprovado no ouvido nas 5 fases, nos chefes e no final.
 
 ---
 
