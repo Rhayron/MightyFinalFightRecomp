@@ -1046,145 +1046,145 @@ bank = 6
 addr = 0x9FF6   # lifted, lifted_b6.c
 [[replace_func]]
 bank = 6
-addr = 0xA04C   # lifted, lifted_b6.c
+addr = 0xA04C   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA060   # lifted, lifted_b6.c
+addr = 0xA060   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA085   # lifted, lifted_b6.c
+addr = 0xA085   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xA088   # lifted, lifted_b6.c
+addr = 0xA088   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xA0E8   # lifted, lifted_b6.c
+addr = 0xA0E8   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA102   # lifted, lifted_b6.c
+addr = 0xA102   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA139   # lifted, lifted_b6.c
+addr = 0xA139   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA18B   # lifted, lifted_b6.c
+addr = 0xA18B   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA18E   # lifted, lifted_b6.c
+addr = 0xA18E   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA210   # lifted, lifted_b6.c
+addr = 0xA210   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA2A6   # lifted, lifted_b6.c
+addr = 0xA2A6   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA2C3   # lifted, lifted_b6.c
+addr = 0xA2C3   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA340   # lifted, lifted_b6.c
+addr = 0xA340   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA3F5   # lifted, lifted_b6.c
+addr = 0xA3F5   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA411   # lifted, lifted_b6.c
+addr = 0xA411   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA41D   # lifted, lifted_b6.c
+addr = 0xA41D   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xA494   # lifted, lifted_b6.c
+addr = 0xA494   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xA512   # lifted, lifted_b6.c
+addr = 0xA512   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xA54F   # lifted, lifted_b6.c
+addr = 0xA54F   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xA5DA   # lifted, lifted_b6.c
+addr = 0xA5DA   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xA652   # lifted, lifted_b6.c
+addr = 0xA652   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xA717   # lifted, lifted_b6.c
+addr = 0xA717   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA732   # lifted, lifted_b6.c
+addr = 0xA732   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA73A   # lifted, lifted_b6.c
+addr = 0xA73A   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xA780   # lifted, lifted_b6.c
+addr = 0xA780   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xA7AD   # lifted, lifted_b6.c
+addr = 0xA7AD   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xA82C   # lifted, lifted_b6.c
+addr = 0xA82C   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xA89C   # lifted, lifted_b6.c
+addr = 0xA89C   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xA8E4   # lifted, lifted_b6.c
+addr = 0xA8E4   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA8E8   # lifted, lifted_b6.c
+addr = 0xA8E8   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xA8F3   # lifted, lifted_b6.c
+addr = 0xA8F3   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xA953   # lifted, lifted_b6.c
+addr = 0xA953   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xA995   # lifted, lifted_b6.c
+addr = 0xA995   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xA9E3   # lifted, lifted_b6.c
+addr = 0xA9E3   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xA9EB   # lifted, lifted_b6.c
+addr = 0xA9EB   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xA9F6   # lifted, lifted_b6.c
+addr = 0xA9F6   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xAA1D   # lifted, lifted_b6.c
+addr = 0xAA1D   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xAA60   # lifted, lifted_b6.c
+addr = 0xAA60   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xAAA0   # lifted, lifted_b6.c
+addr = 0xAAA0   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xAAAE   # lifted, lifted_b6.c
+addr = 0xAAAE   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xAAD7   # lifted, lifted_b6.c
+addr = 0xAAD7   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xAB00   # lifted, lifted_b6.c
+addr = 0xAB00   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xAB29   # lifted, lifted_b6.c
+addr = 0xAB29   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xAB4F   # lifted, lifted_b6.c
+addr = 0xAB4F   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xAB9F   # lifted, lifted_b6.c
+addr = 0xAB9F   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xAC34   # lifted, lifted_b6.c
+addr = 0xAC34   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xACB3   # lifted, lifted_b6.c
+addr = 0xACB3   # enemy_walk.c
 [[replace_func]]
 addr = 0xC1DF   # flow_area.c
 [[replace_func]]
@@ -2886,22 +2886,22 @@ bank = 6
 addr = 0x9F01   # lifted, lifted_late.c
 [[replace_func]]
 bank = 6
-addr = 0xA592   # lifted, lifted_late.c
+addr = 0xA592   # enemy_moves.c
 [[replace_func]]
 bank = 6
-addr = 0xAC13   # lifted, lifted_late.c
+addr = 0xAC13   # enemy_ai.c
 [[replace_func]]
 bank = 6
-addr = 0xAC4B   # lifted, lifted_late.c
+addr = 0xAC4B   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xAC60   # lifted, lifted_late.c
+addr = 0xAC60   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xAC75   # lifted, lifted_late.c
+addr = 0xAC75   # enemy_walk.c
 [[replace_func]]
 bank = 6
-addr = 0xAC8E   # lifted, lifted_late.c
+addr = 0xAC8E   # enemy_walk.c
 [[replace_func]]
 addr = 0xC4A5   # lifted, lifted_late.c
 [[replace_func]]
