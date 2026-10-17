@@ -668,8 +668,8 @@ void func_9B07_b6(void)
 /*
  * obj_pit_check, $9B1F: where the zone allows pits (0C:9BE1, which
  * otherwise returns from this routine too), probes the background under
- * the object (0F:ECCF with Y = 6; kind 6 probes 12 px higher, obj_y
- * restored from TMP15 after). On a pit tile (TMP16 bit 6) it becomes a pit
+ * the object (0F:ECCF with Y = 6; the knife, kind 6, probes 12 px
+ * higher, obj_y restored from TMP15 after). On a pit tile (TMP16 bit 6) it becomes a pit
  * fall: obj_saved_id = id, id $1F, obj_pit_flag $1F, obj_timer 0,
  * obj_invuln $FF, and the caller's return address is dropped (PLA PLA),
  * so the RTS leaves the behaviour that called it.
@@ -687,8 +687,8 @@ void func_9B1F_b6(void)
     a = RAM(OBJ_Y + x);
     RAM(TMP15) = a;
     a = RAM(OBJ_KIND + x);
-    c = a >= KIND_6;
-    if (a == KIND_6) {
+    c = a >= KIND_KNIFE;
+    if (a == KIND_KNIFE) {
         mff_cycles(0x9B2E, 13);
         a = RAM(OBJ_Y + x);
         c = 1;
@@ -760,8 +760,8 @@ void func_9B6B_b6(void)
  * pit_fall, $9B74 (name proposed): behaviour of id $1F, an object falling
  * into a pit. obj_invuln stays $FF. While obj_timer is 0 it falls straight
  * down (obj_vx 0, 0F:F1FD; its animation frozen unless obj_pit_flag is
- * set) until obj_y reaches $B0: then hidden; kind 6, or an object dead
- * already, is cleared at once; otherwise the player gets experience (as
+ * set) until obj_y reaches $B0: then hidden; the knife (kind 6), or an
+ * object dead already, is cleared at once; otherwise the player gets experience (as
  * attack 3) when its saved id is below $20, when the player had just let
  * it go (obj_held $FF) or when its animation is $9D; then obj_life $FF,
  * its HUD bar, obj_ai_timer $10, a kill counted, obj_timer 1. With
@@ -814,7 +814,7 @@ void func_9B74_b6(void)
     CALL_BANK(0x9B98, 0x9B62);                  /* obj_hide */
     mff_cycles(0x9B9B, 8);
     a = RAM(OBJ_KIND + x);
-    CMP_FLAGS(a, KIND_6);
+    CMP_FLAGS(a, KIND_KNIFE);
     if (z) {
         mff_cycles(0x9BA0, 1);
         JMP_FIXED(0x9BDE, 0xF2BE, func_F2BE);
@@ -1026,7 +1026,8 @@ void func_9C29_b6(void)
 /*
  * The knockdown animations of $9C55 and $9C7A (the copy at `pc`): the
  * kind's animation from `anim` unless it shows it already, and, except
- * for kind 6, its sprite bank from `chr` into chr_banks+3+$FC33[kind].
+ * for kind 6 (the knife), its sprite bank from `chr` into
+ * chr_banks+3+$FC33[kind].
  */
 static void kind_anim_bank(uint16_t pc, uint16_t anim, uint16_t chr)
 {
@@ -1044,7 +1045,7 @@ static void kind_anim_bank(uint16_t pc, uint16_t anim, uint16_t chr)
         CALL_FIXED((uint16_t)(pc + 0x0C), func_F288);
         mff_cycles((uint16_t)(pc + 0x0F), 8);
         a = RAM(OBJ_KIND + x);
-        CMP_FLAGS(a, KIND_6);
+        CMP_FLAGS(a, KIND_KNIFE);
         if (z) {
             mff_cycles((uint16_t)(pc + 0x14), branch_taken((uint16_t)(pc + 0x14), (uint16_t)(pc + 0x24)));
         } else {

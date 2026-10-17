@@ -336,8 +336,8 @@ void func_805E_b6(void)
  * alive. obj_take_hit deals the damage (AxL may block); the attack the
  * object had out is cancelled; obj_land_y is set to the line it will land
  * on: obj_ground_y if it was in the air (or if obj_y + $0A came out 0),
- * obj_y + $0A for kinds 6 and $0C, unchanged for id $91, the player's obj_y
- * for attack $1D (obj_y if that is 0), else its own obj_y. Then, with life
+ * obj_y + $0A for kinds 6 (the knife) and $0C, unchanged for id $91, the
+ * player's obj_y for attack $1D (obj_y if that is 0), else its own obj_y. Then, with life
  * gone negative, it dies (JMP $80D0 -> func_81B8_b6); otherwise the combo
  * window opens and the attack's knockback is applied: pushed back (id 2) or
  * knocked down (id 5), both from phase 0, or nothing. AxL takes no
@@ -367,7 +367,7 @@ void func_80D3_b6(void)
 
         mff_cycles(0x80F2, 8);
         a = RAM(OBJ_KIND + x);
-        lower = a == KIND_6;
+        lower = a == KIND_KNIFE;
         if (lower) {
             mff_cycles(0x80F7, 1);
         } else {
@@ -991,7 +991,7 @@ void func_8347_b6(void)
     if (!ground) {
         mff_cycles(0x835F, 8);
         a = RAM(OBJ_KIND + y);
-        lower = a == KIND_6;
+        lower = a == KIND_KNIFE;
         if (lower) {
             mff_cycles(0x8364, 1);
         } else {

@@ -977,16 +977,16 @@ bank = 6
 addr = 0x9CAD   # obj_knockdown.c
 [[replace_func]]
 bank = 6
-addr = 0x9CED   # lifted, lifted_b6.c
+addr = 0x9CED   # enemy_common.c
 [[replace_func]]
 bank = 6
-addr = 0x9CF1   # lifted, lifted_b6.c
+addr = 0x9CF1   # enemy_common.c
 [[replace_func]]
 bank = 6
-addr = 0x9CF5   # lifted, lifted_b6.c
+addr = 0x9CF5   # enemy_common.c
 [[replace_func]]
 bank = 6
-addr = 0x9D71   # lifted, lifted_b6.c
+addr = 0x9D71   # enemy_common.c
 [[replace_func]]
 bank = 6
 addr = 0x9D9E   # lifted, lifted_b6.c
@@ -1043,7 +1043,7 @@ bank = 6
 addr = 0x9FBB   # lifted, lifted_b6.c
 [[replace_func]]
 bank = 6
-addr = 0x9FF6   # lifted, lifted_b6.c
+addr = 0x9FF6   # enemy_common.c
 [[replace_func]]
 bank = 6
 addr = 0xA04C   # lifted, lifted_b6.c
