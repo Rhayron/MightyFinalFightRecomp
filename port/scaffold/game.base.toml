@@ -2038,13 +2038,13 @@ bank = 2
 addr = 0x9000   # flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x9100   # lifted, lifted_b2.c
+addr = 0x9100   # flow_select.c
 [[replace_func]]
 bank = 2
-addr = 0x9181   # lifted, lifted_b2.c
+addr = 0x9181   # flow_select.c
 [[replace_func]]
 bank = 2
-addr = 0x91BF   # lifted, lifted_b2.c
+addr = 0x91BF   # flow_select.c
 [[replace_func]]
 bank = 2
 addr = 0x9300   # lifted, lifted_b2.c
