@@ -141,6 +141,7 @@ int main(int argc, char **argv) {
     if (g_smoke_frames > 0) printf("[mff] headless: %ld frames\n", g_smoke_frames);
     fflush(stdout);
 
+    maybe_trigger_vblank(7);            /* the 6502's reset sequence, before the first instruction */
     func_RESET();
     mff_fatal("the reset routine returned");
     return 1;

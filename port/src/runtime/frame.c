@@ -19,7 +19,9 @@
  * one) and the MMC3 is not clocked.
  *
  * This is when the scaffold's runtime ran these things too, so the game's
- * raster IRQs run at the same point of its code and with the same cycles.
+ * raster IRQs run at the same point of its code. The NMI's own cycles count
+ * here as on the console (the 7 of the interrupt sequence, and nmi_tail's in
+ * mff_hooks.c), which the scaffold leaves out: 85 a frame.
  */
 #include "machine.h"
 #include "render.h"
@@ -51,6 +53,7 @@ static void deliver_nmi(void) {
     g_cpu.I = 1;
     timing_note_interrupt();
     timing_set_depth(timing_depth() + 1);
+    maybe_trigger_vblank(7);                    /* the interrupt sequence's 7 cycles */
     func_NMI();
     if (timing_depth() > 0) timing_set_depth(timing_depth() - 1);
     if (g_rti_target == 0) {

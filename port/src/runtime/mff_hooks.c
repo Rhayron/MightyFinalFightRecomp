@@ -19,7 +19,8 @@
  *    fakes a return to the interrupted PC ($A0/$A1 - 1), calls
  *    sound_update ($FF72) and RTSes back into the interrupted code. The
  *    runtime takes the NMI between instructions, not at a PC, so the tail
- *    does what matters to the game: sound_update, with A/X/Y/P kept.
+ *    does what matters to the game: sound_update, with A/X/Y/P kept, and
+ *    the cycles its instructions take.
  */
 #include "machine.h"
 #include <stdlib.h>
@@ -42,7 +43,12 @@ void func_FF72(void);                   /* sound_update */
 
 void func_C119(void) {
     CPU6502State saved = g_cpu;
+    /* the console's cycles: PHP x3, PHA/TXA/PHA/TYA/PHA, TSX, SEC, the
+     * fake return (LDA zp, SBC #, STA abs,X twice) and the JSR; after it
+     * PLA/TAY/PLA/TAX/PLA, PLP and RTS ($C119-$C13A) */
+    maybe_trigger_vblank(52);
     func_FF72();
+    maybe_trigger_vblank(26);
     g_cpu.A = saved.A; g_cpu.X = saved.X; g_cpu.Y = saved.Y;
     g_cpu.N = saved.N; g_cpu.V = saved.V; g_cpu.D = saved.D;
     g_cpu.I = saved.I; g_cpu.Z = saved.Z; g_cpu.C = saved.C;
