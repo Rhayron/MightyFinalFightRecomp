@@ -1524,6 +1524,68 @@ addr = 0xFB09
 name = "obj_hit_start"
 comment = "from the RAM/objects survey (docs/objects.md)"
 
+# ---- names from the P4 tidy of the fixed bank's object helpers (obj_*.c) ----
+
+[[label]]
+bank = 0x0F
+addr = 0xF03F
+name = "player_face_right"
+comment = "obj_flags of slot 0 OR #$40 (LDA $0560 / ORA #$40 / STA $0560 / RTS); 15 callers in banks 00, 03, 05, 09, 0E (00:84DD, 0E:D396); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF048
+name = "player_face_left"
+comment = "obj_flags of slot 0 AND #$BF; callers 00:8678, 940D, 9433, 95B1, 03:B909, 0E:D39B, DD17; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF20E
+name = "obj_fall_down"
+comment = "obj_fall's half for vy < 0 (BMI at $F200): obj_y -= obj_vy, next vertical page at $F0 (never executed); also obj_jump_move ($F12C); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF22E
+name = "obj_fall_up"
+comment = "obj_fall's half for vy >= 0: the same code as obj_move_up; also obj_jump_move ($F14F); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF3E6
+name = "dir_index_table"
+comment = "obj_dir_index's directions, 8 octants x 4 (LDA $F3E6,Y at $F3E2): 0 up, 4 right, 8 down, $0C left, 16 steps clockwise; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB3E
+name = "obj_near_player"
+comment = "C set when obj_dist_x <= A and obj_dist_y_feet <= Y ($00/$01 the limits, SBC at $FB4F/$FB56); 26 callers in the boss and enemy AI; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB5B
+name = "obj_dir_to_player_feet"
+comment = "obj_dir_index with the player's obj_y set to player_ground_y ($36) for the call and restored from $0F; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB72
+name = "obj_dir_to_attack_spot"
+comment = "obj_dir_index to the player's ground line moved $FBCC[obj_kind] px toward the object (ADC/SBC $FBCC,Y at $FB8D/$FBA2), the player's position restored from $0D-$0F; callers 01:A44B, ABA3, 0D:A233; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFBCC
+name = "kind_reach_x"
+comment = "per obj_kind, the x offset obj_dir_to_attack_spot puts the attack spot at (1C 16 19 19 1C 1F 00 20 20 20 20 20 00); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFBD9
+name = "obj_dist_y_feet"
+comment = "obj_dist_y with the player's obj_y set to player_ground_y for the call and restored from $0F; callers 01:A251, AB5A, AB66, 03:B5DC, B5E8, 0D:A588, $FB47; obj_move.c (tidy/fixed)"
+
 [[label]]
 bank = 0x0F
 addr = 0xE89B
