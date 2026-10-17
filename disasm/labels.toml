@@ -3492,3 +3492,353 @@ bank = 0x0A
 addr = 0x9C00
 name = "hud_draw_text"
 comment = "queues the HUD's fixed text; flow_*.c (tidy/flow)"
+
+# ---- bank 01: Thrasher, Sodom and the scene prop (ids $80-$8F, P4 tidy/b01) ----
+
+[[label]]
+bank = 0x01
+addr = 0xA000
+name = "boss_b01_entries"
+comment = "JMP table objects_update enters for ids $80-$8F: obj_behavior_lo/hi (0C:83AF/844F) point id $80+n at $A000+3n; $80 Thrasher, $81 Sodom, $83 Sodom (rounds 4-5), $8F scene prop, the rest $A030; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA030
+name = "b01_no_behavior"
+comment = "RTS: the entry of ids $82 and $84-$8E, which nothing spawns; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA031
+name = "boss_move"
+comment = "moves by obj_dir with obj_vx/vy (0F:F1DF/F1BF up/down, JMP 0F:F183/F1A1 across), stopping at the top line $A08E[tier != 0] and at $AE; $0F = 8/4 when stopped; called by every walk and rush of bank 01; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA08E
+name = "boss_top_line"
+comment = "the lowest obj_y boss_move allows going up: $85, $82 when obj_tier is set (id $83); boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA090
+name = "boss_face_player"
+comment = "0F:F374 then JMP 0F:F090 (player to the right) or 0F:F099; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA09B
+name = "scene_prop_update"
+comment = "id $8F (JMP at $A02D): made only by id $9C (03:BFE6), which the scene object $7B/$7D's Cody script spawns (0B:BE45); waits for the player within $10 px, takes a punch (spark of attack $0D, sound $18) and flies off up-right; never executed; boss_b01_scene.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA0FD
+name = "thrasher_update"
+comment = "id $80 (JMP at $A000): obj_kind 7, Thrasher; stage list type $13 (08:8442/85E6: life $48), area 2 only, round 1's boss area in every route; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA101
+name = "sodom_update"
+comment = "id $81 (JMP at $A003): obj_kind 8, Sodom; type $14 (life $58), area 5, round 2's boss area; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA13C
+name = "ts_enter"
+comment = "phase 0 of ids $80/$81 (table $A6C4): to the circling walk on screen 1, else walk in; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA169
+name = "ts_circle"
+comment = "phase 1 of ids $80/$81: attack in reach (0F:FB3E), else walk the arena's edges (obj_land_y = direction index); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA22A
+name = "ts_circle_turn"
+comment = "the circling walk's turn with obj_ai_flag 0 (JMP at $A21C): speed for the new index, then ts_corner; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA28B
+name = "ts_corner"
+comment = "a corner of the circling walk: obj_down_timer bit 0 or a jump (Thrasher) / rush (Sodom) on rng; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA2ED
+name = "boss_attack"
+comment = "phase 2 of ids $80/$81 and $83 (tables $A6C4, $AAC6): wind-up, swing ($A8B7), reach and damage by obj_timer2 (0 Thrasher's swing, 1 Sodom's); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA3EA
+name = "boss_attack_end"
+comment = "end of a swing (JMPs at $A340/$A35C): another one while obj_ai_count lasts and the player is in reach, else phase 0; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA411
+name = "swing_reach_near"
+comment = "obj_attack at the start of the swing by obj_timer2: $91 $92; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA413
+name = "swing_reach_far"
+comment = "obj_attack at full reach: $8D $8E; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA415
+name = "swing_damage"
+comment = "obj_attack_damage of the swing: $1F $27; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA417
+name = "ts_wander"
+comment = "phase 3 (Thrasher, set at $A2DF): $78 frames drifting toward a point beside the player (0F:FB72), swing in reach; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA473
+name = "boss_rush"
+comment = "phase 4 of ids $80/$81 and $83: aim (boss_aim), run, strike within $30 px, slide, pause; Sodom's (set at $A2C6, $A646, $ADA7, $AE0A); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA53B
+name = "boss_rush_pause"
+comment = "the rush's pause (JMP at $A482); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA54C
+name = "boss_rush_end"
+comment = "phase 0, obj_down_timer 1 (run-on from $A53E; JMPs at $A4AE/$A4BF never executed); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA557
+name = "ts_jump"
+comment = "phase 5 (Thrasher, set at $A2A5): two jumps on the spot, obj_attack $8F while falling; also run by ts_leap; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA5CF
+name = "ts_leap"
+comment = "phase 6 (Thrasher, set at $A286): ts_jump's jumps at obj_vx 2 until landing against x $18/$F1; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA633
+name = "ts_hurt"
+comment = "phase 7 of ids $80/$81 (set by boss_hurt_start): obj_hit_timer counts down, then phase 0 (Thrasher) or the rush (Sodom); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA651
+name = "ts_walk_in"
+comment = "phase 8 of ids $80/$81 (set at $A155): walk to screen 1 at index 4's speed; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA6C4
+name = "ts_phase_lo"
+comment = "phase table of ids $80/$81, 9 entries (jumped through at $A129); boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA6CD
+name = "ts_phase_hi"
+comment = "high bytes of ts_phase_lo; boss_thrasher_sodom.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA6D6
+name = "boss_check"
+comment = "JSR from $A11D and $AA63, before the phase; C set = frame taken: held by the player (obj_held), hit (obj_hit_timer $1E/$1A/$10), Cody's throw, the drop-in ($25) knockdown; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA6FC
+name = "boss_held"
+comment = "held: faces the player, phase 0, obj_hit_timer 0, C set (run-on from $A6F9, JMP at $A6F6); boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA736
+name = "boss_hurt_start"
+comment = "obj_state $87 (the hurt phase), obj_invuln $20 at obj_tier 2; C clear; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA7BB
+name = "boss_knocked_down"
+comment = "id 5 (knocked down, 0C:983B) with obj_saved_id, obj_vy $038E, obj_invuln $FF, C set (after $A7B5; JMP at $A7B2 never executed); boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA7E1
+name = "boss_speed_walk"
+comment = "obj_vx/vy by direction index Y from $A7FA/$A80A/$A81A/$A82A: $0133 along an axis; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA83A
+name = "boss_anim_stance"
+comment = "$E4/$F0 by obj_kind - 7 ($A870), CHR from $A872/$A874; $EF (0F:F449, CHR $2C, chr_banks+5 $2E) from obj_tier 2; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA882
+name = "boss_anim_walk"
+comment = "$E5/$F2 ($A8B1), CHR $A8B3/$A8B5; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA8B7
+name = "boss_anim_swing"
+comment = "$E9/$F5 ($A8E9), CHR $A8EB/$A8ED, obj_anim_timer + 1; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA8EF
+name = "boss_anim_hurt"
+comment = "$EA/$F7 ($A910), CHR $A912; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA914
+name = "boss_chr_slot"
+comment = "chr_banks+3 offset of the first CHR byte (1, 1); the second uses $A916 indexed by this value; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA918
+name = "boss_speed_rush"
+comment = "as boss_speed_walk from $A931/$A941/$A951/$A961: $024C; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA971
+name = "boss_speed_charge"
+comment = "as boss_speed_walk from $A98A/$A99A/$A9AA/$A9BA: $0300; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA9CA
+name = "boss_aim"
+comment = "obj_dir toward the player's ground point (0F:FB5B), no steeper than the diagonals ($AA23); Y = direction index; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xA9F5
+name = "boss_rush_speed"
+comment = "boss_speed_rush and the slowing per frame (obj_timer2, obj_ground_y) by index; boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAA23
+name = "boss_aim_clamp"
+comment = "direction index -> index of boss_aim (1-3 -> 2-3, 5-7 -> 5-6, ...); boss_b01_shared.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAA33
+name = "sodom_rematch_update"
+comment = "id $83 (JMP at $A009): obj_kind 8, Sodom; stage list type $16 (life $68, animation $F0), areas 11 and 13 (rounds 4 and 5); obj_tier 1/2/3 by obj_life $30 and rage; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAAC6
+name = "sodom_rematch_phase_lo"
+comment = "phase table of id $83, 9 entries (jumped through at $AAB3); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAACF
+name = "sodom_rematch_phase_hi"
+comment = "high bytes of sodom_rematch_phase_lo; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAAD8
+name = "sodom_rematch_decide"
+comment = "phase 0 of id $83: approach (tier 1), enrage (tier 2: invuln $7C, tier 3), charge (tier 3); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAB0A
+name = "sodom_rematch_approach"
+comment = "phase 1 of id $83: swing in reach, line up and close in, back off or drift when near; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAB93
+name = "sodom_rematch_drift"
+comment = "drift of phase 1 (JMP at $AB2B): re-aim (0F:FB72) every 8 frames; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xABB0
+name = "sodom_rematch_drift_step"
+comment = "boss_move and boss_face_player (JMP at $AB9B); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xABB6
+name = "sodom_rematch_back_off"
+comment = "phase 5 of id $83: $64 frames away from the player, then phase 6; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAC4E
+name = "sodom_rematch_rage"
+comment = "phase 3 of id $83: the enraged charges at 3 px a frame, shaken ($AD80-$AD8B), the pause, the enrage show; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xACC1
+name = "sodom_rematch_charge_shake_y"
+comment = "the charge's y shake (JMP at $ACAC; run-on from $ACB6); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAD0B
+name = "sodom_rematch_charge_step"
+comment = "boss_move and the charge's end at a line or the arena's side; boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAD50
+name = "sodom_rematch_charge_pause"
+comment = "the stance between charges (JMP at $AC5B); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAD5E
+name = "sodom_rematch_enrage_show"
+comment = "$74 frames of animations $FA then $F1 after enraging (JMP at $AC5E); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAD8C
+name = "sodom_rematch_hurt"
+comment = "phase 7 of id $83: then rush (tier 1), decide (tier 2) or charge (tier 3); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xADBA
+name = "sodom_rematch_wait"
+comment = "phase 6 of id $83: $18 frames, then rush or approach on rng by the distance (the $3C/$50 rungs at $ADDE are skipped); boss_sodom_rematch.c (tidy/b01)"
+
+[[label]]
+bank = 0x01
+addr = 0xAE19
+name = "sodom_rematch_follow_up"
+comment = "phase 8 of id $83: player invuln $20, damage $27, obj_attack $98 to frame 9; set only by $A3DB (never executed); boss_sodom_rematch.c (tidy/b01)"
