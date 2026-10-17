@@ -204,7 +204,10 @@ dispatched first without them.
    `$3B = $3C` (60 frames of invincibility) and `0F:F8D5` hurts the player:
    `health -= $FD16[obj_attack_damage]`, knockdown if `$FD56[...]` or if health
    runs out, facing turned toward the attacker, a held enemy released and a held
-   weapon dropped.
+   weapon dropped (Guy keeps his). A hit while jumping or during Cody's slash
+   always knocks down, and leaves `player_dir` 2 whichever way he faces
+   (`BEQ $F9B7` lands on the knockdown's `LDA #2`; `base_guy_alt.flog` frame
+   11807).
 
 Then the slot is dispatched (`JMP $800B`).
 
@@ -309,6 +312,10 @@ every even pass and by 1 after odd ones.
 | `F090` / `F099` | face right / left (`obj_flags` bit 6 set / clear) |
 | `F314`, `F32E`, `F343` | point `obj_dir` at the player, copy it into the flags, both |
 | `F365`, `F374`, `F38B` | distance to the player in y, in x, and the direction index |
+| `FB3E`, `FB5B`, `FB72`, `FBD9` | the AI's tests around the player's ground line: within A px in x and Y in y (C set); `F38B` to his feet; to the spot `$FBCC[obj_kind]` px beside him on the object's side; `F365` from his ground line |
+| `F000` / `F051` | face right / left, then `F003` / `F054`: move, `bg_probe_2` of kind Y; a pit's edge is a wall (pushed back out, C set) for any slot but the player, who starts falling in (`F0DC`) unless coming down |
+| `F0A2` / `F0F7` | move down / up, `bg_probe` of kind Y; put back on top of a `$10` / below a `$30` (C set) |
+| `F119` | a jump's vertical step: `F20E`/`F22E` (`obj_fall`'s halves), gravity, `bg_probe`; landing on `$10` (C set) or the pit fall |
 | `ECCF`, `EDBA` | background probes around the object (tile attributes of the round's map; bit `$40` = pit) |
 | `F71A`, `F72A` | free slot in `$0D`..3 / `$0F`..`$0E` (carry set if none) |
 

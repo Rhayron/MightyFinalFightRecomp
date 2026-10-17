@@ -8,7 +8,7 @@ addresses in the bank given (MMC3 mode 0: even banks at `$8000`, odd at
 ## Boot
 
 `reset` (`0F:FE00`) does the usual NES start-up: interrupts off, PPU and APU
-silenced, two vblank waits, all RAM cleared, the sound queue filled with the
+silenced, four vblank waits, all RAM cleared, the sound queue filled with the
 empty marker `$88`, MMC3 banks set (CHR `$40/$42`, PRG through
 `bank_switch`), both nametables cleared. Then it spawns **task 0 at
 `main_task` (`0E:C556`)** and falls into the scheduler. It never returns.

@@ -1524,6 +1524,248 @@ addr = 0xFB09
 name = "obj_hit_start"
 comment = "from the RAM/objects survey (docs/objects.md)"
 
+# ---- names from the P4 tidy of the fixed bank's object helpers (obj_*.c) ----
+
+[[label]]
+bank = 0x0F
+addr = 0xF03F
+name = "player_face_right"
+comment = "obj_flags of slot 0 OR #$40 (LDA $0560 / ORA #$40 / STA $0560 / RTS); 15 callers in banks 00, 03, 05, 09, 0E (00:84DD, 0E:D396); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF048
+name = "player_face_left"
+comment = "obj_flags of slot 0 AND #$BF; callers 00:8678, 940D, 9433, 95B1, 03:B909, 0E:D39B, DD17; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF20E
+name = "obj_fall_down"
+comment = "obj_fall's half for vy < 0 (BMI at $F200): obj_y -= obj_vy, next vertical page at $F0 (never executed); also obj_jump_move ($F12C); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF22E
+name = "obj_fall_up"
+comment = "obj_fall's half for vy >= 0: the same code as obj_move_up; also obj_jump_move ($F14F); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF3E6
+name = "dir_index_table"
+comment = "obj_dir_index's directions, 8 octants x 4 (LDA $F3E6,Y at $F3E2): 0 up, 4 right, 8 down, $0C left, 16 steps clockwise; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB3E
+name = "obj_near_player"
+comment = "C set when obj_dist_x <= A and obj_dist_y_feet <= Y ($00/$01 the limits, SBC at $FB4F/$FB56); 26 callers in the boss and enemy AI; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB5B
+name = "obj_dir_to_player_feet"
+comment = "obj_dir_index with the player's obj_y set to player_ground_y ($36) for the call and restored from $0F; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB72
+name = "obj_dir_to_attack_spot"
+comment = "obj_dir_index to the player's ground line moved $FBCC[obj_kind] px toward the object (ADC/SBC $FBCC,Y at $FB8D/$FBA2), the player's position restored from $0D-$0F; callers 01:A44B, ABA3, 0D:A233; obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFBCC
+name = "kind_reach_x"
+comment = "per obj_kind, the x offset obj_dir_to_attack_spot puts the attack spot at (1C 16 19 19 1C 1F 00 20 20 20 20 20 00); obj_move.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFBD9
+name = "obj_dist_y_feet"
+comment = "obj_dist_y with the player's obj_y set to player_ground_y for the call and restored from $0F; callers 01:A251, AB5A, AB66, 03:B5DC, B5E8, 0D:A588, $FB47; obj_move.c (tidy/fixed)"
+[[label]]
+bank = 0x0F
+addr = 0xF000
+name = "obj_walk_right"
+comment = "JSR obj_face_right, then obj_step_right ($F003); callers 00:879F, 87C6, 87D8, 03:B36C, 0D:A93E, A99E, 0E:CCEF; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF003
+name = "obj_step_right"
+comment = "obj_move_right, bg_probe_2 of kind Y ($F014), then pits: AND #$40 at $F01A; another slot is pushed back out (push_out_left, SEC), the player starts the pit fall ($F03A) unless obj_vy < 0; caller 0E:D911; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF051
+name = "obj_walk_left"
+comment = "JSR obj_face_left, then obj_step_left ($F054); callers 00:87A7, 87CC, 03:B384, 0D:A931, A9BE, 0E:CCF7; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF054
+name = "obj_step_left"
+comment = "obj_step_right's code $51 bytes on, with obj_move_left and push_out_right; caller 0E:D95E; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF0A2
+name = "obj_walk_down"
+comment = "obj_move_down, bg_probe of kind Y; $10 = $10 is pushed back up (push_out_up, SEC at $F0C0), a pit too for slots but the player, who falls in ($F0D8); callers 03:B356, 0B:BA29, 0D:A97F, 0E:CD14, D9B1; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF0DC
+name = "player_pit_fall_start"
+comment = "action_before_fall = game_action, game_action = $24, obj_state = $80; game_action 4 releases the held enemy (obj_held,Y = $FF at $F0F3); obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF0F7
+name = "obj_walk_up"
+comment = "obj_move_up, bg_probe of kind Y; $10 = $30 is pushed back down (push_out_down, SEC at $F117); callers 03:B33E, 0B:BA13, 0D:A0AA, A962, 0E:CD38, D9D9; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF119
+name = "obj_jump_move"
+comment = "vertical step of the player's jumps: obj_fall's halves ($F20E/$F22E) and obj_gravity, bg_probe of kind Y (Y + 1 going up); landing on $10 pushes up and restarts obj_vy (SEC at $F14C), $40 and up starts the pit fall ($F170); callers 00:8092, 8318, 85C1, 8814, 8881, 0E:CF8C, D5F5, D740, DB05, DBD6; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF443
+name = "obj_set_anim_chr3"
+comment = "JSR obj_set_anim, STY $EB (chr_banks+3, sprite bank R3); 17 JSRs and 6 JMPs (banks 01, 03, 05, 0C, 0D); obj_anim.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF449
+name = "obj_set_anim_chr4"
+comment = "JSR obj_set_anim, STY $EC (chr_banks+4, R4); banks 01, 0B, 0D; obj_anim.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF44F
+name = "obj_set_anim_chr5"
+comment = "JSR obj_set_anim, STY $ED (chr_banks+5, R5); 01:A4CD, 05:AB33, 0D:A59C, A692, JMPs 01:AE2E, 0D:A4C3; obj_anim.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF6AA
+name = "enemy_reach_y"
+comment = "enemy_attack_test: the reach in y by obj_attack & $1F (CMP $F6AA,Y at $F6A6); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF6CA
+name = "enemy_reach_x_back"
+comment = "enemy_attack_test: the reach in x behind the attacker (CMP $F6CA,Y at $F694; in front of it when the player's facing decides); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF6EA
+name = "enemy_reach_x_front"
+comment = "enemy_attack_test: the reach in x in front of the attacker (CMP $F6EA,Y at $F674); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF869
+name = "player_reach_y"
+comment = "player_attack_test: the reach in y by attack_id (CMP $F869,Y at $F85E); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF88D
+name = "player_reach_x_front"
+comment = "player_attack_test: the reach in x in front of the player by attack_id (CMP $F88D,Y at $F847, the player facing slot X); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF8B1
+name = "player_reach_x_back"
+comment = "player_attack_test: the reach in x behind the player by attack_id (CMP $F8B1,Y at $F835); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF9E5
+name = "obj_contact_test"
+comment = "objects_update (0C:8090): does the object in slot 2, then 1 ($10 = 2 counting down, the loop at $F9E9) touch slot X; C clear = contact; past the slot 1/2 checks never executed; obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFAC0
+name = "contact_reach"
+comment = "obj_contact_test's reach by the slot 1/2 object's obj_attack: y at $FAC0,Y ($FABA), x at $FAC2,Y ($FAA9); 0E 14 14 14, then drop_weapon's code; never read; obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF428
+name = "attack_start"
+comment = "attack_live = $1E, attack_id = 0, then sound $17 (the code of attack_swing_sound); callers 0E:D3FD, D50B, D537, D550, D589; obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF430
+name = "attack_swing_sound"
+comment = "LDA #$17 / JSR sound_queue_push_sfx; callers 09:AC33, 0E:D421, D438, D5A0, D5CE, D67D, D6B9, D6F3, D721; obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF436
+name = "attack_end"
+comment = "attack_live ($A4) = 0; about 30 callers (00, 05, 0E, player_take_hit); obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF43B
+name = "attack_begin"
+comment = "attack_live ($A4) = $1E; about 20 callers (00, 0E); obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF54C
+name = "spark_dx"
+comment = "spawn_hit_spark: the spark's x from the player's, 16-bit by player_dir & 2: +$12 / -$12 (ADC $F54C,Y at $F50F); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF550
+name = "spark_dx_haggar"
+comment = "the same for Haggar, +/-$13 (ADC $F550,Y at $F4C1); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF554
+name = "spark_dx_side"
+comment = "the same for attacks $0F-$16, +/-$1C toward the slot hit (ADC $F554,Y at $F4F0); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB06
+name = "dropped_weapon_anim"
+comment = "drop_weapon: slot 1's animation by player_id, 41 41 51 (LDA $FB06,Y at $FAE8); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB17
+name = "hit_cooldown_table"
+comment = "obj_hit_start: obj_hit_cooldown by attack_id (LDA $FB17,Y at $FB0B); base_cody_round1.flog: 2 after attack 0, $10 after $06/$14/$15; obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFD16
+name = "damage_health"
+comment = "player_take_hit: health lost by obj_attack_damage (SBC $FD16,Y at $F928); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFD56
+name = "damage_knocks_down"
+comment = "player_take_hit: nonzero = the hit knocks the player down (LDA $FD56,Y at $F92F); obj_combat.c (tidy/fixed)"
+
+
 [[label]]
 bank = 0x0F
 addr = 0xE89B

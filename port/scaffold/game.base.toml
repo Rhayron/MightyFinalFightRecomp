@@ -1510,149 +1510,149 @@ addr = 0xEF83   # push_out_down, stage_probe.c
 [[replace_func]]
 addr = 0xEF9D   # push_out_up, stage_probe.c
 [[replace_func]]
-addr = 0xF000   # lifted, lifted_f.c
+addr = 0xF000   # obj_walk_right, obj_walk.c
 [[replace_func]]
-addr = 0xF003   # lifted, lifted_f.c
+addr = 0xF003   # obj_step_right, obj_walk.c
 [[replace_func]]
-addr = 0xF03F   # lifted, lifted_f.c
+addr = 0xF03F   # player_face_right, obj_move.c
 [[replace_func]]
-addr = 0xF048   # lifted, lifted_f.c
+addr = 0xF048   # player_face_left, obj_move.c
 [[replace_func]]
-addr = 0xF051   # lifted, lifted_f.c
+addr = 0xF051   # obj_walk_left, obj_walk.c
 [[replace_func]]
-addr = 0xF054   # lifted, lifted_f.c
+addr = 0xF054   # obj_step_left, obj_walk.c
 [[replace_func]]
-addr = 0xF090   # lifted, lifted_f.c
+addr = 0xF090   # obj_face_right, obj_move.c
 [[replace_func]]
-addr = 0xF099   # lifted, lifted_f.c
+addr = 0xF099   # obj_face_left, obj_move.c
 [[replace_func]]
-addr = 0xF0A2   # lifted, lifted_f.c
+addr = 0xF0A2   # obj_walk_down, obj_walk.c
 [[replace_func]]
-addr = 0xF0DC   # lifted, lifted_f.c
+addr = 0xF0DC   # player_pit_fall_start, obj_walk.c
 [[replace_func]]
-addr = 0xF0F7   # lifted, lifted_f.c
+addr = 0xF0F7   # obj_walk_up, obj_walk.c
 [[replace_func]]
-addr = 0xF119   # lifted, lifted_f.c
+addr = 0xF119   # obj_jump_move, obj_walk.c
 [[replace_func]]
-addr = 0xF16E   # lifted, lifted_f.c
+addr = 0xF16E   # obj_walk.c
 [[replace_func]]
-addr = 0xF183   # lifted, lifted_f.c
+addr = 0xF183   # obj_move_right, obj_move.c
 [[replace_func]]
-addr = 0xF1A1   # lifted, lifted_f.c
+addr = 0xF1A1   # obj_move_left, obj_move.c
 [[replace_func]]
-addr = 0xF1BF   # lifted, lifted_f.c
+addr = 0xF1BF   # obj_move_down, obj_move.c
 [[replace_func]]
-addr = 0xF1DF   # lifted, lifted_f.c
+addr = 0xF1DF   # obj_move_up, obj_move.c
 [[replace_func]]
-addr = 0xF1FD   # lifted, lifted_f.c
+addr = 0xF1FD   # obj_fall, obj_move.c
 [[replace_func]]
-addr = 0xF20E   # lifted, lifted_f.c
+addr = 0xF20E   # obj_move.c
 [[replace_func]]
-addr = 0xF22E   # lifted, lifted_f.c
+addr = 0xF22E   # obj_move.c
 [[replace_func]]
-addr = 0xF24C   # lifted, lifted_f.c
+addr = 0xF24C   # obj_gravity, obj_move.c
 [[replace_func]]
-addr = 0xF26E   # lifted, lifted_f.c
+addr = 0xF26E   # obj_init_vy, obj_move.c
 [[replace_func]]
-addr = 0xF288   # lifted, lifted_f.c
+addr = 0xF288   # obj_set_anim, obj_anim.c
 [[replace_func]]
-addr = 0xF294   # lifted, lifted_f.c
+addr = 0xF294   # player_set_anim, obj_anim.c
 [[replace_func]]
-addr = 0xF2A0   # lifted, lifted_f.c
+addr = 0xF2A0   # obj_spawn, obj_anim.c
 [[replace_func]]
-addr = 0xF314   # lifted, lifted_f.c
+addr = 0xF314   # obj_dir_to_player, obj_move.c
 [[replace_func]]
-addr = 0xF32E   # lifted, lifted_f.c
+addr = 0xF32E   # obj_flip_from_dir, obj_move.c
 [[replace_func]]
-addr = 0xF343   # lifted, lifted_f.c
+addr = 0xF343   # obj_face_player, obj_move.c
 [[replace_func]]
 addr = 0xF34C   # sound_queue_push_sfx, sound.c
 [[replace_func]]
-addr = 0xF365   # lifted, lifted_f.c
+addr = 0xF365   # obj_dist_y, obj_move.c
 [[replace_func]]
-addr = 0xF374   # lifted, lifted_f.c
+addr = 0xF374   # obj_dist_x, obj_move.c
 [[replace_func]]
-addr = 0xF38B   # lifted, lifted_f.c
+addr = 0xF38B   # obj_dir_index, obj_move.c
 [[replace_func]]
-addr = 0xF406   # lifted, lifted_f.c
+addr = 0xF406   # scene_frame, obj_anim.c
 [[replace_func]]
-addr = 0xF428   # lifted, lifted_f.c
+addr = 0xF428   # attack_start, obj_combat.c
 [[replace_func]]
-addr = 0xF430   # lifted, lifted_f.c
+addr = 0xF430   # attack_swing_sound, obj_combat.c
 [[replace_func]]
-addr = 0xF436   # lifted, lifted_f.c
+addr = 0xF436   # attack_end, obj_combat.c
 [[replace_func]]
-addr = 0xF43B   # lifted, lifted_f.c
+addr = 0xF43B   # attack_begin, obj_combat.c
 [[replace_func]]
-addr = 0xF440   # lifted, lifted_f.c
+addr = 0xF440   # set_chr_bank2, obj_anim.c
 [[replace_func]]
-addr = 0xF443   # lifted, lifted_f.c
+addr = 0xF443   # obj_set_anim_chr3, obj_anim.c
 [[replace_func]]
-addr = 0xF449   # lifted, lifted_f.c
+addr = 0xF449   # obj_set_anim_chr4, obj_anim.c
 [[replace_func]]
-addr = 0xF44F   # lifted, lifted_f.c
+addr = 0xF44F   # obj_set_anim_chr5, obj_anim.c
 [[replace_func]]
-addr = 0xF455   # lifted, lifted_f.c
+addr = 0xF455   # spawn_hit_spark, obj_combat.c
 [[replace_func]]
-addr = 0xF4E1   # lifted, lifted_f.c
+addr = 0xF4E1   # obj_combat.c
 [[replace_func]]
-addr = 0xF522   # lifted, lifted_f.c
+addr = 0xF522   # obj_combat.c
 [[replace_func]]
-addr = 0xF558   # lifted, lifted_f.c
+addr = 0xF558   # obj_reach.c
 [[replace_func]]
-addr = 0xF55A   # lifted, lifted_f.c
+addr = 0xF55A   # enemy_attack_test, obj_reach.c
 [[replace_func]]
-addr = 0xF63F   # lifted, lifted_f.c
+addr = 0xF63F   # obj_reach.c
 [[replace_func]]
-addr = 0xF679   # lifted, lifted_f.c
+addr = 0xF679   # obj_reach.c
 [[replace_func]]
-addr = 0xF6A9   # lifted, lifted_f.c
+addr = 0xF6A9   # obj_reach.c
 [[replace_func]]
-addr = 0xF71A   # lifted, lifted_f.c
+addr = 0xF71A   # find_free_slot, obj_anim.c
 [[replace_func]]
-addr = 0xF72A   # lifted, lifted_f.c
+addr = 0xF72A   # find_free_effect_slot, obj_anim.c
 [[replace_func]]
-addr = 0xF738   # lifted, lifted_f.c
+addr = 0xF738   # player_attack_test, obj_reach.c
 [[replace_func]]
-addr = 0xF7EA   # lifted, lifted_f.c
+addr = 0xF7EA   # obj_reach.c
 [[replace_func]]
-addr = 0xF7EF   # lifted, lifted_f.c
+addr = 0xF7EF   # obj_reach.c
 [[replace_func]]
-addr = 0xF7FF   # lifted, lifted_f.c
+addr = 0xF7FF   # obj_reach.c
 [[replace_func]]
-addr = 0xF833   # lifted, lifted_f.c
+addr = 0xF833   # obj_reach.c
 [[replace_func]]
-addr = 0xF83D   # lifted, lifted_f.c
+addr = 0xF83D   # obj_reach.c
 [[replace_func]]
-addr = 0xF84C   # lifted, lifted_f.c
+addr = 0xF84C   # obj_reach.c
 [[replace_func]]
-addr = 0xF8D5   # lifted, lifted_f.c
+addr = 0xF8D5   # player_take_hit, obj_combat.c
 [[replace_func]]
-addr = 0xF9E5   # lifted, lifted_f.c
+addr = 0xF9E5   # obj_contact_test, obj_reach.c
 [[replace_func]]
-addr = 0xF9E9   # lifted, lifted_f.c
+addr = 0xF9E9   # obj_reach.c
 [[replace_func]]
-addr = 0xFA84   # lifted, lifted_f.c
+addr = 0xFA84   # obj_reach.c
 [[replace_func]]
-addr = 0xFA91   # lifted, lifted_f.c
+addr = 0xFA91   # obj_reach.c
 [[replace_func]]
-addr = 0xFAC4   # lifted, lifted_f.c
+addr = 0xFAC4   # drop_weapon, obj_combat.c
 [[replace_func]]
-addr = 0xFB09   # lifted, lifted_f.c
+addr = 0xFB09   # obj_hit_start, obj_combat.c
 [[replace_func]]
-addr = 0xFB3E   # lifted, lifted_f.c
+addr = 0xFB3E   # obj_near_player, obj_move.c
 [[replace_func]]
-addr = 0xFB5B   # lifted, lifted_f.c
+addr = 0xFB5B   # obj_dir_to_player_feet, obj_move.c
 [[replace_func]]
-addr = 0xFB72   # lifted, lifted_f.c
+addr = 0xFB72   # obj_dir_to_attack_spot, obj_move.c
 [[replace_func]]
-addr = 0xFBB0   # lifted, lifted_f.c
+addr = 0xFBB0   # obj_move.c
 [[replace_func]]
-addr = 0xFBD9   # lifted, lifted_f.c
+addr = 0xFBD9   # obj_dist_y_feet, obj_move.c
 [[replace_func]]
-addr = 0xFE00   # lifted, lifted_f.c
+addr = 0xFE00   # reset, boot.c
 [[replace_func]]
-addr = 0xFF4C   # lifted, lifted_f.c
+addr = 0xFF4C   # boot.c
 [[replace_func]]
 addr = 0xFF72   # sound_update, sound.c
 [[replace_func]]
