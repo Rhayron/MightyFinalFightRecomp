@@ -147,8 +147,13 @@ static inline int cmp_list(uint16_t pc, uint16_t target, uint8_t val,
 #define OBJ_BELGER          0x74    /* Cyborg Belger, the last boss */
 
 /* ---- enemy kinds (obj_kind, $05B0) ---- */
+#define KIND_POISON         0x00
+#define KIND_TWO_P          0x01
+#define KIND_BRED           0x02
 #define KIND_AXL            0x03    /* can block (0C:84F0) */
-#define KIND_6              0x06    /* id $2E */
+#define KIND_EL_GADO        0x04
+#define KIND_ANDORE         0x05
+#define KIND_KNIFE          0x06    /* El Gado's knife, id $2E (0D:A5DA, 0C:9D71) */
 #define KIND_9D             0x0C    /* id $9D: the objects that fill the screen in the Belger fight */
 
 /* ---- the player ---- */

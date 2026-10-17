@@ -217,7 +217,7 @@
 #define OBJ_ANIM                 0x0580  /* animation id, 0 = nothing drawn: object_draw reads the script pointer at $8000/$8080 + (id ($0580-$058F) */
 #define OBJ_ANIM_TIMER           0x0590  /* frames shown of the current animation frame (bits 0-6, INC per draw at 0F:EAA9); bit 7 mak ($0590-$059F) */
 #define SPAWN_GROUPS             0x05A0  /* timed-spawner scratch, not a slot table: obj_spawn_group of up to two live enemies (08:911 ($05A0-$05A2) */
-#define OBJ_KIND                 0x05B0  /* enemy kind: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 id $2E, 7 Thrasher, 8 ($05B0-$05BF) */
+#define OBJ_KIND                 0x05B0  /* enemy kind: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 El Gado's knife (id $ ($05B0-$05BF) */
 #define OBJ_TIER                 0x05C0  /* common-enemy strength tier 1/2/4 by id group ($20-$25, $26-$2B, $30-$35: 0C:9CED-9CF7), tu ($05C0-$05CF) */
 #define OBJ_AI_TIMER             0x05D0  /* countdown of the current AI phase: walk and wait times of the common-enemy AI (0D:A0E8, A1 ($05D0-$05DF) */
 #define OBJ_AI_COUNT             0x05E0  /* AI step or attack counter: approach tries and combo length of the common-enemy AI (0D:A159 ($05E0-$05EF) */
