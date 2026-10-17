@@ -1785,91 +1785,91 @@ bank = 0
 addr = 0x90CB   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x9297   # lifted, lifted_b0.c
+addr = 0x9297   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x92E1   # lifted, lifted_b0.c
+addr = 0x92E1   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x93EF   # lifted, lifted_b0.c
+addr = 0x93EF   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9410   # lifted, lifted_b0.c
+addr = 0x9410   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x943F   # lifted, lifted_b0.c
+addr = 0x943F   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x945E   # lifted, lifted_b0.c
+addr = 0x945E   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x94F2   # lifted, lifted_b0.c
+addr = 0x94F2   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x94F7   # lifted, lifted_b0.c
+addr = 0x94F7   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9565   # lifted, lifted_b0.c
+addr = 0x9565   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x958B   # lifted, lifted_b0.c
+addr = 0x958B   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x95BA   # lifted, lifted_b0.c
+addr = 0x95BA   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x95FA   # lifted, lifted_b0.c
+addr = 0x95FA   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9610   # lifted, lifted_b0.c
+addr = 0x9610   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9615   # lifted, lifted_b0.c
+addr = 0x9615   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x961A   # lifted, lifted_b0.c
+addr = 0x961A   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x961F   # lifted, lifted_b0.c
+addr = 0x961F   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x963D   # lifted, lifted_b0.c
+addr = 0x963D   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x96EF   # lifted, lifted_b0.c
+addr = 0x96EF   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x97A9   # lifted, lifted_b0.c
+addr = 0x97A9   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x97C8   # lifted, lifted_b0.c
+addr = 0x97C8   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9819   # lifted, lifted_b0.c
+addr = 0x9819   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x984F   # lifted, lifted_b0.c
+addr = 0x984F   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x987A   # lifted, lifted_b0.c
+addr = 0x987A   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9A00   # lifted, lifted_b0.c
+addr = 0x9A00   # flow_story_text.c
 [[replace_func]]
 bank = 0
-addr = 0x9A13   # lifted, lifted_b0.c
+addr = 0x9A13   # flow_story_text.c
 [[replace_func]]
 bank = 0
-addr = 0x9A1D   # lifted, lifted_b0.c
+addr = 0x9A1D   # flow_story_text.c
 [[replace_func]]
 bank = 0
-addr = 0x9A98   # lifted, lifted_b0.c
+addr = 0x9A98   # flow_story_text.c
 [[replace_func]]
 bank = 0
-addr = 0x9AC0   # lifted, lifted_b0.c
+addr = 0x9AC0   # flow_story_text.c
 [[replace_func]]
 bank = 0
-addr = 0x9B16   # lifted, lifted_b0.c
+addr = 0x9B16   # flow_story_text.c
 [[replace_func]]
 bank = 0
 addr = 0xA000   # lifted, lifted_b0.c
@@ -2670,46 +2670,46 @@ bank = 4
 addr = 0xAD0B   # haggar_pose_hold, stage_ending.c
 [[replace_func]]
 bank = 0
-addr = 0x80AE   # lifted, lifted_late.c
+addr = 0x80AE   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x80C5   # lifted, lifted_late.c
+addr = 0x80C5   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x817E   # lifted, lifted_late.c
+addr = 0x817E   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x86FF   # lifted, lifted_late.c
+addr = 0x86FF   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x891B   # lifted, lifted_late.c
+addr = 0x891B   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8A31   # lifted, lifted_late.c
+addr = 0x8A31   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8CC4   # lifted, lifted_late.c
+addr = 0x8CC4   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8EEA   # lifted, lifted_late.c
+addr = 0x8EEA   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8FF8   # lifted, lifted_late.c
+addr = 0x8FF8   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x9072   # lifted, lifted_late.c
+addr = 0x9072   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x914D   # lifted, lifted_late.c
+addr = 0x914D   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x91BE   # lifted, lifted_late.c
+addr = 0x91BE   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x92BA   # lifted, lifted_late.c
+addr = 0x92BA   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x93AF   # lifted, lifted_late.c
+addr = 0x93AF   # player_actions.c
 [[replace_func]]
 bank = 0
 addr = 0xA54C   # lifted, lifted_late.c
@@ -2916,31 +2916,31 @@ addr = 0xCBA0   # lifted, lifted_late.c
 addr = 0xCF33   # lifted, lifted_late.c
 [[replace_func]]
 bank = 0
-addr = 0x8177   # lifted, lifted_late.c
+addr = 0x8177   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8992   # lifted, lifted_late.c
+addr = 0x8992   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x89F6   # lifted, lifted_late.c
+addr = 0x89F6   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8A55   # lifted, lifted_late.c
+addr = 0x8A55   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8AD3   # lifted, lifted_late.c
+addr = 0x8AD3   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8F82   # lifted, lifted_late.c
+addr = 0x8F82   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x9043   # lifted, lifted_late.c
+addr = 0x9043   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x916E   # lifted, lifted_late.c
+addr = 0x916E   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x91B2   # lifted, lifted_late.c
+addr = 0x91B2   # player_exits.c
 [[replace_func]]
 bank = 2
 addr = 0xA850   # lifted, lifted_late.c
