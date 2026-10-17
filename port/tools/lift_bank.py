@@ -69,12 +69,14 @@ def lift_into(a, rom, base, keep, hand, extra, skip, gen, names, summ):
     protos -= {f"func_{addr:04X}" if b == lift.FIXED else f"func_{addr:04X}_b{b}" for b, addr in done}
     open(path, "w", newline="\n").write(head + "".join(f"void {f}(void);\n" for f in sorted(protos)) +
                                         "\n" + old + "\n\n".join(chunks) + "\n")
-    for bank, addr in done:
-        keep.append("[[replace_func]]\n" + (f"bank = {bank}\n" if bank != lift.FIXED else "") +
-                    f"addr = 0x{addr:04X}   # lifted, {a.into}\n")
+    new = "".join("[[replace_func]]\n" + (f"bank = {bank}\n" if bank != lift.FIXED else "") +
+                  f"addr = 0x{addr:04X}   # lifted, {a.into}\n" for bank, addr in done)
     print(f"{a.into}: {len(done)} of {len(todo)} lifted", file=sys.stderr)
-    body = re.sub(LIFTED, "", base).rstrip("\n") + "\n"
-    open(BASE, "w", newline="\n").write(body + "".join(keep))
+    # appended, the rest of the file left in its order (other branches edit those lines)
+    raw = open(BASE, "rb").read()
+    eol = "\r\n" if b"\r\n" in raw else "\n"
+    text = raw.decode("utf-8").rstrip("\r\n") + eol + new.replace("\n", eol)
+    open(BASE, "wb").write(text.encode("utf-8"))
 
 
 def main():
