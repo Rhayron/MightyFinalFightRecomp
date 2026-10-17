@@ -1566,7 +1566,7 @@ addr = 0xF32E   # lifted, lifted_f.c
 [[replace_func]]
 addr = 0xF343   # lifted, lifted_f.c
 [[replace_func]]
-addr = 0xF34C   # lifted, lifted_f.c
+addr = 0xF34C   # sound_queue_push_sfx, sound.c
 [[replace_func]]
 addr = 0xF365   # lifted, lifted_f.c
 [[replace_func]]
@@ -1654,9 +1654,9 @@ addr = 0xFE00   # lifted, lifted_f.c
 [[replace_func]]
 addr = 0xFF4C   # lifted, lifted_f.c
 [[replace_func]]
-addr = 0xFF72   # lifted, lifted_f.c
+addr = 0xFF72   # sound_update, sound.c
 [[replace_func]]
-addr = 0xFF8E   # lifted, lifted_f.c
+addr = 0xFF8E   # sound_update_queue, sound.c
 [[replace_func]]
 bank = 0
 addr = 0x8000   # lifted, lifted_b0.c
