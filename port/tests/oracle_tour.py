@@ -4,17 +4,21 @@
         [--skip-every 4] [--frames 30000] [--oracle EXE] [--port EXE]
 
 A power-on route only reaches round 1 before the oracle's first lag frame,
-where the two games part (P7). This plays a route on the oracle in segments
-of --seg frames from --start on, saving a state at the end of each, and
-patches RAM in it (tools/state_ram.py) the way tools/bot.py --god does:
-health and lives refilled, the game's own skip stage ($0030 = $0E) every
---skip-every segments while the player is alive, and in the final area
-(round 4, area 2+, where skipping runs past the end) every fighter's life
-set below 0. The same writes go to the port through MFF_POKE, keyed by the
-NMI count of the frame the state was saved after, so the two games stay
-together for as long as the oracle does not lag.
+where the two games part (P7). This plays a route on the oracle up to
+--start, then walks right punching (RIGHT, with A every other 4 frames: it
+also answers the boss dialogs, which wait for a fresh A) in segments of
+--seg frames, saving a state at the end of each, and patches RAM in it
+(tools/state_ram.py) the way tools/bot.py --god does: health and lives
+refilled, the game's own skip stage ($0030 = $0E) every --skip-every
+segments while the player is alive and not already skipping, and in the
+final area (round 4, area 2+, where skipping runs past the end) every
+fighter's life set below 0. The same writes go to the port through
+MFF_POKE, keyed by the NMI count of the frame the state was saved after,
+and the same pad through MFF_INPUT, so the two games stay together for as
+long as the oracle does not lag.
 
-OUTDIR gets o.flog (the oracle's frame log, segments joined), tour.keyed
+OUTDIR gets tour_input.txt (the oracle's --input), o.flog (the oracle's
+frame log, segments joined), tour.keyed
 (MFF_INPUT), tour.poke (MFF_POKE), p.flog and p.pix (the port's MFF_FRAMELOG
 and MFF_PICDUMP) and the reports of port/tests/oracle_pictures.py
 (pictures.txt) and port/tests/lockstep.py (lockstep.txt). The frame logs
@@ -75,7 +79,8 @@ def decide(ram, seg_index, a, full_hp):
         for i in range(3, 16):
             if is_foe(ram, i) and 0 < ram[0x490 + i] < 0x80:
                 w[0x490 + i] = 0xFF             # below 0: the game's own death test (bot.c)
-    elif alive and a.skip_every and seg_index % a.skip_every == a.skip_every - 1:
+    elif alive and ram[0x30] not in (0x0E, 0x09) and a.skip_every and \
+            seg_index % a.skip_every == a.skip_every - 1:
         w[0x30] = 0x0E
     return w
 
@@ -120,6 +125,15 @@ def main():
     a.oracle, a.port, a.out = os.path.abspath(a.oracle), os.path.abspath(a.port), os.path.abspath(a.out)
     os.makedirs(a.out, exist_ok=True)
     o = lambda name: os.path.join(a.out, name)
+    sys.path.insert(0, HERE)
+    from route2script import parse
+    with open(o("tour_input.txt"), "w") as f:
+        for frame, held in parse(a.route):
+            if frame < a.start:
+                f.write(f"{frame} {'+'.join(sorted(held)) or '-'}\n")
+        for frame in range(a.start, a.frames + 8, 8):
+            f.write(f"{frame} RIGHT\n{frame + 4} RIGHT+A\n")
+    a.route = o("tour_input.txt")
     joined = open(o("o.flog"), "wb")
     patches = []                                    # (oracle frame, {addr: value})
     full_hp = 0
