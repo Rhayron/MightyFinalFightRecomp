@@ -1,7 +1,8 @@
 /*
  * player_specials.c - the moves that run as bank-$00 actions after an attack
  * or a grab: Haggar's HeadSmasher (game_action $12) and its earthquake
- * ($0F, player_actions.c), Cody's slash ($14) and the A+B special ($17).
+ * ($0F, player_actions.c), Cody's slash ($14), the A+B special ($17) and
+ * Haggar's moving lariat ($16).
  */
 #include "player_defs.h"
 
@@ -629,11 +630,205 @@ void func_85FE_b0(void) {
     RTS();
 }
 
+/* ---- Haggar's moving lariat, game_action $16 (lariat_start, 00:88B6) ---- */
+
+/* attack_id by animation frame */
+#define LARIAT_ATTACK_ID    0x8903   /* 0F 10 11 12, repeated (Haggar) */
+#define LARIAT_SPEED_UP     PAD_B    /* joy_held: B alone, from frame 6 */
+#define LARIAT_LAST_FRAME   0x13
+#define LARIAT_LAST_TIMER   0x04
+#define LARIAT_HIT_COST     6        /* the health a lariat that hit costs */
+#define SFX_LARIAT          0x13     /* every 8th frame (draw_parity) */
+
+static void lariat_step(uint16_t pc, int right);
+#define LARIAT_STEP(pc, right) do { SYNC_OUT; lariat_step(pc, right); return; } while (0)
+
+/*
+ * action_lariat ($86FF in bank $00, proposed; Data Crystal: Haggar's
+ * special while moving): game_action $16, A+B with left or right held.
+ * The first step sets obj_vx $0100; from frame 6, B held alone speeds it
+ * up to $0233. Every frame: attack_id $8903[frame] with attack_begin,
+ * sound $13 every 8th frame, attack_ground_y = player_ground_y, attack_end
+ * from timer 2 of a frame on. At frame $13 timer 4 it is over: game_action,
+ * attack_live and combo_timer 0, obj_state[0] $80, the combo restarted
+ * (player_stand_anim), player_stand; a lariat that hit something
+ * (special_hit) costs 6 health (below 0: 0, never executed), then
+ * special_hit 0 and obj_vx $0100. Otherwise Haggar moves: while obj_state
+ * bit 1 is clear the way player_dir says, then lariat_step_end (any button
+ * held counts the step up); after that left or right held turns him
+ * (player_dir) and he steps that way, or on the way he goes.
+ */
+void func_86FF_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x86FF, 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x0F;
+    if (a == 0) {
+        mff_cycles(0x8706, 4 + 2 + 4 + 6);
+        RAM(OBJ_VX_FRAC) = a;
+        a = 0x01;
+        RAM(OBJ_VX) = a;
+        RAM(OBJ_STATE)++;
+    } else {
+        mff_cycles(0x8704, 1);
+    }
+    mff_cycles(0x8711, 4 + 2 + 2);
+    a = RAM(OBJ_ANIM_FRAME);
+    c = a >= 6;
+    if (c) {
+        mff_cycles(0x8718, 3 + 2 + 2);
+        a = RAM(JOY_HELD);
+        c = a >= LARIAT_SPEED_UP;
+        if (a == LARIAT_SPEED_UP) {
+            mff_cycles(0x871E, 2 + 4 + 2 + 4);
+            a = 0x33;
+            RAM(OBJ_VX_FRAC) = a;
+            a = 0x02;
+            RAM(OBJ_VX) = a;
+        } else {
+            mff_cycles(0x871C, 1);
+        }
+    } else {
+        mff_cycles(0x8716, 1);
+    }
+    mff_cycles(0x8728, 4 + 2 + 4);
+    a = RAM(OBJ_ANIM_FRAME);
+    y = a;
+    a = prg_read((uint16_t)(LARIAT_ATTACK_ID + y));
+    SET_NZ(a);
+    mff_cycles(0x872F, 3 + 6);
+    RAM(ATTACK_ID) = a;
+    JSR_FN(0x8731, func_F43B);                  /* attack_begin */
+    mff_cycles(0x8734, 3 + 2 + 2);
+    a = RAM(DRAW_PARITY) & 0x07;
+    if (a == 0) {
+        mff_cycles(0x873A, 2 + 6);
+        a = SFX_LARIAT;
+        SET_NZ(a);
+        JSR_FN(0x873C, func_F34C);              /* sound_queue_push_sfx */
+    } else {
+        mff_cycles(0x8738, 1);
+    }
+    mff_cycles(0x873F, 3 + 3 + 4 + 2 + 2);
+    a = RAM(PLAYER_GROUND_Y);
+    RAM(ATTACK_GROUND_Y) = a;
+    a = RAM(OBJ_ANIM_TIMER);
+    COMPARE(a, 2);
+    if (c) {
+        mff_cycles(0x874A, 6);
+        JSR_FN(0x874A, func_F436);              /* attack_end */
+    } else {
+        mff_cycles(0x8748, 1);
+    }
+    mff_cycles(0x874D, 4 + 2 + 2);
+    a = RAM(OBJ_ANIM_FRAME);
+    c = a >= LARIAT_LAST_FRAME;
+    if (a == LARIAT_LAST_FRAME) {
+        mff_cycles(0x8754, 4 + 2 + 2);
+        a = RAM(OBJ_ANIM_TIMER);
+        c = a >= LARIAT_LAST_TIMER;
+        if (a == LARIAT_LAST_TIMER) {           /* the lariat is over */
+            mff_cycles(0x875B, 2 + 3 + 3 + 3 + 2 + 4 + 3 + 4);
+            a = 0;
+            RAM(GAME_ACTION) = a;
+            RAM(ATTACK_LIVE) = a;
+            RAM(COMBO_TIMER) = a;
+            a = STATE_LIVE;
+            RAM(OBJ_STATE) = a;
+            y = RAM(PLAYER_ID);
+            a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+            SET_NZ(a);
+            mff_cycles(0x876D, 3 + 6);
+            RAM(PLAYER_STAND_ANIM) = a;
+            JSR_AT(0x876F, 0xCEAA, 0);          /* player_stand */
+            mff_cycles(0x8772, 3 + 2);
+            a = RAM(SPECIAL_HIT);
+            if (a != 0) {
+                mff_cycles(0x8776, 3 + 2 + 2 + 3 + 2);
+                a = RAM(HEALTH);
+                c = 1;
+                SBC(LARIAT_HIT_COST);
+                RAM(HEALTH) = a;
+                if (n) {
+                    mff_cycles(0x877F, 2 + 3);
+                    a = 0;
+                    RAM(HEALTH) = a;
+                } else {
+                    mff_cycles(0x877D, 1);
+                }
+            } else {
+                mff_cycles(0x8774, 1);
+            }
+            mff_cycles(0x8783, 2 + 3 + 4 + 2 + 4 + 6);
+            a = 0;
+            RAM(SPECIAL_HIT) = a;
+            RAM(OBJ_VX_FRAC) = a;
+            a = 0x01;
+            SET_NZ(a);
+            RAM(OBJ_VX) = a;
+            RTS();
+        }
+        mff_cycles(0x8759, 1);
+    } else {
+        mff_cycles(0x8752, 1);
+    }
+    mff_cycles(0x8790, 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x02;
+    if (a == 0) {                               /* the first steps */
+        mff_cycles(0x8797, 3 + 2 + 2);
+        a = RAM(PLAYER_DIR) & PAD_RIGHT;
+        if (a != 0) {
+            mff_cycles(0x879D, 2 + 6);
+            y = 0;
+            SET_NZ(y);
+            JSR_FN(0x879F, func_F000);          /* face right, step right */
+            mff_cycles(0x87A2, 3);
+            JMP_TAIL(0x87AA, 0);                /* lariat_step_end */
+        }
+        mff_cycles(0x879B, 1 + 2 + 6);
+        y = 1;
+        SET_NZ(y);
+        JSR_FN(0x87A7, func_F051);              /* face left, step left */
+        FALL_INTO(func_87AA_b0);
+    }
+    mff_cycles(0x8795, 1 + 3 + 2 + 2);          /* steering */
+    a = RAM(JOY_HELD) & (PAD_LEFT | PAD_RIGHT);
+    if (a != 0) {                               /* turned */
+        mff_cycles(0x87BE, 3 + 2 + 2);
+        RAM(PLAYER_DIR) = a;
+        a &= PAD_RIGHT;
+        if (a != 0)
+            LARIAT_STEP(0x87C4, 1);
+        mff_cycles(0x87C2, 1);
+        LARIAT_STEP(0x87CA, 0);
+    }
+    mff_cycles(0x87BC, 1 + 3 + 2 + 2);
+    a = RAM(PLAYER_DIR) & PAD_RIGHT;
+    if (a != 0)
+        LARIAT_STEP(0x87D6, 1);
+    mff_cycles(0x87D4, 1);
+    LARIAT_STEP(0x87DC, 0);
+}
+
+/* lariat_step (00:87C4, 87CA, 87D6, 87DC, inside action_lariat): at pc,
+ * LDY #0 / JSR $F000 (face right, step right) or LDY #1 / JSR $F051 (face
+ * left, step left), then RTS. */
+static void lariat_step(uint16_t pc, int right) {
+    REGS_IN;
+
+    mff_cycles(pc, 2 + 6);
+    y = right ? 0 : 1;
+    SET_NZ(y);
+    JSR_FN(pc + 2, right ? func_F000 : func_F051);
+    mff_cycles(pc + 5, 6);
+    RTS();
+}
+
 /*
  * $87AA in bank $00 (proposed: lariat_step_end): the end of a step of
- * Haggar's moving lariat (game_action $16, $86FF; that routine is not in
- * the port and JMPs here at 00:87A2): while game_action is still $16 and
- * something is held, obj_state[0] counts up.
+ * Haggar's moving lariat (action_lariat JMPs here at 00:87A2 and runs on
+ * into it): while game_action is still $16 and something is held,
+ * obj_state[0] counts up.
  */
 void func_87AA_b0(void) {
     REGS_IN;
@@ -665,8 +860,7 @@ void func_87AA_b0(void) {
 #define SPECIAL_HANDLER_LO  0x87F1   /* F7 64 AA */
 #define SPECIAL_HANDLER_HI  0x87F4   /* 87 88 88: $87F7, $8864, $88AA */
 /* attack_id by animation frame */
-#define SPECIAL_ATTACK_ID   0x88A6   /* 14 15 16 17 (Cody, Guy) */
-#define LARIAT_ATTACK_ID    0x8903   /* 0F 10 11 12, repeated (Haggar) */
+#define SPECIAL_ATTACK_ID   0x88A6   /* 14 15 16 17 (Cody, Guy); Haggar's: LARIAT_ATTACK_ID */
 #define ANIM_LARIAT_MOVING  0x4B
 
 static void lariat_start(void);
