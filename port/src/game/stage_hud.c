@@ -672,3 +672,55 @@ void func_E954(void) {
     SYNC_OUT;
     mff_rts();
 }
+
+/* the bar's fixed text in bank 0A: vram_buffer entries ended by $FF
+ * (PLAYER, ENEMY, RD, PL, the "/", LEVEL, EXP) */
+#define K_HUD_TEXT           0x9C20
+
+/*
+ * hud_draw_text, 0A:9C00 (labels.toml; the port's func_9C00_b5, 16 KiB
+ * bank 5 = 8 KiB banks 0A/0B): copies K_HUD_TEXT up to its $FF to the end
+ * of vram_buffer, special_screen_step = 0, the level gauge
+ * (hud_level_gauge), vram_request = $FF.
+ * Out: X and C as hud_level_gauge leaves them, A = $FF.
+ * Called by: main_task's game start (0E:C77F) and the area start in
+ * player_state_transition (0E:E015), with bank 0A mapped at $8000.
+ */
+void func_9C00_b5(void) {
+    REGS_IN;
+
+    mff_cycles(0x9C00, 5);
+    x = RAM(VRAM_BUFFER_LEN);
+    y = 0x00;
+    for (;;) {
+        mff_cycles(0x9C04, 4);
+        a = prg_read((uint16_t)(K_HUD_TEXT + y));
+        mff_cycles(0x9C07, 4);
+        c = a >= 0xFF;
+        if (a == 0xFF) {
+            mff_cycles(0x9C09, 1);
+            break;
+        }
+        mff_cycles(0x9C0B, 11);
+        RAM(VRAM_BUFFER + x) = a;
+        y++;
+        x++;
+        if (x == 0)
+            break;
+        mff_cycles(0x9C10, 1);
+    }
+    mff_cycles(0x9C12, 14);
+    RAM(VRAM_BUFFER_LEN) = x;
+    a = 0x00;
+    SET_NZ(a);
+    RAM(SPECIAL_SCREEN_STEP) = a;
+    SYNC_OUT;
+    if (!mff_call_fn(0x1C1A, func_E954, 0xE000)) return;   /* hud_level_gauge */
+    SYNC_IN;
+    mff_cycles(0x9C1B, 11);
+    a = 0xFF;
+    SET_NZ(a);
+    RAM(VRAM_REQUEST) = a;
+    SYNC_OUT;
+    mff_rts();
+}

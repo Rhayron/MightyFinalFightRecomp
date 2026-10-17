@@ -491,7 +491,7 @@ bank = 3
 addr = 0x8914   # snd_env_off, sound_output.c
 [[replace_func]]
 bank = 5
-addr = 0x9C00   # lifted, lifted_b5.c
+addr = 0x9C00   # hud_draw_text, stage_hud.c
 [[replace_func]]
 bank = 5
 addr = 0xB300   # lifted, lifted_b5.c
@@ -2748,37 +2748,37 @@ bank = 3
 addr = 0x825B   # snd_effect_row, sound_effect.c
 [[replace_func]]
 bank = 4
-addr = 0x80E3   # lifted, lifted_late.c
+addr = 0x80E3   # stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x8956   # lifted, lifted_late.c
+addr = 0x8956   # events_area_cleared, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8BD4   # lifted, lifted_late.c
+addr = 0x8BD4   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9011   # lifted, lifted_late.c
+addr = 0x9011   # stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x97AD   # lifted, lifted_late.c
+addr = 0x97AD   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x97F3   # lifted, lifted_late.c
+addr = 0x97F3   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9828   # lifted, lifted_late.c
+addr = 0x9828   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9867   # lifted, lifted_late.c
+addr = 0x9867   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x986E   # lifted, lifted_late.c
+addr = 0x986E   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x989A   # lifted, lifted_late.c
+addr = 0x989A   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x99BB   # lifted, lifted_late.c
+addr = 0x99BB   # stage_events.c
 [[replace_func]]
 bank = 5
 addr = 0xB543   # lifted, lifted_late.c
@@ -2946,13 +2946,13 @@ bank = 2
 addr = 0xA850   # obj_weapons.c
 [[replace_func]]
 bank = 4
-addr = 0x892C   # lifted, lifted_late.c
+addr = 0x892C   # events_screen_event, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x893C   # lifted, lifted_late.c
+addr = 0x893C   # events_walk_out, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8955   # lifted, lifted_late.c
+addr = 0x8955   # stage_events.c
 [[replace_func]]
 bank = 3
 addr = 0x822D   # snd_fade_in, sound_driver.c
