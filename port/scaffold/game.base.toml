@@ -138,9 +138,9 @@ addr = 0xC194   # irq_split_2, interrupts.c
 [[replace_func]]
 addr = 0xC1B1   # irq_status_bar, interrupts.c
 [[replace_func]]
-addr = 0xC8ED   # gameplay, gameplay.c (lifted)
+addr = 0xC8ED   # gameplay, flow_gameplay.c
 [[replace_func]]
-addr = 0xC9A7   # gameplay_frame_end, gameplay.c (lifted)
+addr = 0xC9A7   # gameplay_frame_end, flow_gameplay.c
 [[replace_func]]
 bank = 1
 addr = 0xB300   # lifted, lifted_b1.c
@@ -491,7 +491,7 @@ bank = 3
 addr = 0x8914   # snd_env_off, sound_output.c
 [[replace_func]]
 bank = 5
-addr = 0x9C00   # lifted, lifted_b5.c
+addr = 0x9C00   # hud_draw_text, stage_hud.c
 [[replace_func]]
 bank = 5
 addr = 0xB300   # lifted, lifted_b5.c
@@ -1230,57 +1230,57 @@ addr = 0xC987   # flow_gameplay.c
 [[replace_func]]
 addr = 0xC99D   # flow_gameplay.c
 [[replace_func]]
-addr = 0xC9B6   # lifted, lifted_c.c
+addr = 0xC9B6   # player_states.c
 [[replace_func]]
-addr = 0xC9B9   # lifted, lifted_c.c
+addr = 0xC9B9   # player_states.c
 [[replace_func]]
-addr = 0xCA20   # lifted, lifted_c.c
+addr = 0xCA20   # player_state_idle.c
 [[replace_func]]
-addr = 0xCA3C   # lifted, lifted_c.c
+addr = 0xCA3C   # player_state_idle.c
 [[replace_func]]
-addr = 0xCAA2   # lifted, lifted_c.c
+addr = 0xCAA2   # player_state_idle.c
 [[replace_func]]
-addr = 0xCAC8   # lifted, lifted_c.c
+addr = 0xCAC8   # player_state_idle.c
 [[replace_func]]
-addr = 0xCAE5   # lifted, lifted_c.c
+addr = 0xCAE5   # player_state_idle.c
 [[replace_func]]
-addr = 0xCB07   # lifted, lifted_c.c
+addr = 0xCB07   # player_state_idle.c
 [[replace_func]]
-addr = 0xCB22   # lifted, lifted_c.c
+addr = 0xCB22   # player_state_idle.c
 [[replace_func]]
-addr = 0xCB99   # lifted, lifted_c.c
+addr = 0xCB99   # player_state_idle.c
 [[replace_func]]
-addr = 0xCBA3   # lifted, lifted_c.c
+addr = 0xCBA3   # player_state_idle.c
 [[replace_func]]
-addr = 0xCC85   # lifted, lifted_c.c
+addr = 0xCC85   # player_state_idle.c
 [[replace_func]]
-addr = 0xCCA2   # lifted, lifted_c.c
+addr = 0xCCA2   # player_state_idle.c
 [[replace_func]]
-addr = 0xCCB4   # lifted, lifted_c.c
+addr = 0xCCB4   # player_states.c
 [[replace_func]]
-addr = 0xCCB5   # lifted, lifted_c.c
+addr = 0xCCB5   # player_state_walk.c
 [[replace_func]]
-addr = 0xCCDA   # lifted, lifted_c.c
+addr = 0xCCDA   # player_state_walk.c
 [[replace_func]]
-addr = 0xCCFA   # lifted, lifted_c.c
+addr = 0xCCFA   # player_state_walk.c
 [[replace_func]]
-addr = 0xCD3B   # lifted, lifted_c.c
+addr = 0xCD3B   # player_state_walk.c
 [[replace_func]]
-addr = 0xCD57   # lifted, lifted_c.c
+addr = 0xCD57   # player_state_walk.c
 [[replace_func]]
-addr = 0xCDFB   # lifted, lifted_c.c
+addr = 0xCDFB   # player_state_walk.c
 [[replace_func]]
-addr = 0xCE11   # lifted, lifted_c.c
+addr = 0xCE11   # player_state_walk.c
 [[replace_func]]
-addr = 0xCEA4   # lifted, lifted_c.c
+addr = 0xCEA4   # player_state_walk.c
 [[replace_func]]
-addr = 0xCEAA   # lifted, lifted_c.c
+addr = 0xCEAA   # player_state_walk.c
 [[replace_func]]
-addr = 0xCED1   # lifted, lifted_c.c
+addr = 0xCED1   # player_states.c
 [[replace_func]]
-addr = 0xCF88   # lifted, lifted_c.c
+addr = 0xCF88   # player_jump.c
 [[replace_func]]
-addr = 0xCFD1   # lifted, lifted_c.c
+addr = 0xCFD1   # player_jump.c
 [[replace_func]]
 addr = 0xD00E   # player_jump.c
 [[replace_func]]
@@ -1510,149 +1510,149 @@ addr = 0xEF83   # push_out_down, stage_probe.c
 [[replace_func]]
 addr = 0xEF9D   # push_out_up, stage_probe.c
 [[replace_func]]
-addr = 0xF000   # lifted, lifted_f.c
+addr = 0xF000   # obj_walk_right, obj_walk.c
 [[replace_func]]
-addr = 0xF003   # lifted, lifted_f.c
+addr = 0xF003   # obj_step_right, obj_walk.c
 [[replace_func]]
-addr = 0xF03F   # lifted, lifted_f.c
+addr = 0xF03F   # player_face_right, obj_move.c
 [[replace_func]]
-addr = 0xF048   # lifted, lifted_f.c
+addr = 0xF048   # player_face_left, obj_move.c
 [[replace_func]]
-addr = 0xF051   # lifted, lifted_f.c
+addr = 0xF051   # obj_walk_left, obj_walk.c
 [[replace_func]]
-addr = 0xF054   # lifted, lifted_f.c
+addr = 0xF054   # obj_step_left, obj_walk.c
 [[replace_func]]
-addr = 0xF090   # lifted, lifted_f.c
+addr = 0xF090   # obj_face_right, obj_move.c
 [[replace_func]]
-addr = 0xF099   # lifted, lifted_f.c
+addr = 0xF099   # obj_face_left, obj_move.c
 [[replace_func]]
-addr = 0xF0A2   # lifted, lifted_f.c
+addr = 0xF0A2   # obj_walk_down, obj_walk.c
 [[replace_func]]
-addr = 0xF0DC   # lifted, lifted_f.c
+addr = 0xF0DC   # player_pit_fall_start, obj_walk.c
 [[replace_func]]
-addr = 0xF0F7   # lifted, lifted_f.c
+addr = 0xF0F7   # obj_walk_up, obj_walk.c
 [[replace_func]]
-addr = 0xF119   # lifted, lifted_f.c
+addr = 0xF119   # obj_jump_move, obj_walk.c
 [[replace_func]]
-addr = 0xF16E   # lifted, lifted_f.c
+addr = 0xF16E   # obj_walk.c
 [[replace_func]]
-addr = 0xF183   # lifted, lifted_f.c
+addr = 0xF183   # obj_move_right, obj_move.c
 [[replace_func]]
-addr = 0xF1A1   # lifted, lifted_f.c
+addr = 0xF1A1   # obj_move_left, obj_move.c
 [[replace_func]]
-addr = 0xF1BF   # lifted, lifted_f.c
+addr = 0xF1BF   # obj_move_down, obj_move.c
 [[replace_func]]
-addr = 0xF1DF   # lifted, lifted_f.c
+addr = 0xF1DF   # obj_move_up, obj_move.c
 [[replace_func]]
-addr = 0xF1FD   # lifted, lifted_f.c
+addr = 0xF1FD   # obj_fall, obj_move.c
 [[replace_func]]
-addr = 0xF20E   # lifted, lifted_f.c
+addr = 0xF20E   # obj_move.c
 [[replace_func]]
-addr = 0xF22E   # lifted, lifted_f.c
+addr = 0xF22E   # obj_move.c
 [[replace_func]]
-addr = 0xF24C   # lifted, lifted_f.c
+addr = 0xF24C   # obj_gravity, obj_move.c
 [[replace_func]]
-addr = 0xF26E   # lifted, lifted_f.c
+addr = 0xF26E   # obj_init_vy, obj_move.c
 [[replace_func]]
-addr = 0xF288   # lifted, lifted_f.c
+addr = 0xF288   # obj_set_anim, obj_anim.c
 [[replace_func]]
-addr = 0xF294   # lifted, lifted_f.c
+addr = 0xF294   # player_set_anim, obj_anim.c
 [[replace_func]]
-addr = 0xF2A0   # lifted, lifted_f.c
+addr = 0xF2A0   # obj_spawn, obj_anim.c
 [[replace_func]]
-addr = 0xF314   # lifted, lifted_f.c
+addr = 0xF314   # obj_dir_to_player, obj_move.c
 [[replace_func]]
-addr = 0xF32E   # lifted, lifted_f.c
+addr = 0xF32E   # obj_flip_from_dir, obj_move.c
 [[replace_func]]
-addr = 0xF343   # lifted, lifted_f.c
+addr = 0xF343   # obj_face_player, obj_move.c
 [[replace_func]]
 addr = 0xF34C   # sound_queue_push_sfx, sound.c
 [[replace_func]]
-addr = 0xF365   # lifted, lifted_f.c
+addr = 0xF365   # obj_dist_y, obj_move.c
 [[replace_func]]
-addr = 0xF374   # lifted, lifted_f.c
+addr = 0xF374   # obj_dist_x, obj_move.c
 [[replace_func]]
-addr = 0xF38B   # lifted, lifted_f.c
+addr = 0xF38B   # obj_dir_index, obj_move.c
 [[replace_func]]
-addr = 0xF406   # lifted, lifted_f.c
+addr = 0xF406   # scene_frame, obj_anim.c
 [[replace_func]]
-addr = 0xF428   # lifted, lifted_f.c
+addr = 0xF428   # attack_start, obj_combat.c
 [[replace_func]]
-addr = 0xF430   # lifted, lifted_f.c
+addr = 0xF430   # attack_swing_sound, obj_combat.c
 [[replace_func]]
-addr = 0xF436   # lifted, lifted_f.c
+addr = 0xF436   # attack_end, obj_combat.c
 [[replace_func]]
-addr = 0xF43B   # lifted, lifted_f.c
+addr = 0xF43B   # attack_begin, obj_combat.c
 [[replace_func]]
-addr = 0xF440   # lifted, lifted_f.c
+addr = 0xF440   # set_chr_bank2, obj_anim.c
 [[replace_func]]
-addr = 0xF443   # lifted, lifted_f.c
+addr = 0xF443   # obj_set_anim_chr3, obj_anim.c
 [[replace_func]]
-addr = 0xF449   # lifted, lifted_f.c
+addr = 0xF449   # obj_set_anim_chr4, obj_anim.c
 [[replace_func]]
-addr = 0xF44F   # lifted, lifted_f.c
+addr = 0xF44F   # obj_set_anim_chr5, obj_anim.c
 [[replace_func]]
-addr = 0xF455   # lifted, lifted_f.c
+addr = 0xF455   # spawn_hit_spark, obj_combat.c
 [[replace_func]]
-addr = 0xF4E1   # lifted, lifted_f.c
+addr = 0xF4E1   # obj_combat.c
 [[replace_func]]
-addr = 0xF522   # lifted, lifted_f.c
+addr = 0xF522   # obj_combat.c
 [[replace_func]]
-addr = 0xF558   # lifted, lifted_f.c
+addr = 0xF558   # obj_reach.c
 [[replace_func]]
-addr = 0xF55A   # lifted, lifted_f.c
+addr = 0xF55A   # enemy_attack_test, obj_reach.c
 [[replace_func]]
-addr = 0xF63F   # lifted, lifted_f.c
+addr = 0xF63F   # obj_reach.c
 [[replace_func]]
-addr = 0xF679   # lifted, lifted_f.c
+addr = 0xF679   # obj_reach.c
 [[replace_func]]
-addr = 0xF6A9   # lifted, lifted_f.c
+addr = 0xF6A9   # obj_reach.c
 [[replace_func]]
-addr = 0xF71A   # lifted, lifted_f.c
+addr = 0xF71A   # find_free_slot, obj_anim.c
 [[replace_func]]
-addr = 0xF72A   # lifted, lifted_f.c
+addr = 0xF72A   # find_free_effect_slot, obj_anim.c
 [[replace_func]]
-addr = 0xF738   # lifted, lifted_f.c
+addr = 0xF738   # player_attack_test, obj_reach.c
 [[replace_func]]
-addr = 0xF7EA   # lifted, lifted_f.c
+addr = 0xF7EA   # obj_reach.c
 [[replace_func]]
-addr = 0xF7EF   # lifted, lifted_f.c
+addr = 0xF7EF   # obj_reach.c
 [[replace_func]]
-addr = 0xF7FF   # lifted, lifted_f.c
+addr = 0xF7FF   # obj_reach.c
 [[replace_func]]
-addr = 0xF833   # lifted, lifted_f.c
+addr = 0xF833   # obj_reach.c
 [[replace_func]]
-addr = 0xF83D   # lifted, lifted_f.c
+addr = 0xF83D   # obj_reach.c
 [[replace_func]]
-addr = 0xF84C   # lifted, lifted_f.c
+addr = 0xF84C   # obj_reach.c
 [[replace_func]]
-addr = 0xF8D5   # lifted, lifted_f.c
+addr = 0xF8D5   # player_take_hit, obj_combat.c
 [[replace_func]]
-addr = 0xF9E5   # lifted, lifted_f.c
+addr = 0xF9E5   # obj_contact_test, obj_reach.c
 [[replace_func]]
-addr = 0xF9E9   # lifted, lifted_f.c
+addr = 0xF9E9   # obj_reach.c
 [[replace_func]]
-addr = 0xFA84   # lifted, lifted_f.c
+addr = 0xFA84   # obj_reach.c
 [[replace_func]]
-addr = 0xFA91   # lifted, lifted_f.c
+addr = 0xFA91   # obj_reach.c
 [[replace_func]]
-addr = 0xFAC4   # lifted, lifted_f.c
+addr = 0xFAC4   # drop_weapon, obj_combat.c
 [[replace_func]]
-addr = 0xFB09   # lifted, lifted_f.c
+addr = 0xFB09   # obj_hit_start, obj_combat.c
 [[replace_func]]
-addr = 0xFB3E   # lifted, lifted_f.c
+addr = 0xFB3E   # obj_near_player, obj_move.c
 [[replace_func]]
-addr = 0xFB5B   # lifted, lifted_f.c
+addr = 0xFB5B   # obj_dir_to_player_feet, obj_move.c
 [[replace_func]]
-addr = 0xFB72   # lifted, lifted_f.c
+addr = 0xFB72   # obj_dir_to_attack_spot, obj_move.c
 [[replace_func]]
-addr = 0xFBB0   # lifted, lifted_f.c
+addr = 0xFBB0   # obj_move.c
 [[replace_func]]
-addr = 0xFBD9   # lifted, lifted_f.c
+addr = 0xFBD9   # obj_dist_y_feet, obj_move.c
 [[replace_func]]
-addr = 0xFE00   # lifted, lifted_f.c
+addr = 0xFE00   # reset, boot.c
 [[replace_func]]
-addr = 0xFF4C   # lifted, lifted_f.c
+addr = 0xFF4C   # boot.c
 [[replace_func]]
 addr = 0xFF72   # sound_update, sound.c
 [[replace_func]]
@@ -1872,184 +1872,184 @@ bank = 0
 addr = 0x9B16   # flow_story_text.c
 [[replace_func]]
 bank = 0
-addr = 0xA000   # lifted, lifted_b0.c
+addr = 0xA000   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA003   # lifted, lifted_b0.c
+addr = 0xA003   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA006   # lifted, lifted_b0.c
+addr = 0xA006   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA009   # lifted, lifted_b0.c
+addr = 0xA009   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA00C   # lifted, lifted_b0.c
+addr = 0xA00C   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA00F   # lifted, lifted_b0.c
+addr = 0xA00F   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA012   # lifted, lifted_b0.c
+addr = 0xA012   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA015   # lifted, lifted_b0.c
+addr = 0xA015   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA018   # lifted, lifted_b0.c
+addr = 0xA018   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA01B   # lifted, lifted_b0.c
+addr = 0xA01B   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA01E   # lifted, lifted_b0.c
+addr = 0xA01E   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA021   # lifted, lifted_b0.c
+addr = 0xA021   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA024   # lifted, lifted_b0.c
+addr = 0xA024   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA027   # lifted, lifted_b0.c
+addr = 0xA027   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA02A   # lifted, lifted_b0.c
+addr = 0xA02A   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA02D   # lifted, lifted_b0.c
+addr = 0xA02D   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA030   # lifted, lifted_b0.c
+addr = 0xA030   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA031   # lifted, lifted_b0.c
+addr = 0xA031   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA090   # lifted, lifted_b0.c
+addr = 0xA090   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA09B   # lifted, lifted_b0.c
+addr = 0xA09B   # boss_b01_scene.c
 [[replace_func]]
 bank = 0
-addr = 0xA0FD   # lifted, lifted_b0.c
+addr = 0xA0FD   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA101   # lifted, lifted_b0.c
+addr = 0xA101   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA13C   # lifted, lifted_b0.c
+addr = 0xA13C   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA169   # lifted, lifted_b0.c
+addr = 0xA169   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA22A   # lifted, lifted_b0.c
+addr = 0xA22A   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA28B   # lifted, lifted_b0.c
+addr = 0xA28B   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA2ED   # lifted, lifted_b0.c
+addr = 0xA2ED   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA3EA   # lifted, lifted_b0.c
+addr = 0xA3EA   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA417   # lifted, lifted_b0.c
+addr = 0xA417   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA473   # lifted, lifted_b0.c
+addr = 0xA473   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA53B   # lifted, lifted_b0.c
+addr = 0xA53B   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA557   # lifted, lifted_b0.c
+addr = 0xA557   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA5CF   # lifted, lifted_b0.c
+addr = 0xA5CF   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA633   # lifted, lifted_b0.c
+addr = 0xA633   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA651   # lifted, lifted_b0.c
+addr = 0xA651   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA6D6   # lifted, lifted_b0.c
+addr = 0xA6D6   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA736   # lifted, lifted_b0.c
+addr = 0xA736   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA7E1   # lifted, lifted_b0.c
+addr = 0xA7E1   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA83A   # lifted, lifted_b0.c
+addr = 0xA83A   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA882   # lifted, lifted_b0.c
+addr = 0xA882   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA8B7   # lifted, lifted_b0.c
+addr = 0xA8B7   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA8EF   # lifted, lifted_b0.c
+addr = 0xA8EF   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA918   # lifted, lifted_b0.c
+addr = 0xA918   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA971   # lifted, lifted_b0.c
+addr = 0xA971   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA9CA   # lifted, lifted_b0.c
+addr = 0xA9CA   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA9F5   # lifted, lifted_b0.c
+addr = 0xA9F5   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xAA33   # lifted, lifted_b0.c
+addr = 0xAA33   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAAD8   # lifted, lifted_b0.c
+addr = 0xAAD8   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAB0A   # lifted, lifted_b0.c
+addr = 0xAB0A   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAB93   # lifted, lifted_b0.c
+addr = 0xAB93   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xABB0   # lifted, lifted_b0.c
+addr = 0xABB0   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xABB6   # lifted, lifted_b0.c
+addr = 0xABB6   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAC4E   # lifted, lifted_b0.c
+addr = 0xAC4E   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xACC1   # lifted, lifted_b0.c
+addr = 0xACC1   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAD0B   # lifted, lifted_b0.c
+addr = 0xAD0B   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAD50   # lifted, lifted_b0.c
+addr = 0xAD50   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAD5E   # lifted, lifted_b0.c
+addr = 0xAD5E   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAD8C   # lifted, lifted_b0.c
+addr = 0xAD8C   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xADBA   # lifted, lifted_b0.c
+addr = 0xADBA   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAE19   # lifted, lifted_b0.c
+addr = 0xAE19   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 2
 addr = 0x8000   # flow_screens.c
@@ -2115,169 +2115,169 @@ bank = 2
 addr = 0x91BF   # flow_select.c
 [[replace_func]]
 bank = 2
-addr = 0x9300   # lifted, lifted_b2.c
+addr = 0x9300   # continue_screen, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x938A   # lifted, lifted_b2.c
+addr = 0x938A   # continue_loop, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x9398   # lifted, lifted_b2.c
+addr = 0x9398   # continue_walk, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x93B0   # lifted, lifted_b2.c
+addr = 0x93B0   # continue_turn, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x9413   # lifted, lifted_b2.c
+addr = 0x9413   # continue_pick, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x942A   # lifted, lifted_b2.c
+addr = 0x942A   # continue_draw_credits, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x9600   # lifted, lifted_b2.c
+addr = 0x9600   # credits_setup, flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x9800   # lifted, lifted_b2.c
+addr = 0x9800   # talk_screen, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x980F   # lifted, lifted_b2.c
+addr = 0x980F   # talk_open, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x98AF   # lifted, lifted_b2.c
+addr = 0x98AF   # talk_wait, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x98BD   # lifted, lifted_b2.c
+addr = 0x98BD   # talk_hold, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x98DD   # lifted, lifted_b2.c
+addr = 0x98DD   # talk_type, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x999B   # lifted, lifted_b2.c
+addr = 0x999B   # talk_page_end, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x99D6   # lifted, lifted_b2.c
+addr = 0x99D6   # talk_next_page, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x99DD   # lifted, lifted_b2.c
+addr = 0x99DD   # talk_goto_page, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9A74   # lifted, lifted_b2.c
+addr = 0x9A74   # talk_answer, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9A8F   # lifted, lifted_b2.c
+addr = 0x9A8F   # talk_end, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9A9E   # lifted, lifted_b2.c
+addr = 0x9A9E   # talk_box_clear, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9AA0   # lifted, lifted_b2.c
+addr = 0x9AA0   # talk_text, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9AC2   # lifted, lifted_b2.c
+addr = 0x9AC2   # talk_find_boss, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9AD1   # lifted, lifted_b2.c
+addr = 0x9AD1   # talk_boss_anim_e4, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9AD9   # lifted, lifted_b2.c
+addr = 0x9AD9   # talk_boss_anim_ea, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9AF4   # lifted, lifted_b2.c
+addr = 0x9AF4   # talk_bar_cut, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0xA700   # lifted, lifted_b2.c
+addr = 0xA700   # prop_behaviors, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA703   # lifted, lifted_b2.c
+addr = 0xA703   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA706   # lifted, lifted_b2.c
+addr = 0xA706   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA709   # lifted, lifted_b2.c
+addr = 0xA709   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA70C   # lifted, lifted_b2.c
+addr = 0xA70C   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA70F   # lifted, lifted_b2.c
+addr = 0xA70F   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA712   # lifted, lifted_b2.c
+addr = 0xA712   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA715   # lifted, lifted_b2.c
+addr = 0xA715   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA718   # lifted, lifted_b2.c
+addr = 0xA718   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA71B   # lifted, lifted_b2.c
+addr = 0xA71B   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA71E   # lifted, lifted_b2.c
+addr = 0xA71E   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA721   # lifted, lifted_b2.c
+addr = 0xA721   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA727   # lifted, lifted_b2.c
+addr = 0xA727   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA72A   # lifted, lifted_b2.c
+addr = 0xA72A   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA72D   # lifted, lifted_b2.c
+addr = 0xA72D   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA730   # lifted, lifted_b2.c
+addr = 0xA730   # prop_none, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA731   # lifted, lifted_b2.c
+addr = 0xA731   # hidden_food, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA7A5   # lifted, lifted_b2.c
+addr = 0xA7A5   # weapon_pickup, obj_weapons.c
 [[replace_func]]
 bank = 2
-addr = 0xA8A8   # lifted, lifted_b2.c
+addr = 0xA8A8   # thrown_weapon, obj_weapons.c
 [[replace_func]]
 bank = 2
-addr = 0xA916   # lifted, lifted_b2.c
+addr = 0xA916   # dropped_weapon, obj_weapons.c
 [[replace_func]]
 bank = 2
-addr = 0xA957   # lifted, lifted_b2.c
+addr = 0xA957   # dropped_weapon_fall, obj_weapons.c
 [[replace_func]]
 bank = 2
-addr = 0xA9E4   # lifted, lifted_b2.c
+addr = 0xA9E4   # boss_talk, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAA82   # lifted, lifted_b2.c
+addr = 0xAA82   # go_sign, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAB08   # lifted, lifted_b2.c
+addr = 0xAB08   # thrasher_look_in, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAB41   # lifted, lifted_b2.c
+addr = 0xAB41   # andore_charge, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xABC4   # lifted, lifted_b2.c
+addr = 0xABC4   # boss_low_palette, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xABE1   # lifted, lifted_b2.c
+addr = 0xABE1   # elevator, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAC58   # lifted, lifted_b2.c
+addr = 0xAC58   # elevator_step, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAC7D   # lifted, lifted_b2.c
+addr = 0xAC7D   # elevator_lights, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xACE1   # lifted, lifted_b2.c
+addr = 0xACE1   # elevator_floor, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAD37   # lifted, lifted_b2.c
+addr = 0xAD37   # shaft_light, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAD58   # lifted, lifted_b2.c
+addr = 0xAD58   # floor_indicator, obj_props.c
 [[replace_func]]
 bank = 4
 addr = 0x8000   # stage_list_setup, stage_spawn.c
@@ -2712,34 +2712,34 @@ bank = 0
 addr = 0x93AF   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0xA54C   # lifted, lifted_late.c
+addr = 0xA54C   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA6FC   # lifted, lifted_late.c
+addr = 0xA6FC   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA7BB   # lifted, lifted_late.c
+addr = 0xA7BB   # boss_b01_shared.c
 [[replace_func]]
 bank = 1
 addr = 0xBED2   # lifted, lifted_late.c
 [[replace_func]]
 bank = 2
-addr = 0x9B18   # lifted, lifted_late.c
+addr = 0x9B18   # talk_fill_health, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9B7E   # lifted, lifted_late.c
+addr = 0x9B7E   # talk_extra_life, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9BA4   # lifted, lifted_late.c
+addr = 0x9BA4   # talk_extra_credit, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0xA724   # lifted, lifted_late.c
+addr = 0xA724   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA82A   # lifted, lifted_late.c
+addr = 0xA82A   # weapon_take, obj_weapons.c
 [[replace_func]]
 bank = 2
-addr = 0xA851   # lifted, lifted_late.c
+addr = 0xA851   # weapon_drop, obj_weapons.c
 [[replace_func]]
 bank = 3
 addr = 0x8118   # snd_start, sound_driver.c
@@ -2748,37 +2748,37 @@ bank = 3
 addr = 0x825B   # snd_effect_row, sound_effect.c
 [[replace_func]]
 bank = 4
-addr = 0x80E3   # lifted, lifted_late.c
+addr = 0x80E3   # stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x8956   # lifted, lifted_late.c
+addr = 0x8956   # events_area_cleared, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8BD4   # lifted, lifted_late.c
+addr = 0x8BD4   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9011   # lifted, lifted_late.c
+addr = 0x9011   # stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x97AD   # lifted, lifted_late.c
+addr = 0x97AD   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x97F3   # lifted, lifted_late.c
+addr = 0x97F3   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9828   # lifted, lifted_late.c
+addr = 0x9828   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9867   # lifted, lifted_late.c
+addr = 0x9867   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x986E   # lifted, lifted_late.c
+addr = 0x986E   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x989A   # lifted, lifted_late.c
+addr = 0x989A   # stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x99BB   # lifted, lifted_late.c
+addr = 0x99BB   # stage_events.c
 [[replace_func]]
 bank = 5
 addr = 0xB543   # lifted, lifted_late.c
@@ -2903,17 +2903,17 @@ addr = 0xAC75   # enemy_walk.c
 bank = 6
 addr = 0xAC8E   # enemy_walk.c
 [[replace_func]]
-addr = 0xC4A5   # lifted, lifted_late.c
+addr = 0xC4A5   # flow_area.c
 [[replace_func]]
-addr = 0xC93B   # lifted, lifted_late.c
+addr = 0xC93B   # flow_gameplay.c
 [[replace_func]]
-addr = 0xCA39   # lifted, lifted_late.c
+addr = 0xCA39   # player_state_idle.c
 [[replace_func]]
-addr = 0xCAF5   # lifted, lifted_late.c
+addr = 0xCAF5   # player_state_idle.c
 [[replace_func]]
-addr = 0xCBA0   # lifted, lifted_late.c
+addr = 0xCBA0   # player_state_idle.c
 [[replace_func]]
-addr = 0xCF33   # lifted, lifted_late.c
+addr = 0xCF33   # player_state_idle.c
 [[replace_func]]
 bank = 0
 addr = 0x8177   # player_power.c
@@ -2943,16 +2943,16 @@ bank = 0
 addr = 0x91B2   # player_exits.c
 [[replace_func]]
 bank = 2
-addr = 0xA850   # lifted, lifted_late.c
+addr = 0xA850   # obj_weapons.c
 [[replace_func]]
 bank = 4
-addr = 0x892C   # lifted, lifted_late.c
+addr = 0x892C   # events_screen_event, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x893C   # lifted, lifted_late.c
+addr = 0x893C   # events_walk_out, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8955   # lifted, lifted_late.c
+addr = 0x8955   # stage_events.c
 [[replace_func]]
 bank = 3
 addr = 0x822D   # snd_fade_in, sound_driver.c
