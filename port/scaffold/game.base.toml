@@ -260,31 +260,31 @@ bank = 1
 addr = 0xBB29   # lifted, lifted_b1.c
 [[replace_func]]
 bank = 1
-addr = 0xBB91   # lifted, lifted_b1.c
+addr = 0xBB91   # enemy_drums.c
 [[replace_func]]
 bank = 1
-addr = 0xBBCB   # lifted, lifted_b1.c
+addr = 0xBBCB   # enemy_drums.c
 [[replace_func]]
 bank = 1
-addr = 0xBCD1   # lifted, lifted_b1.c
+addr = 0xBCD1   # enemy_drums.c
 [[replace_func]]
 bank = 1
-addr = 0xBD46   # lifted, lifted_b1.c
+addr = 0xBD46   # enemy_drums.c
 [[replace_func]]
 bank = 1
-addr = 0xBD7C   # lifted, lifted_b1.c
+addr = 0xBD7C   # enemy_drums.c
 [[replace_func]]
 bank = 1
-addr = 0xBDAF   # lifted, lifted_b1.c
+addr = 0xBDAF   # enemy_drums.c
 [[replace_func]]
 bank = 1
-addr = 0xBDCE   # lifted, lifted_b1.c
+addr = 0xBDCE   # enemy_drums.c
 [[replace_func]]
 bank = 1
-addr = 0xBE72   # lifted, lifted_b1.c
+addr = 0xBE72   # enemy_drums.c
 [[replace_func]]
 bank = 1
-addr = 0xBE9B   # lifted, lifted_b1.c
+addr = 0xBE9B   # enemy_drums.c
 [[replace_func]]
 bank = 1
 addr = 0xBF38   # lifted, lifted_b1.c
@@ -545,37 +545,37 @@ bank = 5
 addr = 0xB330   # lifted, lifted_b5.c
 [[replace_func]]
 bank = 5
-addr = 0xB331   # lifted, lifted_b5.c
+addr = 0xB331   # enemy_drums.c
 [[replace_func]]
 bank = 5
-addr = 0xB349   # lifted, lifted_b5.c
+addr = 0xB349   # enemy_drums.c
 [[replace_func]]
 bank = 5
-addr = 0xB366   # lifted, lifted_b5.c
+addr = 0xB366   # enemy_drums.c
 [[replace_func]]
 bank = 5
-addr = 0xB403   # lifted, lifted_b5.c
+addr = 0xB403   # enemy_drums.c
 [[replace_func]]
 bank = 5
-addr = 0xB411   # lifted, lifted_b5.c
+addr = 0xB411   # enemy_drums.c
 [[replace_func]]
 bank = 5
-addr = 0xB46F   # lifted, lifted_b5.c
+addr = 0xB46F   # enemy_drums.c
 [[replace_func]]
 bank = 5
-addr = 0xB512   # lifted, lifted_b5.c
+addr = 0xB512   # enemy_drums.c
 [[replace_func]]
 bank = 5
-addr = 0xB581   # lifted, lifted_b5.c
+addr = 0xB581   # enemy_drums.c
 [[replace_func]]
 bank = 5
-addr = 0xB5AF   # lifted, lifted_b5.c
+addr = 0xB5AF   # enemy_drums.c
 [[replace_func]]
 bank = 5
-addr = 0xB5D7   # lifted, lifted_b5.c
+addr = 0xB5D7   # enemy_drums.c
 [[replace_func]]
 bank = 5
-addr = 0xB625   # lifted, lifted_b5.c
+addr = 0xB625   # enemy_drums.c
 [[replace_func]]
 bank = 5
 addr = 0xB696   # lifted, lifted_b5.c
@@ -2781,7 +2781,7 @@ bank = 4
 addr = 0x99BB   # lifted, lifted_late.c
 [[replace_func]]
 bank = 5
-addr = 0xB543   # lifted, lifted_late.c
+addr = 0xB543   # enemy_drums.c
 [[replace_func]]
 bank = 5
 addr = 0xBAE8   # lifted, lifted_late.c

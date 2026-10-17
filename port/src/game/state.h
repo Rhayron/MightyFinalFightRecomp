@@ -116,14 +116,14 @@
 #define CREDITS                  0x00AF  /* 3 at a new game: the continue screen's CREDIT 3 */
 #define HUD_ENEMY_SLOT           0x00B0  /* slot whose life bar the HUD shows: the enemy just hit (0C:8569, 8598, 9BC8), the held one  */
 #define HUD_ENEMY_TIMER          0x00B1  /* frames the enemy bar has been shown: 0 or 1 when hud_enemy_slot changes (0C:856D, 0F:E8C4) */
-#define UNK_B2                   0x00B2  /* purpose unknown: unclear (RAM survey); named so no raw address remains (rename with eviden */
+#define UNK_B2                   0x00B2  /* bonus stage flag: $FF while the drum bonus stage runs (00:94F7 sets it with the controller */
 #define GUY_JUMP_WINDOW          0x00B3  /* Guy only: 5 when Up is pressed during a jump with animation $3B (0E:D057-D05F); landing th */
 #define DIALOGUE_CHOICE          0x00B4  /* special screen: bit 7 toggled by the pad with sound $2F (04:99FE-9A07), drawn as a two-way */
 #define SCREEN_EVENT             0x00B5  /* set by the screen-advance object when the camera is $28 pixels into the next screen (05:AA */
 #define UNK_B6                   0x00B6  /* purpose unknown: written, never read in coverage; named so no raw address remains (rename  */
 #define GAME_FINISHED            0x00B7  /* $FF after the last round (0E:DE99-DEAA, with paused $FF and the ending music $08); gamepla */
 #define INTRO_PAGE               0x00B8  /* 0..4, each drawn by $9A00 in bank 00 (main_task) */
-#define UNK_B9                   0x00B9  /* purpose unknown: unclear (RAM survey); named so no raw address remains (rename with eviden */
+#define UNK_B9                   0x00B9  /* drums smashed in the bonus stage: 0 at its start (0B:B355), +1 per smashed drum (03:BD6E); */
 #define GRAB_HIT_COUNT           0x00BA  /* hits delivered during a grab: each hit sets attack_id from $8CC1[n] and INC (00:8B33-8B48, */
 #define CAMERA_AUTOSCROLL        0x00BB  /* $FF with camera_lock (0F:E467); once the lock is lifted, walking past the screen centre st */
 #define KEEP_ON_SCREEN           0x00BC  /* $FF in areas whose script asks for it (08:8ABF, 8C43, 8CA5, 8CE1, 8D6F, 8DA8): knocked-bac */

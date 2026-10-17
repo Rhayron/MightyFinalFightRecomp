@@ -2772,27 +2772,6 @@ void func_99BB_b4(void) {
     mff_rts(); return;
 }
 
-/*  $B543 (bank 5) - lifted by port/tools/lift.py */
-void func_B543_b5(void) {
-    REGS_IN;
-    mff_cycles(0xB543, 32);
-    a = 0x02;
-    RAM(OBJ_DIR + y) = a;
-    a = 0xFF;
-    RAM(OBJ_X + y) = a;
-    a = 0x8C;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_Y + y) = a;
-    RAM(OBJ_TIMER2 + y) = a;
-    SYNC_OUT;
-    if (!mff_call_at(0x1557, 0xB5AF, 5)) return;
-    SYNC_IN;
-    mff_cycles(0xB558, 6);
-    SYNC_OUT;
-    mff_rts(); return;
-}
-
 /*  $BAE8 (bank 5) - lifted by port/tools/lift.py */
 void func_BAE8_b5(void) {
     REGS_IN;

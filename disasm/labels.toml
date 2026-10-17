@@ -2278,12 +2278,12 @@ comment = "per effect channel (X 0-3); the music's copy is snd_m_slide at +$28; 
 [[ram]]
 addr = 0x00B2
 name = "unk_b2"
-comment = "purpose unknown: unclear (RAM survey); named so no raw address remains (rename with evidence)"
+comment = "bonus stage flag: $FF while the drum bonus stage runs (00:94F7 sets it with the controller, id $70 in slot $0F); a smashed drum then counts for the prize instead of leaving an item (03:BD68), the A+B special is off (0E:CA40, 0E:D305) and an extra-life pickup ends the stage (0C:8C00, never executed); cleared with the round state. Rename to bonus_stage proposed (tidy/enemies, enemy_drums.c)"
 
 [[ram]]
 addr = 0x00B9
 name = "unk_b9"
-comment = "purpose unknown: unclear (RAM survey); named so no raw address remains (rename with evidence)"
+comment = "drums smashed in the bonus stage: 0 at its start (0B:B355), +1 per smashed drum (03:BD6E); with 8 or more the prize is $B66C/$B681 by the count, all 20 add special screen $FC (0B:B387-B3D7); the results text reads and clears it (04:9889). Rename to bonus_drum_count proposed (tidy/enemies, enemy_drums.c)"
 
 [[ram]]
 addr = 0x00AC
