@@ -27,9 +27,11 @@
 
 /* N and Z after a load, transfer, INC, DEC, AND, ORA, EOR, shift of `val` */
 #define SET_NZ(val) (n = (uint8_t)(val) >> 7, z = (uint8_t)(val) == 0)
-/* N, Z and C after CMP/CPX/CPY of register `r` with `val` */
+/* N, Z and C after CMP/CPX/CPY of register `r` with `val`. `val` is read
+ * once, into the operand scratch m (as ADC_A/SBC_A do), so a mem_read or
+ * prg_read there is one read, as the 6502's; `r` is a register local. */
 #define CMP_FLAGS(r, val) \
-    (c = (uint8_t)(r) >= (uint8_t)(val), SET_NZ((uint8_t)(r) - (uint8_t)(val)))
+    (m = (uint8_t)(val), c = (uint8_t)(r) >= m, SET_NZ((uint8_t)(r) - m))
 /* ADC / SBC into A, with C and V (N and Z are left to the caller) */
 #define ADC_A(val) \
     (m = (uint8_t)(val), w = a + m + c, v = (~(a ^ m) & (a ^ w) & 0x80) != 0, \
