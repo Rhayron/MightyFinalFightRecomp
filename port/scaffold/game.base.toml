@@ -1872,184 +1872,184 @@ bank = 0
 addr = 0x9B16   # lifted, lifted_b0.c
 [[replace_func]]
 bank = 0
-addr = 0xA000   # lifted, lifted_b0.c
+addr = 0xA000   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA003   # lifted, lifted_b0.c
+addr = 0xA003   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA006   # lifted, lifted_b0.c
+addr = 0xA006   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA009   # lifted, lifted_b0.c
+addr = 0xA009   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA00C   # lifted, lifted_b0.c
+addr = 0xA00C   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA00F   # lifted, lifted_b0.c
+addr = 0xA00F   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA012   # lifted, lifted_b0.c
+addr = 0xA012   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA015   # lifted, lifted_b0.c
+addr = 0xA015   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA018   # lifted, lifted_b0.c
+addr = 0xA018   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA01B   # lifted, lifted_b0.c
+addr = 0xA01B   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA01E   # lifted, lifted_b0.c
+addr = 0xA01E   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA021   # lifted, lifted_b0.c
+addr = 0xA021   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA024   # lifted, lifted_b0.c
+addr = 0xA024   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA027   # lifted, lifted_b0.c
+addr = 0xA027   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA02A   # lifted, lifted_b0.c
+addr = 0xA02A   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA02D   # lifted, lifted_b0.c
+addr = 0xA02D   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA030   # lifted, lifted_b0.c
+addr = 0xA030   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA031   # lifted, lifted_b0.c
+addr = 0xA031   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA090   # lifted, lifted_b0.c
+addr = 0xA090   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA09B   # lifted, lifted_b0.c
+addr = 0xA09B   # boss_b01_scene.c
 [[replace_func]]
 bank = 0
-addr = 0xA0FD   # lifted, lifted_b0.c
+addr = 0xA0FD   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA101   # lifted, lifted_b0.c
+addr = 0xA101   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA13C   # lifted, lifted_b0.c
+addr = 0xA13C   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA169   # lifted, lifted_b0.c
+addr = 0xA169   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA22A   # lifted, lifted_b0.c
+addr = 0xA22A   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA28B   # lifted, lifted_b0.c
+addr = 0xA28B   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA2ED   # lifted, lifted_b0.c
+addr = 0xA2ED   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA3EA   # lifted, lifted_b0.c
+addr = 0xA3EA   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA417   # lifted, lifted_b0.c
+addr = 0xA417   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA473   # lifted, lifted_b0.c
+addr = 0xA473   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA53B   # lifted, lifted_b0.c
+addr = 0xA53B   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA557   # lifted, lifted_b0.c
+addr = 0xA557   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA5CF   # lifted, lifted_b0.c
+addr = 0xA5CF   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA633   # lifted, lifted_b0.c
+addr = 0xA633   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA651   # lifted, lifted_b0.c
+addr = 0xA651   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA6D6   # lifted, lifted_b0.c
+addr = 0xA6D6   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA736   # lifted, lifted_b0.c
+addr = 0xA736   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA7E1   # lifted, lifted_b0.c
+addr = 0xA7E1   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA83A   # lifted, lifted_b0.c
+addr = 0xA83A   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA882   # lifted, lifted_b0.c
+addr = 0xA882   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA8B7   # lifted, lifted_b0.c
+addr = 0xA8B7   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA8EF   # lifted, lifted_b0.c
+addr = 0xA8EF   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA918   # lifted, lifted_b0.c
+addr = 0xA918   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA971   # lifted, lifted_b0.c
+addr = 0xA971   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA9CA   # lifted, lifted_b0.c
+addr = 0xA9CA   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA9F5   # lifted, lifted_b0.c
+addr = 0xA9F5   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xAA33   # lifted, lifted_b0.c
+addr = 0xAA33   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAAD8   # lifted, lifted_b0.c
+addr = 0xAAD8   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAB0A   # lifted, lifted_b0.c
+addr = 0xAB0A   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAB93   # lifted, lifted_b0.c
+addr = 0xAB93   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xABB0   # lifted, lifted_b0.c
+addr = 0xABB0   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xABB6   # lifted, lifted_b0.c
+addr = 0xABB6   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAC4E   # lifted, lifted_b0.c
+addr = 0xAC4E   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xACC1   # lifted, lifted_b0.c
+addr = 0xACC1   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAD0B   # lifted, lifted_b0.c
+addr = 0xAD0B   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAD50   # lifted, lifted_b0.c
+addr = 0xAD50   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAD5E   # lifted, lifted_b0.c
+addr = 0xAD5E   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAD8C   # lifted, lifted_b0.c
+addr = 0xAD8C   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xADBA   # lifted, lifted_b0.c
+addr = 0xADBA   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 0
-addr = 0xAE19   # lifted, lifted_b0.c
+addr = 0xAE19   # boss_sodom_rematch.c
 [[replace_func]]
 bank = 2
 addr = 0x8000   # flow_screens.c
@@ -2712,13 +2712,13 @@ bank = 0
 addr = 0x93AF   # lifted, lifted_late.c
 [[replace_func]]
 bank = 0
-addr = 0xA54C   # lifted, lifted_late.c
+addr = 0xA54C   # boss_thrasher_sodom.c
 [[replace_func]]
 bank = 0
-addr = 0xA6FC   # lifted, lifted_late.c
+addr = 0xA6FC   # boss_b01_shared.c
 [[replace_func]]
 bank = 0
-addr = 0xA7BB   # lifted, lifted_late.c
+addr = 0xA7BB   # boss_b01_shared.c
 [[replace_func]]
 bank = 1
 addr = 0xBED2   # lifted, lifted_late.c

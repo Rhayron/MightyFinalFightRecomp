@@ -2155,64 +2155,6 @@ void func_93AF_b0(void) {
     mff_rts(); return;
 }
 
-/*  $A54C (bank 0) - lifted by port/tools/lift.py */
-void func_A54C_b0(void) {
-    REGS_IN;
-    mff_cycles(0xA54C, 20);
-    a = 0x80;
-    RAM(OBJ_STATE + x) = a;
-    a = 0x01;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_DOWN_TIMER + x) = a;
-    SYNC_OUT;
-    mff_rts(); return;
-}
-
-/*  $A6FC (bank 0) - lifted by port/tools/lift.py */
-void func_A6FC_b0(void) {
-    REGS_IN;
-    mff_cycles(0xA6FC, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x06FE, func_F343, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xA6FF, 22);
-    a = 0x80;
-    RAM(OBJ_STATE + x) = a;
-    a = 0x00;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_HIT_TIMER + x) = a;
-    c = 1;
-    SYNC_OUT;
-    mff_rts(); return;
-}
-
-/*  $A7BB (bank 0) - lifted by port/tools/lift.py */
-void func_A7BB_b0(void) {
-    REGS_IN;
-    mff_cycles(0xA7BB, 59);
-    a = 0x8E;
-    RAM(OBJ_VY_FRAC + x) = a;
-    a = 0x03;
-    RAM(OBJ_VY + x) = a;
-    a = RAM(OBJ_ID + x);
-    RAM(OBJ_SAVED_ID + x) = a;
-    a = 0x05;
-    RAM(OBJ_ID + x) = a;
-    a = 0x00;
-    RAM(OBJ_TIMER + x) = a;
-    a = 0x80;
-    RAM(OBJ_STATE + x) = a;
-    a = 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_INVULN + x) = a;
-    c = 1;
-    SYNC_OUT;
-    mff_rts(); return;
-}
-
 /*  $BED2 (bank 1) - lifted by port/tools/lift.py */
 void func_BED2_b1(void) {
     REGS_IN;
