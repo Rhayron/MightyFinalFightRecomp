@@ -456,10 +456,12 @@ void func_F8D5(void)
         mff_cycles(0xF934, 7);
         y = RAM(PLAYER_ID);
         a = prg_read((uint16_t)(PLAYER_ANIM_HURT + y));
+        SET_NZ(a);
         mff_cycles(0xF939, 6);
         CALL_FIXED(0xF939, func_F294);          /* player_set_anim */
         mff_cycles(0xF93C, 4);
         a = prg_read((uint16_t)(PLAYER_CHR_HURT + y));
+        SET_NZ(a);
         mff_cycles(0xF93F, 6);
         CALL_FIXED(0xF93F, func_F440);          /* set_chr_bank2 */
         mff_cycles(0xF942, 34);
@@ -476,6 +478,7 @@ void func_F8D5(void)
         mff_cycles(0xF962, 10);
         RAM(PLAYER_DIR) = a;
         a = RAM(GAME_ACTION);
+        c = a >= ACTION_JUMP;
         if (a == ACTION_JUMP) {
             mff_cycles(0xF968, 1);
             SYNC_OUT;
@@ -483,6 +486,7 @@ void func_F8D5(void)
             return;
         }
         mff_cycles(0xF96A, 4);
+        c = a >= ACTION_CODY_SLASH;
         if (a == ACTION_CODY_SLASH) {
             mff_cycles(0xF96C, 1);
             SYNC_OUT;
@@ -491,7 +495,9 @@ void func_F8D5(void)
         }
         mff_cycles(0xF96E, 12);
         RAM(GAME_ACTION) = ACTION_HIT;
-        if (RAM(PLAYER_ID) != PLAYER_GUY) {
+        a = RAM(PLAYER_ID);
+        CMP_FLAGS(a, PLAYER_GUY);
+        if (a != PLAYER_GUY) {
             mff_cycles(0xF978, 17);
             a = 0x00;
             RAM(ATTACK_LIVE) = a;
@@ -501,7 +507,9 @@ void func_F8D5(void)
         }
         mff_cycles(0xF976, 1);
         mff_cycles(0xF981, 5);
-        if (RAM(WEAPON_HELD) != 0) {            /* never executed */
+        a = RAM(WEAPON_HELD);
+        SET_NZ(a);
+        if (a != 0) {                           /* never executed */
             mff_cycles(0xF985, 6);
             CALL_FIXED(0xF985, func_F436);      /* attack_end */
             mff_cycles(0xF988, 16);
@@ -519,6 +527,7 @@ void func_F8D5(void)
 
     mff_cycles(0xF999, 34);
     FACE_ATTACKER();
+    CMP_FLAGS(a, OBJF_PLAYER_LEFT);
     if (a == OBJF_PLAYER_LEFT) {
         mff_cycles(0xF9B1, 1);
         SYNC_OUT;
@@ -550,10 +559,12 @@ static void knocked_back(int left)
     RAM(PLAYER_DIR) = a;
     y = RAM(PLAYER_ID);
     a = prg_read((uint16_t)(PLAYER_ANIM_KNOCKBACK + y));
+    SET_NZ(a);
     mff_cycles(0xF9C0, 6);
     CALL_FIXED(0xF9C0, func_F294);              /* player_set_anim */
     mff_cycles(0xF9C3, 4);
     a = prg_read((uint16_t)(PLAYER_CHR_KNOCKBACK + y));
+    SET_NZ(a);
     mff_cycles(0xF9C6, 6);
     CALL_FIXED(0xF9C6, func_F440);              /* set_chr_bank2 */
     mff_cycles(0xF9C9, 15);
