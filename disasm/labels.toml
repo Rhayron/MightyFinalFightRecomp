@@ -2328,9 +2328,461 @@ comment = "purpose unknown: accessed only on paths no route runs; named so no ra
 [[ram]]
 addr = 0x06DA
 name = "unk_6da"
-comment = "purpose unknown: accessed only on paths no route runs; named so no raw address remains (rename with evidence)"
+comment = "written by the round map on every run (04:8D6F) and read by nothing; the pattern of the stores around it says palette_base+$1B ($063B) was meant, so probably a slip in the game (tidy/flow)"
 
 [[ram]]
 addr = 0x00F8
 name = "unk_f8"
 comment = "purpose unknown: the NMI copies it to irq_scroll ($C031 -> $7C) but nothing writes it (always 0 in every run)"
+
+# ---- names from the P4 tidy (sound driver, game flow and screens) ----------
+
+[[label]]
+bank = 0x06
+addr = 0x81B5
+name = "snd_special_table"
+comment = "inline table after JSR snd_jump_inline at $81B2, 8 entries; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x822D
+name = "snd_fade_in"
+comment = "snd_special_table entry 5; no route plays it; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8234
+name = "snd_fade_out"
+comment = "snd_special_table entry 6; no route plays it; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x824A
+name = "snd_pitch_scale"
+comment = "snd_special_table entry 7; no route plays it; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8326
+name = "snd_effect_field"
+comment = "JSR from $831B; JSR snd_jump_inline over its table; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8329
+name = "snd_effect_field_table"
+comment = "inline table after the JSR at $8326; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8333
+name = "snd_effect_note"
+comment = "BEQ at $8320 when the field mask is used up; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x83CD
+name = "snd_music_next"
+comment = "branches at $83A2/$83C8/$83CA, JMP at $83D7; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x847E
+name = "snd_music_tie_next"
+comment = "JMP at $843D/$8463; moves flag $40 to $80; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8491
+name = "snd_music_gate_open"
+comment = "JMP at $8416; LDA #$FF / STA $0740,X; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x84A7
+name = "snd_music_cmd_table"
+comment = "inline table after JSR snd_jump_inline at $84A4; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x84D9
+name = "snd_music_triplet"
+comment = "snd_music_cmd_table entry 0; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x84DD
+name = "snd_music_tie"
+comment = "entry 1; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x84E1
+name = "snd_music_dot"
+comment = "entry 2; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x84E8
+name = "snd_music_octave_up2"
+comment = "entry 3; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x84F1
+name = "snd_music_tempo"
+comment = "entry 5; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8505
+name = "snd_music_octave"
+comment = "entry 9; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8515
+name = "snd_music_ch_transpose"
+comment = "entry $B; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x851B
+name = "snd_music_loop0"
+comment = "entries $0E-$15 of snd_music_cmd_table; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x851F
+name = "snd_music_loop1"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8523
+name = "snd_music_loop2"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8527
+name = "snd_music_loop3"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8644
+name = "snd_lfo_check"
+comment = "JMP at $8368, JSR at $843A, BMI at $85FA; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x86C7
+name = "snd_env_table"
+comment = "inline table after JSR snd_jump_inline at $86C4; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x871A
+name = "snd_env_next"
+comment = "INC $0704,X; JMP at $86FF, BNE at $86E4; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x871D
+name = "snd_set_level"
+comment = "STA $0710,X, then into snd_output; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8740
+name = "snd_output_fade"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8752
+name = "snd_output_triangle"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8814
+name = "snd_output_period"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8914
+name = "snd_env_off"
+comment = "snd_env_table entry 4; sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8915
+name = "snd_len_triplet"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x891C
+name = "snd_len_normal"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8923
+name = "snd_octave_base"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8933
+name = "snd_env_rates"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8953
+name = "snd_octave_thresholds"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8959
+name = "snd_period_table"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8A40
+name = "snd_cmd_count"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8A41
+name = "snd_instr_base"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8A43
+name = "snd_cmd_table"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x06
+addr = 0x8AAF
+name = "snd_instruments"
+comment = "sound_*.c (tidy/sound); docs/sound.md"
+
+[[label]]
+bank = 0x0E
+addr = 0xC1DF
+name = "map_round_bank"
+comment = "maps round_bank[round_tables] at $A000 again, keeps X and Y; called first by 0F:E653; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC2D1
+name = "ppu_fill_nametable"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC31D
+name = "sprites_hide_rest"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC362
+name = "palette_fade_in"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC36E
+name = "palette_fade_out"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC3DD
+name = "area_load_graphics"
+comment = "called from 0E:C79D and 0F:E04B; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC44F
+name = "area_pick_sets"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC47D
+name = "area_load_bg_palette"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC527
+name = "area_load_sprite_set"
+comment = "calls 09:A000 with the sprite set it pulls from the stack; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC53E
+name = "player_palettes"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC6D8
+name = "title_start_game"
+comment = "the part of main_task from START on the title; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC85F
+name = "screen_clear_now"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC888
+name = "story_text_screen"
+comment = "called before intro pages 0, 2 and 4; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC8A6
+name = "screen_clear_banks"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC8B4
+name = "player_load_graphics"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC8DA
+name = "player_palette_end"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC8DD
+name = "rom_name_copy"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE15C
+name = "round_map_screen"
+comment = "screen number for each round's map, 8-12; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE1E3
+name = "player_anim_stand"
+comment = "also read at 0E:CEB3; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE22B
+name = "player_chr_stand"
+comment = "also read at 0E:CEB3; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF26E
+name = "obj_init_vy"
+comment = "sets slot X's vertical speed ($FFC0 for the player); flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF406
+name = "scene_frame"
+comment = "saves the PRG banks, draws the objects with draw_busy set, waits a frame, restores the banks; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF440
+name = "set_chr_bank2"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x08
+addr = 0x8000
+name = "screen_draw"
+comment = "draws screen A from its strip script; pointers at $8100/$810E; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x08
+addr = 0x8940
+name = "title_setup"
+comment = "screen 1; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x08
+addr = 0x89C0
+name = "licence_setup"
+comment = "screen 4; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x08
+addr = 0x8A40
+name = "story_text_setup"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x08
+addr = 0x8B40
+name = "story_1_setup"
+comment = "screen 6; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x08
+addr = 0x8F07
+name = "round_map_marker"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x08
+addr = 0x921B
+name = "level_to_haggar"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x08
+addr = 0x9221
+name = "level_from_haggar"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x08
+addr = 0x9300
+name = "continue_screen"
+comment = "screen 3; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x08
+addr = 0x942A
+name = "continue_draw_credits"
+comment = "flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x08
+addr = 0x9500
+name = "game_over_screen"
+comment = "screen 5; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0A
+addr = 0x9C00
+name = "hud_draw_text"
+comment = "queues the HUD's fixed text; flow_*.c (tidy/flow)"

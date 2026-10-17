@@ -331,9 +331,12 @@ void func_821D_b0(void);
 void func_821E_b3(void);
 void func_821E_b6(void);
 void func_8226_b3(void);
+void func_822D_b3(void);
 void func_822F_b6(void);
+void func_8234_b3(void);
 void func_8241_b6(void);
 void func_8244_b6(void);
+void func_824A_b3(void);
 void func_8252_b3(void);
 void func_8256_b6(void);
 void func_825B_b3(void);
@@ -1601,9 +1604,21 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
+    case 0x822D:
+        switch (bank) {
+        case 3: func_822D_b3(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
     case 0x822F:
         switch (bank) {
         case 6: func_822F_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x8234:
+        switch (bank) {
+        case 3: func_8234_b3(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;
@@ -1616,6 +1631,12 @@ int call_by_address_cb(uint16_t addr, int caller_bank) {
     case 0x8244:
         switch (bank) {
         case 6: func_8244_b6(); break;
+        default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
+        }
+        break;
+    case 0x824A:
+        switch (bank) {
+        case 3: func_824A_b3(); break;
         default: return nes_interp_dispatch_bank(cpu_addr, addr, bank);
         }
         break;

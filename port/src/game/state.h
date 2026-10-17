@@ -226,7 +226,7 @@
 #define PALETTE_BASE             0x0620  /* the screen's palette as loaded (0E:C494-C49A writes it with palette_buf; 04:8D55 the chara ($0620-$063F) */
 #define ATTR_SHADOW              0x0640  /* attribute bytes of nametable rows 1-5 ($23C8-$23EF), indexed by $28, so the column rendere ($0640-$0667) */
 #define TILE_BLOCK               0x06C0  /* 4x4 tiles of the 32x32-pixel block the column renderer is drawing, expanded from 4 metatil ($06C0-$06CF) */
-#define UNK_6DA                  0x06DA  /* purpose unknown: accessed only on paths no route runs; named so no raw address remains (re */
+#define UNK_6DA                  0x06DA  /* written by the round map on every run (04:8D6F) and read by nothing; the pattern of the st */
 #define SND_INSTRUMENT           0x0700  /* per effect channel (X 0-3); the music's copy is snd_m_instrument at +$28; docs/sound.md; p ($0700-$0703) */
 #define SND_ENV                  0x0704  /* per effect channel (X 0-3); the music's copy is snd_m_env at +$28; docs/sound.md; port/too ($0704-$0707) */
 #define SND_LFO                  0x0708  /* per effect channel (X 0-3); the music's copy is snd_m_lfo at +$28; docs/sound.md; port/too ($0708-$070B) */

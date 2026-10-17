@@ -127,26 +127,36 @@ its address (in a window the game reads 0 there and goes on).
 
 ## P4: every routine in port/src/game
 
-Every routine of the game now has a C body in `port/src/game/`: about thirty
-written by hand (the scheduler and tasks, NMI and IRQ, VRAM uploads, the
-RNG, the pads, banking) and the rest lifted. With the CMake option
+Every routine of the game now has a C body in `port/src/game/`: some written
+by hand (the scheduler and tasks, NMI and IRQ, VRAM uploads, the RNG, the
+pads, banking, and the systems tidied so far, such as the sound driver in
+`sound_*.c`) and the rest lifted (`lifted_*.c`). With the CMake option
 `MFF_EJECTED` the port builds from `port/src/game`, `port/src/glue` and the
-runtime alone, no generated code at all, and plays the six test routes
-identically to the original scaffold.
+runtime alone, no generated code at all, and plays the nine test routes
+identically to the original scaffold, without the runtime's interpreter ever
+running a ROM instruction.
 
 ```bash
 port/tests/run_routes.sh baseline   # once, on the pure scaffold (regen.sh --pure)
 port/tests/regen.sh                 # the scaffold with port/src/game (replace_func)
 port/tests/run_routes.sh check      # every route must print "identical"
-py -3 -I port/tools/dispatch_gen.py # then build the port alone:
-cmake -S port/scaffold -B build_port -A x64 -DMFF_EJECTED=ON && cmake --build build_port --config Release
-MFF_EXE=build_port/Release/MffScaffold.exe port/tests/run_routes.sh check
+port/tests/port_check.sh build_port # the port alone: dispatch.c and state.h, the
+                                    # entry check, -DMFF_EJECTED=ON build, all routes
 ```
 
+The check fails a route where the runtime's interpreter ran anything
+(`port/tests/interp_report.py` reads `NESRECOMP_FALLBACK_LOG`): a jump to an
+address with no routine still works on the runtime, from the ROM, and the
+routes would stay identical. `port/tools/find_entries.py ROM` finds those
+places statically (jump tables longer than the runs used, tables inline
+after a JSR, return addresses pushed before a jump, constant targets in the
+port's code), and `port_check.sh` stops if it reports any.
+
 The routes (`port/tests/routes`): round 1 with each character (inputs keyed
-by NMI count) and three 50,000-frame tours by the in-process bot
+by NMI count), three 50,000-frame tours by the in-process bot
 (`port/scaffold/bot.c`, `MFF_BOT=char:seed:skip`) that go through every
-round, beat the final boss and run into the ending. The check compares, every
+round, beat the final boss and run into the ending, and three 60,000-frame
+games with other bot seeds. The check compares, every
 frame, all of CPU RAM but the dead part of the stack page, OAM, palette and
 a hash of the rendered picture.
 
@@ -163,7 +173,19 @@ and `lift_structure.py` turns the simple goto shapes into if/else and loops.
 `port/tools/lift_bank.py ROM BANK...` lifts every routine of some banks that
 has no hand-written replacement; `--extra` adds entries the P0 map does not
 list but runs reach (find them with a stack-tracking build and
-`NESRECOMP_FUNC_COUNTS=FILE`).
+`NESRECOMP_FUNC_COUNTS=FILE`), and `--into FILE` lifts just the listed
+entries the port lacks into one file (`lifted_late.c`).
+
+Two passes clean the output (`lift_opt.py`):
+
+- **Partial syncs.** `port/tools/exit_use.py ROM` works out, for every routine,
+  which registers and flags it reads at entry and which ones its callers read
+  after it returns (`runs/p4/exit_use.json`). With that file, a sync carries
+  only those, as plain stores and loads, so the flag computations nobody reads
+  drop out.
+- **Branch folding.** A branch on a flag known to be constant (the 6502's
+  `LDA #0 / BEQ`) becomes a goto, and register round trips through `g_cpu`
+  between two calls go away.
 
 ### Rules a replacement keeps (port/src/game/mff.h)
 
