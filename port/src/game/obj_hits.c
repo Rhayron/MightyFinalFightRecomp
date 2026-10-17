@@ -1,7 +1,8 @@
 /*
  * obj_hits.c - what a player hit does to an object: AxL's block, the
- * damage per character and level (0C:84F0-8635), and the experience the
- * player earns for a kill (0C:89E3-8ACD). docs/objects.md, "Update" step 4.
+ * damage per character and level and the bosses' cut (0C:84F0-87AA), and
+ * the experience the player earns for a kill (0C:89E3-8ACD).
+ * docs/objects.md, "Update" step 4.
  *
  * obj_take_hit runs from objects_update when the player's attack connects
  * and from the thrown-body behaviours when a body lands (they deal the
@@ -9,9 +10,9 @@
  *   obj_take_hit (AxL may block) -> obj_damage ($8593: HUD bar, special
  *   flag, hit cooldown) -> JMP ($87B0/$87B3[player_id]) = the character's
  *   hit sound ($85C8 Cody, $85F0 Guy, $8618 Haggar) -> JMP through the
- *   character's per-level table to the damage lookup at $8638-$8685 (no
- *   function of the scaffold: the interpreter runs it and the subtraction
- *   at $8686).
+ *   character's per-level table to the level's entry of the damage
+ *   lookup ($8638-$8683) -> damage_apply ($8686: the bosses' cut and
+ *   the subtraction from obj_life).
  * exp_award ($89E3) is called by the dying behaviours: JMP
  * ($8ACE/$8AD1[player_id]) to the character's level check, which loads
  * the next level's threshold and adds the attack's points ($8A31).
@@ -374,6 +375,339 @@ void func_8618_b6(void)
     SYNC_OUT;
     damage_by_level(0x8627, 0x87CE, 0x87D2);
 }
+
+/*
+ * The damage lookup, $8638-$8685: one LDA table,Y / BNE $8686 per
+ * character and level (Y = attack_id), entered at the level's own entry
+ * by the JMP ($0004) of damage_by_level. Cody's levels 0-5, Guy's 0-5
+ * (levels 0 and 1 read the same table, so Guy's first level up adds no
+ * damage), Haggar's 0-3. A zero would fall into the next entry's table;
+ * no table holds one for attacks 0-$22, so the BNE is always taken and
+ * Haggar's level 3 ($8683) is the only entry that falls into $8686.
+ */
+static const uint16_t k_damage_tables[] = {
+    0x87D6, 0x87F9, 0x881C, 0x883F, 0x8862, 0x8885,   /* Cody,   $8638-$8651 */
+    0x88A8, 0x88A8, 0x88CB, 0x88EE, 0x8911, 0x8934,   /* Guy,    $8656-$866F */
+    0x8957, 0x897A, 0x899D, 0x89C0,                   /* Haggar, $8674-$8683 */
+};
+#define DAMAGE_LOOKUP       0x8638  /* entry i at $8638 + 5 * i */
+#define DAMAGE_ENTRIES      16
+
+/* the bosses' cut, by obj_kind - 7: Thrasher 2, Sodom 4, Abigail 4,
+ * Sodom with obj_tier set 8 (index 3), Belger 8 (index 4) */
+#define BOSS_DAMAGE_CUT     0x87AB
+#define KIND_THRASHER       0x07
+#define KIND_SODOM          0x08
+#define KIND_ABIGAIL        0x09
+#define KIND_BELGER         0x0B
+static const uint8_t k_boss_kinds[] = { KIND_THRASHER, KIND_SODOM, KIND_ABIGAIL, KIND_BELGER };
+
+/* Sodom's two pieces ($87A7: x offset, height per piece; slots $0D, $0B) */
+#define SODOM_PIECES        0x87A7
+#define KIND_SODOM_PIECE    0x0D
+#define ANIM_SODOM_PIECE    0xFD    /* no experience when it "dies" (obj_knockdown.c) */
+
+void func_F436(void);   /* attack_end */
+
+static void damage_apply(void);
+static void sodom_pieces(void);
+
+/*
+ * The lookup from entry `entry` on (the level's table), then the damage.
+ * In: Y = attack_id, X = slot. Out: as damage_apply.
+ */
+static void damage_lookup(int entry)
+{
+    REGS_IN;
+    int i;
+
+    for (i = entry; ; i++) {
+        uint16_t pc = (uint16_t)(DAMAGE_LOOKUP + 5 * i);
+
+        mff_cycles(pc, 4);
+        a = prg_read((uint16_t)(k_damage_tables[i] + y));
+        if (i == DAMAGE_ENTRIES - 1)
+            break;                              /* $8683 falls into $8686 */
+        mff_cycles((uint16_t)(pc + 3), 2);
+        if (a != 0) {
+            mff_cycles((uint16_t)(pc + 3), 1);  /* BNE $8686 */
+            break;
+        }
+        /* never executed: a zero, on to the next table */
+    }
+    SYNC_OUT;
+    damage_apply();
+}
+
+/*
+ * damage_apply, $8686 (name proposed): A = the table's damage. Attacks 6
+ * and $0C make slot X the combo's target. A boss takes less: Sodom 5 more
+ * first for attacks 5 and $13 (never executed), then $87AB[kind - 7] off
+ * (Sodom with obj_tier set: index 3), one more off in round 4 (the
+ * fifth), never under 1. obj_life -= the damage. Sodom at obj_tier 1
+ * whose life falls under $30 then sheds his pieces (sodom_pieces, never
+ * executed).
+ * In: A = damage, X = slot, Y = attack_id. Out: the RTS at $8702: A =
+ * obj_kind or obj_life or obj_tier, flags of the CMP that ended it, V
+ * from the subtraction; Y = attack_id, or the boss index.
+ */
+static void damage_apply(void)
+{
+    REGS_IN;
+    int i, combo;
+
+    mff_cycles(0x8686, 10);
+    RAM(TMP0) = a;
+    a = RAM(ATTACK_ID);
+    combo = a == 0x06;
+    if (combo) {
+        mff_cycles(0x868C, 1);
+    } else {
+        mff_cycles(0x868E, 4);
+        combo = a == 0x0C;
+        if (!combo)
+            mff_cycles(0x8690, 1);
+    }
+    if (combo) {
+        mff_cycles(0x8692, 3);
+        RAM(COMBO_TARGET) = x;
+    }
+
+    /* the bosses: the BEQs all stay in page $86 */
+    mff_cycles(0x8694, 4);
+    a = RAM(OBJ_KIND + x);
+    i = cmp_list(0x8697, 0x86B8, a, k_boss_kinds, 4);
+    if (i == 4) {
+        mff_cycles(0x86A7, 3);                  /* BNE $86E4 */
+    } else {
+        if (a == KIND_SODOM) {
+            int more;
+
+            /* never executed */
+            mff_cycles(0x86A9, 4);
+            more = y == 0x05;
+            if (more) {
+                mff_cycles(0x86AB, 1);
+            } else {
+                mff_cycles(0x86AD, 4);
+                more = y == 0x13;
+                if (!more)
+                    mff_cycles(0x86AF, 1);
+            }
+            if (more) {
+                mff_cycles(0x86B1, 10);
+                RAM(TMP0) = (uint8_t)(RAM(TMP0) + 0x05);
+            }
+        }
+        mff_cycles(0x86B8, 14);
+        a = RAM(OBJ_KIND + x);
+        c = 1;
+        SBC_A(0x07);
+        y = a;
+        if (a == 0x01) {
+            mff_cycles(0x86C3, 6);
+            a = RAM(OBJ_TIER + x);
+            if (a != 0) {
+                mff_cycles(0x86C8, 2);
+                y = 0x03;
+            } else {
+                mff_cycles(0x86C6, 1);
+            }
+        } else {
+            mff_cycles(0x86C1, 1);
+        }
+        mff_cycles(0x86CA, 7);
+        a = RAM(ROUND);
+        if (a == 0x04) {
+            mff_cycles(0x86D0, 5);
+            RAM(TMP0) = (uint8_t)(RAM(TMP0) - 1);
+        } else {
+            mff_cycles(0x86CE, 1);
+        }
+        mff_cycles(0x86D2, 9);
+        a = RAM(TMP0);
+        c = 1;
+        SBC_A(prg_read((uint16_t)(BOSS_DAMAGE_CUT + y)));
+        SET_NZ(a);
+        mff_cycles(0x86D8, 5);
+        RAM(TMP0) = a;
+        if (z) {
+            mff_cycles(0x86DA, 1);
+        } else {
+            mff_cycles(0x86DC, 2);
+            if (n)
+                mff_cycles(0x86DC, 1);
+            else
+                mff_cycles(0x86DE, 3);          /* BPL $86E4 */
+        }
+        if (z || n) {
+            mff_cycles(0x86E0, 5);
+            a = 0x01;
+            RAM(TMP0) = a;
+        }
+    }
+
+    /* the hit */
+    mff_cycles(0x86E4, 22);
+    a = RAM(OBJ_LIFE + x);
+    c = 1;
+    SBC_A(RAM(TMP0));
+    RAM(OBJ_LIFE + x) = a;
+    a = RAM(OBJ_KIND + x);
+    CMP_FLAGS(a, KIND_SODOM);
+    if (!z) {
+        mff_cycles(0x86F2, 2);
+    } else {
+        mff_cycles(0x86F4, 8);
+        a = RAM(OBJ_LIFE + x);
+        CMP_FLAGS(a, 0x30);
+        if (c) {
+            mff_cycles(0x86F9, 2);
+        } else {
+            mff_cycles(0x86FB, 8);
+            a = RAM(OBJ_TIER + x);
+            CMP_FLAGS(a, 0x01);
+            if (z) {
+                mff_cycles(0x8700, 1);
+                SYNC_OUT;
+                sodom_pieces();
+                return;
+            }
+        }
+    }
+    mff_cycles(0x8702, 6);
+    RTS_RETURN();
+}
+
+/*
+ * sodom_pieces, $8703 (name proposed; never executed): a player holding
+ * the boss (game_action 4 or $21) lets go (grab state cleared, attack_end,
+ * the player's obj_state $80 and standing animation $E288[player_id],
+ * player_stand at 0E:CEAA) and the boss comes down to the player's obj_y.
+ * Then slots $0D and $0B become two dying objects (id 6, kind $0D,
+ * animation $FD, obj_life $FF) beside him: x + $0C and $0C up, x and 4 up
+ * ($87A7), obj_land_y = his obj_y + $0E, obj_anim_frame = slot & 3; a
+ * piece whose x high byte differs from the player's is not made (only
+ * obj_dir, obj_y_hi and the position are written).
+ * In: X = slot. Out: the RTS at $87A6, A = 9, Y = 2, flags of CMP #9.
+ */
+static void sodom_pieces(void)
+{
+    REGS_IN;
+    int release;
+
+    mff_cycles(0x8703, 7);
+    a = RAM(GAME_ACTION);
+    c = a >= 0x04;                              /* attack_end and player_stand pass C on */
+    release = a == 0x04;
+    if (release) {
+        mff_cycles(0x8707, 1);
+    } else {
+        mff_cycles(0x8709, 4);
+        c = a >= 0x21;
+        release = a == 0x21;
+        if (!release)
+            mff_cycles(0x870B, 1);
+    }
+    if (release) {
+        mff_cycles(0x870D, 17);
+        a = 0x00;
+        SET_NZ(a);
+        RAM(GRAB_TIMER) = a;
+        RAM(GAME_ACTION) = a;
+        RAM(GRAB_HIT_COUNT) = a;
+        CALL_FIXED(0x8715, func_F436);          /* attack_end */
+        mff_cycles(0x8718, 13);
+        RAM(OBJ_STATE) = OBJ_LIVE;              /* slot 0, the player */
+        y = RAM(PLAYER_ID);
+        a = prg_read((uint16_t)(0xE288 + y));
+        SET_NZ(a);
+        mff_cycles(0x8722, 9);
+        RAM(PLAYER_STAND_ANIM) = a;
+        CALL_BANK(0x8724, 0xCEAA);              /* player_stand */
+        mff_cycles(0x8727, 9);
+        a = RAM(OBJ_Y);
+        RAM(OBJ_Y + x) = a;
+    }
+
+    mff_cycles(0x872D, 7);
+    RAM(TMP0) = 0x0D;                           /* the slot */
+    y = 0x00;                                   /* the piece's offsets */
+    for (;;) {
+        mff_cycles(0x8733, 4);
+        a = prg_read((uint16_t)(SODOM_PIECES + y));
+        mff_cycles(0x8736, 7);
+        RAM(TMP1) = a;
+        a = prg_read((uint16_t)(SODOM_PIECES + 1 + y));
+        mff_cycles(0x873B, 55);
+        RAM(TMP2) = a;
+        y = RAM(TMP0);
+        RAM(OBJ_DIR + y) = RAM(OBJ_DIR + x);
+        RAM(OBJ_Y_HI + y) = RAM(OBJ_Y_HI + x);
+        a = RAM(OBJ_X + x);
+        c = 0;
+        ADC_A(RAM(TMP1));
+        RAM(OBJ_X + y) = a;
+        a = RAM(OBJ_X_HI + x);
+        ADC_A(0x00);
+        RAM(OBJ_X_HI + y) = a;
+        if (a == RAM(OBJ_X_HI)) {
+            mff_cycles(0x8761, 83);
+            a = RAM(OBJ_Y + x);
+            c = 0;
+            ADC_A(0x0E);
+            RAM(OBJ_LAND_Y + y) = a;
+            a = RAM(OBJ_Y + x);
+            c = 1;
+            SBC_A(RAM(TMP2));
+            RAM(OBJ_Y + y) = a;
+            RAM(OBJ_ANIM + y) = ANIM_SODOM_PIECE;
+            RAM(OBJ_LIFE + y) = 0xFF;
+            RAM(OBJ_KIND + y) = KIND_SODOM_PIECE;
+            RAM(OBJ_ID + y) = OBJ_KILLED_LIGHT;
+            RAM(OBJ_SAVED_ID + y) = OBJ_KILLED_LIGHT;
+            RAM(OBJ_STATE + y) = OBJ_LIVE;
+            RAM(OBJ_ANIM_TIMER + y) = 0x00;
+            a = y & 0x03;
+            RAM(OBJ_ANIM_FRAME + y) = a;
+        } else {
+            mff_cycles(0x875F, 1);              /* BNE $879A */
+        }
+        mff_cycles(0x879A, 19);
+        y = 0x02;
+        RAM(TMP0) = (uint8_t)(RAM(TMP0) - 2);
+        a = RAM(TMP0);
+        CMP_FLAGS(a, 0x09);
+        if (z)
+            break;
+        mff_cycles(0x87A4, 1);                  /* BNE $8733 */
+    }
+    mff_cycles(0x87A6, 6);
+    RTS_RETURN();
+}
+
+/*
+ * damage_cody_0 ... damage_haggar_3, $8638-$8683 (names proposed): the
+ * damage lookup entered at a level's table.
+ * Callers: JMP ($0004) at 0C:85ED (Cody, $87B6/$87BC by player_level),
+ * 0C:8615 (Guy, $87C2/$87C8), 0C:8635 (Haggar, $87CE/$87D2).
+ */
+void func_8638_b6(void) { damage_lookup(0); }
+void func_863D_b6(void) { damage_lookup(1); }
+void func_8642_b6(void) { damage_lookup(2); }
+void func_8647_b6(void) { damage_lookup(3); }
+void func_864C_b6(void) { damage_lookup(4); }   /* Cody level 4: never executed */
+void func_8651_b6(void) { damage_lookup(5); }   /* Cody level 5: never executed */
+void func_8656_b6(void) { damage_lookup(6); }
+void func_865B_b6(void) { damage_lookup(7); }
+void func_8660_b6(void) { damage_lookup(8); }
+void func_8665_b6(void) { damage_lookup(9); }
+void func_866A_b6(void) { damage_lookup(10); }
+void func_866F_b6(void) { damage_lookup(11); }  /* Guy level 5: never executed */
+void func_8674_b6(void) { damage_lookup(12); }
+void func_8679_b6(void) { damage_lookup(13); }
+void func_867E_b6(void) { damage_lookup(14); }  /* Haggar level 2: never executed */
+void func_8683_b6(void) { damage_lookup(15); }  /* Haggar level 3: never executed */
 
 /*
  * exp_award, $89E3 (name proposed): the player earns the points of the

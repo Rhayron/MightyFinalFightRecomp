@@ -761,7 +761,7 @@ comment = "general per-behaviour timer or step counter: phases load it and count
 addr = 0x0510
 size = 16
 name = "obj_timer2"
-comment = "second per-behaviour counter: blink frames before a dead enemy is freed ($10 at 0C:8FCB, counted at 0C:9B07), the id to turn into after a dash (0C:9DB2), attack index of some bosses (01:A36E)"
+comment = "second per-behaviour counter: blink frames before a dead enemy is freed ($10 at 0C:8FCB, counted at 0C:9B07), the plain id Andore becomes after charging in (0C:9DB2, ids $2C/$2D/$2F), attack index of some bosses (01:A36E)"
 
 [[ram]]
 addr = 0x0520
@@ -779,7 +779,7 @@ comment = "line a knocked-back object lands on: objects_update sets it when a hi
 addr = 0x0540
 size = 16
 name = "obj_timer3"
-comment = "third per-behaviour counter: frames before a thrown body starts hitting others (8 at 0C:8FD2, counted at 0C:824B), attack timer of the common-enemy AI (0D:A298, 0D:A393)"
+comment = "third per-behaviour counter: frames before a thrown body starts hitting others (8 at 0C:8FD2, counted at 0C:824B), attack timer of the common-enemy AI (0D:A298, 0D:A393), the pose (0/2) of a sitting Two P or Bred, ids $40-$4B (0C:9EFA, read at 0C:9F3C)"
 
 [[ram]]
 addr = 0x0550
@@ -815,7 +815,7 @@ comment = "timed-spawner scratch, not a slot table: obj_spawn_group of up to two
 addr = 0x05B0
 size = 16
 name = "obj_kind"
-comment = "enemy kind: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 id $2E, 7 Thrasher, 8 Sodom, 9 Abigail, $0B Belger, $0C id $9D; 0 for non-enemies (spawn table 08:85E6 via 08:8172; ids $20-$35 via 0C:9D19). Indexes per-kind tables ($FC82, $FC8F, $FBCC); the HUD prefers the bar of kinds 7-9/$0B (0F:E89D); kind 3 can block (0C:84F0)"
+comment = "enemy kind: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 El Gado's knife (id $2E, 0D:A64A), 7 Thrasher, 8 Sodom, 9 Abigail, $0B Belger, $0C id $9D, $0D Sodom's pieces (0C:877F, never executed); 0 for non-enemies (spawn table 08:85E6 via 08:8172; ids $20-$35 via 0C:9D19, the entrances $36-$5F via 0C:9EE1/9F26). Indexes per-kind tables ($FC82, $FC8F, $FBCC); the HUD prefers the bar of kinds 7-9/$0B (0F:E89D); kind 3 can block (0C:84F0)"
 
 [[ram]]
 addr = 0x05C0
@@ -1561,6 +1561,119 @@ name = "obj_pit_check"
 comment = "from the RAM/objects survey (docs/objects.md)"
 
 [[label]]
+bank = 0x0C
+addr = 0x805E
+name = "objects_next_slot"
+comment = "where every behaviour's RTS lands: objects_update pushes $805D (0C:8056-805A) before its JMP (obj_behavior_lo/hi) at 0C:805B; next slot and its checks; obj_update.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x80D3
+name = "obj_hit_by_player"
+comment = "the BPL at 0C:80CB after player_attack_test and spawn_hit_spark: obj_take_hit, obj_land_y, knockback; obj_update.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8686
+name = "damage_apply"
+comment = "the damage lookup ($8638-$8683, LDA table,Y / BNE $8686 per character and level) lands here: combo target, the bosses' cut ($87AB), obj_life -= damage (0C:86E4); obj_hits.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x87AB
+name = "boss_damage_cut"
+comment = "5 bytes by obj_kind - 7 (SBC at 0C:86D5): Thrasher 2, Sodom 4, Abigail 4, Sodom with obj_tier set 8, Belger 8; obj_hits.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9CED
+name = "enemy_common"
+comment = "behaviour of ids $20-$25 (obj_behavior_lo/hi), tier 1; $9CF1 tier 2 ($26-$2B), $9CF5 tier 4 ($30-$35): kind from $9D5B, 0D:AB29, enemy_keep_on_band, JMP through $9D3B/$9D4B; enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D3B
+name = "enemy_phase_lo"
+comment = "16 bank-$0D phase routines by obj_state & $0F (0C:9D28-9D38); enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D4B
+name = "enemy_phase_hi"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D5B
+name = "enemy_kind_by_id"
+comment = "obj_kind by id - $20 (0C:9D19): 0-5 per digit, ids $20-$35; enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D71
+name = "knife_fly"
+comment = "behaviour of id $2E, El Gado's knife (spawned by 0D:A5DA, from his phase $A): flies on obj_dir, cleared at screen x $FA / 8; enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D9E
+name = "entrance_charge"
+comment = "behaviour of ids $2C/$2D/$2F ($9D9E/$9DA4/$9DAA): Andore starts at the rush of his charge (phase $E, obj_timer 3) once the player is within $80 px; never executed; enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9E48
+name = "entrance_drop"
+comment = "ids $36-$3E (Poison, AxL, El Gado; entries $9E20-$9E44): hidden until the player is within 8 px, then fall to his ground line at phase $F; enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9EB3
+name = "drop_anim"
+comment = "by obj_kind: the drop-in's fall animation (0C:9E91); $9EB9 its sprite bank, $9EBF its damage index"
+
+[[label]]
+bank = 0x0C
+addr = 0x9ECF
+name = "entrance_stand"
+comment = "ids $3F, $4F-$5F (entries $9EC5/$9EC9/$9ECD): stand $78 frames at phase $D, standing animation (0D:AAAE); enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9F19
+name = "entrance_sit"
+comment = "ids $40-$4B (Two P, Bred; entries $9EF4-$9F12, obj_timer3 = pose 0/2): animation $A2 held, unhittable until the player is within $32 px (0F:FB3E) or screen x < $40; enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9F8D
+name = "sit_chr"
+comment = "sprite bank of the sitting frames 0-3 (0C:9F4D)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9F91
+name = "entrance_kind"
+comment = "obj_kind by id - $36, 42 bytes (0C:9EDE, 9F23)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9FBB
+name = "enemy_become_common"
+comment = "obj_id and obj_saved_id = $9FCC[id - $36], the plain id of an entrance (JMP at 0C:9EB0, 9EF1, 9F89); enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9FCC
+name = "entrance_becomes"
+comment = "the plain id ($20-$35) by id - $36, 42 bytes (0C:9FC2)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9FF6
+name = "enemy_keep_on_band"
+comment = "obj_y kept in (top, bottom] of $A046/$A049 by round and area (bands $80/$B0, $70/$A0, $90/$B0), except at obj_state $89/$8F; runs on into bank $0D; enemy_common.c (tidy/common)"
+
+[[label]]
 bank = 0x08
 addr = 0x80A7
 name = "stage_list_spawner"
@@ -1571,6 +1684,599 @@ bank = 0x08
 addr = 0x9000
 name = "timed_spawner"
 comment = "from the RAM/objects survey (docs/objects.md)"
+
+# ---- common-enemy AI, bank $0D (port/src/game/enemy_ai.c, enemy_walk.c, enemy_moves.c) ----
+# Bank $0D is at $A000 while objects_update runs an id below $60 (docs/objects.md);
+# $A001-$AE4D is this AI, $AE4E on is round 5's map data. Phases are obj_state & $0F,
+# dispatched by 0C:9D25 through 0C:9D3B/9D4B after enemy_react. "Logs" = runs/p4/base_*.flog.
+
+[[label]]
+bank = 0x0D
+addr = 0xA04C
+name = "enemy_start"
+comment = "phase 0 (0C:9D3B[0]): obj_ai_timer/count/flag and obj_timer3 cleared, phase 1, JMP enemy_anim_stand. Logs: every common kind (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA060
+name = "enemy_approach"
+comment = "phase 1: walks at the player (JMP enemy_walk_to_player) until he is within $38x$18 or $18x$28 (0F:FB3E), then phase 2 with rng bit 0 in obj_ai_flag; with obj_pit_flag set it walks away from a pit first ($A095). Logs: all kinds, rounds 1-5 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA085
+name = "enemy_walk_to_player"
+comment = "direction index toward the player (0F:FB5B), runs on into enemy_walk_index. From enemy_approach ($A078), enemy_jump_start ($A431), enemy_slide ($A666) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA088
+name = "enemy_walk_index"
+comment = "A = direction index: obj_dir from 0F:FBF0, enemy_set_speed, JMP enemy_walk. Also JMP from enemy_close_in ($A236) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA0E8
+name = "enemy_maneuver"
+comment = "phase 2: walks while obj_ai_timer counts down, then picks the next move from enemy_maneuver_moves_a/b (by obj_ai_flag) indexed by the player's direction (0F:FB5B). Logs: all kinds (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA102
+name = "enemy_maneuver_pick"
+comment = "A = the move (to obj_timer): high nibble -> enemy_move_picks by kind (1 close in, 2-5 enemy_move_states) or back to phase 1 when the player is not within $40x$F0; low nibble -> walk that direction for enemy_walk_time frames (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA139
+name = "enemy_close_in_begin"
+comment = "to phase 4: obj_ai_timer = a wait (enemy_wait_time when rng+1 & $0F < enemy_wait_odds) or 0, obj_ai_count = enemy_close_in_tries[id-$20]. BEQ from $A124 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA18E
+name = "enemy_block"
+comment = "phase 3, AxL's guard (obj_state $83 from obj_take_hit 0C:8574): slides back ($02E0) in animation $9D/chr $3D for obj_ai_timer frames, holds $20, then phase 4 or 1. Logs: kind 3 only, steps 1-2 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA210
+name = "enemy_close_in"
+comment = "phase 4: walks to the spot beside the player (0F:FB72) until he is in the kind's reach (enemy_reach_x/y) or obj_ai_count tries run out; in reach: retreat (enemy_retreat_odds) or the attack, phase 5, with the combo's hit count. Logs: all kinds (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA2A6
+name = "enemy_close_in_wait"
+comment = "obj_ai_timer - 1, JMP enemy_anim_stand: the wait before closing in (JMP from $A218) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA2C3
+name = "enemy_attack"
+comment = "phase 5: obj_ai_count hits; the attack animation, the hit out on enemy_hit_frame (enemy_attack_out), sound $18 (El Gado $1F) when it hits the player; obj_timer3 tells the animation's first lap, obj_land_y nonzero until the last hit. Logs: all kinds, attack $80+kind (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA340
+name = "enemy_attack_out"
+comment = "A = damage index: obj_attack_damage = A, obj_attack = $80 + obj_kind (reach box = kind) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA3F5
+name = "enemy_retreat"
+comment = "phase 7: walks the way enemy_retreat_dirs gives for the player's direction for obj_ai_timer frames, then enemy_reset. Logs: all kinds (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA411
+name = "enemy_hit_stun"
+comment = "phase 8 (set by enemy_react on a hit): faces the player until obj_hit_timer counts out, then enemy_reset (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA41D
+name = "enemy_jump_start"
+comment = "phase 6: in reach (Poison $16x8, El Gado $37x8) the jump: obj_ground_y = obj_y, Poison $0100 across/$0400 up, El Gado $0300/$0380, damage $36/$39 + tier index; phase 9. Logs: kinds 0 and 4 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA494
+name = "enemy_jump"
+comment = "phase 9: crouch for obj_ai_timer frames, then the jump with gravity (0F:F1FD) to obj_ground_y; Poison moves against obj_dir (a back flip); landing: phase 12, or obj_pit_flag = kind over a pit. Logs: kinds 0 and 4, attack $89/$8A (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA512
+name = "enemy_jump_air"
+comment = "in the air: x kept in $08-$F8 in round 4 area 2 (round 3, sub_area 1); the attack out ($8A El Gado, $89 Poison, which holds frame 7) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA54F
+name = "enemy_knife_throw"
+comment = "phase 10, El Gado: backs off while lining up with the player's ground line (0F:FBD9 < 8), throws (animation $A7/chr $20, knife on frame 4: enemy_knife_spawn), stands $30 frames, enemy_reset_wait. Logs: kind 4, steps 0-2, rounds 2 and 4 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA5DA
+name = "enemy_knife_spawn"
+comment = "a free slot (0F:F71A) becomes the knife: id $2E (0C:9D71), kind 6, animation $BB, $12 px ahead, $0330 a frame, attack $87, damage 6, sound $1B. Logs: kind 6 objects in rounds 2 and 4 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA652
+name = "enemy_slide"
+comment = "phase 11, El Gado: in reach ($37x6) crouches $18 frames, then slides (animation $A6/chr $21, attack $86) from $0280 slowing every 3 frames (enemy_slide_vx), $0E steps or into a pit; phase 12. Logs: kind 4, steps 0-2 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA717
+name = "enemy_recover"
+comment = "phase 12: obj_ai_timer frames after a jump, slide or drop, then standing, enemy_pit_beside and a $1E-frame retreat. Logs: kinds 0 and 4 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA732
+name = "enemy_idle"
+comment = "phase 13: waits obj_ai_timer frames ($78 from 0C:9EE4, the waiting ids $3F-$5F), then enemy_reset. Logs: kinds 3, 4, 5 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA73A
+name = "enemy_charge"
+comment = "phase 14, Andore: step 0 sets the stalk (away from the player, enemy_charge_time/stop tables by tier); steps 1-3 by JMP ($0000) through enemy_charge_steps. Logs: kind 5, steps 0-3, rounds 1 and 5 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA780
+name = "enemy_charge_stalk"
+comment = "charge step 1: walks facing the player for obj_ai_timer frames, may stop early (obj_ai_count, mask in obj_ground_y, rng) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA7AD
+name = "enemy_charge_aim"
+comment = "charge step 2: stands 4 frames, then charges unless facing unlike the player and rng & $0F > $0C: enemy_charge_dirs, $024C (or $021F/$00E1 diagonal), animation $D2/chr $24, damage $33 + tier index (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA82C
+name = "enemy_charge_run"
+comment = "charge step 3: attack $88 out, enemy_walk, animation $9A/chr $3E within $30 px, sound $2A every $10 frames; stops when blocked or $30 px past the player. The charging ids $2C/$2D/$2F (0C:9D9E-9DAA) start here (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA89C
+name = "enemy_drop_in"
+comment = "phase 15, the ids dropping from above (0C:9E20-9E44): the kind's attack (enemy_drop_attack) while falling to obj_ground_y, then phase 12. Logs: kinds 0, 3, 4, rounds 3-5 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA8E4
+name = "enemy_reset_wait"
+comment = "obj_ai_timer 8, obj_state $81 (phase 1). JMP from $A239, $A5D7 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA8E8
+name = "enemy_reset"
+comment = "obj_ai_timer 0, obj_state $81 (phase 1): the end of most phases (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA8F3
+name = "enemy_walk_blocked"
+comment = "enemy_walk's vertical step was stopped: by a pit, phase 1 (unless maneuvering) and a step toward the player; by a wall going straight up/down, obj_ai_flag flipped and the x part; diagonal, the x part at speed index $0C (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA953
+name = "enemy_walk"
+comment = "one frame's walk along obj_dir with the background steps 0F:F0F7/F0A2 (up/down) and enemy_walk_x; attributes of pushed-back steps ORed in $0E, stopped directions in $0F (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA995
+name = "enemy_walk_x"
+comment = "the right/left step of enemy_walk (0F:F000/F051); a pit met (bit $40 in $0E): obj_pit_flag 1, phase 1; on into enemy_walk_face (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA9E3
+name = "enemy_walk_face"
+comment = "end of a walk: enemy_face_player unless charging (obj_state $8E) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA9EB
+name = "enemy_face_player"
+comment = "JMP obj_face_right when the player is to the right (0F:F374 C set), obj_face_left otherwise (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA9F6
+name = "enemy_pit_under"
+comment = "probe point 6 (0F:ECCF) finds a pit: id $1F (pit fall, saved id kept), obj_timer 0, obj_invuln $FF, C set; else C clear. Also from the thrown bodies (0C:9128, 92A9) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAA1D
+name = "enemy_pit_beside"
+comment = "probe points 7/8/9 (0F:ECCF/EDBA): a pit sets obj_pit_flag 2 (obj_dir right/left) or 1, and phase 1; none: obj_pit_flag 0. Also from obj_knockdown_recover (0C:9C35). Logs: pit flags only in rounds 3-4 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAA60
+name = "enemy_anim_hurt"
+comment = "facing the player, the kind's hurt animation (0F:FC5B, chr 0F:FC75); Bred: $94/chr $1D after the player's animations $0D/$16/$0E/$17/$12 (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAAA0
+name = "enemy_hit_pause"
+comment = "obj_ai_timer = enemy_hit_pauses[id-$20]: the stand between hits of a combo (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAAAE
+name = "enemy_anim_stand"
+comment = "the kind's standing animation (enemy_stand_anims, chr enemy_stand_chr into chr_banks+3+0F:FC33[kind]) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAAD7
+name = "enemy_anim_walk"
+comment = "the kind's walking animation (enemy_walk_anims/chr) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAB00
+name = "enemy_anim_attack"
+comment = "the kind's attack animation (enemy_attack_anims/chr) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAB29
+name = "enemy_react"
+comment = "before the phase (JSR at 0C:9D1F; C set = skip it): held by the grab/knee, let go (pit check), hit (phase 8), the player held by a boss or walking out ($0A/$19), down while approaching, a new life dropping in ($25: knocked down) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAB4F
+name = "enemy_react_held"
+comment = "held: obj_hit_timer 0, enemy_reset, facing the player, C set (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAB9F
+name = "enemy_react_hit"
+comment = "hit: facing the player, obj_state $88 (phase 8), C clear (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAC13
+name = "enemy_react_knockdown"
+comment = "knocked down: obj_vy $038E, id 5 (saved id kept), obj_state $80, obj_invuln $FF, C set; the entry (JMP $AC13 from a jumping enemy, $AC04) never executed (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAC34
+name = "enemy_set_speed"
+comment = "Y = direction index: enemy_anim_walk, then obj_vx/obj_vy at the kind's speed through enemy_speed_fn_lo/hi (JMP ($0000)) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAC4B
+name = "enemy_speed_08"
+comment = "0.8 px a frame by direction index (enemy_speed08_x/y): Bred (enemy_speed_fn) (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAC60
+name = "enemy_speed_09"
+comment = "0.9 px a frame: AxL, Andore (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAC75
+name = "enemy_speed_12"
+comment = "1.2 px a frame (integer bytes enemy_speed_hi_x/y): Poison (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAC8E
+name = "enemy_speed_14"
+comment = "1.4 px a frame: Two P, El Gado (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xACB3
+name = "enemy_walk_time"
+comment = "Y = direction index: A = enemy_walk_times[kind*16 + Y], Y kept (proposed)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA133
+name = "enemy_move_states"
+comment = "obj_state by the move nibble of enemy_move_picks: 2 $86 jump, 3 $8B slide, 4 $8A knife, 5 $8E charge (read at $A127)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA2AC
+name = "enemy_combo_hits"
+comment = "by kind: hits of an attack (0 = 1 or 3 at random by enemy_combo_odds): 3, 1, 0, 1, 1, 0 (read at $A25D)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA2BD
+name = "enemy_retreat_odds"
+comment = "by kind: rng & $0F below it retreats instead of attacking (read at $A250)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA3A1
+name = "enemy_hit_frame"
+comment = "by kind: the attack animation's frame that puts the hit out (read at $A301)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA3A7
+name = "enemy_reach_x"
+comment = "by kind: x reach of the attack for 0F:FB3E (read at $A21E, $A368)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA3AD
+name = "enemy_reach_y"
+comment = "by kind: y reach of the attack, 4 for all (read at $A223, $A36D)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA3B3
+name = "enemy_hit_damage"
+comment = "by obj_id - $20: damage index (0F:F8D5) of a combo's hits before the last (read at $A33D)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA3C9
+name = "enemy_last_hit_damage"
+comment = "by obj_id - $20: damage index of the last hit (AxL: every hit) (read at $A337)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA3DF
+name = "enemy_close_in_tries"
+comment = "by obj_id - $20: frames phase 4 may walk before giving up (obj_ai_count, read at $A156)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA64E
+name = "enemy_knife_dx"
+comment = "the knife's 16-bit x offset from El Gado: +$12 (facing right), -$12 (read at $A5F8, $A5FF)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA6F9
+name = "enemy_slide_vx_frac"
+comment = "by step (obj_ai_count $0E..1): the slide's obj_vx_frac, $0E = the start ($A707) (read at $A6E0)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA708
+name = "enemy_slide_vx"
+comment = "by step: the slide's obj_vx, $0E = the start ($A716) (read at $A6E6)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA878
+name = "enemy_charge_steps_lo"
+comment = "charge steps 1-3: enemy_charge_stalk, enemy_charge_aim, enemy_charge_run (JMP ($0000) at $A77D)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA87B
+name = "enemy_charge_steps_hi"
+comment = "high bytes of enemy_charge_steps_lo"
+
+[[label]]
+bank = 0x0D
+addr = 0xA87E
+name = "enemy_charge_dirs"
+comment = "by direction index: Andore's charge direction (horizontal or diagonal only) (read at $A7DB; also 0C:9DC6)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA88E
+name = "enemy_charge_time"
+comment = "by tier index: frames of the stalk (read at $A759)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA891
+name = "enemy_charge_stop_below"
+comment = "by tier index: obj_ai_timer under which the stalk may stop early (read at $A765)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA894
+name = "enemy_charge_stop_mask"
+comment = "by tier index: the frames (obj_ai_timer & mask = mask) the stalk may stop on, kept in obj_ground_y (read at $A75F)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA897
+name = "enemy_tier_index"
+comment = "obj_tier 1/2/4 -> 0/1/2 for the damage and odds tables (read at $A273, $A459, $A480, $A6A4, $A755, $A817; 0C:851F, 9E03, 9E84)"
+
+[[label]]
+bank = 0x0D
+addr = 0xA8DF
+name = "enemy_drop_attack"
+comment = "by kind: obj_attack while dropping in: Poison $94, El Gado $8A, 0 otherwise (read at $A89F)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAACB
+name = "enemy_stand_anims"
+comment = "by kind: standing animation (read at $AAB1)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAAD1
+name = "enemy_stand_chr"
+comment = "by kind: its sprite bank (read at $AABC)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAAF4
+name = "enemy_walk_anims"
+comment = "by kind: walking animation (read at $AADA)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAAFA
+name = "enemy_walk_chr"
+comment = "by kind: its sprite bank (read at $AAE5)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAB1D
+name = "enemy_attack_anims"
+comment = "by kind: attack animation (read at $AB03)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAB23
+name = "enemy_attack_chr"
+comment = "by kind: its sprite bank (read at $AB0E)"
+
+[[label]]
+bank = 0x0D
+addr = 0xACA7
+name = "enemy_speed_fn_lo"
+comment = "by kind: enemy_set_speed's setter (enemy_speed_12, _14, _08, _09, _14, _09)"
+
+[[label]]
+bank = 0x0D
+addr = 0xACAD
+name = "enemy_speed_fn_hi"
+comment = "high bytes of enemy_speed_fn_lo"
+
+[[label]]
+bank = 0x0D
+addr = 0xACC6
+name = "enemy_speed08_x"
+comment = "by direction index: x speed fraction at 0.8 px a frame (a sine: 0 up, $CC across)"
+
+[[label]]
+bank = 0x0D
+addr = 0xACD6
+name = "enemy_speed08_y"
+comment = "by direction index: y speed fraction at 0.8 px a frame (a cosine)"
+
+[[label]]
+bank = 0x0D
+addr = 0xACE6
+name = "enemy_speed09_x"
+comment = "by direction index: x speed fraction at 0.9 px a frame"
+
+[[label]]
+bank = 0x0D
+addr = 0xACF6
+name = "enemy_speed09_y"
+comment = "by direction index: y speed fraction at 0.9 px a frame"
+
+[[label]]
+bank = 0x0D
+addr = 0xAD06
+name = "enemy_speed_hi_x"
+comment = "by direction index: x speed integer byte of enemy_speed_12/14"
+
+[[label]]
+bank = 0x0D
+addr = 0xAD16
+name = "enemy_speed_hi_y"
+comment = "by direction index: y speed integer byte of enemy_speed_12/14"
+
+[[label]]
+bank = 0x0D
+addr = 0xAD26
+name = "enemy_speed12_x"
+comment = "by direction index: x speed fraction at 1.2 px a frame"
+
+[[label]]
+bank = 0x0D
+addr = 0xAD36
+name = "enemy_speed12_y"
+comment = "by direction index: y speed fraction at 1.2 px a frame"
+
+[[label]]
+bank = 0x0D
+addr = 0xAD46
+name = "enemy_speed14_x"
+comment = "by direction index: x speed fraction at 1.4 px a frame"
+
+[[label]]
+bank = 0x0D
+addr = 0xAD56
+name = "enemy_speed14_y"
+comment = "by direction index: y speed fraction at 1.4 px a frame"
+
+[[label]]
+bank = 0x0D
+addr = 0xAD66
+name = "enemy_maneuver_moves_a"
+comment = "by the player's direction index (obj_ai_flag 0): low nibble the direction to walk, 90 degrees off his; high nibble set when he is level: a move may be picked (read at $A0F9)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAD76
+name = "enemy_maneuver_moves_b"
+comment = "the same, turned the other way (obj_ai_flag 1) (read at $A0FF)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAD86
+name = "enemy_hit_pauses"
+comment = "by obj_id - $20: frames between the hits of a combo (read at $AAA7)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAD9C
+name = "enemy_walk_times"
+comment = "by kind * 16 + direction index: frames of a maneuver's walk (read at $ACC0)"
+
+[[label]]
+bank = 0x0D
+addr = 0xADFC
+name = "enemy_move_picks"
+comment = "by kind * 8 + rng & 7: high nibble 0 none, 1 close in, 2-5 a special move (Poison 2, El Gado 2-4, Andore 5) (read at $A119)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAE2C
+name = "enemy_combo_odds"
+comment = "by tier index + 3: rng & $0F at or above it makes a random combo 3 hits, else 1 (read at $A27A; entries 0-2 are never read, only Bred and Andore get there)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAE32
+name = "enemy_wait_odds"
+comment = "by kind: rng+1 & $0F below it waits before closing in (read at $A140)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAE38
+name = "enemy_wait_time"
+comment = "by kind: that wait in frames (read at $A145)"
+
+[[label]]
+bank = 0x0D
+addr = 0xAE3E
+name = "enemy_retreat_dirs"
+comment = "by the player's direction index: the direction index to retreat (away, sideways) (read at $A3FE)"
 
 [[ram]]
 addr = 0x00C0
