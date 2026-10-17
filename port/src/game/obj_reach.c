@@ -89,7 +89,6 @@ static const uint8_t k_attack_depth[] = {
 /* obj_contact_test: the slot 1/2 objects that touch nothing (the dropped
  * weapon, $69, a spark turned into id 9), the slot X ids they pass
  * through and its animations they pass through */
-#define OBJ_WEAPON              0x66
 #define OBJ_69                  0x69
 static const uint8_t k_contact_skip_ids[] = {
     0x05, 0x06, 0x07, 0x6C, 0x6D, 0x66, 0x69, 0x6A, 0x05, 0x10, 0x11, 0x12, 0x13, 0x60, 0x95, 0x61

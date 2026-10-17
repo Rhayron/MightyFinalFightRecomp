@@ -60,6 +60,8 @@
 #define ACTION_PIT_FALL     0x24
 #define ACTION_DROP_IN      0x25
 
+#define OBJ_WEAPON          0x66    /* the dropped weapon (drop_weapon, behaviour 05:A712) */
+
 #define PLAYER_CODY         0x00
 #define PLAYER_GUY          0x01
 

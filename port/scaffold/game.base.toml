@@ -1576,13 +1576,13 @@ addr = 0xF38B   # obj_dir_index, obj_move.c
 [[replace_func]]
 addr = 0xF406   # scene_frame, obj_anim.c
 [[replace_func]]
-addr = 0xF428   # lifted, lifted_f.c
+addr = 0xF428   # attack_start, obj_combat.c
 [[replace_func]]
-addr = 0xF430   # lifted, lifted_f.c
+addr = 0xF430   # attack_swing_sound, obj_combat.c
 [[replace_func]]
-addr = 0xF436   # lifted, lifted_f.c
+addr = 0xF436   # attack_end, obj_combat.c
 [[replace_func]]
-addr = 0xF43B   # lifted, lifted_f.c
+addr = 0xF43B   # attack_begin, obj_combat.c
 [[replace_func]]
 addr = 0xF440   # set_chr_bank2, obj_anim.c
 [[replace_func]]
@@ -1592,11 +1592,11 @@ addr = 0xF449   # obj_set_anim_chr4, obj_anim.c
 [[replace_func]]
 addr = 0xF44F   # obj_set_anim_chr5, obj_anim.c
 [[replace_func]]
-addr = 0xF455   # lifted, lifted_f.c
+addr = 0xF455   # spawn_hit_spark, obj_combat.c
 [[replace_func]]
-addr = 0xF4E1   # lifted, lifted_f.c
+addr = 0xF4E1   # obj_combat.c
 [[replace_func]]
-addr = 0xF522   # lifted, lifted_f.c
+addr = 0xF522   # obj_combat.c
 [[replace_func]]
 addr = 0xF558   # obj_reach.c
 [[replace_func]]
@@ -1626,7 +1626,7 @@ addr = 0xF83D   # obj_reach.c
 [[replace_func]]
 addr = 0xF84C   # obj_reach.c
 [[replace_func]]
-addr = 0xF8D5   # lifted, lifted_f.c
+addr = 0xF8D5   # player_take_hit, obj_combat.c
 [[replace_func]]
 addr = 0xF9E5   # obj_contact_test, obj_reach.c
 [[replace_func]]
@@ -1636,9 +1636,9 @@ addr = 0xFA84   # obj_reach.c
 [[replace_func]]
 addr = 0xFA91   # obj_reach.c
 [[replace_func]]
-addr = 0xFAC4   # lifted, lifted_f.c
+addr = 0xFAC4   # drop_weapon, obj_combat.c
 [[replace_func]]
-addr = 0xFB09   # lifted, lifted_f.c
+addr = 0xFB09   # obj_hit_start, obj_combat.c
 [[replace_func]]
 addr = 0xFB3E   # obj_near_player, obj_move.c
 [[replace_func]]

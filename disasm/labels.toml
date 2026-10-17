@@ -1699,6 +1699,72 @@ addr = 0xFAC0
 name = "contact_reach"
 comment = "obj_contact_test's reach by the slot 1/2 object's obj_attack: y at $FAC0,Y ($FABA), x at $FAC2,Y ($FAA9); 0E 14 14 14, then drop_weapon's code; never read; obj_reach.c (tidy/fixed)"
 
+[[label]]
+bank = 0x0F
+addr = 0xF428
+name = "attack_start"
+comment = "attack_live = $1E, attack_id = 0, then sound $17 (the code of attack_swing_sound); callers 0E:D3FD, D50B, D537, D550, D589; obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF430
+name = "attack_swing_sound"
+comment = "LDA #$17 / JSR sound_queue_push_sfx; callers 09:AC33, 0E:D421, D438, D5A0, D5CE, D67D, D6B9, D6F3, D721; obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF436
+name = "attack_end"
+comment = "attack_live ($A4) = 0; about 30 callers (00, 05, 0E, player_take_hit); obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF43B
+name = "attack_begin"
+comment = "attack_live ($A4) = $1E; about 20 callers (00, 0E); obj_combat.c (tidy/fixed; name from player_attack.c)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF54C
+name = "spark_dx"
+comment = "spawn_hit_spark: the spark's x from the player's, 16-bit by player_dir & 2: +$12 / -$12 (ADC $F54C,Y at $F50F); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF550
+name = "spark_dx_haggar"
+comment = "the same for Haggar, +/-$13 (ADC $F550,Y at $F4C1); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF554
+name = "spark_dx_side"
+comment = "the same for attacks $0F-$16, +/-$1C toward the slot hit (ADC $F554,Y at $F4F0); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB06
+name = "dropped_weapon_anim"
+comment = "drop_weapon: slot 1's animation by player_id, 41 41 51 (LDA $FB06,Y at $FAE8); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFB17
+name = "hit_cooldown_table"
+comment = "obj_hit_start: obj_hit_cooldown by attack_id (LDA $FB17,Y at $FB0B); base_cody_round1.flog: 2 after attack 0, $10 after $06/$14/$15; obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFD16
+name = "damage_health"
+comment = "player_take_hit: health lost by obj_attack_damage (SBC $FD16,Y at $F928); obj_combat.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFD56
+name = "damage_knocks_down"
+comment = "player_take_hit: nonzero = the hit knocks the player down (LDA $FD56,Y at $F92F); obj_combat.c (tidy/fixed)"
+
 
 [[label]]
 bank = 0x0F
