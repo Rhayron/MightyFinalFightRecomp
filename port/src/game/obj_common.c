@@ -44,8 +44,18 @@ void obj_phase_jump(uint16_t pc, uint16_t lo, uint16_t hi)
  */
 void obj_move_x_clamped(uint16_t pc, int bit0_right, void (*next_fn)(void))
 {
+    obj_move_x_sides(pc, (uint16_t)(pc + 0x2D), bit0_right, next_fn);
+}
+
+/*
+ * The same move where the second side starts at `second` rather than
+ * pc + $2D (0C:9698 has a JMP between the sides, second = $96C8); `next`
+ * is second + $23.
+ */
+void obj_move_x_sides(uint16_t pc, uint16_t second, int bit0_right, void (*next_fn)(void))
+{
     REGS_IN;
-    uint16_t at, next = (uint16_t)(pc + 0x50);
+    uint16_t at, next = (uint16_t)(second + 0x23);
     int first, left;
 
     mff_cycles(pc, 8);
@@ -54,8 +64,8 @@ void obj_move_x_clamped(uint16_t pc, int bit0_right, void (*next_fn)(void))
     if (first) {
         at = (uint16_t)(pc + 0x07);
     } else {
-        mff_cycles((uint16_t)(pc + 0x05), branch_taken((uint16_t)(pc + 0x05), (uint16_t)(pc + 0x2D)));
-        at = (uint16_t)(pc + 0x2D);
+        mff_cycles((uint16_t)(pc + 0x05), branch_taken((uint16_t)(pc + 0x05), second));
+        at = second;
     }
     left = first ? !bit0_right : bit0_right;
 

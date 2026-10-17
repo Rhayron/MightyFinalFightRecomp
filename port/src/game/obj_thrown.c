@@ -1292,3 +1292,443 @@ void func_930B_b6(void)
     RAM(OBJ_INVULN + x) = a;
     JMP_TAIL(0x932E, 0x9BFC);
 }
+
+/* ======================= Guy's throw, id $0F ======================= */
+
+#define SFX_GUY_THROW       0x33    /* the same sound as the back throw */
+
+/*
+ * The test each of Guy's steps starts with (the copy at `pc`): go on (BEQs
+ * to pc + $16) when the player is down or at obj_anim_frame `val`;
+ * otherwise RTS (pc + $15).
+ */
+#define GUY_STEP(pc, val) do { \
+        int i_; \
+        mff_cycles(pc, 3); \
+        a = RAM(GAME_ACTION); \
+        i_ = cmp_list((uint16_t)((pc) + 2), (uint16_t)((pc) + 0x16), a, k_throw_cut, 3); \
+        if (i_ < 3) { \
+            CMP_FLAGS(a, k_throw_cut[i_]); \
+        } else { \
+            mff_cycles((uint16_t)((pc) + 14), 8); \
+            a = RAM(OBJ_ANIM_FRAME); \
+            CMP_FLAGS(a, val); \
+            if (!z) { \
+                mff_cycles((uint16_t)((pc) + 0x15), 6); \
+                RTS_RETURN(); \
+            } \
+            mff_cycles((uint16_t)((pc) + 0x13), \
+                       branch_taken((uint16_t)((pc) + 0x13), (uint16_t)((pc) + 0x16))); \
+        } \
+    } while (0)
+
+/*
+ * The screen-edge clamp between Guy's steps (the copy at `pc`, $48
+ * bytes; the facing-left side never ran in coverage). Facing right
+ * (obj_dir bit 0) with keep_on_screen set, a body less than $10 px from
+ * the screen's left edge is put on it and the step ends (JMP to the RTS
+ * at pc + $47); otherwise JMP pc + $48, the step's move. Facing left the
+ * same on the right edge ($F1, put at $F0, RTS), else on to pc + $48 by
+ * falling into it, or (`via_jmp`, the copy at $94EA, whose BEQ goes back
+ * to it) through the JMP at pc + $27.
+ */
+static void guy_step_clamp(uint16_t pc, int via_jmp, void (*next_fn)(void))
+{
+    REGS_IN;
+    const uint16_t jmp = (uint16_t)(pc + 0x27), second = (uint16_t)(pc + 0x2A);
+    const uint16_t rts = (uint16_t)(pc + 0x47), next = (uint16_t)(pc + 0x48);
+
+    mff_cycles(pc, 8);
+    a = RAM(OBJ_DIR + x) & DIR_RIGHT;
+    if (a != 0) {
+        mff_cycles((uint16_t)(pc + 0x07), 5);
+        a = RAM(KEEP_ON_SCREEN);
+        SET_NZ(a);
+        if (!z) {
+            mff_cycles((uint16_t)(pc + 0x0B), 13);
+            a = RAM(OBJ_X + x);
+            c = 1;
+            SBC_A(RAM(SCROLL_X));
+            CMP_FLAGS(a, 0x10);
+            if (!c) {
+                mff_cycles((uint16_t)(pc + 0x15), 22);
+                a = RAM(SCROLL_X);
+                c = 0;
+                ADC_A(0x10);
+                RAM(OBJ_X + x) = a;
+                a = RAM(AREA_SCREEN);
+                ADC_A(0x00);
+                SET_NZ(a);
+                RAM(OBJ_X_HI + x) = a;
+                JMP_TAIL((uint16_t)(pc + 0x24), rts);
+            }
+            mff_cycles((uint16_t)(pc + 0x13), branch_taken((uint16_t)(pc + 0x13), jmp));
+        } else {
+            mff_cycles((uint16_t)(pc + 0x09), branch_taken((uint16_t)(pc + 0x09), jmp));
+        }
+        JMP_TAIL(jmp, next);
+    }
+    mff_cycles((uint16_t)(pc + 0x05), branch_taken((uint16_t)(pc + 0x05), second));
+    mff_cycles(second, 5);
+    a = RAM(KEEP_ON_SCREEN);
+    SET_NZ(a);
+    if (z) {
+        if (via_jmp) {
+            mff_cycles((uint16_t)(second + 0x02), branch_taken((uint16_t)(second + 0x02), jmp));
+            JMP_TAIL(jmp, next);
+        }
+        mff_cycles((uint16_t)(second + 0x02), branch_taken((uint16_t)(second + 0x02), next));
+    } else {
+        mff_cycles((uint16_t)(second + 0x04), 13);
+        a = RAM(OBJ_X + x);
+        c = 1;
+        SBC_A(RAM(SCROLL_X));
+        CMP_FLAGS(a, 0xF1);
+        if (c) {
+            mff_cycles((uint16_t)(second + 0x0E), 28);
+            a = RAM(SCROLL_X);
+            c = 0;
+            ADC_A(0xF0);
+            RAM(OBJ_X + x) = a;
+            a = RAM(AREA_SCREEN);
+            ADC_A(0x00);
+            SET_NZ(a);
+            RAM(OBJ_X_HI + x) = a;
+            RTS_RETURN();
+        }
+        mff_cycles((uint16_t)(second + 0x0C), branch_taken((uint16_t)(second + 0x0C), next));
+    }
+    SYNC_OUT;
+    next_fn();
+}
+
+/*
+ * thrown_guy, $9332 (name proposed): behaviour of id $0F, the enemy Guy
+ * throws. Phases ($9345/$934E): 0 $9357, 1 $93D1, 2 $9457, 3 $94D4,
+ * 4 $9551, 5 $95CE, 6 $9602, 7 $968D, 8 $8F8D (id 4's blink).
+ * In: X = slot. Out: as the phase.
+ * Caller: obj_behavior_lo/hi (id $0F).
+ */
+void func_9332_b6(void)
+{
+    obj_phase_jump(0x9332, 0x9345, 0x934E);
+}
+
+/*
+ * Phase 0, $9357: sound $33; obj_timer2 = $10, obj_timer3 = 8,
+ * obj_land_y = obj_y, the next phase, 8 px up, the kind's thrown
+ * animation and sprite bank, and x += $FD06[dir] ($FD0A[dir] with
+ * obj_throw_flag set, never executed).
+ * In: X = slot. Out: A = obj_x, N/Z from it.
+ */
+void func_9357_b6(void)
+{
+    REGS_IN;
+
+    mff_cycles(0x9357, 8);
+    a = SFX_GUY_THROW;
+    SET_NZ(a);
+    CALL_FIXED(0x9359, func_F34C);
+    mff_cycles(0x935C, 43);
+    RAM(OBJ_TIMER2 + x) = 0x10;
+    RAM(OBJ_TIMER3 + x) = 0x08;
+    RAM(OBJ_LAND_Y + x) = RAM(OBJ_Y + x);
+    RAM(OBJ_STATE + x) = (uint8_t)(RAM(OBJ_STATE + x) + 1);
+    a = RAM(OBJ_Y + x);
+    c = 1;
+    SBC_A(0x08);
+    RAM(OBJ_Y + x) = a;
+    SET_KIND_ANIM(0x9378, KIND_THROWN_ANIM);
+    mff_cycles(0x9394, 6);
+    a = RAM(OBJ_THROW_FLAG + x);
+    if (a == 0) {
+        SHIFT_X(0x9399, 0xFD06);
+        mff_cycles(0x93B4, 6);
+        RTS_RETURN();
+    }
+    mff_cycles(0x9397, 1);
+    SHIFT_X(0x93B5, 0xFD0A);
+    mff_cycles(0x93D0, 6);
+    RTS_RETURN();
+}
+
+/*
+ * Phase 1, $93D1: at the player's obj_anim_frame 3 (or the player down),
+ * the edge clamp, then $942F.
+ * In: X = slot. Out: the RTS, or as $942F.
+ */
+void func_93D1_b6(void)
+{
+    REGS_IN;
+
+    GUY_STEP(0x93D1, 0x03);
+    SYNC_OUT;
+    guy_step_clamp(0x93E7, 0, func_942F_b6);
+}
+
+/*
+ * $942F: 8 px up, the next phase, x += $FD0E[dir].
+ * In: X = slot. Out: A = obj_x, N/Z from it.
+ * Callers: JMP at 0C:940E; the fall-through from the clamp.
+ */
+void func_942F_b6(void)
+{
+    REGS_IN;
+
+    mff_cycles(0x942F, 20);
+    a = RAM(OBJ_Y + x);
+    c = 1;
+    SBC_A(0x08);
+    RAM(OBJ_Y + x) = a;
+    RAM(OBJ_STATE + x) = (uint8_t)(RAM(OBJ_STATE + x) + 1);
+    SHIFT_X(0x943B, 0xFD0E);
+    mff_cycles(0x9456, 6);
+    RTS_RETURN();
+}
+
+/*
+ * Phase 2, $9457: at frame 5 (or the player down), the edge clamp, then
+ * $94B5. Phases 3 ($94D4, frame 7) and 4 ($9551, frame 9) do the same.
+ * In: X = slot. Out: the RTS, or as the step's move.
+ */
+void func_9457_b6(void)
+{
+    REGS_IN;
+
+    GUY_STEP(0x9457, 0x05);
+    SYNC_OUT;
+    guy_step_clamp(0x946D, 0, func_94B5_b6);
+}
+
+/*
+ * $94B5, $9532, $95AF: the next phase and x += $FD12[dir] (three copies).
+ * In: X = slot. Out: A = obj_x, N/Z from it.
+ * Callers: the JMP at 0C:9494 / 9511 / 958E; the fall-through from the
+ * clamps.
+ */
+static void guy_step_move(uint16_t pc)
+{
+    REGS_IN;
+
+    mff_cycles(pc, 7);
+    RAM(OBJ_STATE + x) = (uint8_t)(RAM(OBJ_STATE + x) + 1);
+    SHIFT_X((uint16_t)(pc + 3), 0xFD12);
+    mff_cycles((uint16_t)(pc + 0x1E), 6);
+    RTS_RETURN();
+}
+
+void func_94B5_b6(void)
+{
+    guy_step_move(0x94B5);
+}
+
+void func_94D4_b6(void)
+{
+    REGS_IN;
+
+    GUY_STEP(0x94D4, 0x07);
+    SYNC_OUT;
+    guy_step_clamp(0x94EA, 1, func_9532_b6);
+}
+
+void func_9532_b6(void)
+{
+    guy_step_move(0x9532);
+}
+
+void func_9551_b6(void)
+{
+    REGS_IN;
+
+    GUY_STEP(0x9551, 0x09);
+    SYNC_OUT;
+    guy_step_clamp(0x9567, 0, func_95AF_b6);
+}
+
+void func_95AF_b6(void)
+{
+    guy_step_move(0x95AF);
+}
+
+/*
+ * Phase 5, $95CE: let go: obj_vx = 2, obj_vy = $0101, the kind's second
+ * thrown animation and sprite bank, the next phase.
+ * In: X = slot. Out: N/Z from obj_state.
+ */
+void func_95CE_b6(void)
+{
+    REGS_IN;
+
+    mff_cycles(0x95CE, 28);
+    RAM(OBJ_VX_FRAC + x) = 0x00;
+    RAM(OBJ_VX + x) = 0x02;
+    RAM(OBJ_VY_FRAC + x) = 0x01;
+    a = 0x01;
+    RAM(OBJ_VY + x) = a;
+    SET_KIND_ANIM(0x95E2, KIND_THROWN_ANIM2);
+    mff_cycles(0x95FE, 13);
+    t = (uint8_t)(RAM(OBJ_STATE + x) + 1);
+    RAM(OBJ_STATE + x) = t;
+    SET_NZ(t);
+    RTS_RETURN();
+}
+
+/*
+ * Phase 6, $9602: the flight. At obj_anim_timer $10 0C:9C55 runs; the
+ * body moves back from its facing and falls ($965C).
+ * In: X = slot. Out: as $965C.
+ */
+void func_9602_b6(void)
+{
+    REGS_IN;
+
+    mff_cycles(0x9602, 8);
+    a = RAM(OBJ_ANIM_TIMER + x);
+    CMP_FLAGS(a, 0x10);
+    if (z) {
+        mff_cycles(0x9609, 6);
+        CALL_BANK(0x9609, 0x9C55);
+    } else {
+        mff_cycles(0x9607, 1);
+    }
+    SYNC_OUT;
+    obj_move_x_clamped(0x960C, 0, func_965C_b6);
+}
+
+/*
+ * $965C: y -= obj_vy with gravity; falling and down to obj_land_y it
+ * lands: obj_pit_check, a bounce (obj_vy $0238, obj_vx $0080) and phase 7
+ * at once.
+ * Callers: JMP at 0C:9636 (and the clamps); the fall-through from 0C:9659.
+ */
+void func_965C_b6(void)
+{
+    REGS_IN;
+
+    mff_cycles(0x965C, 6);
+    CALL_FIXED(0x965C, func_F1FD);
+    mff_cycles(0x965F, 6);
+    a = RAM(OBJ_VY + x);
+    SET_NZ(a);
+    if (!n) {
+        mff_cycles(0x9662, 7);
+        RTS_RETURN();
+    }
+    mff_cycles(0x9664, 10);
+    a = RAM(OBJ_Y + x);
+    CMP_FLAGS(a, RAM(OBJ_LAND_Y + x));
+    if (!c) {
+        mff_cycles(0x966C, 6);
+        RTS_RETURN();
+    }
+    mff_cycles(0x966A, 1);
+    mff_cycles(0x966D, 15);
+    a = RAM(OBJ_LAND_Y + x);
+    SET_NZ(a);
+    RAM(OBJ_Y + x) = a;
+    CALL_BANK(0x9673, 0x9B1F);                  /* obj_pit_check */
+    mff_cycles(0x9676, 35);
+    RAM(OBJ_VY_FRAC + x) = 0x38;
+    RAM(OBJ_VY + x) = 0x02;
+    RAM(OBJ_VX_FRAC + x) = 0x80;
+    a = 0x00;
+    RAM(OBJ_VX + x) = a;
+    RAM(OBJ_STATE + x) = (uint8_t)(RAM(OBJ_STATE + x) + 1);
+    SYNC_OUT;
+    func_968D_b6();
+}
+
+/*
+ * Phase 7, $968D: the bounce. Getting up already (obj_invuln $FE/$FD): JMP
+ * $96C5 -> JMP $9730 -> obj_knockdown_recover. Otherwise it moves back
+ * from its facing and falls ($96EB).
+ * In: X = slot. Out: as $96EB or obj_knockdown_recover.
+ */
+void func_968D_b6(void)
+{
+    REGS_IN;
+    int i;
+
+    mff_cycles(0x968D, 4);
+    a = RAM(OBJ_INVULN + x);
+    i = cmp_list(0x9690, 0x96C5, a, k_getting_up, 2);
+    CMP_LIST_FLAGS(a, k_getting_up, 2, i);
+    if (i < 2)
+        JMP_TAIL(0x96C5, 0x9730);
+    SYNC_OUT;
+    obj_move_x_sides(0x9698, 0x96C8, 0, func_96EB_b6);
+}
+
+/*
+ * $96EB: the second fall. On landing (as $965C) the landing hurts (attack 5
+ * through obj_take_hit, the player's attack_id parked meanwhile). Killed:
+ * exp_award, its attack withdrawn, the next phase, a kill counted, JMP
+ * $9C7A. Alive (never executed): attack_id back, obj_invuln = $FF, JMP
+ * obj_knockdown_recover.
+ * Callers: JMP at 0C:96C2 (and the clamps); the fall-through from 0C:96E8.
+ */
+void func_96EB_b6(void)
+{
+    REGS_IN;
+
+    mff_cycles(0x96EB, 6);
+    CALL_FIXED(0x96EB, func_F1FD);
+    mff_cycles(0x96EE, 6);
+    a = RAM(OBJ_VY + x);
+    SET_NZ(a);
+    if (!n) {
+        mff_cycles(0x96F1, 7);
+        RTS_RETURN();
+    }
+    mff_cycles(0x96F3, 10);
+    a = RAM(OBJ_Y + x);
+    CMP_FLAGS(a, RAM(OBJ_LAND_Y + x));
+    if (!c) {
+        mff_cycles(0x96FB, 6);
+        RTS_RETURN();
+    }
+    mff_cycles(0x96F9, 1);
+    mff_cycles(0x96FC, 15);
+    a = RAM(OBJ_LAND_Y + x);
+    SET_NZ(a);
+    RAM(OBJ_Y + x) = a;
+    CALL_BANK(0x9702, 0x9B1F);                  /* obj_pit_check */
+    mff_cycles(0x9705, 18);
+    RAM(SAVED_ATTACK_TYPE) = RAM(ATTACK_ID);
+    a = ATTACK_LANDING;
+    SET_NZ(a);
+    RAM(ATTACK_ID) = a;
+    CALL_BANK(0x970E, 0x84F0);                  /* obj_take_hit */
+    mff_cycles(0x9711, 6);
+    a = RAM(OBJ_LIFE + x);
+    SET_NZ(a);
+    if (n) {
+        mff_cycles(0x9716, 6);
+        CALL_BANK(0x9716, 0x89E3);              /* exp_award */
+        mff_cycles(0x9719, 19);
+        a = 0x00;
+        RAM(OBJ_ATTACK + x) = a;
+        RAM(OBJ_STATE + x) = (uint8_t)(RAM(OBJ_STATE + x) + 1);
+        t = (uint8_t)(RAM(AREA_KILLS) + 1);
+        RAM(AREA_KILLS) = t;
+        SET_NZ(t);
+        JMP_TAIL(0x9723, 0x9C7A);
+    }
+    mff_cycles(0x9714, 1);
+    mff_cycles(0x9726, 14);
+    RAM(ATTACK_ID) = RAM(SAVED_ATTACK_TYPE);
+    a = 0xFF;
+    SET_NZ(a);
+    RAM(OBJ_INVULN + x) = a;
+    JMP_TAIL(0x9730, 0x9BFC);
+}
+
+/*
+ * $9730: JMP obj_knockdown_recover (the end of $96EB, and the target of
+ * the JMP at 0C:96C5).
+ */
+void func_9730_b6(void)
+{
+    mff_jmp_charge(0x9730, 0x9BFC);
+    call_by_address_tail(0x9BFC, 6);
+}
