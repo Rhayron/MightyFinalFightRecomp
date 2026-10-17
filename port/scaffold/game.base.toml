@@ -1708,13 +1708,13 @@ bank = 0
 addr = 0x8E3E   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8FAF   # lifted, lifted_b0.c
+addr = 0x8FAF   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x90AC   # lifted, lifted_b0.c
+addr = 0x90AC   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x90CB   # lifted, lifted_b0.c
+addr = 0x90CB   # player_actions.c
 [[replace_func]]
 bank = 0
 addr = 0x9297   # lifted, lifted_b0.c

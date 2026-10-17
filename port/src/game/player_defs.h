@@ -319,5 +319,8 @@ void func_8C38_b0(void);
 void func_8D8D_b0(void);
 void func_8DD1_b0(void);
 void func_8E3E_b0(void);
+void func_8FAF_b0(void);
+void func_90AC_b0(void);
+void func_90CB_b0(void);
 
 #endif

@@ -763,3 +763,232 @@ void func_8E3E_b0(void) {
     mff_cycles(0x8EE9, 6);
     RTS();
 }
+
+/* ---- the camera's scroll, down and getting up ---- */
+
+/*
+ * action_camera_wait ($8FAF in bank $00, proposed): game_action $1D, which
+ * the camera sets in an area that scrolls by itself when the player pushes
+ * ahead (0F:E3F3). Once scroll_x has gone $28 into the screen - except on
+ * the third screen of round 1's second area and of round 4's first area,
+ * where the camera code goes on with game_action $1E (0F:E353-E383) - the
+ * player stands again facing right (left when obj_flags is $90: never
+ * executed), game_action, camera_autoscroll and jump_moving 0, obj_state[0]
+ * $80.
+ */
+void func_8FAF_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x8FAF, 3 + 2 + 2);
+    a = RAM(SCROLL_X);
+    COMPARE(a, 0x28);
+    if (!c) {
+        mff_cycles(0x8FB5, 6);
+        RTS();
+    }
+    mff_cycles(0x8FB3, 1 + 3 + 2);
+    a = RAM(ROUND);
+    if (a == 0) {
+        mff_cycles(0x8FBA, 3 + 2 + 2);
+        a = RAM(SUB_AREA);
+        if (a == 1) {
+            mff_cycles(0x8FC0, 3 + 2 + 2);
+            a = RAM(AREA_SCREEN);
+            COMPARE(a, 2);
+            if (z) {
+                mff_cycles(0x8FC6, 6);
+                RTS();
+            }
+            mff_cycles(0x8FC4, 1);
+        } else {
+            mff_cycles(0x8FBE, 1);
+        }
+    } else {
+        mff_cycles(0x8FB8, 1);
+    }
+    mff_cycles(0x8FC7, 3 + 2 + 2);
+    a = RAM(ROUND);
+    if (a == 3) {
+        mff_cycles(0x8FCD, 3 + 2);
+        a = RAM(SUB_AREA);
+        if (a == 0) {
+            mff_cycles(0x8FD1, 3 + 2 + 2);
+            a = RAM(AREA_SCREEN);
+            COMPARE(a, 2);
+            if (z) {
+                mff_cycles(0x8FD7, 6);
+                RTS();
+            }
+            mff_cycles(0x8FD5, 1);
+        } else {
+            mff_cycles(0x8FCF, 1);
+        }
+    } else {
+        mff_cycles(0x8FCB, 1);
+    }
+    mff_cycles(0x8FD8, 4 + 2 + 2);
+    a = RAM(OBJ_FLAGS);
+    COMPARE(a, FLAGS_FACING_LEFT);
+    if (z) {
+        mff_cycles(0x8FDF, 2 + 2 + 1);
+        a = PAD_LEFT;
+    } else {
+        mff_cycles(0x8FDD, 1 + 2);
+        a = PAD_RIGHT;
+    }
+    SET_NZ(a);
+    mff_cycles(0x8FE5, 3 + 6);
+    RAM(PLAYER_DIR) = a;
+    JSR_AT(0x8FE7, 0xCEAA, 0);                  /* player_stand */
+    mff_cycles(0x8FEA, 2 + 3 + 3 + 3 + 2 + 4 + 6);
+    a = 0;
+    RAM(GAME_ACTION) = a;
+    RAM(CAMERA_AUTOSCROLL) = a;
+    RAM(JUMP_MOVING) = a;
+    a = STATE_LIVE;
+    SET_NZ(a);
+    RAM(OBJ_STATE) = a;
+    RTS();
+}
+
+/*
+ * $90AC in bank $00 (proposed name camera_walk_step): a step of
+ * game_action $1E ($8FF8, which has no routine in the port and JMPs here at
+ * 00:909B): the player moves right and falls ($F1FD); below y $7C the step
+ * counts up, above it the branch goes to an RTS inside $8FF8 (00:9072).
+ */
+void func_90AC_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x90AC, 6);
+    JSR_FN(0x90AC, func_F183);                  /* obj_move_right */
+    mff_cycles(0x90AF, 6);
+    JSR_FN(0x90AF, func_F1FD);                  /* obj_fall, no probe */
+    mff_cycles(0x90B2, 4 + 2 + 2);
+    a = RAM(OBJ_Y);
+    COMPARE(a, 0x7C);
+    if (!c) {
+        mff_cycles(0x90B7, 1);
+        BRANCH_TAIL(0x9072, 0);
+    }
+    mff_cycles(0x90B9, 6 + 6);
+    RAM(OBJ_STATE)++;
+    SET_NZ(RAM(OBJ_STATE));
+    RTS();
+}
+
+/* the getting-up animation and CHR bank */
+#define ANIM_GET_UP         0xE210   /* 2E 2F 30 */
+#define CHR_GET_UP          0xE258   /* 00 04 0B */
+/* direction presses that make the player get up sooner, by player_level */
+#define GET_UP_PRESSES      0x9147   /* 14 12 10 0E 0C 0A */
+
+/* the presses that count: a direction, alone or diagonal */
+static const uint8_t k_get_up_pads[] = {
+    PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
+    PAD_UP | PAD_RIGHT, PAD_UP | PAD_LEFT, PAD_DOWN | PAD_RIGHT, PAD_DOWN | PAD_LEFT,
+};
+
+static void get_up(void);
+
+/*
+ * action_lying ($90CB in bank $00, proposed; Data Crystal: lying down):
+ * game_action $1F, down after a knockdown (knockdown_lie set action_timer
+ * $3C). With health gone the death starts: player_no_hit $80, game_action
+ * $0B for $78 frames (player_state_throw's blink). Otherwise action_timer
+ * counts down to get_up, and every direction press counts in obj_timer[0]:
+ * $9147[player_level] presses (20 at the first level, 10 at the sixth) get
+ * the player up at once.
+ */
+void func_90CB_b0(void) {
+    unsigned i;
+    REGS_IN;
+
+    mff_cycles(0x90CB, 3 + 2);
+    a = RAM(ACTION_TIMER);
+    if (a == 0)
+        FALL_INTO(get_up);
+    mff_cycles(0x90CD, 2 + 3 + 2);
+    a = RAM(HEALTH);
+    if (a & 0x80) {
+        mff_cycles(0x9107, 2 + 3 + 2 + 3 + 2 + 3 + 6);
+        a = NO_HIT;
+        RAM(PLAYER_NO_HIT) = a;
+        a = ACT_THROW;
+        RAM(GAME_ACTION) = a;
+        a = 0x78;
+        SET_NZ(a);
+        RAM(ACTION_TIMER) = a;
+        RTS();
+    }
+    mff_cycles(0x9105, 1 + 3);
+    a = RAM(JOY_PRESSED);
+    for (i = 0; i < sizeof k_get_up_pads; i++) {
+        mff_cycles(0x9116, 2 + 2);              /* CMP #, BEQ */
+        COMPARE(a, k_get_up_pads[i]);
+        if (z)
+            break;
+    }
+    if (i == sizeof k_get_up_pads) {            /* no press */
+        mff_cycles(0x9136, 5 + 6);
+        RAM(ACTION_TIMER)--;
+        SET_NZ(RAM(ACTION_TIMER));
+        RTS();
+    }
+    mff_cycles(0x9118, 1 + 6 + 4 + 3 + 4);
+    RAM(OBJ_TIMER)++;
+    a = RAM(OBJ_TIMER);
+    y = RAM(PLAYER_LEVEL);
+    COMPARE(a, prg_read((uint16_t)(GET_UP_PRESSES + y)));
+    mff_cycles(0x9144, 2);
+    if (z) {
+        mff_cycles(0x9144, 2);                  /* BEQ taken, to the page before */
+        FALL_INTO(get_up);
+    }
+    mff_cycles(0x9146, 6);
+    RTS();
+}
+
+/* get_up (00:90CF, inside action_lying): the getting-up animation and CHR
+ * bank, player_dir from the facing (obj_flags $D0: right), game_action 2
+ * for 8 frames, guy_jump_window, attack_ground_y, jump_moving and slot 0's
+ * obj_timer and obj_timer2 0. */
+static void get_up(void) {
+    REGS_IN;
+
+    mff_cycles(0x90CF, 3 + 4);
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(ANIM_GET_UP + y));
+    SET_NZ(a);
+    mff_cycles(0x90D4, 6);
+    JSR_FN(0x90D4, func_F294);                  /* player_set_anim */
+    mff_cycles(0x90D7, 4);
+    a = prg_read((uint16_t)(CHR_GET_UP + y));
+    SET_NZ(a);
+    mff_cycles(0x90DA, 6);
+    JSR_FN(0x90DA, func_F440);                  /* player_set_chr */
+    mff_cycles(0x90DD, 4 + 2 + 2);
+    a = RAM(OBJ_FLAGS);
+    COMPARE(a, FLAGS_FACING_RIGHT);
+    if (z) {
+        mff_cycles(0x90E4, 2 + 2 + 1);
+        a = PAD_RIGHT;
+    } else {
+        mff_cycles(0x90E2, 1 + 2);
+        a = PAD_LEFT;
+    }
+    mff_cycles(0x90EA, 3 + 2 + 3 + 2 + 3 + 2 + 3 + 3 + 3 + 4 + 4 + 6);
+    RAM(PLAYER_DIR) = a;
+    a = ACT_LAND;
+    RAM(GAME_ACTION) = a;
+    a = 8;
+    RAM(ACTION_TIMER) = a;
+    a = 0;
+    SET_NZ(a);
+    RAM(GUY_JUMP_WINDOW) = a;
+    RAM(ATTACK_GROUND_Y) = a;
+    RAM(JUMP_MOVING) = a;
+    RAM(OBJ_TIMER) = a;
+    RAM(OBJ_TIMER2) = a;
+    RTS();
+}
