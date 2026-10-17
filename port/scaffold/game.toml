@@ -1430,85 +1430,85 @@ addr = 0xDF50   # lifted, lifted_d.c
 [[replace_func]]
 addr = 0xDFE9   # lifted, lifted_d.c
 [[replace_func]]
-addr = 0xE03B   # lifted, lifted_e.c
+addr = 0xE03B   # area_start, stage_area.c
 [[replace_func]]
-addr = 0xE12F   # lifted, lifted_e.c
+addr = 0xE12F   # round_map_pause, stage_area.c
 [[replace_func]]
-addr = 0xE139   # lifted, lifted_e.c
+addr = 0xE139   # round_map_resume, stage_area.c
 [[replace_func]]
-addr = 0xE143   # lifted, lifted_e.c
+addr = 0xE143   # camera_reset, stage_area.c
 [[replace_func]]
-addr = 0xE16B   # lifted, lifted_e.c
+addr = 0xE16B   # player_start_position, stage_area.c
 [[replace_func]]
-addr = 0xE2A3   # lifted, lifted_e.c
+addr = 0xE2A3   # camera_update, stage_camera.c
 [[replace_func]]
-addr = 0xE3A3   # lifted, lifted_e.c
+addr = 0xE3A3   # camera_scroll_right, stage_camera.c
 [[replace_func]]
-addr = 0xE473   # lifted, lifted_e.c
+addr = 0xE473   # camera_keep_player_on_screen, stage_camera.c
 [[replace_func]]
-addr = 0xE4DF   # lifted, lifted_e.c
+addr = 0xE4DF   # bg_column_check, stage_columns.c
 [[replace_func]]
-addr = 0xE515   # lifted, lifted_e.c
+addr = 0xE515   # bg_column_check_from, stage_columns.c
 [[replace_func]]
-addr = 0xE521   # lifted, lifted_e.c
+addr = 0xE521   # bg_column_write, stage_columns.c
 [[replace_func]]
-addr = 0xE53F   # lifted, lifted_e.c
+addr = 0xE53F   # bg_column_turn, stage_columns.c
 [[replace_func]]
-addr = 0xE560   # lifted, lifted_e.c
+addr = 0xE560   # bg_column_rows, stage_columns.c
 [[replace_func]]
-addr = 0xE60F   # lifted, lifted_e.c
+addr = 0xE60F   # metatile_tiles, stage_columns.c
 [[replace_func]]
-addr = 0xE61A   # lifted, lifted_e.c
+addr = 0xE61A   # metatile_tiles_loop, stage_columns.c
 [[replace_func]]
-addr = 0xE653   # lifted, lifted_e.c
+addr = 0xE653   # metatile_ptr, stage_columns.c
 [[replace_func]]
-addr = 0xE66E   # lifted, lifted_e.c
+addr = 0xE66E   # screen_map_ptr, stage_columns.c
 [[replace_func]]
-addr = 0xE689   # lifted, lifted_e.c
+addr = 0xE689   # screen_map_ptr_of, stage_columns.c
 [[replace_func]]
-addr = 0xE6AB   # lifted, lifted_e.c
+addr = 0xE6AB   # hud_update, stage_hud.c
 [[replace_func]]
-addr = 0xE6DD   # lifted, lifted_e.c
+addr = 0xE6DD   # hud_player, stage_hud.c
 [[replace_func]]
-addr = 0xE7F5   # lifted, lifted_e.c
+addr = 0xE7F5   # hud_next_level, stage_hud.c
 [[replace_func]]
-addr = 0xE853   # lifted, lifted_e.c
+addr = 0xE853   # hud_close, stage_hud.c
 [[replace_func]]
-addr = 0xE856   # lifted, lifted_e.c
+addr = 0xE856   # hud_dashes, stage_hud.c
 [[replace_func]]
-addr = 0xE89B   # lifted, lifted_e.c
+addr = 0xE89B   # hud_enemy_bar, stage_hud.c
 [[replace_func]]
-addr = 0xE8BD   # lifted, lifted_e.c
+addr = 0xE8BD   # hud_enemy_bar_shown, stage_hud.c
 [[replace_func]]
-addr = 0xE954   # lifted, lifted_e.c
+addr = 0xE954   # hud_level_gauge, stage_hud.c
 [[replace_func]]
-addr = 0xE9BC   # lifted, lifted_e.c
+addr = 0xE9BC   # objects_draw, stage_draw.c
 [[replace_func]]
-addr = 0xE9FE   # lifted, lifted_e.c
+addr = 0xE9FE   # object_draw, stage_draw.c
 [[replace_func]]
-addr = 0xEA6F   # lifted, lifted_e.c
+addr = 0xEA6F   # object_draw_sprites, stage_draw.c
 [[replace_func]]
-addr = 0xEC33   # lifted, lifted_e.c
+addr = 0xEC33   # object_offscreen, stage_draw.c
 [[replace_func]]
-addr = 0xEC81   # lifted, lifted_e.c
+addr = 0xEC81   # object_free, stage_draw.c
 [[replace_func]]
-addr = 0xECCF   # lifted, lifted_e.c
+addr = 0xECCF   # bg_probe, stage_probe.c
 [[replace_func]]
-addr = 0xED49   # lifted, lifted_e.c
+addr = 0xED49   # bg_probe_walk, stage_probe.c
 [[replace_func]]
-addr = 0xEDBA   # lifted, lifted_e.c
+addr = 0xEDBA   # bg_probe_2, stage_probe.c
 [[replace_func]]
-addr = 0xEEC4   # lifted, lifted_e.c
+addr = 0xEEC4   # probe_begin, stage_probe.c
 [[replace_func]]
-addr = 0xEEDF   # lifted, lifted_e.c
+addr = 0xEEDF   # probe_end, stage_probe.c
 [[replace_func]]
-addr = 0xEF55   # lifted, lifted_e.c
+addr = 0xEF55   # push_out_left, stage_probe.c
 [[replace_func]]
-addr = 0xEF6D   # lifted, lifted_e.c
+addr = 0xEF6D   # push_out_right, stage_probe.c
 [[replace_func]]
-addr = 0xEF83   # lifted, lifted_e.c
+addr = 0xEF83   # push_out_down, stage_probe.c
 [[replace_func]]
-addr = 0xEF9D   # lifted, lifted_e.c
+addr = 0xEF9D   # push_out_up, stage_probe.c
 [[replace_func]]
 addr = 0xF000   # lifted, lifted_f.c
 [[replace_func]]
@@ -2280,394 +2280,394 @@ bank = 2
 addr = 0xAD58   # lifted, lifted_b2.c
 [[replace_func]]
 bank = 4
-addr = 0x8000   # lifted, lifted_b4.c
+addr = 0x8000   # stage_list_setup, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x8038   # lifted, lifted_b4.c
+addr = 0x8038   # stage_list_seek, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x8080   # lifted, lifted_b4.c
+addr = 0x8080   # stage_spawns, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x80C2   # lifted, lifted_b4.c
+addr = 0x80C2   # stage_list_in_view, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x80E4   # lifted, lifted_b4.c
+addr = 0x80E4   # stage_list_spawn, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x8900   # lifted, lifted_b4.c
+addr = 0x8900   # stage_events, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x89D2   # lifted, lifted_b4.c
+addr = 0x89D2   # area_set_clear, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x89D7   # lifted, lifted_b4.c
+addr = 0x89D7   # area_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8A2C   # lifted, lifted_b4.c
+addr = 0x8A2C   # area0_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8A43   # lifted, lifted_b4.c
+addr = 0x8A43   # script_none, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8A44   # lifted, lifted_b4.c
+addr = 0x8A44   # area0_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8A53   # lifted, lifted_b4.c
+addr = 0x8A53   # area0_script_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8A62   # lifted, lifted_b4.c
+addr = 0x8A62   # area0_script_screen3, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8A76   # lifted, lifted_b4.c
+addr = 0x8A76   # area1_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8A8D   # lifted, lifted_b4.c
+addr = 0x8A8D   # area1_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8A9D   # lifted, lifted_b4.c
+addr = 0x8A9D   # area1_script_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8AAB   # lifted, lifted_b4.c
+addr = 0x8AAB   # script_none, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8AAC   # lifted, lifted_b4.c
+addr = 0x8AAC   # area2_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8ABF   # lifted, lifted_b4.c
+addr = 0x8ABF   # area2_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8AD3   # lifted, lifted_b4.c
+addr = 0x8AD3   # area3_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8AEA   # lifted, lifted_b4.c
+addr = 0x8AEA   # area3_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8AF9   # lifted, lifted_b4.c
+addr = 0x8AF9   # area3_script_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8B08   # lifted, lifted_b4.c
+addr = 0x8B08   # area3_script_screen3, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8B1C   # lifted, lifted_b4.c
+addr = 0x8B1C   # area4_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8B35   # lifted, lifted_b4.c
+addr = 0x8B35   # area4_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8B44   # lifted, lifted_b4.c
+addr = 0x8B44   # area4_script_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8B58   # lifted, lifted_b4.c
+addr = 0x8B58   # area4_script_screen3, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8B68   # lifted, lifted_b4.c
+addr = 0x8B68   # area4_script_screen4, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8B7C   # lifted, lifted_b4.c
+addr = 0x8B7C   # area5_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8B8F   # lifted, lifted_b4.c
+addr = 0x8B8F   # area5_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8B9F   # lifted, lifted_b4.c
+addr = 0x8B9F   # area6_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8BB6   # lifted, lifted_b4.c
+addr = 0x8BB6   # area6_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8BC5   # lifted, lifted_b4.c
+addr = 0x8BC5   # area6_script_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8BE8   # lifted, lifted_b4.c
+addr = 0x8BE8   # area7_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8BFF   # lifted, lifted_b4.c
+addr = 0x8BFF   # area7_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8C0E   # lifted, lifted_b4.c
+addr = 0x8C0E   # area7_script_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8C1E   # lifted, lifted_b4.c
+addr = 0x8C1E   # area7_script_screen3, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8C32   # lifted, lifted_b4.c
+addr = 0x8C32   # area8_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8C43   # lifted, lifted_b4.c
+addr = 0x8C43   # area8_script_screen0, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8C57   # lifted, lifted_b4.c
+addr = 0x8C57   # area9_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8C6E   # lifted, lifted_b4.c
+addr = 0x8C6E   # area9_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8C7D   # lifted, lifted_b4.c
+addr = 0x8C7D   # area9_script_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8C8B   # lifted, lifted_b4.c
+addr = 0x8C8B   # script_none, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8C8C   # lifted, lifted_b4.c
+addr = 0x8C8C   # area10_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8CA5   # lifted, lifted_b4.c
+addr = 0x8CA5   # area10_script_screen0, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8CBD   # lifted, lifted_b4.c
+addr = 0x8CBD   # area11_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8CD2   # lifted, lifted_b4.c
+addr = 0x8CD2   # area11_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8CE1   # lifted, lifted_b4.c
+addr = 0x8CE1   # area11_script_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8CF5   # lifted, lifted_b4.c
+addr = 0x8CF5   # area12_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8D0C   # lifted, lifted_b4.c
+addr = 0x8D0C   # area12_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8D1B   # lifted, lifted_b4.c
+addr = 0x8D1B   # area12_script_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8D2A   # lifted, lifted_b4.c
+addr = 0x8D2A   # area12_script_screen3, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8D3A   # lifted, lifted_b4.c
+addr = 0x8D3A   # area13_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8D51   # lifted, lifted_b4.c
+addr = 0x8D51   # area13_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8D60   # lifted, lifted_b4.c
+addr = 0x8D60   # area13_script_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8D6F   # lifted, lifted_b4.c
+addr = 0x8D6F   # area13_script_screen3, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8D83   # lifted, lifted_b4.c
+addr = 0x8D83   # area14_script, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8D98   # lifted, lifted_b4.c
+addr = 0x8D98   # area14_script_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x8DA8   # lifted, lifted_b4.c
+addr = 0x8DA8   # belger_room, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9000   # lifted, lifted_b4.c
+addr = 0x9000   # timed_spawner, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x9038   # lifted, lifted_b4.c
+addr = 0x9038   # timed_spawn, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x921C   # lifted, lifted_b4.c
+addr = 0x921C   # timed_spawn_r3a1, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x931D   # lifted, lifted_b4.c
+addr = 0x931D   # timed_spawn_r3a1_set, stage_spawn.c
 [[replace_func]]
 bank = 4
-addr = 0x96C3   # lifted, lifted_b4.c
+addr = 0x96C3   # enemies_two, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x96FC   # lifted, lifted_b4.c
+addr = 0x96FC   # enemies_left, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x972A   # lifted, lifted_b4.c
+addr = 0x972A   # screen_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x977F   # lifted, lifted_b4.c
+addr = 0x977F   # area0_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9787   # lifted, lifted_b4.c
+addr = 0x9787   # setup_none, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9788   # lifted, lifted_b4.c
+addr = 0x9788   # area1_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x979F   # lifted, lifted_b4.c
+addr = 0x979F   # area1_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x97A6   # lifted, lifted_b4.c
+addr = 0x97A6   # area1_setup_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x97B4   # lifted, lifted_b4.c
+addr = 0x97B4   # area2_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x97C7   # lifted, lifted_b4.c
+addr = 0x97C7   # area2_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x97CE   # lifted, lifted_b4.c
+addr = 0x97CE   # area3_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x97E5   # lifted, lifted_b4.c
+addr = 0x97E5   # area3_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x97EC   # lifted, lifted_b4.c
+addr = 0x97EC   # area3_setup_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x97FA   # lifted, lifted_b4.c
+addr = 0x97FA   # area4_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9813   # lifted, lifted_b4.c
+addr = 0x9813   # area4_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x981A   # lifted, lifted_b4.c
+addr = 0x981A   # area4_setup_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9821   # lifted, lifted_b4.c
+addr = 0x9821   # area4_setup_screen3, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x982F   # lifted, lifted_b4.c
+addr = 0x982F   # area5_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9842   # lifted, lifted_b4.c
+addr = 0x9842   # area5_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9849   # lifted, lifted_b4.c
+addr = 0x9849   # area6_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9860   # lifted, lifted_b4.c
+addr = 0x9860   # area6_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9875   # lifted, lifted_b4.c
+addr = 0x9875   # area7_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x988C   # lifted, lifted_b4.c
+addr = 0x988C   # area7_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9893   # lifted, lifted_b4.c
+addr = 0x9893   # area7_setup_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x98A1   # lifted, lifted_b4.c
+addr = 0x98A1   # area8_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x98B4   # lifted, lifted_b4.c
+addr = 0x98B4   # area8_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x98BB   # lifted, lifted_b4.c
+addr = 0x98BB   # area9_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x98D2   # lifted, lifted_b4.c
+addr = 0x98D2   # area9_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x98D9   # lifted, lifted_b4.c
+addr = 0x98D9   # area9_setup_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x98E0   # lifted, lifted_b4.c
+addr = 0x98E0   # area9_setup_screen3, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x98E7   # lifted, lifted_b4.c
+addr = 0x98E7   # area10_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x98FA   # lifted, lifted_b4.c
+addr = 0x98FA   # area10_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9901   # lifted, lifted_b4.c
+addr = 0x9901   # area11_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9918   # lifted, lifted_b4.c
+addr = 0x9918   # area11_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x991F   # lifted, lifted_b4.c
+addr = 0x991F   # area11_setup_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9926   # lifted, lifted_b4.c
+addr = 0x9926   # area11_setup_screen3, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9947   # lifted, lifted_b4.c
+addr = 0x9947   # area12_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x995E   # lifted, lifted_b4.c
+addr = 0x995E   # area12_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9965   # lifted, lifted_b4.c
+addr = 0x9965   # area12_setup_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x996C   # lifted, lifted_b4.c
+addr = 0x996C   # area12_setup_screen3, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9973   # lifted, lifted_b4.c
+addr = 0x9973   # area13_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x998A   # lifted, lifted_b4.c
+addr = 0x998A   # area13_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9991   # lifted, lifted_b4.c
+addr = 0x9991   # area13_setup_screen2, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x9998   # lifted, lifted_b4.c
+addr = 0x9998   # area13_setup_screen3, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x999F   # lifted, lifted_b4.c
+addr = 0x999F   # area14_setup, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0x99B4   # lifted, lifted_b4.c
+addr = 0x99B4   # area14_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0xA000   # lifted, lifted_b4.c
+addr = 0xA000   # sprite_set_load, stage_palette.c
 [[replace_func]]
 bank = 4
-addr = 0xA013   # lifted, lifted_b4.c
+addr = 0xA013   # sprite_set_palette, stage_palette.c
 [[replace_func]]
 bank = 4
-addr = 0xA300   # lifted, lifted_b4.c
+addr = 0xA300   # bg_palette_animate, stage_palette.c
 [[replace_func]]
 bank = 4
-addr = 0xA321   # lifted, lifted_b4.c
+addr = 0xA321   # bg_palette_step, stage_palette.c
 [[replace_func]]
 bank = 4
-addr = 0xA700   # lifted, lifted_b4.c
+addr = 0xA700   # ending_text, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xA713   # lifted, lifted_b4.c
+addr = 0xA713   # ending_text_screen, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xA71D   # lifted, lifted_b4.c
+addr = 0xA71D   # ending_text_type, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xA788   # lifted, lifted_b4.c
+addr = 0xA788   # ending_step_left, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xA78E   # lifted, lifted_b4.c
+addr = 0xA78E   # ending_text_clear, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xA7D0   # lifted, lifted_b4.c
+addr = 0xA7D0   # ending_hold, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAB00   # lifted, lifted_b4.c
+addr = 0xAB00   # ending_pose, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAB34   # lifted, lifted_b4.c
+addr = 0xAB34   # cody_pose, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAB77   # lifted, lifted_b4.c
+addr = 0xAB77   # cody_pose_next, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xABD0   # lifted, lifted_b4.c
+addr = 0xABD0   # guy_pose, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xABDF   # lifted, lifted_b4.c
+addr = 0xABDF   # guy_pose_spin, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAC20   # lifted, lifted_b4.c
+addr = 0xAC20   # guy_pose_leap, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAC75   # lifted, lifted_b4.c
+addr = 0xAC75   # guy_pose_hold, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAC81   # lifted, lifted_b4.c
+addr = 0xAC81   # haggar_pose, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xACB7   # lifted, lifted_b4.c
+addr = 0xACB7   # haggar_pose_run, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xACE1   # lifted, lifted_b4.c
+addr = 0xACE1   # haggar_pose_stop, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAD0B   # lifted, lifted_b4.c
+addr = 0xAD0B   # haggar_pose_hold, stage_ending.c
 [[replace_func]]
 bank = 0
 addr = 0x80AE   # lifted, lifted_late.c
