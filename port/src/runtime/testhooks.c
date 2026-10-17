@@ -19,6 +19,12 @@
  *                    (default the current directory): frame_NNNNNN.png
  * MFF_PICDUMP=FILE   per frame: u32 frame, then the picture shown as 256x240
  *                    palette indices (port/tests/oracle_pictures.py)
+ * MFF_POKE=FILE      RAM writes keyed like MFF_INPUT, lines "count repeat
+ *                    addr(hex) value(hex)", made right after that frame's
+ *                    frame log record (before its NMI): where a save state of
+ *                    the oracle's frame with that key is taken, so the same
+ *                    patch on both sides (tools/state_ram.py there) keeps the
+ *                    two games together (port/tests/oracle_tour.py)
  */
 #include "machine.h"
 #include <stdio.h>
@@ -42,6 +48,10 @@ static int s_keyed, s_started, s_prev = -1;
 static uint32_t s_count;
 static uint16_t s_rep;
 
+typedef struct { uint32_t count; uint16_t rep, addr; uint8_t value; } Poke;
+static Poke *s_pokes;
+static size_t s_npokes, s_poke_at;
+
 static void keys_load(const char *path) {
     FILE *f = fopen(path, "r");
     size_t cap = 1 << 16;
@@ -64,21 +74,60 @@ static void keys_load(const char *path) {
     fprintf(stderr, "[mff] MFF_INPUT: %zu keyed frames\n", s_nkeys);
 }
 
+static void pokes_load(const char *path) {
+    FILE *f = fopen(path, "r");
+    size_t cap = 256;
+    unsigned c, r, a, v;
+    if (!f) mff_fatal("MFF_POKE: cannot open %s", path);
+    s_pokes = (Poke *)malloc(cap * sizeof *s_pokes);
+    if (!s_pokes) mff_fatal("no memory for MFF_POKE");
+    while (fscanf(f, "%u %u %x %x", &c, &r, &a, &v) == 4) {
+        if (s_npokes == cap) {
+            s_pokes = (Poke *)realloc(s_pokes, (cap *= 2) * sizeof *s_pokes);
+            if (!s_pokes) mff_fatal("no memory for MFF_POKE");
+        }
+        s_pokes[s_npokes].count = c;
+        s_pokes[s_npokes].rep = (uint16_t)r;
+        s_pokes[s_npokes].addr = (uint16_t)(a & 0x7FF);
+        s_pokes[s_npokes].value = (uint8_t)v;
+        s_npokes++;
+    }
+    fclose(f);
+    fprintf(stderr, "[mff] MFF_POKE: %zu RAM writes\n", s_npokes);
+}
+
 /* The key of this frame: NMIs since reset (frame_counter $92, unwrapped
  * from its first 0 -> 1 step) and how many frames already showed that
- * count. Before the first step the pad is idle. */
-static void keyed_input(void) {
+ * count. Before the first step there is none. */
+static void frame_key(void) {
     int v = g_ram[0x92];
     if (!s_started) {
         if (s_prev == 0 && v == 1) { s_started = 1; s_count = 1; s_rep = 0; }
         s_prev = v;
-        if (!s_started) { g_controller1_buttons = 0; return; }
     } else {
         uint32_t next = s_count + (uint32_t)((v - s_prev) & 0xFF);
         s_rep = (next == s_count) ? (uint16_t)(s_rep + 1) : 0;
         s_count = next;
         s_prev = v;
     }
+}
+
+static int key_before(uint32_t c, uint16_t r) {
+    return c < s_count || (c == s_count && r < s_rep);
+}
+
+static void apply_pokes(void) {
+    if (!s_started) return;
+    while (s_poke_at < s_npokes && key_before(s_pokes[s_poke_at].count, s_pokes[s_poke_at].rep))
+        s_poke_at++;                    /* a key this run never showed */
+    for (; s_poke_at < s_npokes && s_pokes[s_poke_at].count == s_count &&
+           s_pokes[s_poke_at].rep == s_rep; s_poke_at++)
+        g_ram[s_pokes[s_poke_at].addr] = s_pokes[s_poke_at].value;
+}
+
+/* Before the first step the pad is idle. */
+static void keyed_input(void) {
+    if (!s_started) { g_controller1_buttons = 0; return; }
     while (s_at < s_nkeys && (s_keys[s_at].count < s_count ||
                               (s_keys[s_at].count == s_count && s_keys[s_at].rep < s_rep)))
         s_at++;
@@ -101,10 +150,12 @@ static FILE *open_log(const char *var) {
 
 void hooks_init(void) {
     const char *in = getenv("MFF_INPUT"), *shots = getenv("MFF_SHOTS"), *dir = getenv("MFF_SHOT_DIR");
+    const char *poke = getenv("MFF_POKE");
     s_framelog = open_log("MFF_FRAMELOG");
     s_piclog = open_log("MFF_PICLOG");
     s_picdump = open_log("MFF_PICDUMP");
     if (in && *in) keys_load(in);
+    if (poke && *poke) pokes_load(poke);
     for (const char *p = shots; p && *p && s_nshots < 64;) {
         char *end;
         long v = strtol(p, &end, 10);
@@ -134,6 +185,8 @@ void hooks_frame_start(uint64_t frame) {
         fwrite(ppu_palette(), 1, 0x20, s_framelog);
         fflush(s_framelog);
     }
+    frame_key();
+    if (s_npokes) apply_pokes();
     if (s_keyed) keyed_input();
     mff_bot_frame(frame);
 }
