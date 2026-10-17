@@ -12,11 +12,15 @@ project(MightyFinalFight C)
 # the executable loads at start; it never reads the ROM:
 #   cmake -S port -B build_port -A x64 -DMFF_ROM="path/to/Mighty Final Fight (USA).nes"
 #   cmake --build build_port --config Release
+#   build_port/Release/MightyFinalFight.exe --window      (with -DMFF_SDL=ON)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 set(MFF_ROM "" CACHE FILEPATH "Mighty Final Fight (USA) dump (CRC32 15EB0BEE) to extract the game's data from")
+option(MFF_SDL "A window to play in (SDL2)" OFF)
+set(MFF_SDL2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../nesrecomp/runner/external/SDL2" CACHE PATH
+    "SDL2 development files (the one bundled with nesrecomp by default)")
 
 file(GLOB MFF_GAME_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/game/*.c")
 file(GLOB MFF_RUNTIME_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/*.c")
@@ -40,6 +44,19 @@ if(MSVC)
 else()
     target_compile_options(MightyFinalFight PRIVATE -Wall -Wno-unused-label -Wno-unused-variable
                            -Wno-unused-but-set-variable)
+endif()
+
+if(MFF_SDL)
+    list(APPEND CMAKE_PREFIX_PATH "${MFF_SDL2_DIR}/cmake")
+    find_package(SDL2 REQUIRED)
+    target_compile_definitions(MightyFinalFight PRIVATE MFF_HAVE_SDL)
+    # our own main(): SDL2 without SDL2main (video_sdl.c sets SDL_MAIN_HANDLED)
+    target_link_libraries(MightyFinalFight PRIVATE SDL2::SDL2)
+    if(WIN32 AND EXISTS "${MFF_SDL2_DIR}/lib/x64/SDL2.dll")
+        add_custom_command(TARGET MightyFinalFight POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${MFF_SDL2_DIR}/lib/x64/SDL2.dll"
+                    "$<TARGET_FILE_DIR:MightyFinalFight>")
+    endif()
 endif()
 
 # ---- the game's data (port/tools/extract_assets.py, part "runtime") ----

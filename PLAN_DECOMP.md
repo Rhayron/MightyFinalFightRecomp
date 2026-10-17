@@ -105,12 +105,12 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   até o ciclo de cada imagem bate. A imagem guarda duas diferenças do console porque as bases as têm:
   todos os sprites aparecem (`--sprite-limit` dá os 8 por linha do console) e um split reinicia a
   rolagem vertical no Y que o handler escreve em `$2005` (por isso a barra de baixo mostra os tiles da
-  de cima com os bancos de CHR dela). Compilar e rodar:
+  de cima com os bancos de CHR dela). Compilar e jogar:
 
   ```bash
-  cmake -S port -B build_mff -A x64 -DMFF_ROM="rom/Mighty Final Fight (USA).nes"
+  cmake -S port -B build_mff -A x64 -DMFF_ROM="rom/Mighty Final Fight (USA).nes" -DMFF_SDL=ON
   cmake --build build_mff --config Release
-  build_mff/Release/MightyFinalFight.exe --smoke 600   # sem janela
+  build_mff/Release/MightyFinalFight.exe --window      # ou --smoke N, sem janela
   MFF_EXE=build_mff/Release/MightyFinalFight.exe port/tests/run_routes.sh check
   ```
 

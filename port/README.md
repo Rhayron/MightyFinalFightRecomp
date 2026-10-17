@@ -16,8 +16,9 @@ once; CMake extracts the game's data into `BUILD/assets` while it
 configures, and from then on neither the build nor the game reads the ROM.
 
 ```bash
-cmake -S port -B build_mff -A x64 -DMFF_ROM="rom/Mighty Final Fight (USA).nes"
+cmake -S port -B build_mff -A x64 -DMFF_ROM="rom/Mighty Final Fight (USA).nes" -DMFF_SDL=ON
 cmake --build build_mff --config Release
+build_mff/Release/MightyFinalFight.exe --window          # play
 build_mff/Release/MightyFinalFight.exe --smoke 600       # headless, 600 frames
 MFF_EXE=build_mff/Release/MightyFinalFight.exe port/tests/run_routes.sh check
 ```
@@ -27,6 +28,11 @@ MFF_EXE=build_mff/Release/MightyFinalFight.exe port/tests/run_routes.sh check
   runtime --out DIR` and run with `--assets DIR` (or `MFF_ASSETS=DIR`). The
   executable looks in `assets/` next to itself and one level up, and says
   how to make the data when it finds none.
+- `-DMFF_SDL=ON` adds the window (SDL2; `MFF_SDL2_DIR` defaults to the copy
+  in `nesrecomp/runner/external/SDL2`). Keys: X = A, Z = B, Enter = Start,
+  Right Shift = Select, arrows; a game controller works too (B/Y = A,
+  A/X = B). Tab runs fast, F11 or Alt+Enter is full screen, Esc quits. No
+  sound yet (P6).
 - `--sprite-limit` (or `MFF_SPRITE_LIMIT=1`) shows at most 8 sprites per
   line, as the console does; without it every sprite is drawn, as the
   scaffold's renderer does and the test baselines expect.
@@ -54,7 +60,7 @@ implements that interface for this one game, so no routine changed:
 | `mff_hooks.c` | where the NMI may land, and `nmi_tail` (`$C119`): game rules the scaffold kept in `extras.c` |
 | `cart.c` | loads `chr.bin` and `prg.bin`; a read of a PRG byte the data leaves out stops the run and names it |
 | `testhooks.c`, `png_write.c` | the scaffold's frame log, picture log and keyed input; screenshots |
-| `main.c`, `video_sdl.c` | command line; the window (a stub for now) |
+| `main.c`, `video_sdl.c` | command line; the window |
 
 What the game can see is reproduced exactly as the scaffold's runtime had
 it: the cycle count and the place the NMI lands (only at the scheduler's
