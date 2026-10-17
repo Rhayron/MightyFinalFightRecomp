@@ -232,11 +232,11 @@ void func_DE5E(void) {
  * (0 in round 1; $E161[round] otherwise, never executed in any run), then
  * the select screen (bank $04's function 2 and $9100), the screen cleared,
  * $E143, $E139, the health of the level (player_health_reset) and
- * area_start. Otherwise a new round (sub_area 0) shows its map first:
+ * area_enter. Otherwise a new round (sub_area 0) shows its map first:
  * level_saved = player_level, bank $04's function $E15C[round] and the map
  * at $8D00 for 45 frames, then the same $E143, $E139 and health; every
  * area then sets round_tables from $E166[round] and runs on into
- * area_start. Reached by JMP from player_state_transition (0E:DE88).
+ * area_enter. Reached by JMP from player_state_transition (0E:DE88).
  */
 void func_DF50(void) {
     REGS_IN;
@@ -298,7 +298,7 @@ void func_DF50(void) {
         mff_cycles(0xDF9E, 6);
         JSR_AT(0xDF9E, 0xDE33, -1);             /* player_health_reset */
         mff_cycles(0xDFA1, 3);
-        JMP_TAIL(0xDFE9, -1);                   /* area_start */
+        JMP_TAIL(0xDFE9, -1);                   /* area_enter */
     }
 
     mff_cycles(0xDF54, 1 + 3 + 2);
@@ -357,7 +357,7 @@ void func_DF50(void) {
 }
 
 /*
- * area_start ($DFE9, proposed; runs on to $E12E in the $E000 bank): the
+ * area_enter ($DFE9, proposed; runs on to $E12E in the $E000 bank): the
  * round's music unless it already plays; the area's first 33 background
  * columns, one per frame (the column writer $E521 going right, until
  * bg_screen comes back from $FF through 0 to 1); banks $0A/$0B for $9C00,

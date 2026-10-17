@@ -1984,7 +1984,7 @@ comment = "phase 3, AxL's guard (obj_state $83 from obj_take_hit 0C:8574): slide
 bank = 0x0D
 addr = 0xA210
 name = "enemy_close_in"
-comment = "phase 4: walks to the spot beside the player (0F:FB72) until he is in the kind's reach (enemy_reach_x/y) or obj_ai_count tries run out; in reach: retreat (enemy_retreat_odds) or the attack, phase 5, with the combo's hit count. Logs: all kinds (proposed)"
+comment = "phase 4: walks to the spot beside the player (0F:FB72) until he is in the kind's reach (enemy_attack_range_x/y) or obj_ai_count tries run out; in reach: retreat (enemy_retreat_odds) or the attack, phase 5, with the combo's hit count. Logs: all kinds (proposed)"
 
 [[label]]
 bank = 0x0D
@@ -2265,14 +2265,14 @@ comment = "by kind: the attack animation's frame that puts the hit out (read at 
 [[label]]
 bank = 0x0D
 addr = 0xA3A7
-name = "enemy_reach_x"
-comment = "by kind: x reach of the attack for 0F:FB3E (read at $A21E, $A368)"
+name = "enemy_attack_range_x"
+comment = "by kind: how near in x the player must be for the AI to attack (0F:FB3E; read at $A21E, $A368); enemy_ai.c ATTACK_RANGE_X. Not the hit's own reach (0F:F6AA-F6EA, enemy_attack_test)"
 
 [[label]]
 bank = 0x0D
 addr = 0xA3AD
-name = "enemy_reach_y"
-comment = "by kind: y reach of the attack, 4 for all (read at $A223, $A36D)"
+name = "enemy_attack_range_y"
+comment = "by kind: the same in y, 4 for all (0F:FB3E; read at $A223, $A36D); enemy_ai.c ATTACK_RANGE_Y"
 
 [[label]]
 bank = 0x0D
@@ -3971,9 +3971,21 @@ comment = "also read at 0E:CEB3; flow_*.c (tidy/flow)"
 
 [[label]]
 bank = 0x0F
+addr = 0xE228
+name = "player_anim_special"
+comment = "by player_id: the A+B special's animation, 6C 6A 57 (LDA $E228,Y at 0E:CA54, then player_set_anim); Haggar's entry $E22A also read directly at 03:BFD7 (the scene after Belger); player_state_idle.c ANIM_SPECIAL"
+
+[[label]]
+bank = 0x0F
 addr = 0xE22B
 name = "player_chr_stand"
 comment = "also read at 0E:CEB3; flow_*.c (tidy/flow)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE270
+name = "player_chr_special"
+comment = "by player_id: the A+B special's CHR bank, 0E 17 0F (LDA $E270,Y at 0E:CA5A, then player_set_chr); Haggar's entry $E272 also read directly at 03:BFDD; player_state_idle.c CHR_SPECIAL"
 
 [[label]]
 bank = 0x0F
@@ -4414,3 +4426,2142 @@ bank = 0x01
 addr = 0xAE19
 name = "sodom_rematch_follow_up"
 comment = "phase 8 of id $83: player invuln $20, damage $27, obj_attack $98 to frame 9; set only by $A3DB (never executed); boss_sodom_rematch.c (tidy/b01)"
+
+# ---- routine names the P4 tidy proposed in the C comments (port/src/game), collected
+# by script on 2026-10-17: each comment is the C comment's description and callers ----
+
+[[label]]
+bank = 0x00
+addr = 0x8066
+name = "action_earthquake"
+comment = "game_action $0F, after Haggar's HeadSmasher lands. The screen shakes (scroll_y one up on even frames of obj_timer[0], one down on odd ones) and action_quake_bounce ... player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x807E
+name = "action_quake_bounce"
+comment = "obj_timer[0] counts down and Haggar bounces back, away from his facing side (obj_move_left when facing right, obj_move_right otherwise), then action_quake_fall. Reached by JMP from action_earthquake (00:8074) and run on into from it. player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8090
+name = "action_quake_fall"
+comment = "obj_fall (Y = 2); once falling and more than 2 px below player_ground_y, Haggar is put on it and lands (action_quake_land); obj_fall reporting the floor lands him ... Reached by JMP from action_quake_bounce (00:808A) and run on into from it. player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x80AE
+name = "action_quake_land"
+comment = "Haggar lands after the earthquake: sound $1C, scroll_y and jump_moving 0, game_action 2 for 3 frames, player_stand. Reached by JMP from action_quake_fall when obj_fall reports the floor (00:8097), and run on into from it. player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x80C5
+name = "haggar_power"
+comment = "game_action $10. combo_timer 0. The first step (until the wind-up animation $30 is on): obj_timer[0] $18 and obj_timer[1] = $817A[player_level] (the dash's length), ... player_power.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8177
+name = "haggar_power_end"
+comment = "JMP guy_power_end. Reached by JMP from haggar_power (00:8148) and its branches (00:8158, 815D). player_power.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x817E
+name = "action_weapon"
+comment = "game_action $11, which player_state_idle sets for an attack with a weapon in hand (0E:CB07, CB94): JMP ($0000) to cody_weapon, guy_weapon or haggar_weapon by player_id. player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8193
+name = "cody_weapon"
+comment = "on frame 2 at timer 0 the weapon is thrown from the first free slot of 2 and 1 (none free: nothing): obj_dir = player_dir, 18 px ahead and 4 px below the player, ... player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x821D
+name = "guy_weapon"
+comment = "as cody_weapon with 8 px ahead, animation $5F and id $6D; on frame 9 at timer 2 weapon_ammo counts down and only when it goes negative is the weapon gone (never ... player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x82AF
+name = "haggar_weapon"
+comment = "a swing. Sound $1D on frame 0, attack_id $0E and attack_begin on frame 6 at timer 0, attack_end on frame 9 at timer 0; on frame $0C back to idle (game_action 0, the ... player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8300
+name = "action_headsmasher"
+comment = "game_action $12, the jump haggar_headsmasher_start began (A while Haggar holds an enemy). player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x83A1
+name = "headsmasher_air"
+comment = "while rising, B starts the smash: CHR bank $0A, animation $48, player_no_hit $FF, attack_id 9. Reached by JMP from action_headsmasher (00:8322) and run on into from it. player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x83DC
+name = "headsmasher_carry"
+comment = "the held enemy (slot Y) becomes id $0E. The jump steers as an ordinary one: the first frame with left or right held sets jump_moving and jump_dir; then Haggar moves ... Reached by JMP from headsmasher_air (00:83D0) and run on into from it. player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8429
+name = "headsmasher_carry_right"
+comment = "the held enemy (slot Y) moves right by Haggar's vx. player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8479
+name = "headsmasher_carry_left"
+comment = "the held enemy (slot Y) moves left by Haggar's vx (the high byte's borrow never executed in any run). player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8497
+name = "knee_start"
+comment = "game_action $21, the knee. Branched to from guy_throw (00:84A7). player_throws.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x849C
+name = "guy_throw"
+comment = "game_action $13. On its first step, with no direction held, the knee (knee_start). player_throws.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8541
+name = "cody_slash"
+comment = "the end of Cody's combo. Until the falling animation $3E: attack_id 7, attack_begin and a dash (obj_vx $0689). player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x85AA
+name = "cody_slash_move"
+comment = "Cody faces and moves his way (player_dir), then cody_slash_fall. Reached by JMP from cody_slash (00:859F) and run on into from it. player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x85BF
+name = "cody_slash_fall"
+comment = "obj_fall (Y = 0). On the floor, cody_slash_land. While rising, frame 9 is held. Reached by JMP from cody_slash_move (00:85B6) and run on into from it. player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x85F9
+name = "cody_slash_land_at"
+comment = "obj_y = player_ground_y, then cody_slash_land. Reached by JMP from cody_slash_fall (00:85F6). player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x85FE
+name = "cody_slash_land"
+comment = "the slash is over: game_action 2, guy_jump_window, player_no_hit and combo_timer 0, a small rebound (obj_vy -$40/256) and walking speed in x ($0133), ... Reached by JMP from cody_slash_fall (00:85C6) and run on into from cody_slash_land_at. player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x863E
+name = "knee_start_haggar"
+comment = "game_action $21, the knee. Branched to from haggar_back_throw (00:8654). player_throws.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8643
+name = "haggar_back_throw"
+comment = "game_action $15. On its first step player_no_hit $80; with no direction held the knee (knee_start_haggar). player_throws.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x86FF
+name = "action_lariat"
+comment = "game_action $16, A+B with left or right held. The first step sets obj_vx $0100; from frame 6, B held alone speeds it up to $0233. player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x87AA
+name = "lariat_step_end"
+comment = "the end of a step of Haggar's moving lariat (action_lariat JMPs here at 00:87A2 and runs on into it): while game_action is still $16 and something is held, ... player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x87E2
+name = "player_special"
+comment = "JMP ($0000) to the character's special from $87F1/$87F4[player_id]: cody_special $87F7, guy_special $8864, haggar_special $88AA. player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x87F7
+name = "cody_special"
+comment = "the attack is on with attack_id $88A6[frame], sound $25 every 8th frame (draw_parity), attack_ground_y = player_ground_y, and the jump obj_fall (Y = 0) carries; once ... player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8832
+name = "special_end"
+comment = "game_action, attack_live and guy_jump_window 0, a small rebound (obj_vy -$40/256), the combo restarts, player_stand, then special_cost. player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x884E
+name = "special_cost"
+comment = "when the special connected (special_hit) it costs 6 health, never below 0; special_hit is cleared. player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8864
+name = "guy_special"
+comment = "as cody_special, ending by JMP (special_end through $889F, special_cost through $88A2). player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x88AA
+name = "haggar_special"
+comment = "A+B with right or left held (joy_held $C1/$C2) starts the moving lariat: obj_state[0] $80, game_action $16, animation $4B. player_specials.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x891B
+name = "guy_hop"
+comment = "game_action $18. The first step: a hop (obj_vy $0300 up, obj_vx $00E6), animation $1A with CHR bank 6, obj_timer[0] 7 and obj_timer2[0] = obj_y (where he took off). player_power.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8992
+name = "guy_hop_fly"
+comment = "in animation $69, obj_timer[0] counts down; at 0 the next step with obj_vx $0300 and obj_vy -$40/256, then guy_hop_drop. Reached by JMP from guy_hop (00:898A) and run on into from it. player_power.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x89F6
+name = "guy_hop_land"
+comment = "back at the take-off y, the landing animation $2F with CHR bank 4, a small rebound (obj_vy -$40/256, obj_vx $0133), guy_jump_window and player_no_hit 0, attack_end, ... Reached by JMP from guy_hop_drop (00:89C6, 89D0). player_power.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8A31
+name = "guy_follow"
+comment = "game_action $22. While action_timer counts down, every frame with down held counts in guy_jump_window; from $10 of them up+B rises (the next step, guy_follow_up). player_power.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8A55
+name = "guy_follow_up"
+comment = "animation $14 with CHR bank 7, rising at obj_vy $0133, player_no_hit $FF. player_power.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8AD3
+name = "guy_follow_end"
+comment = "a small rebound (obj_vy -$40/256, obj_vx $0180), back to idle (game_action, jump_moving, combo_timer, attack_live, player_invuln and guy_jump_window 0), player_stand ... Reached by JMP from guy_follow (00:8A6E) and run on into from guy_follow_rise. player_power.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8B00
+name = "player_knee"
+comment = "game_action $21. JMP ($0000) to the character's knee from $8B0F/$8B12[player_id]: cody_knee $8B15, guy_knee $8BB1, haggar_knee $8C38. player_throws.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8B15
+name = "cody_knee"
+comment = "up to three knees into the held enemy, counted in grab_hit_count. Off screen (obj_flags bit 7 clear) the enemy is let go (knee_end). player_throws.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8B98
+name = "knee_end"
+comment = "the knees are over and the enemy let go of: game_action and grab_hit_count 0, attack_end, obj_state[0] $80, the combo restarted, player_stand. player_throws.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8BB1
+name = "guy_knee"
+comment = "as cody_knee with the animation $76, knee_end by branches, and the next combo step $0E (Guy's jab) once back to holding. player_throws.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8C38
+name = "haggar_knee"
+comment = "as cody_knee with the animation $77, no on-screen test, knee_end by JMP (00:8CB8) and the next combo step $0F (Haggar's jab) once back to holding. player_throws.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8CC4
+name = "cody_power"
+comment = "game_action $23. combo_timer 0, attack_end, the animation $73 (CHR bank $3F, sound $16) once. player_power.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8D8D
+name = "action_pit_fall"
+comment = "game_action $24, falling into a pit (player_pit_fall $CFD1 and obj_fall set it). player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8DD1
+name = "pit_fall_down"
+comment = "the player falls ($F1FD, without the floor probe) in the falling animation and the jump's CHR bank; from y $A8 down the sound $28 plays and the sprite is hidden ... Reached by JMP from action_pit_fall (00:8DCB) and run on into from it. player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8E3E
+name = "action_drop_in"
+comment = "game_action $25, a new life. The first step puts the player high on the screen (y $10, x $38 from the camera's left edge; when scroll_x is 0 only obj_x is set), ... player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8EEA
+name = "guy_power"
+comment = "game_action $27. combo_timer 0. The first step: guy_jump_window 0, the animation $24 (CHR bank $32, the next step, sound $1B) once. player_power.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8F82
+name = "guy_power_end"
+comment = "attack_end, back to idle (game_action, guy_jump_window, jump_moving, obj_timer[0] and [1] 0, obj_state[0] $80), the combo restarted, the walking speed in x, player_stand. player_power.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8FAF
+name = "action_camera_wait"
+comment = "game_action $1D, which the camera sets in an area that scrolls by itself when the player pushes ahead (0F:E3F3). player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x8FF8
+name = "action_camera_walk"
+comment = "game_action $1E, which the camera code sets on the third screen of round 1's second area instead of letting action_camera_wait end (0F:E369). player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9043
+name = "camera_walk_chr"
+comment = "the walking CHR bank ($E22B[Y]), then camera_walk_band. Reached by JMP from action_camera_walk (00:9032) and run on into from it. player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x90AC
+name = "camera_walk_step"
+comment = "the jump of action_camera_walk, every frame from x $0340 (JMP at 00:909B, run on into from camera_walk_on): the player moves right and falls ($F1FD); landed at y $7C ... player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x90CB
+name = "action_lying"
+comment = "game_action $1F, down after a knockdown (knockdown_lie set action_timer $3C). player_actions.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x914D
+name = "action_belger_walk"
+comment = "game_action $1A, which Belger's code sets (0B:B453; never executed in any run). player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x916E
+name = "belger_walk_turned"
+comment = "the next step, then belger_walk_step. Reached by JMP from action_belger_walk (00:9163) and run on into from it. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x91BE
+name = "action_r4_exit"
+comment = "game_action $26, which the camera code sets on round 4's first area from its third screen on (0F:E383; the oracle's CDL never saw it). player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9297
+name = "spawn_slot13_b7"
+comment = "an object in slot 13 at the screen's left (x 0 on the player's screen, y $90), animation $B7, id $6B (obj_spawn). Called by game_action $26's routine ($91BE: JSR at 00:9264). player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x92BA
+name = "action_round_over"
+comment = "game_action $29, which Belger's defeat sets with action_timer $0C (0B:B3F3), and taking an item while $B2 bit 7 is set (0C:8C10, never executed). player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x92E1
+name = "action_walk_out"
+comment = "game_action $19. The first step sets a wait of $3C frames (round 1's second area: $0F), ends the attack, drops a held weapon ($93AF, never executed), and gives the ... player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x93EF
+name = "exit_r1a1"
+comment = "round 1's first area. The first step: the walking animation, facing right (left from x $E0 on), then exit_r1a1_turned. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9410
+name = "exit_r1a1_turned"
+comment = "the next step, then exit_r1a1_walk. Reached by JMP from exit_r1a1 (00:940A) and run on into from it. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x943F
+name = "exit_r1a1_out"
+comment = "from x $D0 the next step; in it, from x $E0 the area is over (game_action $0E). Reached by JMP (00:9436) and run on into from exit_r1a1_walk. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x945E
+name = "exit_r1a2"
+comment = "round 1's second area. The player walks right (the walking animation unless already walking) until x $B0, when $987A (Y = 1) runs and the next step starts with ... player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x94F2
+name = "exit_now"
+comment = "the area is over at once (round 1's third area, round 3's third). player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x94F7
+name = "exit_boss_arrival"
+comment = "no walk out - the bonus stage comes (enemy_drums.c). bonus_stage ($B2) $FF, area_clear $7F, special_screen_id $FD (health filled, then BONUS STAGE: flow_talk.c), CHR ... player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9565
+name = "exit_walk_right"
+comment = "the walking animation facing right on the first step, then right until x $FC, where the area is over. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x958B
+name = "exit_r3a2"
+comment = "round 3's second area. The first step runs $987A (Y = 3), sound $21, the walking animation facing right (left from x $E0 on), then exit_r3a2_turned. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x95BA
+name = "exit_r3a2_turned"
+comment = "the next step, then exit_r3a2_walk. Reached by JMP from exit_r3a2 (00:95B4) and run on into from it. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x95FA
+name = "exit_r3a2_jump"
+comment = "the falling animation and the jump's CHR bank, the next step, and the area is over. Reached by JMP (00:95ED) and run on into from exit_r3a2_walk. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9610
+name = "exit_now_r4a1"
+comment = "round 4's first area is over at once (exit_area_over); the oracle's CDL never saw it run. Callers: the exit table by area. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9615
+name = "exit_now_r4a2"
+comment = "round 4's second area is over at once (exit_area_over). Callers: the exit table by area. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x961A
+name = "exit_now_r5"
+comment = "round 5's first and second areas are over at once (exit_area_over); never seen run by the oracle's CDL. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x961F
+name = "exit_wait"
+comment = "$B4 frames (obj_timer[0]), then the area is over. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x963D
+name = "enter_r1a2"
+comment = "game_action $1B, round 1's second area. The first step: obj_vx $0100, obj_timer[0] $1E, animation $E1F2 with CHR $E23A. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x96EF
+name = "enter_r1a3"
+comment = "game_action $1C, round 1's third area: the player drops in. The first step: obj_vy $0500 (down), animation $E20A with CHR $E252. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x97A9
+name = "enter_r1a3_done"
+comment = "at timer 8 the palette $9809 and the palette animations ($97C8), then game_action $20. Reached by JMP from enter_r1a3 (00:9720). player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x97C8
+name = "entrance_palette_anims"
+comment = "background palette animation slots 2 and 3 on, with scripts 5 and 6 from their first step. Called by enter_r1a3_done (JSR at 00:97C0). player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9819
+name = "enter_walk"
+comment = "game_action $20, walking in from the left (the walking animation and speed unless already walking). player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x984F
+name = "enter_walk_done"
+comment = "the player is in: obj_state[0] $80, game_action and obj_timer[0] 0, player_stand. Reached by JMP (00:9877) and run on into from enter_walk. player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x987A
+name = "scenery_change"
+comment = "copies the VRAM list Y ($989A/$989E: $98A2, $98DA, $9918, $9927), 128 bytes, into vram_buffer ($0780) and requests it (vram_list_request = $80). Called by the exits and entrances (JSR at 00:948A, 949D, 959A, 967C). player_exits.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9A00
+name = "story_text"
+comment = "clear the text lines (story_text_clear, which waits a frame), point $0C at page intro_page, then story_text_screen. Callers (banks $00/$01 mapped): main_task (0E:C5D5, C607, C615, C642, C650) and player_state_transition's ending ... flow_story_text.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9A1D
+name = "story_text_type"
+comment = "the next character of the page: a letter goes out at the line and column (story_text_letter: three frames pass) and the routine JMPs to itself; $FE goes to the next ... flow_story_text.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9A98
+name = "story_text_picture"
+comment = "on the pages with a picture that moves, each letter sets slot 0's animation back to a frame (obj_anim_frame, timer 0): page 1 frame 2, page 5 frame 1, page 6 frame 0. Called by story_text_type (JSR at 00:9A57). flow_story_text.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9AC0
+name = "story_text_clear"
+comment = "queues a blank tile at $2379 and 19 blank tiles on each text line ($2327, $22E7, $22A7: write lists at $0784, $079A, $07B0), requests them and waits a frame ... Callers: story_text (JSR at 00:9A00) and story_text_type (00:9A88). flow_story_text.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x9B16
+name = "story_text_hold"
+comment = "wait $B7 frames ($60 on the ending's pages 5 and 6; task_wait_frames). Callers: story_text_type (JSR at 00:9A85, JMP at 00:9A8E). flow_story_text.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xB331
+name = "abigail_step"
+comment = "one step along obj_dir: up (0F:F0F7), down (F0A2), right (F000), left (F051), each a move with a background probe that sets the carry when the step was blocked. Callers: 03:B5F6, B60F, B660, B6E0, B802, B85F. boss_abigail.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xB390
+name = "abigail_face_player"
+comment = "JMP obj_face_right when the player is to the right (0F:F374's carry), else obj_face_left. Callers: 03:B5F9, B612, B663 (JMP); 03:B6E3, BA6E. boss_abigail.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xB39B
+name = "abigail_walk_speed"
+comment = "obj_vx/obj_vy for direction index Y, 1 px a frame (tables $B3B4-$B3E4). Callers: 03:B5E5, B5FE, B657, B68C, B69D, BA73. boss_abigail.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xB3F4
+name = "abigail"
+comment = "behaviour of id $90. See the file header for the order of the tests. The details: - held by the player (obj_held set, game_action 4 or $21 with him in grab_slot): he ... Caller: the behaviour table (id $90, 03:B300). boss_abigail.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xB615
+name = "abigail_close_in"
+comment = "the close-in of phase 1. In reach (punching: $22 x $09; for a grab, obj_ai_flag set: $25 x $0C) and the player not falling (game_action 6): the punches (phase 3) or ... Callers: JMPs at 03:B5A4, B5C3, B5D0. boss_abigail.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xB925
+name = "abigail_grab_blows"
+comment = "phase 5, obj_timer 1 and on. Past the first frame the player shows the held pose ($E207 / $E24F by player_id). Caller: JMP at 03:B87E. boss_abigail.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xB977
+name = "abigail_hold"
+comment = "the rest of a grab frame. Thrown (game_action 6): the player falls toward Abigail's line (player_ground_y = obj_timer2) in the thrown pose ($E20A/$E252); when the ... Callers: JMP at 03:B95F; the fall-through from 03:B976. boss_abigail.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBA53
+name = "abigail_walk_back"
+comment = "Abigail off the player's screen page, or outside x $16-$F1: the walk animation, 8 frames untouchable, phase 1, facing the player, a straight walk across toward the ... Callers: JMPs at 03:B512, B520. boss_abigail.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBAD0
+name = "abigail_charge_speed"
+comment = "obj_vx/obj_vy of the rush for direction index Y (tables $BAE9-$BB19, 2.3 px a frame). Caller: abigail_charge_aim (03:BB53). boss_abigail.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBB29
+name = "abigail_charge_aim"
+comment = "the rush's direction: 0F:FB5B's index toward the player's line, kept at least two steps off vertical ($BB81; straight up or down becomes 2 or 6, mirrored when the ... Caller: abigail_charge (03:B7F2). boss_abigail.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBB91
+name = "drum_roll"
+comment = "behaviour of id $91, a drum rolling across round 1's second area. Phase 0 sets obj_vx $0133 once; then each frame it faces and moves the way obj_dir bit 0 says ... Caller: the behaviour table (id $91, 03:B303). enemy_drums.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBBCB
+name = "drum_dispenser"
+comment = "behaviour of id $94, an invisible object of round 1's second area that sends the drums. Caller: the behaviour table (id $94, 03:B30C). enemy_drums.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBCD1
+name = "drums_three_on_screen"
+comment = "counts the live slots $0F..3 showing the drum animation ($7B) into TMP0. Caller: drum_dispenser (03:BBEF). enemy_drums.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBD46
+name = "drum_smashed"
+comment = "behaviour of id $95, a drum (any object with animation $7B, 0C:81C6) whose life ran out. Caller: the behaviour table (id $95, 03:B30F). enemy_drums.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBDAF
+name = "debris_blink"
+comment = "obj_timer - 1; at 0 nothing more (the halves stay put until cleared off the screen edge); otherwise the slot is hidden on even counts and shown on odd ones (obj_flags ... Callers: JMP at 03:BD9F; branches from 03:BDAA (debris_fly) and from 03:BDDD, BDE2 (drum_drop_item, which leaves ... enemy_drums.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBDCE
+name = "drum_drop_item"
+comment = "the item a smashed drum leaves. The first drum of the area (obj_land_y negative) always leaves one; the others when rng + rng+1 (with the carry in) comes out $7F or more. Caller: drum_smashed (03:BD79). enemy_drums.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBE9B
+name = "items_two_on_screen"
+comment = "counts the live slots $0D..1 holding an item (ids $10-$13) or a weapon ($69) into TMP0. Caller: drum_smashed (03:BD74). enemy_drums.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBED2
+name = "belger_killed"
+comment = "behaviour of id $9F, which objects_update gives Belger when a hit empties his life (0C:8211). Caller: the behaviour table (id $9F, 03:B32D). boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBF38
+name = "belger_down"
+comment = "behaviour of id $9B, Belger knocked down for good (the saved id $9F leaves for the knockdown, 03:BED2): after obj_ai_timer frames, obj_state $80 and id $7D, the ... Caller: the behaviour table (id $9B, 03:B321). boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBF48
+name = "belger_fall"
+comment = "behaviour of id $9E, Belger's last fall (by the story, out of the window). Caller: the behaviour table (id $9E, 03:B32A). boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBF95
+name = "belger_shot"
+comment = "behaviour of id $9D, spawned by belger_shot_spawn. Its animation loops on frames 1-2. Caller: the behaviour table (id $9D, 03:B327). boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x03
+addr = 0xBFBE
+name = "cody_scene_partner"
+comment = "behaviour of id $9C, put in Cody's scene step 0. It stands in for Cody where the player stood (obj_flags $D0, animation $FE, sprite bank R4 $31) and becomes id $8F ... Caller: the behaviour table (id $9C, 03:B324). boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x8000
+name = "stage_list_setup"
+comment = "points spawn_list_x .. spawn_list_type ($72-$7B) at the stage object list of area_index. Called by: area_start (JSR at $E087). stage_spawn.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x8038
+name = "stage_list_seek"
+comment = "spawn_list_next and spawn_list_prev = the first entry on the camera's vertical page at or ahead of the camera (x_hi:x >= area_screen:scroll_x). Called by: area_start (JSR at $E08A). stage_spawn.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x80C2
+name = "stage_list_in_view"
+comment = "is entry Y of the stage list on the camera's screen? Z set when its x is within 256 pixels ahead of the camera and its y is on the camera's vertical page (y counts ... Called by: stage_spawns ($808E, $809E), stage_list_spawner ($80A7, $80B9). stage_spawn.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x80E4
+name = "stage_list_spawn"
+comment = "spawns entry Y of the stage list (its position in $00-$03 from stage_list_in_view) in the first free slot from $0D down to 3, unless a live slot already came from ... Called by: stage_spawns ($8095), stage_list_spawner ($80AE). stage_spawn.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x89D2
+name = "area_set_clear"
+comment = "area_clear = $FF, the screen's quota is met. Called by: the screen routines below. stage_events.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x89D7
+name = "area_script"
+comment = "JMP to the area's script. Called by: stage_events ($8938). stage_events.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x8DA8
+name = "belger_room"
+comment = "the last screen of round 5 area 3. keep_on_screen; Belger (id $74) is looked for in slots $0F down to 4, and once his life is negative the area is cleared. Called by: round 5 area 3's screen dispatch ($8D83, screen 2). stage_events.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x9038
+name = "timed_spawn"
+comment = "reloads spawn_timer with a random delay, then (except in round 4 area 2, which has timed_spawn_r3a1) puts a common enemy in a free slot (spawn_slot $3C): falling in ... Called by: timed_spawner (BCC at $9021). stage_spawn.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x921C
+name = "timed_spawn_r3a1"
+comment = "round 4 area 2's spawner (round 3, sub_area 1): an enemy drops from y $30 at a random x of the first screen, and counts as a kill already (area_kills + 1). Called by: timed_spawn (JMP at $9053). stage_spawn.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x931D
+name = "timed_spawn_r3a1_set"
+comment = "enemy X of round 4 area 2's list into slot $00: animation, hidden at first (flags $D4), id, kind, spawn group, life. Called by: timed_spawn_r3a1 (JMP at $930C, falling in at $931D). stage_spawn.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x96C3
+name = "enemies_two"
+comment = "A = $FF (Z clear) when two or more live objects in slots $0D-3 show an animation of $80 or more (the enemy sets) other than k_not_counted, else A = 0. Called by: timed_spawner ($9016). stage_events.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x96FC
+name = "enemies_left"
+comment = "A = $FF (Z clear) if any live object in slots $0D-3 has id $91 or $95 or an animation of $80 or more, else A = 0. Called by: the screen routines, events_area_cleared ($8964). stage_events.c (proposed)"
+
+[[label]]
+bank = 0x08
+addr = 0x972A
+name = "screen_setup"
+comment = "JMP to the area's screen setup, which loads the screen's sprite set. Called by: stage_events' screen event check ($8930). stage_events.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xA000
+name = "sprite_set_load"
+comment = "A = sprite set: its CHR banks into chr_banks R3-R5, then its palette (sprite_set_palette). Called by: the screen setups (stage_events. stage_palette.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xA013
+name = "sprite_set_palette"
+comment = "A = 2 * sprite set: the set's 8 colours into sprite palettes 2 and 3 of palette_buf and palette_base ($0618, $0638), and palette_request. Called by: sprite_set_load (falling in at $A013) and the GO sign (stage events, $89CA, with A = 6). stage_palette.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xA300
+name = "bg_palette_animate"
+comment = "steps the animation of each background palette 3..0 whose bg_pal_anim_on has bit 7. Called by: gameplay_update (JSR at $C969). stage_palette.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xA321
+name = "bg_palette_step"
+comment = "background palette X's animation: count its timer; when it reaches the period, restart it, advance the step (back to 0 after the last), write the step's 3 colours to ... Called by: bg_palette_animate ($A315). stage_palette.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xA700
+name = "ending_text"
+comment = "page intro_page of the credits: clear the lines, point $0C at the page, type it. Called by: 0E:DF33-DF47 (JSR $A700 once per page, intro_page 0-4). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xA713
+name = "ending_text_screen"
+comment = "a new screen of text from line 0, then ending_text_type. Called by: ending_text (falling in at $A713) and ending_text_type (JMP at $A77B after a full screen). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xA71D
+name = "ending_text_type"
+comment = "the next character of the page at line $10, column $11: a letter goes out (and the frame passes); $FE moves to the next line, and after the third holds the screen and ... Called by: ending_text_screen (falling in at $A71D) and itself (JMP at $A76A after each letter). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xA788
+name = "ending_step_left"
+comment = "the player (slot 0) moves left by its speed (obj_move_left). Called by: ending_text_type ($A751). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xA78E
+name = "ending_text_clear"
+comment = "queues 19 blank tiles on each text line (write lists at $0784, $079A, $07B0, after the last letter's entry at $0780) and waits a frame (task_wait_frame, JMP). Called by: ending_text ($A700) and ending_text_type ($A778). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xA7D0
+name = "ending_hold"
+comment = "wait 180 frames. Called by: ending_text_type (JSR at $A775, JMP at $A77E). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xAB00
+name = "ending_pose"
+comment = "the player in slot 0 on the floor at $58,$A8 (on screen, facing right, world coordinates), then the character's script (JMP through K_POSE_LO/HI[player_id]). Called by: 0E:DF4A. stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xAB34
+name = "cody_pose"
+comment = "one frame of Cody's pose. Phase 0 (obj_state & $0F = 0): crouch (animation $73, with a shout, sound $16, at its start) and on frame 6 jump (animation $13, obj_vy $04.38). Called by: ending_pose (the JMP), cody_pose_next (JMP at $AB7A). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xAB77
+name = "cody_pose_next"
+comment = "wait a frame, then cody_pose again. Called by: cody_pose (falling in at $AB77, JMP at $ABCD). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xABD0
+name = "guy_pose"
+comment = "Guy's script: the spin (animation $24) and its first sound at its start (guy_pose_spin). Called by: ending_pose (the JMP). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xABDF
+name = "guy_pose_spin"
+comment = "one frame of the spin: a sound ($1B) at its start, then guy_pose_spin_rest. Called by: guy_pose (falling in at $ABDF) and the spin loop (JMP at $AC04). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xAC20
+name = "guy_pose_leap"
+comment = "one frame of the leap: a sound ($17, 0F:F430) on frame 4; on frame 6 the somersault (animation $5B, from 32 pixels up, player_ground_y = where he stood), falling ... Called by: guy_pose_spin_rest (falling in at $AC20) and itself (JMP at $AC7E). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xAC75
+name = "guy_pose_hold"
+comment = "wait a frame, for ever. Called by: guy_pose_leap (falling in at $AC75) and itself (JMP at $AC78). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xAC81
+name = "haggar_pose"
+comment = "Haggar's script: stand (animation $30) for 8 frames, set to run right (obj_vx 3, flags $90, obj_timer[1] = $1E frames), then haggar_pose_run. Called by: ending_pose (the JMP) and itself (JMP at $ACB4). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xACB7
+name = "haggar_pose_run"
+comment = "one frame of the run (animation $3D, a shout, sound $2C, at its start; 0F:F03F, then obj_move_right) for obj_timer[1] frames, then haggar_pose_stop. Called by: haggar_pose (falling in at $ACB7) and itself (JMP at $ACDE). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xACE1
+name = "haggar_pose_stop"
+comment = "one frame of the stop (animation $47, sound $1D on frame 0); on frame $0C the final stance (animation 3), held for ever (haggar_pose_hold). Called by: haggar_pose_run (falling in at $ACE1) and itself (JMP at $AD14). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x09
+addr = 0xAD0B
+name = "haggar_pose_hold"
+comment = "wait a frame, for ever. Called by: haggar_pose_stop (falling in at $AD0B) and itself (JMP at $AD0E). stage_ending.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB46F
+name = "bonus_drum_spawn"
+comment = "one more drum, if a slot is free and obj_timer (drums left) is not 0: obj_timer - 1, the live count (obj_ground_y) + 1, a drum (id $72, animation $7B, attack $9E, ... Caller: bonus phase 1 (0B:B377). enemy_drums.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB512
+name = "bonus_drum_launch"
+comment = "where the new drum (slot TMP2) starts, by the pattern in TMP3: 0 from the left on the near line ($8C), 1 from the left on the far line ($A4), 2 and 3 the same from ... Callers: JMP at 0B:B502; the fall-through from 0B:B510. enemy_drums.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB5AF
+name = "bonus_drum_bounce_pick"
+comment = "a rolling drum becomes a bouncer (obj_kind 2: obj_vx $0140, obj_vy $0280) when (rng + spawn_timer + carry) & 7 picks it ($B65E: two in eight). Callers: 0B:B555, B56B. enemy_drums.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB5D7
+name = "bonus_drum"
+comment = "behaviour of id $72. A dropping or bouncing drum (obj_kind not 0) falls (0F:F1FD) and lands on its line (obj_timer2): a bouncer jumps again (obj_vy $0280); a dropping ... Caller: the behaviour table (id $72, 0B:B306). enemy_drums.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB80B
+name = "belger_start"
+comment = "first form, phase 0: faces the player, walking animation, the AI counters and obj_timer2 cleared, phase 3. boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB825
+name = "belger_approach"
+comment = "first form, phase 3. Within $20 px across and $18 down of the player's line: phase 4 (circle). boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB84B
+name = "belger_steer"
+comment = "obj_dir and the speeds for the 16-way index Y ($FBF0, $BD0C-$BD3C), the walk ($BC6B), then JMP $BBE1 (face the player). Callers: JMP at 0B:B8C1 (belger_circle); the fall-through from 0B:B84A. boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB86F
+name = "belger_circle"
+comment = "first form, phase 4. He faces the player and walks around him: each time obj_ai_timer runs out the 16-way index toward the player, a quarter turn on ($BD4C, or the ... boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB8D3
+name = "belger_punch"
+comment = "first form, phase 5. Out of reach ($1C px, 4 lines): walking animation, phase 4. boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB929
+name = "belger2_start"
+comment = "second form, phase 0: faces the player, walking animation; on his page (obj_x_hi 2) phase 3, else back to it (obj_dir toward page 2, phase 2; never executed). boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB958
+name = "belger2_turn_away"
+comment = "second form, phase 3: obj_dir away from the player across, obj_down_timer 0, facing the player; phase 5 (walk to that edge). boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB97B
+name = "belger2_patrol"
+comment = "second form, phase 4. He faces the player. Not dodging yet (obj_down_timer 0) and the player within $40 px and $10 lines: he dodges up or down away from the player's ... boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBA68
+name = "belger2_to_edge"
+comment = "second form, phase 5: obj_vx 3 ($BCC8); off his page phase 0 (never executed); walks the way obj_dir says until x < $18 (left) or x >= $F0 (right), then phase 4. boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBA9A
+name = "belger2_shoot"
+comment = "second form, phase 6. On the shooting animation's frame 1 (its first draw) a shot ($BBEC) and sound $2C; on frame 3 obj_ai_timer 8, one more in obj_ai_count, the ... boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBAD0
+name = "belger2_rest"
+comment = "second form, phase 7: he faces the player in the resting pose until obj_ai_timer runs out, then obj_ai_timer 8, the walking animation and the phase in obj_timer (4). boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBAE8
+name = "belger2_dizzy"
+comment = "second form, phase 8 (the breaking free sets it): anim $C6 and obj_invuln + 1 each frame until obj_ai_timer runs out, then the walking animation, phase 0 and $0F ... boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBB05
+name = "belger2_punch"
+comment = "second form, phase 9: the punch ($BB0A) until obj_ai_timer runs out, then the leap: obj_vx $0580, obj_vy $01A0 (up), anim $CC, obj_ground_y = y, phase 10. boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBB0A
+name = "belger_punch_frame"
+comment = "the punch is out (obj_attack $85, damage $11) only on the first draw of the punching animation's frame 3; otherwise no attack. Callers: belger_punch (0B:B8E3); the fall-through from 0B:BB09. boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBB53
+name = "belger2_leap"
+comment = "second form, phase 10: attack $90 (damage $34) out while he flies (0F:F1FD) across; landed on obj_ground_y, the walking animation, no attack, phase 5. boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBB8C
+name = "belger_hurt"
+comment = "phase 1 of both forms (set by belger while obj_hit_timer runs): he faces the player; obj_hit_timer - 1, at 0 phase 0 (never executed: the hit reactions of ... boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBBAC
+name = "belger_to_page"
+comment = "phase 2 of both forms: walking animation, obj_vx 3, and the walk the way obj_dir says until he is on page 2 past x $17 (going right) or before $F1 (going left); then ... boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBBE1
+name = "belger_face_player"
+comment = "faces the player (0F:F374's carry: left of him, JMP obj_face_right, else obj_face_left). boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBBEC
+name = "belger_shot_spawn"
+comment = "a shot in a free slot ($0D..3): animation $C7, $1A px ahead of him the way he faces (obj_flags $D0 and obj_dir right facing right, $90 and left otherwise; ... Caller: belger2_shoot (0B:BAA8). boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBC6B
+name = "belger_walk"
+comment = "moves by obj_vx/obj_vy the way obj_dir says. Going up he stops at y $82, going down at $AE; there the speeds go back to obj_vx 3 ($BCC8) and he turns across, right or ... Callers: belger_approach, belger_steer (0B:B869), belger_punch (0B:B90E). boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBCC8
+name = "belger_walk_speed"
+comment = "obj_vx $0300, obj_vy 0. boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBCD9
+name = "belger_walk_anim"
+comment = "the walking animation ($BD, sprite bank $38) unless it already runs. boss_belger.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBD7F
+name = "belger_end_scene"
+comment = "behaviour of ids $7D and $7B. Each frame: special_screen_id $F9 (no HUD update), obj_invuln 1, then the phase ($BF9F/$BFA7). Caller: the behaviour table (ids $7B, $7D: 0B:B321, B327). boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBD9B
+name = "end_scene_start"
+comment = "the player jumps: pad A forced into joy_pressed/joy_held and player_state run once from idle (0E:C9B9, X kept in $04FF); then game_action $28; Belger's last animation ... boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBDBF
+name = "end_scene_hop_back"
+comment = "the jump goes on one frame at a time, away from the way the player faces: jump_dir and the pad = ~player_dir & 3, game_action 1, player_state; once it has landed ... boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBDE6
+name = "end_scene_round_clear"
+comment = "once the fall (the slot in obj_timer2) has ended: special_screen_id $FF (the round-clear screen, 04:984C), music $0F, a wait of $50 frames (phase 6) before phase 3; ... boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBE23
+name = "end_scene_meet"
+comment = "slot 0 shown, then by player_id. Cody (0), by slot 0's obj_down_timer: step 0 puts id $9C in a free slot (03:BFBE: the stand-in for Cody, then id $8F) and ... boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBE79
+name = "end_scene_become_haggar"
+comment = "the player becomes Haggar for the rest of the scene: player_level - 2 (Haggar's tables stop at level 3, Cody's and Guy's at 5: 0C:89F4-8A20), player_id 2, palette ... Callers: Cody's step 3 (the branch from 0B:BE43), Guy's scene (0B:BEAD). boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBECE
+name = "end_scene_haggar_walk"
+comment = "Haggar's sprite bank (8), then one step toward the meeting point through player_state with a forced pad: Down while slot 0's y is below $99, Up from $9B, then Right ... Caller: JMP at 0B:BE33 (phase 3, player_id 2). boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBF2B
+name = "end_scene_enter"
+comment = "the controller appears at the right edge (x $F8, y $98, obj_flags $90, obj_vx $0101) with animation $23 (0F:F288), sprite bank R3 $36 and palette entries $1B = $15, ... boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBF5B
+name = "end_scene_walk_in"
+comment = "moves left (0F:F1A1) until x is below $B0, then animation $22, obj_ai_timer $FF and phase 7. boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBF75
+name = "end_scene_wait"
+comment = "while player_id is still the one saved in phase 2, special_screen_id back to 0 (the HUD is updated); game_action $28; after obj_ai_timer frames the phase saved in ... boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBF90
+name = "end_scene_finish"
+comment = "after obj_ai_timer ($FF) frames, game_action $0E (the round ends; after round 5 the ending follows) and player_id = the one saved in phase 2. boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0B
+addr = 0xBFAF
+name = "belger_fall_spawn"
+comment = "id $9E in a free slot at Belger's x and y (x high byte 2, the boss room's screen), hidden (obj_flags $94), invulnerable, obj_ai_timer $E0, obj_timer = Belger's slot; ... Caller: JMP at 0B:BDBC (scene phase 0). boss_belger_end.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x800B
+name = "objects_update_slot"
+comment = "dispatches slot X. A dead slot goes straight to the next one. A live one gets its behaviour's bank at $A000 (id $60-$6F bank $05, $70-$7F $0B, $80-$8F $01, $90 and up ... Callers: JMP from objects_update's checks at 0C:81B5, 820E and 821B; the fall-through from objects_update ... obj_update.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x819A
+name = "obj_knock_down"
+comment = "slot X becomes id 5 (knocked down) at phase 0, thrown up at obj_vy $038E, and is dispatched. Callers: JMP at 0C:8113 (a hit in the air); the knockback table of obj_hit_by_player (BEQs at 0C:8152-8196). obj_update.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x81B8
+name = "obj_hit_dies"
+comment = "the player's hit took slot X's last life. An object already dying (ids 6, 7) is left alone; Belger (id $74) is killed and turns into id $9F (never executed); an ... Caller: JMP at 0C:80D0. obj_update.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x81F0
+name = "obj_attack_player"
+comment = "step 5 of the checks. If the player is not in a grab, throw or special (player_no_hit bit 7) nor invincible (player_invuln), and slot X's attack is out (obj_attack ... Callers: JMP at 0C:806F (hit cooldown) and 0C:80CD; the fall-through from obj_hit_dies (0C:81ED). obj_update.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8256
+name = "thrown_body_test"
+comment = "the body in slot X against slot Y, first part. Slots with the body's own id are skipped; so is the slot when the invulnerability that counts is set: the target's ... Callers: JMP at 0C:83AB (the next slot); the fall-through from thrown_body_collide (0C:8254). obj_update.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x827D
+name = "thrown_body_test_hit"
+comment = "the rest of the test of slot Y. It must be live and not held, the player in a throw (game_action $0B, $13, $15, $12), its id $16 or more and none of the pass-through ... Callers: JMP at 0C:8275; the fall-through from 0C:827B. obj_update.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8347
+name = "thrown_body_knock"
+comment = "the thrown body knocks slot Y down: its attack is cancelled, obj_land_y set (obj_y + $0A for kinds 6 and $0C, never executed; obj_ground_y if in the air; obj_y ... Callers: JMP at 0C:8330 (HeadSmasher); the fall-through from 0C:8345. obj_update.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x83A8
+name = "thrown_body_next"
+comment = "DEY, and the next slot down (JMP $8256) until slot 0, where the test ends (RTS). Callers: JMP at 0C:8241 (the skips) and 0C:8333; the BCS at 0C:832E and 0C:8345; the fall-through from ... obj_update.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x84EF
+name = "obj_behavior_none"
+comment = "an RTS, the behaviour of ids 0, $0A-$0D, $14, $15, $17-$1E and $4C-$4E: objects that are only drawn. obj_update.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8593
+name = "obj_damage"
+comment = "the hit lands on slot X. Unless the slot has id 0 its life bar goes on the HUD (hud_enemy_slot = X, hud_enemy_timer = 0), and special_hit ($BF) records Cody/Guy's ... Callers: JMP at 0C:84F7; the BCS at 0C:852A and BNE at 0C:855E. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x85C8
+name = "damage_cody"
+comment = "Cody's hit sound ($19 for attack 7, $1F for attack 8, never executed, else $18), then his level's damage. Caller: JMP ($0002) at 0C:85C5 (table $87B0/$87B3, player_id 0). obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x85F0
+name = "damage_guy"
+comment = "Guy's hit sound ($1A for attack 1, $1F for attack 8, never executed, else $18), then his level's damage. Caller: JMP ($0002) at 0C:85C5 (player_id 1). obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8618
+name = "damage_haggar"
+comment = "Haggar's hit sound ($27 for attack $0D, else $18), then his level's damage. Caller: JMP ($0002) at 0C:85C5 (player_id 2). obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8638
+name = "damage_cody_0"
+comment = "the damage lookup for Cody at player_level 0 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x863D
+name = "damage_cody_1"
+comment = "the damage lookup for Cody at player_level 1 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8642
+name = "damage_cody_2"
+comment = "the damage lookup for Cody at player_level 2 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8647
+name = "damage_cody_3"
+comment = "the damage lookup for Cody at player_level 3 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x864C
+name = "damage_cody_4"
+comment = "the damage lookup for Cody at player_level 4 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8651
+name = "damage_cody_5"
+comment = "the damage lookup for Cody at player_level 5 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8656
+name = "damage_guy_0"
+comment = "the damage lookup for Guy at player_level 0 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x865B
+name = "damage_guy_1"
+comment = "the damage lookup for Guy at player_level 1 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8660
+name = "damage_guy_2"
+comment = "the damage lookup for Guy at player_level 2 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8665
+name = "damage_guy_3"
+comment = "the damage lookup for Guy at player_level 3 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x866A
+name = "damage_guy_4"
+comment = "the damage lookup for Guy at player_level 4 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x866F
+name = "damage_guy_5"
+comment = "the damage lookup for Guy at player_level 5 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8674
+name = "damage_haggar_0"
+comment = "the damage lookup for Haggar at player_level 0 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8679
+name = "damage_haggar_1"
+comment = "the damage lookup for Haggar at player_level 1 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x867E
+name = "damage_haggar_2"
+comment = "the damage lookup for Haggar at player_level 2 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8683
+name = "damage_haggar_3"
+comment = "the damage lookup for Haggar at player_level 3 (JMP ($0004) from 0C:85ED/8615/8635 by the level's table $87B6-$87D2), then damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8703
+name = "sodom_pieces"
+comment = "never executed: the player lets go of the boss, slots $0D and $0B become two dying pieces beside him. Called from damage_apply. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x89E3
+name = "exp_award"
+comment = "the player earns the points of the attack that killed: JMP ($8ACE/$8AD1[player_id]) to the character's level check ($89F2 Cody, $8A08 Guy, $8A1E Haggar). Callers: the dying and thrown-body behaviours, JSR at 0C:8BA3, 9282, 9716, 9983, 9A5C, 9BC0. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x89F2
+name = "exp_check_cody"
+comment = "Cody's levels end at 5. Caller: JMP ($0003) at 0C:89EF (player_id 0). obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8A08
+name = "exp_check_guy"
+comment = "Guy's levels end at 5. Caller: JMP ($0003) at 0C:89EF (player_id 1). obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8A1E
+name = "exp_check_haggar"
+comment = "Haggar's levels end at 3. Caller: JMP ($0003) at 0C:89EF (player_id 2). obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8A31
+name = "exp_add"
+comment = "adds $FC10[attack_id] (BCD, two digits; 5 for attack 3 while the player shows animation $24, never executed) to player_exp (3 BCD digits, $6C/$6D), digit by digit in ... Callers: JMP at 0C:8A05 and 0C:8A1B; the fall-through from 0C:8A2F. obj_hits.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8AEE
+name = "obj_item"
+comment = "behaviour of ids $10-$13. The item is taken when the player is not busy (k_busy_actions; Cody not throwing), enemy_attack_test (0F:F55A) finds the player in the ... Caller: obj_behavior_lo/hi (ids $10-$13). obj_items.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8B64
+name = "item_food"
+comment = "sound $26; below the level's full health (TMP2/TMP3 = the character's table) health grows by $FCC0[obj_anim & $0F], at most to full; at full health the food is worth ... Caller: JMP ($0000) at 0C:8B58 (id $10). obj_items.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8BC2
+name = "item_credit"
+comment = "sound $2E, credits + 1 up to 9, item_taken. Caller: JMP ($0000) at 0C:8B58 (id $11). obj_items.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8BD6
+name = "item_two_lives"
+comment = "sound $2D, lives + 2, at most 9, item_taken. Caller: JMP ($0000) at 0C:8B58 (id $12). obj_items.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8BED
+name = "item_life"
+comment = "sound $2D, lives + 1 unless at 9 already, then falls into item_taken. Caller: JMP ($0000) at 0C:8B58 (id $13). obj_items.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8C00
+name = "item_taken"
+comment = "the end of every pickup: game_action 2 for $0C frames (action_timer) and object_clear on the item's slot. Callers: JSR at 0C:8BA6, 8BD2, 8BE9; the fall-through from item_life. obj_items.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8C1C
+name = "thrown_cody"
+comment = "behaviour of id 4, the enemy Cody throws. JMP through the phase table at $8C2F/$8C37: 0 $8C3F, 1 $8C98, 2 $8D00, 3 $8D88, 4 $8E43, 5 $8E5A, 6 $8EE5, 7 $8F8D. Caller: obj_behavior_lo/hi (id 4). obj_thrown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8FA5
+name = "thrown_back"
+comment = "behaviour of id 8, the enemy Haggar's back throw slams behind him. Phases ($8FB8/$8FBF): 0 $8FC6, 1 $9036, 2 $9078, 3 $90BA, 4 $9128, 5 $8F8D (id 4's blink), 6 $917E. Caller: obj_behavior_lo/hi (id 8). obj_thrown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x91B7
+name = "thrown_smash"
+comment = "behaviour of id $0E, the enemy Haggar lifts for the HeadSmasher. Its own animation is frozen (obj_anim_timer = 0). Caller: obj_behavior_lo/hi (id $0E). obj_thrown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9276
+name = "thrown_smash_slam"
+comment = "the slam hurts: attack $13 through obj_take_hit. Alive, it bounces up (phase + 1, obj_vy $039E, obj_vx $0099, obj_land_y = obj_y) and $92F0 follows. Callers: JMP at 0C:9270; the fall-through from 0C:9273. obj_thrown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9332
+name = "thrown_guy"
+comment = "behaviour of id $0F, the enemy Guy throws. Phases ($9345/$934E): 0 $9357, 1 $93D1, 2 $9457, 3 $94D4, 4 $9551, 5 $95CE, 6 $9602, 7 $968D, 8 $8F8D (id 4's blink). Caller: obj_behavior_lo/hi (id $0F). obj_thrown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9733
+name = "pushed_back"
+comment = "behaviour of id 2, a light hit. Phase 0: obj_timer 0, slides at obj_vx $0099 and goes up at the level's speed ($9A33/$9A39 by player_level; attack 7: $0498 up and ... Caller: obj_behavior_lo/hi (id 2). obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x981B
+name = "obj_turn_from_player"
+comment = "obj_dir toward the player (0F:F314); if player_dir differs, obj_dir is reversed (it is then the way the player faces) and that is all (RTS); if they agree, the sprite ... Callers: pushed_back (0C:976A), the killed behaviours (0C:9994, 9A70). obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x983B
+name = "knocked_down"
+comment = "behaviour of ids 3 (knocked down by a thrown body) and 5 (by a heavy hit). Caller: obj_behavior_lo/hi (ids 3, 5). obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9962
+name = "killed_light"
+comment = "behaviour of id 6, killed by a light attack. Phase 0: obj_timer 0, slides at obj_vx $0099, experience for the kill (exp_award, unless its animation is $BB, $C7 or ... Caller: obj_behavior_lo/hi (id 6). obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9A3F
+name = "killed"
+comment = "behaviour of ids 7 and $16, killed by another attack (or by a slam, $16). Caller: obj_behavior_lo/hi (ids 7, $16). obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9B62
+name = "obj_hide"
+comment = "obj_flags bit 2 (hidden) set. Callers: the blinks (0C:8F99, 9956, 9B13) and the pit fall (0C:9B98). obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9B6B
+name = "obj_show"
+comment = "obj_flags bit 2 (hidden) cleared. Callers: the blinks (0C:8F9E, 995B, 9B18). obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9B74
+name = "pit_fall"
+comment = "behaviour of id $1F, an object falling into a pit. obj_invuln stays $FF. Caller: obj_behavior_lo/hi (id $1F). obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9BE1
+name = "obj_pit_zone"
+comment = "lets its caller probe for a pit only where there can be one: kinds 7 and up (the bosses) and objects left of x $03F0 return normally (C as the compare left it); ... Callers: obj_pit_check (0C:9B1F), 0D:A9F6, 0D:AA1D. obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9C29
+name = "obj_get_up"
+comment = "the object resumes what it was doing: obj_id and obj_state from the saved ones, the pit look-around of the common enemies (0D:AA1D), obj_throw_flag, obj_hit_timer and ... Callers: obj_knockdown_recover (falls in at 0C:9C27); the HeadSmasher's body (JSR at 0C:9222). obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9C55
+name = "obj_anim_knocked"
+comment = "the kind's knocked-down animation ($FC8F) and sprite bank ($FC9D). Callers: the hit reactions (0C:8E61, 8FE6, 913D, 9609, 9770, 9871, 999A, 9A76). obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9C7A
+name = "obj_anim_lying"
+comment = "the kind's lying animation ($FCAB) and sprite bank ($9C9F). Callers: JMP at 0C:8F7D, 9723, 990E; JSR at 0C:9814, 9A2D, 9B04, 9C0C. obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9CAD
+name = "obj_anim_getting_up"
+comment = "the kind's getting-up animation ($9CD3) unless it shows it already, and its sprite bank ($9CE0; kind 8 one slot further). Callers: obj_knockdown_recover (0C:9C18) and the common-enemy AI (0D:A4AD, A4F8, A669, A6D5, A8D3). obj_knockdown.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9CF1
+name = "enemy_common_tier2"
+comment = "enemy_common for ids $26-$2B (LDA #2, BNE $9CF7). Callers: obj_behavior_lo/hi. enemy_common.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9CF5
+name = "enemy_common_tier4"
+comment = "enemy_common for ids $30-$35 (LDA #4, runs on). Callers: obj_behavior_lo/hi. enemy_common.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9DA4
+name = "entrance_charge_tier2"
+comment = "entrance_charge for id $2D (tier 2, LDY #$2B); never executed. enemy_entrances.c (proposed)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9DAA
+name = "entrance_charge_tier4"
+comment = "entrance_charge for id $2F (tier 4, LDY #$35); never executed. enemy_entrances.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xC9B9
+name = "player_state_run"
+comment = "X = 0 (slot 0) and JMP (indirect) through STATE_TABLE_LO/HI[game_action], by way of $00/$01. player_states.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCA3C
+name = "player_special_start"
+comment = "the A+B special. With no health left, or unk_b2 negative (set to $FF at 00:94F8 with area_clear $7F, cleared at a new game, 0E:C821), it is an attack instead ... Reached from player_state_idle (BEQ at 0E:CA34, BNE at CA75), $CAF5, and by JMP from player_state_punch and ... player_state_idle.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCAA2
+name = "player_walk_speed"
+comment = "obj_vx and obj_vy of slot 0 from the character's walking speed (Cody 1.30 and 1.0, Guy 1.50 and 1.20, Haggar 1.10 and 0.80 px a frame), or the diagonal speed when ... Reached by JMP from player_state_idle (0E:CA36, tail call). player_state_idle.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCAE5
+name = "player_idle_buttons"
+comment = "joy_pressed exactly - B: player_ground_y = obj_y, then the special if A+B are held (and health is left; through $CAF5), else player_attack_start ($CB07); - A: JMP ... Reached from player_walk_speed (JMP at 0E:CACE, tail call, or running on from its diagonal speeds). player_state_idle.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCB07
+name = "player_attack_start"
+comment = "B in player_state_idle. - With a weapon (weapon_held; never executed in the CDL runs): Cody, with an enemy near (weapon_target_near, $CF33), swings it ($E222, ... player_state_idle.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCB22
+name = "player_combo_next"
+comment = "the next hit of a combo. The animation becomes player_stand_anim (the stance the last hit left). Reached from player_attack_start, $CBA0 (tail call) and player_combo_grab (JMP at 0E:CC26, CC7F, inline). player_state_idle.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCB99
+name = "player_attack_go"
+comment = "game_action 3 and JMP player_state_punch ($D30F, tail call), which runs this frame. Reached by JMP from player_combo_next and the weapon swing (0E:CB63, CB83; tail calls). player_state_idle.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCBA3
+name = "player_combo_grab"
+comment = "B at the third hit's stance. The enemy the last hit struck (combo_target) is grabbed if - it is in slots 3-$0D, live, and not one of the kinds above; - $04FF (a ... Reached by JMP from player_attack_start (0E:CB1F, tail call). player_state_idle.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCC85
+name = "player_grab_place"
+comment = "the held enemy (grab_slot) 15 px in front of the player: obj_x/obj_x_hi = the player's + $E1D3/$E1D4 by player_dir & 2. Called by player_combo_grab (0E:CC4F, CC70). player_state_idle.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCCA2
+name = "player_punch_start"
+comment = "the first punch, game_action 3 with animation $E1EF and CHR bank $E237; runs on into player_state_default's RTS. Reached by JMP from player_attack_start (0E:CB0F, tail call). player_state_idle.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCCB5
+name = "player_walk"
+comment = "the walking animation ($E1E6, with a weapon $E204) unless obj_anim already is it ($E273, $E29A); then player_walk_move (JMP at 0E:CCC9 is a tail call, the other ways ... Reached by JMP from player_idle_buttons (0E:CAEF, tail call). player_state_walk.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCCDA
+name = "player_walk_move"
+comment = "player_ground_y = obj_y; with Left or Right held, player_dir takes it and slot 0 (X = 0) walks that way: obj_walk_right ($F000, probe point Y = 0) or obj_walk_left ... Reached from player_walk and by JMP from player_idle_buttons (0E:CAF2, tail call; never executed). player_state_walk.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCCFA
+name = "player_walk_vertical"
+comment = "Down steps slot 0 down ($F0A2, probe point Y = 0, Haggar 2) at the walking speed; otherwise Up sets vy from $E1DD/$E1E0 and steps up ($F0F7, Y = 1, Haggar 3). Reached from player_walk_move (0E:CCF2 by JMP, tail call; or running on). player_state_walk.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCD57
+name = "player_grab_search"
+comment = "walking into an enemy grabs it. Y counts down from the slot before the one given (the caller sets $0F) to 3; slot 2 or below ends the search: player_stand_check ... Reached from $CD3B (running on), $CE11 and player_grab_contact (JMP, tail call). player_state_walk.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCDFB
+name = "player_grab_contact"
+comment = "grab_contact_test on slot Y, then the grab, or the search goes on through $CE11 (whose JMP is a tail call here). Reached by JMP from player_grab_search for Haggar (0E:CDF2, tail call). player_state_walk.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCEA4
+name = "player_stand_check"
+comment = "with a direction still held the frame is over (RTS); with none, player_stand. Reached by JMP from $CD3B and player_grab_search (0E:CD5C, tail call) and from grab_take (BEQ at 0E:CE6A). player_state_walk.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCEAA
+name = "player_stand"
+comment = "player_ground_y = obj_y and the standing animation and CHR bank ($E1E3/$E22B; with a weapon $E21F/$E267). Called by most player states when they end (0E:D03C, D2DF, D45A, D61B, D84A, DA31, DD04, DDB7), by bank $00 (00:80C1 . player_state_walk.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCED1
+name = "player_respawn_blink"
+comment = "the invincibility after a new life drops in (bank $00 sets respawn_timer1 $1E and respawn_timer2 $B6, 00:8EAB-8EAF). Called by player_state (0E:C9B6) and bank $0B (0B:BE13). player_states.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCF33
+name = "weapon_target_near"
+comment = "is there something for Cody's weapon to hit? Slots $0F down to 4: a live one whose obj_id is not $69 or $10-$13, with |dy| < $10 and |dx| < $60 from the player, ... Called by player_attack_start (0E:CB70) only; never executed in the CDL runs. player_state_idle.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xCFD1
+name = "player_pit_fall"
+comment = "the player drops into a pit: action_before_fall = game_action, game_action $24 (bank $00's pit fall, 00:8D8D), obj_state[0] = $80. Called by player_state_jump and player_jump_land (0E:CFCD, CFF4, D016). player_jump.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD00E
+name = "player_jump_land"
+comment = "the end of a jump. player_state_jump comes here when obj_fall ($F119) reports the floor (JMP at 0E:CF91) or when obj_y reaches player_ground_y (BNE at 0E:D009, and on ... player_jump.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD03F
+name = "player_land_finish"
+comment = "the landing sound and obj_timer2[0] = 0. Reached by JMP from player_jump_land (0E:D039) and run on into after its player_stand (0E:D03C). player_jump.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD18E
+name = "player_jump_steer"
+comment = "left or right during a jump. Reached by JMP from player_state_jump's air control (0E:D067, D073, D0B9, D0D5, D0EB). player_jump.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD242
+name = "player_jump_drift"
+comment = "a moving jump, every frame after player_jump_steer started it (JMP at 0E:D1F3). player_jump.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD346
+name = "player_attack_power"
+comment = "the power move. Forward (the pad direction just pressed equals player_dir) with B and no other button held starts game_action $FCCE[player_id] (Cody $23, Guy $27, ... Reached from player_state_punch: JMP for Cody and Guy (0E:D33D), run on into for Haggar. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD39E
+name = "player_attack_by_character"
+comment = "JMP ($0000) to the character's attack handler from $D3AD/$D3B0[player_id]: cody_attack $D3B3, guy_attack $D47D, haggar_attack $D641. Reached by JMP from attack_turn (0E:D387) and run on into from it. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD3B3
+name = "cody_attack"
+comment = "Cody's handler, by obj_anim. The jabs $0D and $16 (cody_jab) and the punch $10 (cody_punch); $13 ends the combo (cody_finisher, $D438). player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD438
+name = "cody_finisher"
+comment = "animation $13, the end of Cody's combo. The swing sound, then game_action $14 (run in bank $00; Data Crystal: Cody's slash) with action_timer 0, obj_state[0] $80, ... Reached by JMP from cody_attack (0E:D3C6). player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD45E
+name = "cody_combo_next"
+comment = "the animation after this step goes to player_stand_anim ($0D -> $16, $16 -> $10, else $13), then the hitting position (player_attack_to_hitpos). Reached by JMP from cody_jab and cody_punch (0E:D40A, D435). player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD477
+name = "player_attack_to_hitpos"
+comment = "player_hitpos_start ($D79A), then JMP player_state_hitpos ($DD6A) for this frame. Reached by JMP from cody_attack (0E:D3ED) and run on into from cody_combo_next. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD47D
+name = "guy_attack"
+comment = "Guy's handler, a JMP by obj_anim through k_guy_steps. Animation $35 (never executed in any run) puts the held enemy (grab_slot) at the player's obj_y and JMPs to ... player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD4CF
+name = "guy_jab"
+comment = "animation $0E. On frame 4 at timer 2 it turns into $55 (with CHR bank 4 and attack_end, guy_step_end $D522); before that guy_strike_frames. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD4E6
+name = "guy_attack_55"
+comment = "animation $55 turns into $56 (CHR bank 6, guy_set_anim_chr6 $D567) at timer 4. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD4F2
+name = "guy_attack_56"
+comment = "animation $56. attack_start on frame 1 at timer 0; on frame 2 attack_end and the next step (guy_combo_next). player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD50F
+name = "guy_attack_17"
+comment = "animation $17. On frame 4 at timer 2 it turns into $02 (CHR bank 4, attack_end); before that guy_strike_frames. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD522
+name = "guy_step_end"
+comment = "CHR bank 4 and attack_end. Reached by JMP from guy_jab (0E:D4E2) and run on into from guy_attack_17. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD55E
+name = "guy_attack_02"
+comment = "animation $02 (inside the combo) turns into $59 with CHR bank 6 at timer 4. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD567
+name = "guy_set_anim_chr6"
+comment = "animation A, CHR bank 6. Reached by JMP from guy_attack_55 (0E:D4EF) and run on into from guy_attack_02. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD570
+name = "guy_attack_59"
+comment = "animation $59, like $56: attack_start on frame 1 at timer 0; on frame 2 attack_end and the next step. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD58D
+name = "guy_attack_11"
+comment = "animation $11. attack_begin with attack_id 6 and the swing sound on frame 2 at timer 0, attack_end on frame 4, the next step on frame 6. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD5B7
+name = "guy_finisher"
+comment = "animation $14, the end of Guy's combo. player_no_hit $80 throughout; attack_begin with attack_id 1 and the swing sound on frame 4 at timer 0. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD5F3
+name = "guy_finisher_fall"
+comment = "animation $5B. obj_fall (Y = 0); once falling, when obj_y + 2 reaches player_ground_y Guy lands: obj_y becomes obj_y + 1 (the ground line itself when obj_y + 2 equals ... Reached by JMP from guy_attack and run on into from guy_finisher. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD61F
+name = "guy_combo_next"
+comment = "the animation after this step goes to player_stand_anim ($56 -> $17, $59 -> $11, $11 -> $14; any other returns, never executed), then player_hitpos_start and ... Reached by JMP from guy_attack_56, _59 and _11 (0E:D4FC, D57A, D5B4). player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD641
+name = "haggar_attack"
+comment = "Haggar's handler, by obj_anim: $0F (haggar_jab), $18 (haggar_jab2), $3F and $4E (haggar_wait), $12 (haggar_attack_12, $D6E0), $15 (haggar_finisher, $D70A); $47 goes ... player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD6D4
+name = "haggar_set_anim_chr8"
+comment = "animation A with CHR bank 8, then haggar_combo_next. Reached by JMP from haggar_jab (0E:D698) and run on into from haggar_jab2. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD6E0
+name = "haggar_attack_12"
+comment = "animation $12. attack_begin with attack_id $0C and the swing sound on frame 4 at timer 0, attack_end on frame 5, the next step on frame 7. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD70A
+name = "haggar_finisher"
+comment = "animation $15, the end of Haggar's combo: attack_begin with attack_id $0D, attack_ground_y = player_ground_y and the swing sound on frame 4 at timer 0; attack_end on ... player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD777
+name = "haggar_combo_next"
+comment = "the animation after this step goes to player_stand_anim ($3F -> $18, $4E -> $12, $12 -> $15), then player_hitpos_start and player_state_hitpos. Reached by JMP from haggar_wait, haggar_set_anim_chr8 and haggar_attack_12 (0E:D6A3, D6DC, D707). player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD79A
+name = "player_hitpos_start"
+comment = "game_action $0C (the hitting position) for 8 frames (action_timer). Called by player_attack_to_hitpos, guy_combo_next and haggar_combo_next (JSR at 0E:D477, D63B, D794), and reached by ... player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD7B8
+name = "cody_grab"
+comment = "Cody holding an enemy. Without B, grab_hold. B with no direction held: game_action $21 (Data Crystal: grapple hit, the knee). player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD7F2
+name = "cody_throw_start"
+comment = "the held enemy becomes a thrown body (obj_id 4, obj_state $80) drawn facing its obj_dir (flip cleared for right; set for left, never executed in any run); ... player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD82E
+name = "grab_hold"
+comment = "A jumps out of the grab: the enemy is let go (obj_held[slot] = $FF, grab_timer and grab_hit_count 0) and the player jumps (obj_vy $0438, the jump animation and CHR ... player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD83B
+name = "grab_release"
+comment = "the hold is over. game_action, guy_jump_window and grab_hit_count 0, obj_held[slot] = $FF (the enemy's behaviour then recovers), player_stand ($CEAA). player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD886
+name = "guy_grab"
+comment = "B throws (guy_throw_start); otherwise grab_hold. player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD88C
+name = "guy_throw_start"
+comment = "player_no_hit $80, game_action $13 (Guy's throw, bank $00), obj_state[0] $80. player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD89A
+name = "haggar_grab"
+comment = "B throws backwards (haggar_back_throw_start); otherwise player_ground_y = obj_y and haggar_grab_walk. player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD8A8
+name = "haggar_back_throw_start"
+comment = "game_action $15 (Haggar's back throw, bank $00), obj_state $80 for the player and the held enemy. player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD8B7
+name = "haggar_headsmasher_start"
+comment = "A while Haggar holds an enemy. The enemy's obj_state $80, game_action $12 (the HeadSmasher, bank $00), guy_jump_window 0, the jump speed (obj_vy $054E, obj_vx $0180), ... Reached by a branch from haggar_grab_walk (0E:D8E9). player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD8E5
+name = "haggar_grab_walk"
+comment = "Haggar holding an enemy, every frame after haggar_grab (JMP at 0E:D8A5). player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD93C
+name = "haggar_carry_right"
+comment = "the held enemy (slot Y) moves right by the player's vx, then haggar_grab_walk_y. player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD986
+name = "haggar_carry_left"
+comment = "the held enemy (slot Y) moves left by the player's vx, then haggar_grab_walk_y (run on into). player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD9A3
+name = "haggar_grab_walk_y"
+comment = "up or down while Haggar holds an enemy. Down: Haggar steps ($F0A2, probe point 2) and, unless blocked, the enemy moves down by his vy (wrapping past $F0, never executed). player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xD9E9
+name = "haggar_grab_hold_anim"
+comment = "with no direction held, the standing hold: animation $33, CHR bank 8. player_grab.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDB03
+name = "knockdown_fall"
+comment = "obj_fall (Y = 4). On the floor (C set), knockdown_land. Otherwise, once falling, when obj_y + 2 reaches player_ground_y obj_y becomes obj_y - 1 (unless exactly on the ... Reached by JMP from player_state_knockdown (0E:DAC2, DAC8, DAFD) and run on into from it. player_hurt.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDB2C
+name = "knockdown_land"
+comment = "the first landing. The step counts up (to 3) and the bounce gets its speed: obj_vx $0080, obj_vy $016E ($0100 and $016E in a boss area); the knocked-down animation ... Reached by JMP from knockdown_fall (0E:DB0A, DB26) and run on into from it. player_hurt.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDB6C
+name = "knockdown_bounce"
+comment = "steps 3 and 4. As steps 1 and 2 of player_state_knockdown (the edges at 24 and 233 px), then knockdown_fall_again; at the edge in step 4 straight to knockdown_lie ... Reached by JMP from player_state_knockdown (0E:DA8D). player_hurt.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDBD4
+name = "knockdown_fall_again"
+comment = "the bounce's fall, as knockdown_fall, ending in knockdown_lie. Reached by JMP from player_state_knockdown and knockdown_bounce (0E:DACB, DBA0, DBCE) and run on into from ... player_hurt.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDBFD
+name = "knockdown_lie"
+comment = "the player lies down. The knocked-down animation and CHR bank, action_timer $3C, game_action $1F (bank $00), obj_state[0] $80, obj_timer[0], attack_live and ... Reached by JMP from knockdown_bounce and knockdown_fall_again (0E:DB9A, DBDB, DBF7) and run on into from the latter. player_hurt.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDC29
+name = "player_clamp_top"
+comment = "keeps the player inside the walking band: an obj_y at or above the band's top for this round and sub_area ($DC63.. Called by the knockdown (JSR at 0E:DB23, DB29, DBF4, DBFA, DC25). player_hurt.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDD7F
+name = "cody_hitpos"
+comment = "The three hitpos handlers do the same: - B: with combo_timer running (a hit landed: objects_update sets it to $1E) the combo goes on (hitpos_combo_next: ... player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDD8E
+name = "cody_hitpos_pose"
+comment = "animation $45, or player_stand_anim $16: frame 1 at timer 0; otherwise hitpos_wait. Reached by JMP from cody_hitpos (0E:DDB4) and run on into from it. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDDB7
+name = "hitpos_end"
+comment = "the hitting position is over: player_stand ($CEAA), game_action and attack_live 0. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDDC1
+name = "hitpos_combo_next"
+comment = "JMP player_combo_continue ($CB07, inside player_state_idle). Branched to from cody_hitpos and guy_hitpos. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDDC4
+name = "hitpos_wait"
+comment = "out of the pose. With combo_timer running the animation is held at frame 0 and attack_live cleared; with it at 0, hitpos_end. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDDD3
+name = "guy_hitpos"
+comment = "as cody_hitpos, with guy_hitpos_pose. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDDE2
+name = "guy_hitpos_pose"
+comment = "before the step $17 Guy's pose restarts animation $0E; otherwise hitpos_wait. Reached by JMP from guy_hitpos (0E:DDFC) and run on into from it. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDDFF
+name = "haggar_hitpos"
+comment = "as cody_hitpos, with haggar_hitpos_pose. player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDE0E
+name = "haggar_hitpos_pose"
+comment = "before the step $18 Haggar's pose is animation $0F with CHR bank 9; otherwise hitpos_wait - branched to when this runs as its own routine (JMP from haggar_hitpos, ... player_attack.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDE33
+name = "player_health_reset"
+comment = "health = the health of player_level for this character (Cody 40 48 50 58 60 68, Guy 30 38 40 48 50 58, Haggar 50 58 60 68 68 68). player_states.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDF50
+name = "round_start"
+comment = "after a continue (game_action 7) the round starts again from its first area: lives 5, player_level back to level_saved, sub_area and player_exp 0, area_index the ... Reached by JMP from player_state_transition (0E:DE88). player_round.c (proposed)"
+
+[[label]]
+bank = 0x0E
+addr = 0xDFE9
+name = "area_enter"
+comment = "the round's music unless it already plays; the area's first 33 background columns, one per frame (the column writer $E521 going right, until bg_screen comes back from ... Reached by JMP from round_start (0E:DFA1) and run on into from it. player_round.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE03B
+name = "area_start"
+comment = "A = the area header byte. Keeps its top bits (area_flags) and its screen count, loads the area's graphics (0E:C3DD) and fades in (0E:C362), clears the objects, puts ... Called by: the area setup at $DFE9-$E03A (JMP at $E02F and $E035; for sub_area 2 it falls in at $E03B), func_DF50 ... stage_area.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE12F
+name = "round_map_pause"
+comment = "paused = $FF, interrupts on, the raster IRQ off (irq_enable 0) for the round map. Called by: the round transitions at 0E:DF77 and 0E:DFAC. stage_area.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE139
+name = "round_map_resume"
+comment = "interrupts on, the raster IRQ on, paused = 0. Called by: the round transitions at 0E:DF9B and 0E:DFDC. stage_area.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE143
+name = "camera_reset"
+comment = "the scroll back to 0 (x, y, page, nametable), render_off_depth 0, and the player, the column writer (scroll_mode) and the camera facing right. Called by: the round transitions at 0E:DF98 and 0E:DFD9. stage_area.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE16B
+name = "player_start_position"
+comment = "obj_y and obj_x of the player (slot 0) from the round's start tables, by sub_area. Called by: area_start, JSR at $E07A (also in the copies of area_start in player_round. stage_area.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE2A3
+name = "camera_update"
+comment = "the camera's work for the frame. Nothing during the actions of k_camera_still; on a locked screen only camera_keep_player_on_screen. Called by: gameplay_update, JSR at $C94B (flow_gameplay. stage_camera.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE3A3
+name = "camera_scroll_right"
+comment = "the player moves right or stands, $00/$01/$02 as camera_update left them. Called by: camera_update, JMP at $E2F3. stage_camera.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE473
+name = "camera_keep_player_on_screen"
+comment = "when the camera rests on a screen boundary (scroll_x 0: locked, or at the area's start) the player stays on the screen: obj_x at least $18 and at most $F0. Called by: camera_update (JMP at $E2C4, $E2CD, and $E3A0 in camera_walk_end) and camera_scroll_right (BEQ at $E440). stage_camera.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE4DF
+name = "bg_column_check"
+comment = "after a scroll, is a column due? $03 = how far the camera moved since last frame (|scroll_x - scroll_x_prev|); none means no column (carry set). Called by: camera_scroll_right, JMP at $E415 (auto-walk) and $E46F. stage_columns.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE515
+name = "bg_column_check_from"
+comment = "a column is due when the camera's old x within its 8-pixel column (A & 7) plus the distance moved ($03) reaches the next column: then bg_column_write, else carry set. Called by: bg_column_check (JMP at $E50E, and falling in at $E515). stage_columns.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE521
+name = "bg_column_write"
+comment = "stream the next background column in the direction $10 (DIR_RIGHT: bg_column + 1, DIR_LEFT: - 1; past either end of the nametable bg_screen moves by one too). Called by: round_start_wait (JSR at 0E:C76C), its twin (0F:E001) and bg_column_check_from (falling in at $E521). stage_columns.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE53F
+name = "bg_column_turn"
+comment = "bg_screen += the step (X = the direction bit, as bg_column_write sets it), then the column. Called by: bg_column_write (JMP at $E52E, and falling in at $E53F). stage_columns.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE560
+name = "bg_column_rows"
+comment = "for each metatile row from map_cell (row 0) down to row 4, build the metatile's tiles (metatile_tiles) and copy this column's four into the strip at $0783 + $03; on ... Called by: bg_column_fetch (falling in at $E560) and itself (JMP at $E5FE). stage_columns.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE60F
+name = "metatile_tiles"
+comment = "the 4x4 tiles of the metatile at map_cell of the current screen into tile_block ($06C0, row by row), and its attribute byte into $10 (TL bits 0-1, TR 2-3, BL 4-5, BR ... Called by: bg_column_rows, JSR at $E560. stage_columns.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE653
+name = "metatile_ptr"
+comment = "$00/$01 = $B700 + 4 * metatile, the record of the metatile at map_cell in the current screen, after making sure the round's bank is at $A000 (0E:C1DF). Called by: metatile_tiles ($E60F), bg_probe ($ED5C), bg_probe_2 ($EE69). stage_columns.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE66E
+name = "screen_map_ptr"
+comment = "map_screen_ptr ($20) = the metatile map of entry Y of the area's screen list (sub_area 1 and 2 have their own lists; any other value reads area 0's). Called by: bg_column_fetch ($E559), bg_probe ($ED59), bg_probe_2 ($EE66). stage_columns.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE689
+name = "screen_map_ptr_of"
+comment = "map_screen_ptr = $AF00 + 64 * A, screen A's metatile map in the round's bank. Called by: screen_map_ptr (JMP at $E67D and $E683, falling in for sub_area 2). stage_columns.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE6AB
+name = "hud_update"
+comment = "the status bar for the frame, unless a write list is waiting (a column or a patch: $19/$1A), a special screen runs ($62; $F9 there would clear it, no route), or the ... Called by: gameplay_update, JSR at $C981 (flow_gameplay. stage_hud.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE6DD
+name = "hud_player"
+comment = "the player's part of the bar (all but the enemy's): health (not during Guy's power move, game_action $27), round, lives, level mark and experience, then hud_next_level. Called by: hud_update, JSR at $E6C4. stage_hud.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE7F5
+name = "hud_next_level"
+comment = "[3, $23, $5A, the experience the next level needs] from the character's table, or dashes at the top level; then hud_close. Called by: hud_player (JMP at $E7EF, and falling in at $E7F5 after the dashes). stage_hud.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE853
+name = "hud_close"
+comment = "vram_buffer_len = X. Called by: hud_next_level (JMP at $E84D, falling in after the dashes). stage_hud.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE856
+name = "hud_dashes"
+comment = "three dash tiles ($78) at X. Called by: hud_player ($E7F2), hud_next_level ($E850). stage_hud.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE8BD
+name = "hud_enemy_bar_shown"
+comment = "the bar of hud_enemy_slot, or nothing when it is 0. Called by: hud_enemy_bar (JMP at $E8B5 when no boss is on, falling in at $E8BD when the boss found is dead). stage_hud.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xE954
+name = "hud_level_gauge"
+comment = "[6, $23, $49, six gauge tiles] for the player's level (Haggar's table entry two further on). Called by: the scenes of banks 04 (04:9A9A) and 0A (0A:9C18). stage_hud.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xEA6F
+name = "object_draw_sprites"
+comment = "maps slot X's sprite banks, steps its animation (obj_anim_timer counts to the script's period, then obj_anim_frame advances and wraps after the last frame), and, if ... Called by: object_draw (JMP at $EA55, falling in at $EA6F). stage_draw.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xED49
+name = "bg_probe_walk"
+comment = "from the point at $13:$12 (map_cell, $03), read each point's block, step x, and fetch the next metatile or screen as needed; then probe_end. Called by: bg_probe (falling in at $ED49) and itself (JMP at $EDB0). stage_probe.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xEEC4
+name = "probe_begin"
+comment = "clears $10 and probe_max, saves the $A000 bank in probe_saved_bank and maps the round's. Called by: bg_probe ($ECD4), bg_probe_2 ($EDBF). stage_probe.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xEEDF
+name = "probe_end"
+comment = "maps probe_saved_bank back at $A000. Called by: bg_probe (JMP at $ED05, $EDB7), bg_probe_2 (JMP at $EEC1, and $EE40 in its dead code). stage_probe.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xEF55
+name = "push_out_left"
+comment = "moves slot X left to the left edge of the 16-pixel column of the probe point $12 (obj_x -= $12 & $0F). Called by: 0F:F020 (after a move right hits a wall). stage_probe.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xEF6D
+name = "push_out_right"
+comment = "moves slot X right past the right edge of the probe point's 16-pixel column (obj_x += 16 - ($12 & $0F)). Called by: 0F:F071 (after a move left hits a wall). stage_probe.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xEF83
+name = "push_out_down"
+comment = "moves slot X down past the bottom of the probe point's 16-pixel row (obj_y += 16 - ($11 & $0F)), onto the next vertical page at $F0 (no route). Called by: 0F:F114. stage_probe.c (proposed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xEF9D
+name = "push_out_up"
+comment = "moves slot X up to the top of the probe point's 16-pixel row (obj_y -= $11 & $0F), onto the previous vertical page if it wraps (no route). Called by: 0F:F0BD, F146. stage_probe.c (proposed)"

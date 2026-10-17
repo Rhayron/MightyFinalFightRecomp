@@ -3,7 +3,7 @@
  * stage_events sets when the area is cleared (08:8951), walks the player
  * out in the way of each area and then sets game_action $0E
  * (player_state_transition: the next area). Some areas start with an
- * entrance that area_start ($DFE9) sets: $1B, $1C and $20. Other walks
+ * entrance that area_start ($E03B) sets: $1B, $1C and $20. Other walks
  * end a round's area too: $26 (round 4's first area, from the camera
  * code), $1A and $29 (the last boss, Belger).
  */
