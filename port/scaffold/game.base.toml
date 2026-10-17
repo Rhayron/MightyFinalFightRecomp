@@ -2673,7 +2673,7 @@ bank = 0
 addr = 0x80AE   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x80C5   # lifted, lifted_late.c
+addr = 0x80C5   # player_power.c
 [[replace_func]]
 bank = 0
 addr = 0x817E   # player_actions.c
@@ -2682,16 +2682,16 @@ bank = 0
 addr = 0x86FF   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x891B   # lifted, lifted_late.c
+addr = 0x891B   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8A31   # lifted, lifted_late.c
+addr = 0x8A31   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8CC4   # lifted, lifted_late.c
+addr = 0x8CC4   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8EEA   # lifted, lifted_late.c
+addr = 0x8EEA   # player_power.c
 [[replace_func]]
 bank = 0
 addr = 0x8FF8   # player_actions.c
@@ -2916,22 +2916,22 @@ addr = 0xCBA0   # lifted, lifted_late.c
 addr = 0xCF33   # lifted, lifted_late.c
 [[replace_func]]
 bank = 0
-addr = 0x8177   # lifted, lifted_late.c
+addr = 0x8177   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8992   # lifted, lifted_late.c
+addr = 0x8992   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x89F6   # lifted, lifted_late.c
+addr = 0x89F6   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8A55   # lifted, lifted_late.c
+addr = 0x8A55   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8AD3   # lifted, lifted_late.c
+addr = 0x8AD3   # player_power.c
 [[replace_func]]
 bank = 0
-addr = 0x8F82   # lifted, lifted_late.c
+addr = 0x8F82   # player_power.c
 [[replace_func]]
 bank = 0
 addr = 0x9043   # player_actions.c
