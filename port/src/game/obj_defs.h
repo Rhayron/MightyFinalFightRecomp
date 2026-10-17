@@ -96,6 +96,13 @@
  * first match, or `count`; CMP_LIST_FLAGS then sets N/Z/C as the last CMP
  * made left them.
  */
+/* the extra cycles of a taken branch at `pc` to `target`: 1, or 2 when it
+ * lands in another page than the next instruction */
+static inline int branch_taken(uint16_t pc, uint16_t target)
+{
+    return (((uint16_t)(pc + 2) ^ target) & 0xFF00) ? 2 : 1;
+}
+
 static inline int cmp_list(uint16_t pc, uint16_t target, uint8_t val,
                            const uint8_t *list, int count)
 {
@@ -104,7 +111,7 @@ static inline int cmp_list(uint16_t pc, uint16_t target, uint8_t val,
         uint16_t beq = (uint16_t)(pc + 4 * i + 2);
         mff_cycles((uint16_t)(pc + 4 * i), 4);
         if (val == list[i]) {
-            mff_cycles(beq, (((beq + 2) ^ target) & 0xFF00) ? 2 : 1);
+            mff_cycles(beq, branch_taken(beq, target));
             return i;
         }
     }
@@ -219,5 +226,16 @@ void func_83A8_b6(void);
 void func_8593_b6(void);
 void func_8A31_b6(void);
 void func_8C00_b6(void);
+void func_8D00_b6(void);
+void func_8DEF_b6(void);
+void func_8E43_b6(void);
+void func_8E5A_b6(void);
+void func_8EB4_b6(void);
+void func_8EE5_b6(void);
+void func_8F45_b6(void);
+
+/* ---- shared copies (obj_common.c) ---- */
+void obj_phase_jump(uint16_t pc, uint16_t lo, uint16_t hi);
+void obj_move_x_clamped(uint16_t pc, int bit0_right, void (*next_fn)(void));
 
 #endif
