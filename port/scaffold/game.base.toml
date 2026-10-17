@@ -1854,22 +1854,22 @@ bank = 0
 addr = 0x987A   # player_exits.c
 [[replace_func]]
 bank = 0
-addr = 0x9A00   # lifted, lifted_b0.c
+addr = 0x9A00   # flow_story_text.c
 [[replace_func]]
 bank = 0
-addr = 0x9A13   # lifted, lifted_b0.c
+addr = 0x9A13   # flow_story_text.c
 [[replace_func]]
 bank = 0
-addr = 0x9A1D   # lifted, lifted_b0.c
+addr = 0x9A1D   # flow_story_text.c
 [[replace_func]]
 bank = 0
-addr = 0x9A98   # lifted, lifted_b0.c
+addr = 0x9A98   # flow_story_text.c
 [[replace_func]]
 bank = 0
-addr = 0x9AC0   # lifted, lifted_b0.c
+addr = 0x9AC0   # flow_story_text.c
 [[replace_func]]
 bank = 0
-addr = 0x9B16   # lifted, lifted_b0.c
+addr = 0x9B16   # flow_story_text.c
 [[replace_func]]
 bank = 0
 addr = 0xA000   # lifted, lifted_b0.c
@@ -2679,7 +2679,7 @@ bank = 0
 addr = 0x817E   # lifted, lifted_late.c
 [[replace_func]]
 bank = 0
-addr = 0x86FF   # lifted, lifted_late.c
+addr = 0x86FF   # player_specials.c
 [[replace_func]]
 bank = 0
 addr = 0x891B   # lifted, lifted_late.c

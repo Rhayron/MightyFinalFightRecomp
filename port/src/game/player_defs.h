@@ -103,7 +103,7 @@
 #define ACT_GUY_THROW     0x13   /* Guy: B while holding an enemy */
 #define ACT_CODY_SLASH    0x14   /* Cody's combo finisher */
 #define ACT_HAGGAR_THROW  0x15   /* Haggar's back throw: B while holding */
-#define ACT_LARIAT        0x16   /* Haggar's moving special ($86FF, no routine in the port) */
+#define ACT_LARIAT        0x16   /* Haggar's moving special (action_lariat, $86FF) */
 #define ACT_SPECIAL       0x17   /* the A+B special (Data Crystal: special power) */
 #define ACT_LYING         0x1F   /* down after a knockdown, getting up */
 #define ACT_GRAB_KNEE     0x21   /* the knee: B with no direction while holding */
@@ -178,6 +178,8 @@
 #define POWER_ACTION        0xFCCE   /* 23 27 10 */
 
 /* ---- routines elsewhere ---- */
+void func_F000(void);   /* obj_face_right ($F090), then $F003 */
+void func_F051(void);   /* obj_face_left ($F099), then $F054 */
 void func_F003(void);   /* steps slot X right by vx and probes the background
                            (Y = probe point); C set = blocked */
 void func_F03F(void);   /* player_face_right: obj_flags[0] |= $40 */
@@ -309,6 +311,7 @@ void func_85F9_b0(void);
 void func_85FE_b0(void);
 void func_863E_b0(void);
 void func_8643_b0(void);
+void func_86FF_b0(void);
 void func_87AA_b0(void);
 void func_87E2_b0(void);
 void func_87F7_b0(void);
