@@ -1650,9 +1650,9 @@ addr = 0xFBB0   # obj_move.c
 [[replace_func]]
 addr = 0xFBD9   # obj_dist_y_feet, obj_move.c
 [[replace_func]]
-addr = 0xFE00   # lifted, lifted_f.c
+addr = 0xFE00   # reset, boot.c
 [[replace_func]]
-addr = 0xFF4C   # lifted, lifted_f.c
+addr = 0xFF4C   # boot.c
 [[replace_func]]
 addr = 0xFF72   # sound_update, sound.c
 [[replace_func]]
