@@ -547,7 +547,7 @@ void func_DFE9(void) {
     RAM(ATTACK_GROUND_Y) = a;
     RAM(ACTION_BEFORE_FALL) = a;
     RAM(GRAB_HIT_COUNT) = a;
-    RAM(UNK_B2) = a;
+    RAM(BONUS_STAGE) = a;
     RAM(SPAWN_GROUPS) = a;
     RAM(SPAWN_GROUPS + 1) = a;
     RAM(SPAWN_GROUPS + 2) = a;

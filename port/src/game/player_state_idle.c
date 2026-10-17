@@ -185,7 +185,7 @@ void func_CA3C(void) {
         FALL_INTO(func_CA39);
     }
     mff_cycles(0xCA40, 3 + 2);
-    a = RAM(UNK_B2);
+    a = RAM(BONUS_STAGE);
     SET_NZ(a);
     if (n) {
         mff_cycles(0xCA42, 1);

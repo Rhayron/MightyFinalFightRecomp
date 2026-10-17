@@ -59,7 +59,7 @@ void func_D30F(void) {
         a = RAM(HEALTH);
         if (a != 0) {
             mff_cycles(0xD319, 3 + 2);
-            a = RAM(UNK_B2);
+            a = RAM(BONUS_STAGE);
             if (!(a & 0x80)) {
                 mff_cycles(0xD31D, 3 + 2);
                 y = RAM(PLAYER_ID);

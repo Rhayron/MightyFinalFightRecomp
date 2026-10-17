@@ -749,7 +749,7 @@ comment = "$1E when a player hit connects (0F:FB13, from 0C:85B6), counted down 
 addr = 0x04F0
 size = 16
 name = "obj_spawn_group"
-comment = "per-kind code from the spawn tables (Poison/AxL 4, Two P/El Gado 5, Bred/Andore 3, bosses 4, other objects $FF; 08:816C, 08:91BF): the timed spawner adds up the codes of the live enemies (08:910A-912A) to choose what comes next. Bank 0B also uses slot $0F's byte ($04FF) as a slot pointer (0B:B696, 0E:CBE1)"
+comment = "per-kind code from the spawn tables (Poison/AxL 4, Two P/El Gado 5, Bred/Andore 3, bosses 4, other objects $FF; 08:816C, 08:91BF): the timed spawner adds up the codes of the live enemies (08:910A-912A) to choose what comes next. Bank 0B also uses slot $0F's byte ($04FF) as a slot pointer: Belger's slot (0B:B696, read at 0E:CBE1), and the scene after Belger keeps X there around its player_state calls (0B:BDA5-BF05; boss_belger_end.c)"
 
 [[ram]]
 addr = 0x0500
@@ -3225,13 +3225,13 @@ comment = "per effect channel (X 0-3); the music's copy is snd_m_slide at +$28; 
 
 [[ram]]
 addr = 0x00B2
-name = "unk_b2"
-comment = "purpose unknown: unclear (RAM survey); named so no raw address remains (rename with evidence)"
+name = "bonus_stage"
+comment = "$FF while the drum bonus stage runs (00:94F7 sets it with the controller, id $70 in slot $0F); a smashed drum then counts for the prize instead of leaving an item (03:BD68), the A+B special is off (0E:CA40, 0E:D305) and an extra-life pickup ends the stage (0C:8C00, never executed); cleared with the round state; enemy_drums.c (tidy/enemies)"
 
 [[ram]]
 addr = 0x00B9
-name = "unk_b9"
-comment = "the bonus stage's count (proposed name bonus_count): 0 when it starts (0B:B351), INC by bank 03 (03:BD76), $14 puts up PERFECT (0B:B3C9-B3D2); the message box's YOU GOT picks its reward text by it (04:988E, table 04:98C8: nothing under 8, then 8/16/24/32 EXP, 1UP, CONTINUE, 2UP) and clears it (04:989A). Not renamed here: banks 03 and 0B are other tidy branches' files (tidy/props)"
+name = "bonus_drum_count"
+comment = "drums smashed in the bonus stage: 0 when it starts (0B:B355), +1 per smashed drum (03:BD6F, drum_smashed); 8 or more win the prize $B66C/$B681 by the count, all $14 add special screen $FC, PERFECT (0B:B387-B3D7); the message box's YOU GOT picks its reward text by it (04:988E, table 04:98C8: nothing under 8, then 8/16/24/32 EXP, 1UP, CONTINUE, 2UP) and clears it (04:989A); enemy_drums.c (tidy/enemies), flow_talk.c (tidy/props)"
 
 [[ram]]
 addr = 0x00AC
@@ -3261,7 +3261,7 @@ comment = "purpose unknown: written, never read in coverage; named so no raw add
 [[ram]]
 addr = 0x001B
 name = "unk_1b"
-comment = "purpose unknown: written, never read in coverage; named so no raw address remains (rename with evidence)"
+comment = "purpose unknown: written $FF once, by the scene after Belger when it puts Belger's fall (id $9E) in a slot (0B:BFC7, boss_belger_end.c); no code in any bank reads it"
 
 [[ram]]
 addr = 0x001F

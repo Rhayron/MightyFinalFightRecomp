@@ -309,7 +309,7 @@ void func_8C00_b6(void)
     REGS_IN;
 
     mff_cycles(0x8C00, 5);
-    a = RAM(UNK_B2);
+    a = RAM(BONUS_STAGE);
     if (!(a & 0x80)) {
         mff_cycles(0x8C04, 16);
         RAM(GAME_ACTION) = 0x02;

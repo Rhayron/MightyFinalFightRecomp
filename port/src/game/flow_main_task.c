@@ -865,7 +865,7 @@ static void title_start_game(void) {
     RAM(SPECIAL_SCREEN_ID) = a;
     RAM(SCREEN_EVENT) = a;
     RAM(UNK_B6) = a;
-    RAM(UNK_B2) = a;
+    RAM(BONUS_STAGE) = a;
     RAM(GAME_FINISHED) = a;
     RAM(CAMERA_AUTOSCROLL) = a;
     RAM(KEEP_ON_SCREEN) = a;

@@ -81,7 +81,7 @@ void func_9AA0_b2(void);
 #define TEXT_PERFECT        5
 #define TEXT_NO_BONUS       6
 #define TEXT_YOU_GOT        7
-/* the bonus stage's reward text by bonus_count (unk_b9): none under 8,
+/* the bonus stage's reward text by bonus_drum_count ($B9): none under 8,
  * then 8/16/24/32 EXP, 1UP, CONTINUE, 2UP */
 #define BONUS_REWARD_TEXT   0x98C8
 
@@ -222,7 +222,7 @@ static void talk_cmd_bonus_result(void) {
     SET_NZ(y);
     CALL_04(0x988B, 0x9AA0);
     mff_cycles(0x988E, 9);
-    y = RAM(UNK_B9);
+    y = RAM(BONUS_DRUM_COUNT);
     a = prg_read((uint16_t)(BONUS_REWARD_TEXT + y));
     mff_cycles(0x9894, 8);
     y = a;
@@ -231,7 +231,7 @@ static void talk_cmd_bonus_result(void) {
     mff_cycles(0x9898, 5);
     a = 0x00;
     SET_NZ(a);
-    RAM(UNK_B9) = a;
+    RAM(BONUS_DRUM_COUNT) = a;
     JMP_04(0x989C, 0x98BD);
 }
 

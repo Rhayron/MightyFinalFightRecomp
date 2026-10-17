@@ -430,8 +430,9 @@ void func_94F2_b0(void) {
 
 /*
  * exit_boss_arrival ($94F7 in bank $00, proposed; round 2's and round 4's
- * third areas): no walk out - the boss comes. $B2 $FF, area_clear $7F,
- * special_screen_id $FD, CHR banks 3-5 $23 $23 $35, the boss's palette
+ * third areas): no walk out - the bonus stage comes (enemy_drums.c).
+ * bonus_stage ($B2) $FF, area_clear $7F, special_screen_id $FD (health
+ * filled, then BONUS STAGE: flow_talk.c), CHR banks 3-5 $23 $23 $35, the palette
  * ($955D, 8 bytes into $0618 and $0638, palette_request $FF), the
  * player's state cleared and player_stand, and slot 15 set up for id $70
  * (obj_state and obj_flags $80, at x 0 / y 0 on the player's screen, its
@@ -442,7 +443,7 @@ void func_94F7_b0(void) {
 
     mff_cycles(0x94F7, 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 3 + 2 + 3 + 2);
     a = 0xFF;
-    RAM(UNK_B2) = a;
+    RAM(BONUS_STAGE) = a;
     a = 0x7F;
     RAM(AREA_CLEAR) = a;
     a = 0xFD;
