@@ -1,6 +1,7 @@
 /*
  * enemy_ai.h - names shared by the common-enemy AI of bank $0D (enemy_ai.c,
- * enemy_moves.c, enemy_walk.c). docs/objects.md, "Common-enemy AI".
+ * enemy_moves.c, enemy_walk.c). enemy_ai.c's header lists the phases;
+ * docs/objects.md describes the object system around them.
  *
  * Bank $0D sits at $A000 while objects_update dispatches an id below $60
  * (the quirk in docs/objects.md), and all of its code is this AI: the

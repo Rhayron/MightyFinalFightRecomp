@@ -754,9 +754,9 @@ done:
 
 /*
  * enemy_charge_aim, $A7AD (name proposed): charge step 2. Stands 4 frames;
- * then, unless the player and it face different ways and rng & $0F is
- * above $0C (3 in 16; facing the same way it always charges, enemy_reset
- * otherwise), it aims (CHARGE_DIRS by the player's direction index):
+ * then it charges, except when its obj_flags and the player's differ (they
+ * face different ways) and rng & $0F is above $0C, 3 times in 16, which
+ * gives enemy_reset. It aims (CHARGE_DIRS by the player's direction index):
  * $024C across, or $021F across and $00E1 up or down on a diagonal; the
  * run's animation ($D2, sprite bank $24), damage $33 + tier index,
  * obj_ai_count 1 (the run's sound comes at once), step 3.

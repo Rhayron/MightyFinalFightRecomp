@@ -301,6 +301,7 @@ void func_A102_b6(void)
         if (a != 0) {
             mff_cycles(0xA11E, 12);
             a >>= 4;
+            c = a >= 0x01;
             if (a == 0x01) {
                 mff_cycles(0xA124, 1);
                 BRANCH_TAIL(0xA139);            /* enemy_close_in_begin */
@@ -471,7 +472,8 @@ void func_A18E_b6(void)
             RTS_RETURN();
         }
         mff_cycles(0xA1F4, 7);
-        if (RAM(RNG) & 1) {                     /* LSR / BCC */
+        c = RAM(RNG) & 1;                       /* LSR / BCC */
+        if (c) {
             mff_cycles(0xA1F9, 4);
             a = AI_CLOSE_IN;
             mff_cycles(0xA1FB, 1);
@@ -568,7 +570,9 @@ void func_A210_b6(void)
     y = RAM(OBJ_KIND + x);
     if (y == KIND_AXL) {
         mff_cycles(0xA243, 7);
-        if (RAM(GAME_ACTION) == ACT_JUMP) {
+        a = RAM(GAME_ACTION);
+        c = a >= ACT_JUMP;
+        if (a == ACT_JUMP) {
             mff_cycles(0xA249, 3);
             GOTO_BANK(0xA8E8);                  /* enemy_reset */
         }
