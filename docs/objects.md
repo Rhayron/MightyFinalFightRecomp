@@ -95,8 +95,9 @@ Spawn types set `$D0` (on screen, facing right, world) or `$D4` (also hidden);
 the spawner then turns the object toward the player.
 
 `obj_kind` (`$05B0`): 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore,
-6 id `$2E`, 7 Thrasher, 8 Sodom, 9 Abigail, `$0B` Belger, `$0C` id `$9D` (the
-objects that fill the screen during the Belger fight). Kinds 7, 8, 9 and `$0B`
+6 El Gado's knife (id `$2E`), 7 Thrasher, 8 Sodom, 9 Abigail, `$0B` Belger,
+`$0C` id `$9D` (the objects that fill the screen during the Belger fight), `$0D`
+the two pieces Sodom sheds (`0C:877F`, never executed). Kinds 7, 8, 9 and `$0B`
 get the HUD life bar ahead of anyone else (`0F:E89D`); kind 3 can block
 (`0C:84F0`).
 
@@ -179,9 +180,13 @@ dispatched first without them.
      `$B0`/`$B1` select this slot's HUD bar, `0F:FB09` loads
      `obj_hit_cooldown` and sets `obj_hit_timer = $1E`, and per-character
      code (`$87B0`/`$87B3` by `player_id`, then a table per level `$6B`
-     indexed by the attack) finds the damage; bosses take `$87AB[kind - 7]`
-     less, one less again in round 4, never under 1, and `0C:86E4` subtracts
-     it from `$0490`;
+     indexed by the attack, `0C:8638-8683`; Guy's levels 0 and 1 share one
+     table) finds the damage; bosses take `$87AB[kind - 7]` less (Sodom with
+     `obj_tier` set `$87AB[3]`; Sodom first takes 5 more from attacks 5 and
+     `$13`, never executed), one less again in round 4, never under 1, and
+     `0C:86E4` subtracts it from `$0490`. Sodom at `obj_tier` 1 whose life
+     falls under `$30` would then shed two pieces into slots `$0D` and `$0B`
+     (`0C:8703`, never executed);
    - `obj_attack` is cleared and `obj_land_y` set (`obj_y`, `obj_y+$0A` for
      kinds 6 and `$0C`, `obj_ground_y` for the airborne animations);
    - if `$0490` went negative the object becomes a dying id (6 or 7 by attack,
@@ -322,7 +327,9 @@ bank caveat above). The ones the engine itself relies on:
 | 6, 7, `$16` | `0C:9962`, `9A3F` | Dying |
 | `$10`-`$13` | `0C:8AEE` | Items: picked up with B when the player is close (`0C:8B22-8B3F`) |
 | `$1F` | `0C:9B74` | Falling into a pit |
-| `$20`-`$35` | `0C:9CED/9CF1/9CF5` | Common enemies: low digit = kind (via `0C:9D5B`), group = tier |
+| `$20`-`$35` | `0C:9CED/9CF1/9CF5` | Common enemies: low digit = kind (via `0C:9D5B`), group = tier (below) |
+| `$2E` | `0C:9D71` | El Gado's knife |
+| `$2C` `$2D` `$2F`, `$36`-`$5F` | `0C:9D9E`-`9F12` | Common enemies' entrances (below) |
 | `$66` | `05:A712` | Dropped weapon |
 | `$74` | `0B:B30C` | Belger |
 | `$80`, `$81`/`$83`, `$90` | banks `$01`, `$03` | Thrasher, Sodom, Abigail |
@@ -330,6 +337,49 @@ bank caveat above). The ones the engine itself relies on:
 The enemy ids from Data Crystal in `docs/ram_map.md` (Poison `20 26 30`, ...) are
 these behaviour ids: `$20-$25`, `$26-$2B` and `$30-$35` are the same six
 enemies at tiers 1, 2 and 4.
+
+## The common enemies
+
+Poison, Two P, Bred, AxL, El Gado and Andore (`obj_kind` 0-5) share one
+behaviour (`port/src/game/enemy_common.c`). Its bank-`$0C` half runs every
+frame (`0C:9CED`, `9CF1`, `9CF5` for tiers 1, 2, 4): it stores the tier and
+the kind (`$9D5B` by id), counts the immunity after getting up down, clears
+`obj_attack`, stirs the RNG (`rng += sprite 3's x + rng+1 + rng+2 + C`),
+gives the frame to `0D:AB29` when the player holds it or a fresh hit makes it
+flinch (C set), keeps `obj_y` in the area's walkable band (`0C:9FF6`, which
+runs on into bank `$0D`: `$81-$B0`, `$71-$A0` in round 0 area 1 and round 3
+area 1, `$91-$B0` in round 1 area 1; not in phases 9 and `$F`, which are in
+the air) and jumps through its phase table (`$9D3B`/`$9D4B`, 16 bank-`$0D`
+routines). Known phases: 0 start, 1 choose a move (the moves end at
+`0D:A8E4/A8E8`, back to 1), 3 AxL's block, 8 the flinch of a fresh hit, 9
+Poison's and El Gado's jump attack, `$A` El Gado's knife throw, `$D` stand
+`obj_ai_timer` frames, `$E` Andore's charge (`obj_timer` 3 is the rush), `$F`
+fall to `obj_ground_y` with the attack out. `obj_tier` 1/2/4 becomes 0/1/2
+through `$A897` (bank `$0D`) for the damage indexes and AxL's block odds.
+
+Id `$2E` is El Gado's knife (`0C:9D71`): `0D:A5DA`, from his phase `$A`,
+puts it `$12` px ahead of him and 3 px lower with `obj_vx` `$0330`, attack
+`$87` and damage index 6, `obj_kind` 6. It flies on `obj_dir` until its
+screen x reaches `$FA` (right) or falls under 8 (left), then it is cleared.
+The player can knock it out of the air (kind 6 has knocked-down animations
+`$BA`/`$B9` and lands `$0A` lower).
+
+The ids from `$36` up, and `$2C`, `$2D`, `$2F`, are entrances
+(`port/src/game/enemy_entrances.c`): they set the enemy up and turn it into
+its plain id (`$9FBB`, `$9FCC` by id) in the phase it starts in.
+
+| Ids | Entry | Entrance |
+|---|---|---|
+| `$2C` `$2D` `$2F` | `0C:9D9E/9DA4/9DAA` | Andore charging in: once the player is within `$80` px he starts at the rush of his charge (phase `$E`, `obj_timer` 3). Never executed; no spawn table lists these ids |
+| `$36`-`$38`, `$39`-`$3B`, `$3C`-`$3E` | `0C:9E20`-`9E44` | Poison, AxL, El Gado drop onto the player: spawned hidden (stage types `$30`-`$35`, `$5A`-`$5C`, flags `$D4`), they wait until he is within 8 px in x (at once in round 3 area 1), then fall from above onto his ground line (`obj_vy` `$FF00`) with the kind's attack out (phase `$F`) |
+| `$3F`, `$4F`-`$5F` | `0C:9EC5/9EC9/9ECD` | Stand `$78` frames (phase `$D`) before the first move |
+| `$40`-`$4B` | `0C:9EF4`-`9F12` | Two P and Bred sit in wait, in one of two poses (animation `$A2`, `obj_timer3` 0/2), unhittable (`obj_invuln` `$FF`) until the player is within `$32` px in x and y or they are less than `$40` px from the screen's left edge |
+| `$4C`-`$4E` | `0C:84EF` (RTS) | El Gado by the entrance tables, but nothing sets them up: an object with these ids would stand still |
+
+The timed spawner adds `$37`, `$3A` and `$3D` (`08:9456`). In the routes'
+logs the waiting ids `$38`, `$3E`, `$43`, `$49`, `$4A`, `$4B` show up (rounds
+0-4); `$36`, `$39`, `$3A`, `$3C`, the tier-2 standing entry and `$41`/`$44`
+never ran (`runs/cdl`).
 
 ## Wrong labels
 

@@ -761,7 +761,7 @@ comment = "general per-behaviour timer or step counter: phases load it and count
 addr = 0x0510
 size = 16
 name = "obj_timer2"
-comment = "second per-behaviour counter: blink frames before a dead enemy is freed ($10 at 0C:8FCB, counted at 0C:9B07), the id to turn into after a dash (0C:9DB2), attack index of some bosses (01:A36E)"
+comment = "second per-behaviour counter: blink frames before a dead enemy is freed ($10 at 0C:8FCB, counted at 0C:9B07), the plain id Andore becomes after charging in (0C:9DB2, ids $2C/$2D/$2F), attack index of some bosses (01:A36E)"
 
 [[ram]]
 addr = 0x0520
@@ -779,7 +779,7 @@ comment = "line a knocked-back object lands on: objects_update sets it when a hi
 addr = 0x0540
 size = 16
 name = "obj_timer3"
-comment = "third per-behaviour counter: frames before a thrown body starts hitting others (8 at 0C:8FD2, counted at 0C:824B), attack timer of the common-enemy AI (0D:A298, 0D:A393)"
+comment = "third per-behaviour counter: frames before a thrown body starts hitting others (8 at 0C:8FD2, counted at 0C:824B), attack timer of the common-enemy AI (0D:A298, 0D:A393), the pose (0/2) of a sitting Two P or Bred, ids $40-$4B (0C:9EFA, read at 0C:9F3C)"
 
 [[ram]]
 addr = 0x0550
@@ -815,7 +815,7 @@ comment = "timed-spawner scratch, not a slot table: obj_spawn_group of up to two
 addr = 0x05B0
 size = 16
 name = "obj_kind"
-comment = "enemy kind: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 id $2E, 7 Thrasher, 8 Sodom, 9 Abigail, $0B Belger, $0C id $9D; 0 for non-enemies (spawn table 08:85E6 via 08:8172; ids $20-$35 via 0C:9D19). Indexes per-kind tables ($FC82, $FC8F, $FBCC); the HUD prefers the bar of kinds 7-9/$0B (0F:E89D); kind 3 can block (0C:84F0)"
+comment = "enemy kind: 0 Poison, 1 Two P, 2 Bred, 3 AxL, 4 El Gado, 5 Andore, 6 El Gado's knife (id $2E, 0D:A64A), 7 Thrasher, 8 Sodom, 9 Abigail, $0B Belger, $0C id $9D, $0D Sodom's pieces (0C:877F, never executed); 0 for non-enemies (spawn table 08:85E6 via 08:8172; ids $20-$35 via 0C:9D19, the entrances $36-$5F via 0C:9EE1/9F26). Indexes per-kind tables ($FC82, $FC8F, $FBCC); the HUD prefers the bar of kinds 7-9/$0B (0F:E89D); kind 3 can block (0C:84F0)"
 
 [[ram]]
 addr = 0x05C0
@@ -1559,6 +1559,119 @@ bank = 0x0C
 addr = 0x9B1F
 name = "obj_pit_check"
 comment = "from the RAM/objects survey (docs/objects.md)"
+
+[[label]]
+bank = 0x0C
+addr = 0x805E
+name = "objects_next_slot"
+comment = "where every behaviour's RTS lands: objects_update pushes $805D (0C:8056-805A) before its JMP (obj_behavior_lo/hi) at 0C:805B; next slot and its checks; obj_update.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x80D3
+name = "obj_hit_by_player"
+comment = "the BPL at 0C:80CB after player_attack_test and spawn_hit_spark: obj_take_hit, obj_land_y, knockback; obj_update.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x8686
+name = "damage_apply"
+comment = "the damage lookup ($8638-$8683, LDA table,Y / BNE $8686 per character and level) lands here: combo target, the bosses' cut ($87AB), obj_life -= damage (0C:86E4); obj_hits.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x87AB
+name = "boss_damage_cut"
+comment = "5 bytes by obj_kind - 7 (SBC at 0C:86D5): Thrasher 2, Sodom 4, Abigail 4, Sodom with obj_tier set 8, Belger 8; obj_hits.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9CED
+name = "enemy_common"
+comment = "behaviour of ids $20-$25 (obj_behavior_lo/hi), tier 1; $9CF1 tier 2 ($26-$2B), $9CF5 tier 4 ($30-$35): kind from $9D5B, 0D:AB29, enemy_keep_on_band, JMP through $9D3B/$9D4B; enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D3B
+name = "enemy_phase_lo"
+comment = "16 bank-$0D phase routines by obj_state & $0F (0C:9D28-9D38); enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D4B
+name = "enemy_phase_hi"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D5B
+name = "enemy_kind_by_id"
+comment = "obj_kind by id - $20 (0C:9D19): 0-5 per digit, ids $20-$35; enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D71
+name = "knife_fly"
+comment = "behaviour of id $2E, El Gado's knife (spawned by 0D:A5DA, from his phase $A): flies on obj_dir, cleared at screen x $FA / 8; enemy_common.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9D9E
+name = "andore_charge_in"
+comment = "behaviour of ids $2C/$2D/$2F ($9D9E/$9DA4/$9DAA): Andore starts at the rush of his charge (phase $E, obj_timer 3) once the player is within $80 px; never executed; enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9E48
+name = "enemy_drop_in"
+comment = "ids $36-$3E (Poison, AxL, El Gado; entries $9E20-$9E44): hidden until the player is within 8 px, then fall to his ground line at phase $F; enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9EB3
+name = "drop_anim"
+comment = "by obj_kind: the drop-in's fall animation (0C:9E91); $9EB9 its sprite bank, $9EBF its damage index"
+
+[[label]]
+bank = 0x0C
+addr = 0x9ECF
+name = "enemy_stand_in"
+comment = "ids $3F, $4F-$5F (entries $9EC5/$9EC9/$9ECD): stand $78 frames at phase $D, standing animation (0D:AAAE); enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9F19
+name = "enemy_sit_in"
+comment = "ids $40-$4B (Two P, Bred; entries $9EF4-$9F12, obj_timer3 = pose 0/2): animation $A2 held, unhittable until the player is within $32 px (0F:FB3E) or screen x < $40; enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9F8D
+name = "sit_chr"
+comment = "sprite bank of the sitting frames 0-3 (0C:9F4D)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9F91
+name = "entrance_kind"
+comment = "obj_kind by id - $36, 42 bytes (0C:9EDE, 9F23)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9FBB
+name = "enemy_become_common"
+comment = "obj_id and obj_saved_id = $9FCC[id - $36], the plain id of an entrance (JMP at 0C:9EB0, 9EF1, 9F89); enemy_entrances.c (tidy/common)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9FCC
+name = "entrance_becomes"
+comment = "the plain id ($20-$35) by id - $36, 42 bytes (0C:9FC2)"
+
+[[label]]
+bank = 0x0C
+addr = 0x9FF6
+name = "enemy_keep_on_band"
+comment = "obj_y kept in (top, bottom] of $A046/$A049 by round and area (bands $80/$B0, $70/$A0, $90/$B0), except at obj_state $89/$8F; runs on into bank $0D; enemy_common.c (tidy/common)"
 
 [[label]]
 bank = 0x08

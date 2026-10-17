@@ -23,9 +23,9 @@
  *   0 $A04C  start: AI counters cleared, standing animation, phase 1
  *   1 $A060  choose the next move (the moves end at 0D:A8E4/A8E8, which
  *            come back here with obj_ai_timer 8 or 0)
- *   2 $A0E8, 4 $A210, 5 $A2C3, 6 $A41D, 7 $A3F5: walking and attacks
+ *   2 $A0E8, 4 $A210, 5 $A2C3, 6 $A41D, 7 $A3F5: walking up, attacks
  *   3 $A18E  AxL's block (set by obj_take_hit, obj_hits.c)
- *   8 $A411  the flinch of a fresh hit (0D:AB9F sets it) until
+ *   8 $A411  the flinch of a fresh hit (0D:ABA2 sets it) until
  *            obj_hit_timer runs out
  *   9 $A494  Poison's and El Gado's jump attack: crouch, jump, land on
  *            obj_ground_y (in the air: no band)

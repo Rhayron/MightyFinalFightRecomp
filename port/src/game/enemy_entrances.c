@@ -173,6 +173,7 @@ void func_9DAA_b6(void)
 static void enemy_drop_in(void)
 {
     REGS_IN;
+    int at_once = 0;
 
     mff_cycles(0x9E48, 19);
     RAM(OBJ_TIER + x) = a;
@@ -184,22 +185,22 @@ static void enemy_drop_in(void)
     } else {
         mff_cycles(0x9E55, 7);
         a = RAM(SUB_AREA);
-        if (a != 0x01)
-            goto wait;
-        mff_cycles(0x9E59, 1);                  /* BEQ $9E63 */
-        goto drop;
+        at_once = a == 0x01;
+        if (at_once)
+            mff_cycles(0x9E59, 1);              /* BEQ $9E63 */
     }
-wait:
-    mff_cycles(0x9E5B, 6);
-    CALL_FIXED(0x9E5B, func_F374);              /* obj_dist_x */
-    mff_cycles(0x9E5E, 4);
-    CMP_FLAGS(a, DROP_REACH);
-    if (c) {
-        mff_cycles(0x9E62, 6);
-        RTS_RETURN();
+    if (!at_once) {
+        mff_cycles(0x9E5B, 6);
+        CALL_FIXED(0x9E5B, func_F374);          /* obj_dist_x */
+        mff_cycles(0x9E5E, 4);
+        CMP_FLAGS(a, DROP_REACH);
+        if (c) {
+            mff_cycles(0x9E62, 6);
+            RTS_RETURN();
+        }
+        mff_cycles(0x9E60, 1);                  /* BCC $9E63 */
     }
-    mff_cycles(0x9E60, 1);                      /* BCC $9E63 */
-drop:
+
     mff_cycles(0x9E63, 53);
     RAM(OBJ_FLAGS + x) = (uint8_t)(RAM(OBJ_FLAGS + x) & ~OBJ_HIDDEN);
     RAM(OBJ_GROUND_Y + x) = RAM(PLAYER_GROUND_Y);
