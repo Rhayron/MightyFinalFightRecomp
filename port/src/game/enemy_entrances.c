@@ -180,12 +180,14 @@ static void entrance_drop(void)
     a = y;
     RAM(OBJ_KIND + x) = a;
     a = RAM(ROUND);
-    if (a != 0x03) {
+    CMP_FLAGS(a, 0x03);
+    if (!z) {
         mff_cycles(0x9E53, 1);                  /* BNE $9E5B */
     } else {
         mff_cycles(0x9E55, 7);
         a = RAM(SUB_AREA);
-        at_once = a == 0x01;
+        CMP_FLAGS(a, 0x01);
+        at_once = z;
         if (at_once)
             mff_cycles(0x9E59, 1);              /* BEQ $9E63 */
     }
