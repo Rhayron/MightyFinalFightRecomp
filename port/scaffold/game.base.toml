@@ -1554,11 +1554,11 @@ addr = 0xF24C   # obj_gravity, obj_move.c
 [[replace_func]]
 addr = 0xF26E   # obj_init_vy, obj_move.c
 [[replace_func]]
-addr = 0xF288   # lifted, lifted_f.c
+addr = 0xF288   # obj_set_anim, obj_anim.c
 [[replace_func]]
-addr = 0xF294   # lifted, lifted_f.c
+addr = 0xF294   # player_set_anim, obj_anim.c
 [[replace_func]]
-addr = 0xF2A0   # lifted, lifted_f.c
+addr = 0xF2A0   # obj_spawn, obj_anim.c
 [[replace_func]]
 addr = 0xF314   # obj_dir_to_player, obj_move.c
 [[replace_func]]
@@ -1574,7 +1574,7 @@ addr = 0xF374   # obj_dist_x, obj_move.c
 [[replace_func]]
 addr = 0xF38B   # obj_dir_index, obj_move.c
 [[replace_func]]
-addr = 0xF406   # lifted, lifted_f.c
+addr = 0xF406   # scene_frame, obj_anim.c
 [[replace_func]]
 addr = 0xF428   # lifted, lifted_f.c
 [[replace_func]]
@@ -1584,13 +1584,13 @@ addr = 0xF436   # lifted, lifted_f.c
 [[replace_func]]
 addr = 0xF43B   # lifted, lifted_f.c
 [[replace_func]]
-addr = 0xF440   # lifted, lifted_f.c
+addr = 0xF440   # set_chr_bank2, obj_anim.c
 [[replace_func]]
-addr = 0xF443   # lifted, lifted_f.c
+addr = 0xF443   # obj_set_anim_chr3, obj_anim.c
 [[replace_func]]
-addr = 0xF449   # lifted, lifted_f.c
+addr = 0xF449   # obj_set_anim_chr4, obj_anim.c
 [[replace_func]]
-addr = 0xF44F   # lifted, lifted_f.c
+addr = 0xF44F   # obj_set_anim_chr5, obj_anim.c
 [[replace_func]]
 addr = 0xF455   # lifted, lifted_f.c
 [[replace_func]]
@@ -1608,9 +1608,9 @@ addr = 0xF679   # lifted, lifted_f.c
 [[replace_func]]
 addr = 0xF6A9   # lifted, lifted_f.c
 [[replace_func]]
-addr = 0xF71A   # lifted, lifted_f.c
+addr = 0xF71A   # find_free_slot, obj_anim.c
 [[replace_func]]
-addr = 0xF72A   # lifted, lifted_f.c
+addr = 0xF72A   # find_free_effect_slot, obj_anim.c
 [[replace_func]]
 addr = 0xF738   # lifted, lifted_f.c
 [[replace_func]]
