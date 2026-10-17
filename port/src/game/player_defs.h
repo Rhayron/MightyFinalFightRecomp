@@ -105,6 +105,7 @@
 #define ACT_HAGGAR_THROW  0x15   /* Haggar's back throw: B while holding */
 #define ACT_LARIAT        0x16   /* Haggar's moving special (action_lariat, $86FF) */
 #define ACT_SPECIAL       0x17   /* the A+B special (Data Crystal: special power) */
+#define ACT_WALK_OUT      0x19   /* the area is cleared: walk out (action_walk_out, player_exits.c) */
 #define ACT_LYING         0x1F   /* down after a knockdown, getting up */
 #define ACT_GRAB_KNEE     0x21   /* the knee: B with no direction while holding */
 #define ACT_PIT_FALL      0x24   /* falling into a pit (player_pit_fall, $CFD1) */
@@ -293,6 +294,8 @@ void func_8065_b0(void);
 void func_8066_b0(void);
 void func_807E_b0(void);
 void func_8090_b0(void);
+void func_80AE_b0(void);
+void func_817E_b0(void);
 void func_8193_b0(void);
 void func_821D_b0(void);
 void func_82AF_b0(void);
@@ -329,10 +332,19 @@ void func_8D8D_b0(void);
 void func_8DD1_b0(void);
 void func_8E3E_b0(void);
 void func_8FAF_b0(void);
+void func_8FF8_b0(void);
+void func_9043_b0(void);
+void func_9072_b0(void);
 void func_90AC_b0(void);
 void func_90CB_b0(void);
-void func_92E1_b0(void);
+void func_914D_b0(void);
+void func_916E_b0(void);
+void func_91B2_b0(void);
+void func_91BE_b0(void);
 void func_9297_b0(void);
+void func_92BA_b0(void);
+void func_92E1_b0(void);
+void func_93AF_b0(void);
 void func_93EF_b0(void);
 void func_9410_b0(void);
 void func_943F_b0(void);

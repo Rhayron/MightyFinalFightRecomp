@@ -3,7 +3,9 @@
  * stage_events sets when the area is cleared (08:8951), walks the player
  * out in the way of each area and then sets game_action $0E
  * (player_state_transition: the next area). Some areas start with an
- * entrance that area_start ($DFE9) sets: $1B, $1C and $20.
+ * entrance that area_start ($DFE9) sets: $1B, $1C and $20. Other walks
+ * end a round's area too: $26 (round 4's first area, from the camera
+ * code), $1A and $29 (the last boss, Belger).
  */
 #include "player_defs.h"
 
@@ -154,35 +156,6 @@ void func_92E1_b0(void) {
     mff_cycles(0x9373, 3 + 5);
     RAM(TMP5) = a;
     JMP_IND(TMP4);
-}
-
-/*
- * $9297 in bank $00 (proposed name spawn_slot13_b7): an object in slot 13
- * at the screen's left (x 0 on the player's screen, y $90), animation $B7,
- * id $6B (obj_spawn). Called by game_action $26's routine ($91BE: JSR at
- * 00:9264).
- */
-void func_9297_b0(void) {
-    REGS_IN;
-
-    mff_cycles(0x9297, 2 + 4 + 2 + 4 + 4 + 4 + 4 + 4 + 2 + 2 + 6);
-    a = 0;
-    RAM(OBJ_X + 13) = a;
-    a = 0x90;
-    RAM(OBJ_Y + 13) = a;
-    a = RAM(OBJ_X_HI);
-    RAM(OBJ_X_HI + 13) = a;
-    a = RAM(OBJ_Y_HI);
-    RAM(OBJ_Y_HI + 13) = a;
-    y = 13;
-    a = 0xB7;
-    SET_NZ(a);
-    JSR_FN(0x92B1, func_F2A0);                  /* obj_spawn */
-    mff_cycles(0x92B4, 2 + 4 + 6);
-    a = 0x6B;
-    SET_NZ(a);
-    RAM(OBJ_ID + 13) = a;
-    RTS();
 }
 
 /*
@@ -1289,4 +1262,403 @@ void func_987A_b0(void) {
     x = RAM(TMP15);
     SET_NZ(x);
     RTS();
+}
+
+/* ---- walks the camera and the last boss start at a round's end ---- */
+
+/* round 4's first area: the band the player walks into (y $90-$9B), where
+ * he jumps (x $0388), his jump's speed ($046E), and the obj_anim to wait
+ * for before he falls ($9294[player_id]: the drop-down animation) */
+#define R4_WALK_TOP         0x90
+#define R4_WALK_BOTTOM      0x9C
+#define R4_JUMP_X_HI        0x03
+#define R4_JUMP_X           0x88
+#define R4_FALL_ANIM        0x9294   /* 28 29 2A */
+#define R4_BEHIND_Y         0xA8     /* behind the scenery from here */
+#define R4_OVER_Y           0xB0     /* and the area is over */
+
+/*
+ * action_r4_exit ($91BE in bank $00, proposed): game_action $26, which the
+ * camera code sets on round 4's first area from its third screen on
+ * (0F:E383; the oracle's CDL never saw it). The first step, every frame
+ * until done: camera_autoscroll 0, attack_end, the walking animation, CHR
+ * bank and speed with player_face_right unless already walking; into the
+ * band y $90-$9B, then a step right and the next step with obj_vy $0438.
+ * Step 1: right (obj_move_right) to x $0388, then step 2. Step 2: the
+ * getting-up animation and CHR bank, obj_vy $046E, the next step, and the
+ * object of $9297 at the screen's left. Step 3: from the drop-down
+ * animation on he falls ($F1FD) moving right, behind the scenery from y
+ * $A8, and from y $B0 the area is over (game_action $0E).
+ */
+void func_91BE_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x91BE, 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x0F;
+    if (a == 0) {
+        mff_cycles(0x91C5, 2 + 3 + 6);
+        a = 0;
+        SET_NZ(a);
+        RAM(CAMERA_AUTOSCROLL) = a;
+        JSR_FN(0x91C9, func_F436);              /* attack_end */
+        mff_cycles(0x91CC, 3 + 4 + 4);
+        y = RAM(PLAYER_ID);
+        a = RAM(OBJ_ANIM);
+        m = prg_read((uint16_t)(IS_WALKING + y));
+        c = a >= m;
+        mff_cycles(0x91D4, 2);
+        if (a != m) {
+            mff_cycles(0x91D6, 4);
+            a = prg_read((uint16_t)(ANIM_WALK + y));
+            SET_NZ(a);
+            mff_cycles(0x91D9, 6);
+            JSR_FN(0x91D9, func_F294);          /* player_set_anim */
+            mff_cycles(0x91DC, 4);
+            a = prg_read((uint16_t)(CHR_STAND + y));
+            SET_NZ(a);
+            mff_cycles(0x91DF, 6);
+            JSR_FN(0x91DF, func_F440);          /* player_set_chr */
+            mff_cycles(0x91E2, 4);
+            a = prg_read((uint16_t)(WALK_VX_FRAC + y));
+            mff_cycles(0x91E5, 4 + 4);
+            RAM(OBJ_VX_FRAC) = a;
+            a = prg_read((uint16_t)(WALK_VX + y));
+            mff_cycles(0x91EB, 4 + 4);
+            RAM(OBJ_VX) = a;
+            a = prg_read((uint16_t)(WALK_VY_FRAC + y));
+            mff_cycles(0x91F1, 4 + 4);
+            RAM(OBJ_VY_FRAC) = a;
+            a = prg_read((uint16_t)(WALK_VY + y));
+            SET_NZ(a);
+            mff_cycles(0x91F7, 4 + 6);
+            RAM(OBJ_VY) = a;
+            JSR_FN(0x91FA, func_F03F);          /* player_face_right */
+        } else {
+            mff_cycles(0x91D4, 1);
+        }
+        mff_cycles(0x91FD, 4 + 2 + 2);
+        a = RAM(OBJ_Y);
+        COMPARE(a, R4_WALK_TOP);
+        if (!c) {
+            mff_cycles(0x9204, 6);
+            JSR_FN(0x9204, func_F1BF);          /* obj_move_down */
+            mff_cycles(0x9207, 6);
+            RTS();
+        }
+        mff_cycles(0x9202, 1 + 4 + 2 + 2);
+        a = RAM(OBJ_Y);
+        COMPARE(a, R4_WALK_BOTTOM);
+        if (c) {
+            mff_cycles(0x920F, 6);
+            JSR_FN(0x920F, func_F1DF);          /* obj_move_up */
+            mff_cycles(0x9212, 6);
+            RTS();
+        }
+        mff_cycles(0x920D, 1 + 6);
+        JSR_FN(0x9213, func_F183);              /* obj_move_right */
+        mff_cycles(0x9216, 6);
+        JSR_FN(0x9216, func_F03F);              /* player_face_right */
+        mff_cycles(0x9219, 6 + 2 + 4 + 2 + 4 + 6);
+        RAM(OBJ_STATE)++;
+        a = 0x38;
+        RAM(OBJ_VY_FRAC) = a;
+        a = 0x04;
+        SET_NZ(a);
+        RAM(OBJ_VY) = a;
+        RTS();
+    }
+    mff_cycles(0x91C3, 2);                      /* BNE $9227, across a page */
+    mff_cycles(0x9227, 4 + 2 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x0F;
+    c = a >= 2;
+    if (a == 2) {                               /* the jump */
+        mff_cycles(0x922E, 1 + 3 + 4);
+        y = RAM(PLAYER_ID);
+        a = prg_read((uint16_t)(ANIM_GET_UP + y));
+        SET_NZ(a);
+        mff_cycles(0x924E, 6);
+        JSR_FN(0x924E, func_F294);              /* player_set_anim */
+        mff_cycles(0x9251, 4);
+        a = prg_read((uint16_t)(CHR_GET_UP + y));
+        SET_NZ(a);
+        mff_cycles(0x9254, 6);
+        JSR_FN(0x9254, func_F440);              /* player_set_chr */
+        mff_cycles(0x9257, 6 + 2 + 4 + 2 + 4 + 6);
+        RAM(OBJ_STATE)++;
+        a = 0x6E;
+        RAM(OBJ_VY_FRAC) = a;
+        a = 0x04;
+        SET_NZ(a);
+        RAM(OBJ_VY) = a;
+        JSR_AT(0x9264, 0x9297, 0);              /* the object at the left */
+        mff_cycles(0x9267, 6);
+        RTS();
+    }
+    mff_cycles(0x9230, 2 + 2);
+    if (a == 3) {                               /* the fall */
+        mff_cycles(0x9232, 1 + 3 + 4 + 4);
+        y = RAM(PLAYER_ID);
+        a = RAM(OBJ_ANIM);
+        COMPARE(a, prg_read((uint16_t)(R4_FALL_ANIM + y)));
+        mff_cycles(0x9270, 2);
+        if (!z) {
+            mff_cycles(0x9272, 6);
+            RTS();
+        }
+        mff_cycles(0x9270, 1 + 6);
+        JSR_FN(0x9273, func_F1FD);              /* obj_fall, no probe */
+        mff_cycles(0x9276, 6);
+        JSR_FN(0x9276, func_F183);              /* obj_move_right */
+        mff_cycles(0x9279, 4 + 2 + 2);
+        a = RAM(OBJ_Y);
+        COMPARE(a, R4_BEHIND_Y);
+        if (c) {
+            mff_cycles(0x9280, 4 + 2 + 4 + 4 + 2 + 2);
+            a = RAM(OBJ_FLAGS) | 0x20;
+            RAM(OBJ_FLAGS) = a;
+            a = RAM(OBJ_Y);
+            COMPARE(a, R4_OVER_Y);
+            if (c) {
+                mff_cycles(0x928F, 2 + 3);
+                a = ACT_NEXT_AREA;
+                SET_NZ(a);
+                RAM(GAME_ACTION) = a;
+            } else {
+                mff_cycles(0x928D, 1);
+            }
+        } else {
+            mff_cycles(0x927E, 1);
+        }
+        mff_cycles(0x9293, 6);
+        RTS();
+    }
+    mff_cycles(0x9234, 4 + 2 + 2);              /* walking to the jump */
+    a = RAM(OBJ_X_HI);
+    COMPARE(a, R4_JUMP_X_HI);
+    if (z) {
+        mff_cycles(0x923B, 4 + 2 + 2);
+        a = RAM(OBJ_X);
+        COMPARE(a, R4_JUMP_X);
+        if (c) {
+            mff_cycles(0x9242, 6);
+            RAM(OBJ_STATE)++;
+            SET_NZ(RAM(OBJ_STATE));
+        } else {
+            mff_cycles(0x9240, 1);
+        }
+    } else {
+        mff_cycles(0x9239, 1);
+    }
+    mff_cycles(0x9245, 6);
+    JSR_FN(0x9245, func_F183);                  /* obj_move_right */
+    mff_cycles(0x9248, 6);
+    RTS();
+}
+
+/*
+ * $9297 in bank $00 (proposed name spawn_slot13_b7): an object in slot 13
+ * at the screen's left (x 0 on the player's screen, y $90), animation $B7,
+ * id $6B (obj_spawn). Called by game_action $26's routine ($91BE: JSR at
+ * 00:9264).
+ */
+void func_9297_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x9297, 2 + 4 + 2 + 4 + 4 + 4 + 4 + 4 + 2 + 2 + 6);
+    a = 0;
+    RAM(OBJ_X + 13) = a;
+    a = 0x90;
+    RAM(OBJ_Y + 13) = a;
+    a = RAM(OBJ_X_HI);
+    RAM(OBJ_X_HI + 13) = a;
+    a = RAM(OBJ_Y_HI);
+    RAM(OBJ_Y_HI + 13) = a;
+    y = 13;
+    a = 0xB7;
+    SET_NZ(a);
+    JSR_FN(0x92B1, func_F2A0);                  /* obj_spawn */
+    mff_cycles(0x92B4, 2 + 4 + 6);
+    a = 0x6B;
+    SET_NZ(a);
+    RAM(OBJ_ID + 13) = a;
+    RTS();
+}
+
+
+/* the middle of the screen the last boss's walk goes to, and its band */
+#define BELGER_WALK_X       0x80
+#define BELGER_WALK_TOP     0x82
+#define BELGER_WALK_BOTTOM  0x84
+
+static void belger_walk_step(void);
+
+/*
+ * action_belger_walk ($914D in bank $00, proposed): game_action $1A, which
+ * Belger's code sets (0B:B453; never executed in any run). The first step
+ * turns the player toward x $80 (facing right with obj_dir 1 from the
+ * left half, JMP belger_walk_turned; facing left with obj_dir 2 from the
+ * right half) and counts the step up. Then belger_walk_step.
+ */
+void func_914D_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x914D, 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x0F;
+    if (a == 0) {
+        mff_cycles(0x9154, 4 + 2 + 2);
+        a = RAM(OBJ_X);
+        COMPARE(a, BELGER_WALK_X);
+        if (!c) {
+            mff_cycles(0x915B, 6);
+            JSR_FN(0x915B, func_F03F);          /* player_face_right */
+            mff_cycles(0x915E, 2 + 4 + 3);
+            a = PAD_RIGHT;
+            SET_NZ(a);
+            RAM(OBJ_DIR) = a;
+            JMP_TAIL(0x916E, 0);                /* belger_walk_turned */
+        }
+        mff_cycles(0x9159, 1 + 6);
+        JSR_FN(0x9166, func_F048);              /* player_face_left */
+        mff_cycles(0x9169, 2 + 4);
+        a = PAD_LEFT;
+        RAM(OBJ_DIR) = a;
+        FALL_INTO(func_916E_b0);
+    }
+    mff_cycles(0x9152, 1);
+    FALL_INTO(belger_walk_step);
+}
+
+/* belger_walk_turned ($916E in bank $00, proposed): the next step, then
+ * belger_walk_step. Reached by JMP from action_belger_walk (00:9163) and
+ * run on into from it. */
+void func_916E_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x916E, 6);
+    RAM(OBJ_STATE)++;
+    FALL_INTO(belger_walk_step);
+}
+
+/* belger_walk_step (00:9171, inside action_belger_walk): while obj_state
+ * bit 1 is clear, into the band y $82-$83 first, then along obj_dir until
+ * x $80 is reached or passed (the next step: JMP $91B2 to the right, run
+ * on to it to the left). After that: B pressed for the player (joy_pressed
+ * $40), jump_moving and combo_timer 0. */
+static void belger_walk_step(void) {
+    REGS_IN;
+
+    mff_cycles(0x9171, 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x02;
+    if (a != 0) {
+        mff_cycles(0x9176, 1 + 2 + 3 + 2 + 3 + 3 + 6);
+        a = PAD_B;
+        RAM(JOY_PRESSED) = a;
+        a = 0;
+        SET_NZ(a);
+        RAM(JUMP_MOVING) = a;
+        RAM(COMBO_TIMER) = a;
+        RTS();
+    }
+    mff_cycles(0x9178, 4 + 2 + 2);
+    a = RAM(OBJ_Y);
+    COMPARE(a, BELGER_WALK_TOP);
+    if (!c) {
+        mff_cycles(0x917F, 6);
+        JSR_FN(0x917F, func_F1BF);              /* obj_move_down */
+        mff_cycles(0x9182, 6);
+        RTS();
+    }
+    mff_cycles(0x917D, 1 + 4 + 2 + 2);
+    a = RAM(OBJ_Y);
+    COMPARE(a, BELGER_WALK_BOTTOM);
+    if (c) {
+        mff_cycles(0x918A, 6);
+        JSR_FN(0x918A, func_F1DF);              /* obj_move_up */
+        mff_cycles(0x918D, 6);
+        RTS();
+    }
+    mff_cycles(0x9188, 1 + 4 + 2 + 2);
+    a = RAM(OBJ_DIR) & PAD_RIGHT;
+    SET_NZ(a);
+    if (!z) {
+        mff_cycles(0x9195, 6);
+        JSR_FN(0x9195, func_F183);              /* obj_move_right */
+        mff_cycles(0x9198, 4 + 2 + 2);
+        a = RAM(OBJ_X);
+        COMPARE(a, BELGER_WALK_X);
+        if (!c) {
+            mff_cycles(0x919D, 1);
+            FALL_INTO(func_91B2_b0);
+        }
+        mff_cycles(0x919F, 6 + 3);
+        RAM(OBJ_STATE)++;
+        SET_NZ(RAM(OBJ_STATE));
+        JMP_TAIL(0x91B2, 0);
+    }
+    mff_cycles(0x9193, 1 + 6);
+    JSR_FN(0x91A5, func_F1A1);                  /* obj_move_left */
+    mff_cycles(0x91A8, 4 + 2 + 2);
+    a = RAM(OBJ_X);
+    COMPARE(a, BELGER_WALK_X);
+    if (!c) {
+        mff_cycles(0x91AF, 6);
+        RAM(OBJ_STATE)++;
+        SET_NZ(RAM(OBJ_STATE));
+    } else {
+        mff_cycles(0x91AD, 1);
+    }
+    FALL_INTO(func_91B2_b0);
+}
+
+/* $91B2 in bank $00: the RTS of belger_walk_step, reached by JMP
+ * (00:91A2). */
+void func_91B2_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x91B2, 6);
+    RTS();
+}
+
+/*
+ * action_round_over ($92BA in bank $00, proposed): game_action $29, which
+ * Belger's defeat sets with action_timer $0C (0B:B3F3), and taking an item
+ * while $B2 bit 7 is set (0C:8C10, never executed). action_timer counts
+ * down while not negative; then player_stand once and obj_timer[0] $10,
+ * which counts down the same way; then the area is over (game_action $0E).
+ */
+void func_92BA_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x92BA, 3 + 2);
+    a = RAM(ACTION_TIMER);
+    if (!(a & 0x80)) {
+        mff_cycles(0x92BE, 5 + 6);
+        RAM(ACTION_TIMER)--;
+        SET_NZ(RAM(ACTION_TIMER));
+        RTS();
+    }
+    mff_cycles(0x92BC, 1 + 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x0F;
+    SET_NZ(a);
+    if (z) {
+        mff_cycles(0x92C8, 6);
+        JSR_AT(0x92C8, 0xCEAA, 0);              /* player_stand */
+        mff_cycles(0x92CB, 2 + 4 + 6);
+        a = 0x10;
+        RAM(OBJ_TIMER) = a;
+        RAM(OBJ_STATE)++;
+    } else {
+        mff_cycles(0x92C6, 1);
+    }
+    mff_cycles(0x92D3, 4 + 2);
+    a = RAM(OBJ_TIMER);
+    if (!(a & 0x80)) {
+        mff_cycles(0x92D8, 6 + 6);
+        RAM(OBJ_TIMER)--;
+        SET_NZ(RAM(OBJ_TIMER));
+        RTS();
+    }
+    mff_cycles(0x92D6, 1);
+    SYNC_OUT;
+    exit_area_over(0x92DC);
 }

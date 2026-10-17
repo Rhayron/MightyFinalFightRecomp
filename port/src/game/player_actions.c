@@ -5,10 +5,11 @@
  * gameplay_update calls player_state (fixed bank) and then, with banks
  * $00/$01 mapped, player_action_dispatch ($8000) every frame. The fixed-bank
  * states handle game_action 0-$0E (their bank-$00 entries are a bare RTS)
- * and the bank-$00 actions start at $0F. Some entries have no routine in
- * the port (they run on the interpreter): $10 $80C5, $11 $817E (its three
- * handlers are here), $16 $86FF, $18 $891B, $1A $914D, $1E $8FF8,
- * $22 $8A31, $23 $8CC4, $26 $91BE, $27 $8EEA and $29 $92BA.
+ * and the bank-$00 actions start at $0F. Here: $0F the earthquake, $11 the
+ * weapons, $1D/$1E the camera's walks, $1F lying down, $24 the pit fall and
+ * $25 the drop-in. player_specials.c has $12, $14, $16 and $17,
+ * player_throws.c $13, $15 and $21, player_power.c $10, $18, $22, $23 and
+ * $27, player_exits.c $19, $1A, $1B, $1C, $20, $26 and $29.
  */
 #include "player_defs.h"
 
@@ -99,11 +100,10 @@ void func_807E_b0(void) {
 
 /*
  * action_quake_fall ($8090 in bank $00, proposed): obj_fall (Y = 2); once
- * falling and more than 2 px below player_ground_y, Haggar lands on it:
- * sound $1C, scroll_y and jump_moving 0, game_action 2 for 3 frames,
- * player_stand. (obj_fall reporting the floor would JMP into the middle of
- * this routine, $80AE; never executed in any run.) Reached by JMP from
- * action_quake_bounce (00:808A) and run on into from it.
+ * falling and more than 2 px below player_ground_y, Haggar is put on it and
+ * lands (action_quake_land); obj_fall reporting the floor lands him where
+ * he is. Reached by JMP from action_quake_bounce (00:808A) and run on into
+ * from it.
  */
 void func_8090_b0(void) {
     REGS_IN;
@@ -115,7 +115,7 @@ void func_8090_b0(void) {
     mff_cycles(0x8095, 2);
     if (c) {
         mff_cycles(0x8097, 3);
-        JMP_TAIL(0x80AE, 0);
+        JMP_TAIL(0x80AE, 0);                    /* action_quake_land */
     }
     mff_cycles(0x8095, 1 + 4 + 2);
     a = RAM(OBJ_VY);
@@ -127,25 +127,12 @@ void func_8090_b0(void) {
         ADC(2);
         COMPARE(a, RAM(OBJ_Y));
         if (!c) {                               /* past the ground line */
-            mff_cycles(0x80A9, 3 + 4 + 2 + 6);
+            mff_cycles(0x80A9, 3 + 4);
             a = RAM(PLAYER_GROUND_Y);
             RAM(OBJ_Y) = a;
-            a = SFX_LAND;
-            SET_NZ(a);
-            JSR_FN(0x80B0, func_F34C);          /* sound_queue_push_sfx */
-            mff_cycles(0x80B3, 2 + 3 + 3 + 2 + 3 + 2 + 3 + 6);
-            a = 0;
-            RAM(SCROLL_Y) = a;
-            RAM(JUMP_MOVING) = a;
-            a = ACT_LAND;
-            RAM(GAME_ACTION) = a;
-            a = 3;
-            SET_NZ(a);
-            RAM(ACTION_TIMER) = a;
-            JSR_AT(0x80C1, 0xCEAA, 0);          /* player_stand */
-        } else {
-            mff_cycles(0x80A7, 1);
+            FALL_INTO(func_80AE_b0);            /* action_quake_land */
         }
+        mff_cycles(0x80A7, 1);
     } else {
         mff_cycles(0x809D, 1);
     }
@@ -153,8 +140,60 @@ void func_8090_b0(void) {
     RTS();
 }
 
-/* ---- game_action $11, attacking with a picked-up weapon: $817E (no
- * routine in the port) JMPs ($0000) to these by player_id ---- */
+/*
+ * action_quake_land ($80AE in bank $00, proposed): Haggar lands after the
+ * earthquake: sound $1C, scroll_y and jump_moving 0, game_action 2 for 3
+ * frames, player_stand. Reached by JMP from action_quake_fall when obj_fall
+ * reports the floor (00:8097), and run on into from it.
+ */
+void func_80AE_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x80AE, 2 + 6);
+    a = SFX_LAND;
+    SET_NZ(a);
+    JSR_FN(0x80B0, func_F34C);                  /* sound_queue_push_sfx */
+    mff_cycles(0x80B3, 2 + 3 + 3 + 2 + 3 + 2 + 3 + 6);
+    a = 0;
+    RAM(SCROLL_Y) = a;
+    RAM(JUMP_MOVING) = a;
+    a = ACT_LAND;
+    RAM(GAME_ACTION) = a;
+    a = 3;
+    SET_NZ(a);
+    RAM(ACTION_TIMER) = a;
+    JSR_AT(0x80C1, 0xCEAA, 0);                  /* player_stand */
+    mff_cycles(0x80C4, 6);
+    RTS();
+}
+
+/* ---- game_action $11, attacking with a picked-up weapon ---- */
+
+/* the weapon attack of each character */
+#define WEAPON_HANDLER_LO   0x818D   /* 93 1D AF */
+#define WEAPON_HANDLER_HI   0x8190   /* 81 82 82: $8193, $821D, $82AF */
+
+/*
+ * action_weapon ($817E in bank $00, proposed): game_action $11, which
+ * player_state_idle sets for an attack with a weapon in hand (0E:CB07,
+ * CB94): JMP ($0000) to cody_weapon, guy_weapon or haggar_weapon by
+ * player_id.
+ * Out: $00/$01 = the handler, A = its high byte.
+ */
+void func_817E_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x817E, 3 + 4);
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(WEAPON_HANDLER_LO + y));
+    mff_cycles(0x8183, 3 + 4);
+    RAM(TMP0) = a;
+    a = prg_read((uint16_t)(WEAPON_HANDLER_HI + y));
+    SET_NZ(a);
+    mff_cycles(0x8188, 3 + 5);
+    RAM(TMP1) = a;
+    JMP_IND(TMP0);
+}
 
 /* the thrown weapon's x offset from the player, by player_dir & 2 */
 #define CODY_KNIFE_DX       0x8219   /* $0012 right, $FFEE left */
@@ -468,6 +507,49 @@ void func_82AF_b0(void) {
     RTS();
 }
 
+/* the dropped weapon's animation, by player_id */
+#define ANIM_WEAPON_DROPPED 0x93EC   /* 41 5F 51 */
+#define OBJ_ID_WEAPON       0x67
+
+/*
+ * weapon_drop ($93AF in bank $00, proposed; never executed in any run):
+ * the weapon in hand falls where the player is: slot 1 live (obj_state
+ * $80, obj_flags $90) at the player's position, animation
+ * $93EC[player_id] from its start, obj_dir = player_dir, id $67.
+ * Called by action_walk_out (JSR at 00:9320) when an area ends with a
+ * weapon held. Out: A = $67.
+ */
+void func_93AF_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x93AF, 2 + 4 + 2 + 4 + 4 * (4 + 4) + 3 + 4);
+    a = STATE_LIVE;
+    RAM(OBJ_STATE + 1) = a;
+    a = FLAGS_FACING_LEFT;
+    RAM(OBJ_FLAGS + 1) = a;
+    a = RAM(OBJ_X);
+    RAM(OBJ_X + 1) = a;
+    a = RAM(OBJ_Y);
+    RAM(OBJ_Y + 1) = a;
+    a = RAM(OBJ_X_HI);
+    RAM(OBJ_X_HI + 1) = a;
+    a = RAM(OBJ_Y_HI);
+    RAM(OBJ_Y_HI + 1) = a;
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(ANIM_WEAPON_DROPPED + y));
+    mff_cycles(0x93D6, 4 + 2 + 4 + 4 + 3 + 4 + 2 + 4 + 6);
+    RAM(OBJ_ANIM + 1) = a;
+    a = 0;
+    RAM(OBJ_ANIM_TIMER + 1) = a;
+    RAM(OBJ_ANIM_FRAME + 1) = a;
+    a = RAM(PLAYER_DIR);
+    RAM(OBJ_DIR + 1) = a;
+    a = OBJ_ID_WEAPON;
+    SET_NZ(a);
+    RAM(OBJ_ID + 1) = a;
+    RTS();
+}
+
 /* ---- losing a life and the next one ---- */
 
 /*
@@ -771,10 +853,10 @@ void func_8E3E_b0(void) {
  * the camera sets in an area that scrolls by itself when the player pushes
  * ahead (0F:E3F3). Once scroll_x has gone $28 into the screen - except on
  * the third screen of round 1's second area and of round 4's first area,
- * where the camera code goes on with game_action $1E (0F:E353-E383) - the
- * player stands again facing right (left when obj_flags is $90: never
- * executed), game_action, camera_autoscroll and jump_moving 0, obj_state[0]
- * $80.
+ * where the camera code goes on with game_action $1E (0F:E369) or $26
+ * (0F:E383, player_exits.c) - the player stands again facing right (left
+ * when obj_flags is $90: never executed), game_action, camera_autoscroll
+ * and jump_moving 0, obj_state[0] $80.
  */
 void func_8FAF_b0(void) {
     REGS_IN;
@@ -851,11 +933,227 @@ void func_8FAF_b0(void) {
     RTS();
 }
 
+/* walking with a weapon in hand: the animation, and the ids to compare */
+#define ANIM_WEAPON_WALK    0xE204   /* 53 05 54 */
+#define IS_WEAPON_WALK      0xE29A   /* 53 05 54 */
+/* round 1's second area: where the jump starts (x $0340) and the band
+ * the player walks into first (y $7C-$7F, also the landing) */
+#define CAMERA_JUMP_X_HI    0x03
+#define CAMERA_JUMP_X       0x40
+#define CAMERA_WALK_TOP     0x7C
+#define CAMERA_WALK_BOTTOM  0x80
+
+static void camera_walk_band(void);
+static void camera_walk_on(void);
+
 /*
- * $90AC in bank $00 (proposed name camera_walk_step): a step of
- * game_action $1E ($8FF8, which has no routine in the port and JMPs here at
- * 00:909B): the player moves right and falls ($F1FD); below y $7C the step
- * counts up, above it the branch goes to an RTS inside $8FF8 (00:9072).
+ * action_camera_walk ($8FF8 in bank $00, proposed): game_action $1E, which
+ * the camera code sets on the third screen of round 1's second area instead
+ * of letting action_camera_wait end (0F:E369). The first step, every frame
+ * until it is done: camera_autoscroll 0, the walking speed in x and y,
+ * facing right, the walking animation ($E204's with a weapon) unless
+ * already in it, with CHR bank $E22B (camera_walk_chr); then into the band
+ * y $7C-$7F (camera_walk_band), and in it a step right and the next step
+ * with obj_vy $0438. Then (camera_walk_on) he walks right to x $0340, jumps
+ * from there (camera_walk_step) and, landed, game_action $19 (the area's
+ * walk out, player_exits.c) with obj_state[0] $80.
+ */
+void func_8FF8_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x8FF8, 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x0F;
+    if (a != 0) {
+        mff_cycles(0x8FFD, 2);                  /* BNE $9073, across a page */
+        FALL_INTO(camera_walk_on);
+    }
+    mff_cycles(0x8FFF, 2 + 3 + 3 + 4);
+    a = 0;
+    RAM(CAMERA_AUTOSCROLL) = a;
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(WALK_VX_FRAC + y));
+    mff_cycles(0x9008, 4 + 4);
+    RAM(OBJ_VX_FRAC) = a;
+    a = prg_read((uint16_t)(WALK_VX + y));
+    mff_cycles(0x900E, 4 + 4);
+    RAM(OBJ_VX) = a;
+    a = prg_read((uint16_t)(WALK_VY_FRAC + y));
+    mff_cycles(0x9014, 4 + 4);
+    RAM(OBJ_VY_FRAC) = a;
+    a = prg_read((uint16_t)(WALK_VY + y));
+    SET_NZ(a);
+    mff_cycles(0x901A, 4 + 6);
+    RAM(OBJ_VY) = a;
+    JSR_FN(0x901D, func_F03F);                  /* player_face_right */
+    mff_cycles(0x9020, 3 + 2);
+    a = RAM(WEAPON_HELD);
+    if (a == 0) {
+        mff_cycles(0x9024, 4 + 4);
+        a = RAM(OBJ_ANIM);
+        m = prg_read((uint16_t)(IS_WALKING + y));
+        c = a >= m;
+        mff_cycles(0x902A, 2);
+        if (a == m) {
+            mff_cycles(0x902A, 1);
+            FALL_INTO(camera_walk_band);
+        }
+        mff_cycles(0x902C, 4);
+        a = prg_read((uint16_t)(ANIM_WALK + y));
+        SET_NZ(a);
+        mff_cycles(0x902F, 6);
+        JSR_FN(0x902F, func_F294);              /* player_set_anim */
+        mff_cycles(0x9032, 3);
+        JMP_TAIL(0x9043, 0);                    /* camera_walk_chr */
+    }
+    mff_cycles(0x9022, 1 + 4 + 4);
+    a = RAM(OBJ_ANIM);
+    m = prg_read((uint16_t)(IS_WEAPON_WALK + y));
+    c = a >= m;
+    mff_cycles(0x903B, 2);
+    if (a == m) {
+        mff_cycles(0x903B, 1);
+        FALL_INTO(camera_walk_band);
+    }
+    mff_cycles(0x903D, 4);
+    a = prg_read((uint16_t)(ANIM_WEAPON_WALK + y));
+    SET_NZ(a);
+    mff_cycles(0x9040, 6);
+    JSR_FN(0x9040, func_F294);                  /* player_set_anim */
+    FALL_INTO(func_9043_b0);
+}
+
+/* camera_walk_chr ($9043 in bank $00, proposed): the walking CHR bank
+ * ($E22B[Y]), then camera_walk_band. Reached by JMP from
+ * action_camera_walk (00:9032) and run on into from it. */
+void func_9043_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x9043, 4);
+    a = prg_read((uint16_t)(CHR_STAND + y));
+    SET_NZ(a);
+    mff_cycles(0x9046, 6);
+    JSR_FN(0x9046, func_F440);                  /* player_set_chr */
+    FALL_INTO(camera_walk_band);
+}
+
+/* camera_walk_band (00:9049, inside action_camera_walk): down to y $7C or
+ * up from y $80; in the band a step right facing right, the next step and
+ * obj_vy $0438 (the jump's speed). */
+static void camera_walk_band(void) {
+    REGS_IN;
+
+    mff_cycles(0x9049, 4 + 2 + 2);
+    a = RAM(OBJ_Y);
+    COMPARE(a, CAMERA_WALK_TOP);
+    if (!c) {
+        mff_cycles(0x9050, 6);
+        JSR_FN(0x9050, func_F1BF);              /* obj_move_down */
+        mff_cycles(0x9053, 6);
+        RTS();
+    }
+    mff_cycles(0x904E, 1 + 4 + 2 + 2);
+    a = RAM(OBJ_Y);
+    COMPARE(a, CAMERA_WALK_BOTTOM);
+    if (c) {
+        mff_cycles(0x905B, 6);
+        JSR_FN(0x905B, func_F1DF);              /* obj_move_up */
+        mff_cycles(0x905E, 6);
+        RTS();
+    }
+    mff_cycles(0x9059, 1 + 6);
+    JSR_FN(0x905F, func_F183);                  /* obj_move_right */
+    mff_cycles(0x9062, 6);
+    JSR_FN(0x9062, func_F03F);                  /* player_face_right */
+    mff_cycles(0x9065, 6 + 2 + 4 + 2 + 4);
+    RAM(OBJ_STATE)++;
+    a = 0x38;
+    RAM(OBJ_VY_FRAC) = a;
+    a = 0x04;
+    SET_NZ(a);
+    RAM(OBJ_VY) = a;
+    FALL_INTO(func_9072_b0);
+}
+
+/* $9072 in bank $00: the RTS of action_camera_walk, which camera_walk_step
+ * branches to (00:90B7). */
+void func_9072_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x9072, 6);
+    RTS();
+}
+
+/* camera_walk_on (00:9073, inside action_camera_walk): the second step
+ * walks right (obj_move_right) to x $0340, then jumps: the jump's animation
+ * while rising, the falling one after, each with the jump's CHR bank, and
+ * camera_walk_step. The third: game_action $19 with obj_state[0] $80. */
+static void camera_walk_on(void) {
+    REGS_IN;
+
+    mff_cycles(0x9073, 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x02;
+    if (a != 0) {                               /* landed: the walk out */
+        mff_cycles(0x9078, 1 + 2 + 3 + 2 + 4 + 6);
+        a = ACT_WALK_OUT;
+        RAM(GAME_ACTION) = a;
+        a = STATE_LIVE;
+        SET_NZ(a);
+        RAM(OBJ_STATE) = a;
+        RTS();
+    }
+    mff_cycles(0x907A, 4 + 2 + 2);
+    a = RAM(OBJ_X_HI);
+    COMPARE(a, CAMERA_JUMP_X_HI);
+    if (z) {
+        mff_cycles(0x9081, 4 + 2 + 2);
+        a = RAM(OBJ_X);
+        COMPARE(a, CAMERA_JUMP_X);
+        if (c) {                                /* the jump */
+            mff_cycles(0x9088, 4 + 2);
+            a = RAM(OBJ_VY);
+            if (!(a & 0x80)) {                  /* rising */
+                mff_cycles(0x908D, 3 + 4);
+                y = RAM(PLAYER_ID);
+                a = prg_read((uint16_t)(ANIM_JUMP + y));
+                SET_NZ(a);
+                mff_cycles(0x9092, 6);
+                JSR_FN(0x9092, func_F294);      /* player_set_anim */
+                mff_cycles(0x9095, 4);
+                a = prg_read((uint16_t)(CHR_JUMP + y));
+                SET_NZ(a);
+                mff_cycles(0x9098, 6);
+                JSR_FN(0x9098, func_F440);      /* player_set_chr */
+                mff_cycles(0x909B, 3);
+                JMP_TAIL(0x90AC, 0);            /* camera_walk_step */
+            }
+            mff_cycles(0x908B, 1 + 3 + 4);
+            y = RAM(PLAYER_ID);
+            a = prg_read((uint16_t)(ANIM_FALL + y));
+            SET_NZ(a);
+            mff_cycles(0x90A3, 6);
+            JSR_FN(0x90A3, func_F294);          /* player_set_anim */
+            mff_cycles(0x90A6, 4);
+            a = prg_read((uint16_t)(CHR_JUMP + y));
+            SET_NZ(a);
+            mff_cycles(0x90A9, 6);
+            JSR_FN(0x90A9, func_F440);          /* player_set_chr */
+            FALL_INTO(func_90AC_b0);
+        }
+        mff_cycles(0x9086, 1 + 6);
+    } else {
+        mff_cycles(0x907F, 1 + 6);
+    }
+    JSR_FN(0x90BD, func_F183);                  /* obj_move_right */
+    mff_cycles(0x90C0, 6);
+    RTS();
+}
+
+/*
+ * camera_walk_step ($90AC in bank $00, proposed): the jump of
+ * action_camera_walk, every frame from x $0340 (JMP at 00:909B, run on
+ * into from camera_walk_on): the player moves right and falls ($F1FD);
+ * landed at y $7C the step counts up, above it the branch goes to the RTS
+ * of action_camera_walk (00:9072).
  */
 void func_90AC_b0(void) {
     REGS_IN;
