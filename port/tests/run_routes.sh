@@ -13,6 +13,9 @@
 #   MFF_ROM   the dump (default rom/Mighty Final Fight (USA).nes)
 #   MFF_BASE  directory with the baselines base_ROUTE.flog/.pic (default runs/p4)
 #   MFF_OUT   where this run writes its logs (default runs/p4)
+#   MFF_NMI_CYCLES  cycles per NMI the candidate charges and the baseline
+#             does not (selfcheck.py --nmi-cycles): 7 for the port on its
+#             own runtime (MightyFinalFight.exe), 0 for the scaffold
 set -e
 cd "$(dirname "$0")/../.."
 MODE=${1:-check}
@@ -25,6 +28,7 @@ if [ "$MODE" = baseline ]; then
 else
   EXE=${MFF_EXE:-port/scaffold/build/Release/MffScaffold.exe}
 fi
+NMI_CYCLES=${MFF_NMI_CYCLES:-$([ "$(basename "$EXE")" = MightyFinalFight.exe ] && echo 7 || echo 0)}
 ROM=${MFF_ROM:-"$(pwd -W)/rom/Mighty Final Fight (USA).nes"}
 mkdir -p "$OUT"
 OUTW=$(cd "$OUT" && pwd -W)
@@ -62,7 +66,7 @@ for r in "${routes[@]}"; do
   if [ "$MODE" = check ]; then
     echo "== $name"
     py -3 -I port/tests/selfcheck.py "$BASE/base_$name.flog" "$OUT/cand_$name.flog" --max 5 \
-      --pics "$BASE/base_$name.pic" "$OUT/cand_$name.pic" || status=1
+      --pics "$BASE/base_$name.pic" "$OUT/cand_$name.pic" --nmi-cycles "$NMI_CYCLES" || status=1
     py -3 -I port/tests/interp_report.py "$OUT/cand_$name.interp.jsonl" || status=1
   else
     echo "$name: baseline $(( $(stat -c %s "$BASE/base_$name.flog") / 2340 )) frames"

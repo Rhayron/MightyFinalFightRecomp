@@ -16,11 +16,11 @@
  * cycles more. So each part is written once as a *_work helper and the
  * entries put them together as their copies did.
  *
- * The lifter put a zero-cycle charge at $C9A7 where gameplay_draw and
- * gameplay_special_screen go on into gameplay_frame_end
- * (mff_cycles(0xC9A7, 0)). The runtime clocks it as one cycle
- * (maybe_trigger_vblank charges at least one); it stays as it is. The
- * same step inside gameplay's loop has no such charge.
+ * gameplay_draw and gameplay_special_screen go on into gameplay_frame_end
+ * at no cost, as the scaffold's copies run on into $C9A7. (The lifter put
+ * a zero-cycle charge there, which the runtime clocks as one cycle: every
+ * frame through gameplay_draw cost one cycle more than the original, which
+ * no RAM or picture showed; port/tests/selfcheck.py's cycle check found it.)
  */
 #include "flow.h"
 
@@ -354,9 +354,7 @@ void func_C987(void) {
         func_C99D();
         return;
     }
-    mff_cycles(0xC99B, 2);
-    mff_cycles(0xC99B, 1);                                  /* BNE $C9A7, always taken */
-    mff_cycles(0xC9A7, 0);
+    mff_cycles(0xC99B, 2 + 1);                              /* BNE $C9A7, always taken */
     SYNC_OUT;
     func_C9A7();
 }
@@ -370,7 +368,6 @@ void func_C987(void) {
 void func_C99D(void) {
     if (!gameplay_draw_work())
         return;
-    mff_cycles(0xC9A7, 0);
     func_C9A7();
 }
 

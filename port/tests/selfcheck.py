@@ -16,6 +16,26 @@ the interrupts' scratch) the bytes are left over by interrupt frames, which
 hold the interrupted PC and flags; a replacement that charges a block of
 instructions at once reports another PC there, and no code reads them back.
 Frames that differ only there are counted, not failed.
+
+With --pics it also compares every picture (MFF_PICLOG: frame, picture
+hash, CPU cycle count when it was drawn). The scaffold takes the NMI only
+at the top of the scheduler's scan ($FEBD, extras.c), so when it lands
+follows the exact count of cycles spent: a routine that costs one cycle
+more or less shows in the cycle counts even when no RAM byte does (the
+game idles in that scan, so RAM cannot tell). The counts must keep the
+offset they have at picture 0, which is a constant by design where the
+two runners count reset differently (the port on its own runtime charges
+reset's 7 cycles, port/src/runtime/main.c); any change later fails.
+
+--nmi-cycles N: the candidate's runtime also charges N cycles per NMI that
+the baseline does not (port/src/runtime/frame.c charges the interrupt
+sequence's 7; run_routes.sh passes MFF_NMI_CYCLES, 7 for
+MightyFinalFight.exe). Each picture then moves the offset by exactly N (N
+odd: N - 1 or N + 1, as the OAM DMA's 513/514-cycle stall follows the
+parity of the cycle it starts on), less 94 when that pushes the NMI to the
+previous scan of the scheduler (94 cycles a scan). Anything else fails. A
+cycle error then shows unless it hides in the parity's +-1 that frame; a
+recurring one does not hide.
 """
 import argparse
 import os
@@ -44,6 +64,8 @@ def main():
     ap.add_argument("--strict", action="store_true", help="compare the whole stack page")
     ap.add_argument("--pics", nargs=2, metavar=("BASE", "CAND"),
                     help="MFF_PICLOG files of the same runs: compare every frame's picture hash")
+    ap.add_argument("--nmi-cycles", type=int, default=0, metavar="N",
+                    help="cycles per NMI the candidate charges and the baseline does not (see above)")
     a = ap.parse_args()
     base, cand = open(a.baseline, "rb").read(), open(a.candidate, "rb").read()
     names = ram_names()
@@ -78,28 +100,40 @@ def main():
     if len(base) // REC != len(cand) // REC:
         print(f"lengths differ: baseline {len(base) // REC} frames, candidate {len(cand) // REC}")
     pic_first = cyc_first = None
+    cyc_bad = 0
+    pics_ok = True
     if a.pics:
         pb, pc = open(a.pics[0], "rb").read(), open(a.pics[1], "rb").read()
         m = min(len(pb), len(pc)) // 12
+        nmi = a.nmi_cycles
+        steps = {0} if nmi == 0 else {nmi + p - w for p in ((-1, 1) if nmi & 1 else (0,)) for w in (0, 94)}
+        offset = prev = None
         for k in range(m):
             rb, rc = pb[k * 12:k * 12 + 12], pc[k * 12:k * 12 + 12]
             if pic_first is None and rb[:8] != rc[:8]:
                 pic_first = k
-            if cyc_first is None and rb[8:] != rc[8:]:
-                cyc_first = k
-                dc = int.from_bytes(rc[8:], "little") - int.from_bytes(rb[8:], "little")
+            # the counts are the low 32 bits: wrap the difference
+            dc = (int.from_bytes(rc[8:], "little") - int.from_bytes(rb[8:], "little") + 2**31) % 2**32 - 2**31
+            if offset is None:
+                offset = dc
+            elif dc - prev not in steps:
+                cyc_bad += 1
+                if cyc_first is None:
+                    cyc_first, cyc_first_d = k, dc - prev
+            prev = dc
+        pics_ok = pic_first is None and cyc_bad == 0
         if len(pb) != len(pc):
             print(f"picture logs differ in length: {len(pb) // 12} / {len(pc) // 12} frames")
         print(f"{m} pictures compared: " + ("identical" if pic_first is None
                                             else f"first difference at picture {pic_first}")
-              + ("; cycle counts identical" if cyc_first is None
-                 else f"; cycle count first differs at picture {cyc_first} ({dc:+d})"))
+              + ((f"; cycle counts identical (offset {offset:+d} from picture 0)" if nmi == 0 else
+                  f"; cycle counts as modelled (offset {offset:+d} at picture 0, {nmi} more a frame)")
+                 if cyc_bad == 0 else
+                 f"; cycle counts off ({offset:+d} at picture 0" + (f", {nmi} more a frame" if nmi else "")
+                 + f") at {cyc_bad} pictures, first at picture {cyc_first} (moved {cyc_first_d:+d})"))
     note = f" ({dead_only} frames differ only in dead stack bytes)" if dead_only else ""
     print(f"{n} frames compared: " + ("identical" if first is None else f"first difference at frame {first}") + note)
-    # cycle counts are reported, not failed: a block charged at once moves
-    # the frame boundary by a few cycles (it lands after the block), and the
-    # difference stays bounded instead of drifting
-    sys.exit(0 if first is None and pic_first is None and len(base) == len(cand) else 1)
+    sys.exit(0 if first is None and pics_ok and len(base) == len(cand) else 1)
 
 
 if __name__ == "__main__":
