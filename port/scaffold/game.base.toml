@@ -138,9 +138,9 @@ addr = 0xC194   # irq_split_2, interrupts.c
 [[replace_func]]
 addr = 0xC1B1   # irq_status_bar, interrupts.c
 [[replace_func]]
-addr = 0xC8ED   # gameplay, gameplay.c (lifted)
+addr = 0xC8ED   # gameplay, flow_gameplay.c
 [[replace_func]]
-addr = 0xC9A7   # gameplay_frame_end, gameplay.c (lifted)
+addr = 0xC9A7   # gameplay_frame_end, flow_gameplay.c
 [[replace_func]]
 bank = 1
 addr = 0xB300   # lifted, lifted_b1.c

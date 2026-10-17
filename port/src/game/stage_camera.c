@@ -171,7 +171,7 @@ static void camera_walk_end(void) {
  * left). Scratch as at the top of the file.
  * In: nothing. Out: A and the flags of the path's last instruction (the
  * caller reloads A and does not read them).
- * Called by: gameplay_update, JSR at $C94B (gameplay.c).
+ * Called by: gameplay_update, JSR at $C94B (flow_gameplay.c).
  */
 void func_E2A3(void) {
     REGS_IN;
