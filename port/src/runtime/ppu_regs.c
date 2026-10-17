@@ -43,8 +43,20 @@ static struct {
 
 static uint32_t s_copied_at;            /* vram_writes when the frame's NT copy was taken */
 
+/* Power-on. Nametable RAM holds what the oracle's PPU starts with (nesrecomp
+ * runner/cyc/hw_ppu.c ppu_power_on: runs of $F0 and $0F; the hardware does
+ * not define it). The game never writes the second nametable in some areas,
+ * and it shows: in round 4's elevator the screen shakes a line up and down,
+ * and on the frames the picture starts a line low the last line wraps into
+ * the other nametable row, power-on tiles drawn with the status bar's banks.
+ * (The oracle's power-on palette is left out: the game writes the palette
+ * before anything is drawn.) */
 void ppu_power_on(void) {
     memset(&P, 0, sizeof P);
+    for (int i = 0; i < (int)sizeof P.nt; i++) {
+        int bit1_clear = (i & 2) == 0, upper = (i & 0x1F) >= 0x10;
+        P.nt[i] = bit1_clear != upper ? 0xF0 : 0x0F;
+    }
 }
 
 /* ---- memory ---- */
