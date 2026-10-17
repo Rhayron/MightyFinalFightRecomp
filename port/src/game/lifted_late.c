@@ -10032,3 +10032,101 @@ void func_8955_b4(void) {
     SYNC_OUT;
     mff_rts(); return;
 }
+
+/*  $822D (bank 3) - lifted by port/tools/lift.py */
+void func_822D_b3(void) {
+    REGS_IN;
+    mff_cycles(0x822D, 7);
+    t = RAM(SND_TMP + 2);
+    c = t >> 7;
+    t = (uint8_t)(t << 1);
+    RAM(SND_TMP + 2) = t;
+    if (t != 0) {
+        mff_cycles(0x8231, 7);
+        c = 1;
+        t = RAM(SND_TMP + 2);
+        m = t & 1;
+        t = (uint8_t)(t >> 1 | c << 7);
+        c = m;
+        RAM(SND_TMP + 2) = t;
+    } else {
+        mff_cycles(0x822F, 1);
+    }
+    mff_cycles(0x8234, 16);
+    a = RAM(SND_FLAGS);
+    a &= 0x0F;
+    RAM(SND_FLAGS) = a;
+    y = RAM(SND_TMP + 2);
+    n = (y) >> 7;
+    z = (y) == 0;
+    RAM(SND_FADE_SPEED) = y;
+    if (z) { mff_cycles(0x823E, 1); goto L_8247; }
+    mff_cycles(0x8240, 7);
+    y = 0xFF;
+    m = RAM(SND_FADE_LEVEL);
+    c = y >= m;
+    n = ((uint8_t)(y - m)) >> 7;
+    z = ((uint8_t)(y - m)) == 0;
+    if (!z) { mff_cycles(0x8244, 1); goto L_8249; }
+    mff_cycles(0x8246, 2);
+    y++;
+    n = (y) >> 7;
+    z = (y) == 0;
+L_8247:;
+    mff_cycles(0x8247, 3);
+    RAM(SND_FADE_LEVEL) = y;
+L_8249:;
+    mff_cycles(0x8249, 6);
+    SYNC_OUT;
+    mff_rts(); return;
+}
+
+/*  $8234 (bank 3) - lifted by port/tools/lift.py */
+void func_8234_b3(void) {
+    REGS_IN;
+    mff_cycles(0x8234, 16);
+    a = RAM(SND_FLAGS);
+    a &= 0x0F;
+    RAM(SND_FLAGS) = a;
+    y = RAM(SND_TMP + 2);
+    n = (y) >> 7;
+    z = (y) == 0;
+    RAM(SND_FADE_SPEED) = y;
+    if (z) { mff_cycles(0x823E, 1); goto L_8247; }
+    mff_cycles(0x8240, 7);
+    y = 0xFF;
+    m = RAM(SND_FADE_LEVEL);
+    c = y >= m;
+    n = ((uint8_t)(y - m)) >> 7;
+    z = ((uint8_t)(y - m)) == 0;
+    if (!z) { mff_cycles(0x8244, 1); goto L_8249; }
+    mff_cycles(0x8246, 2);
+    y++;
+    n = (y) >> 7;
+    z = (y) == 0;
+L_8247:;
+    mff_cycles(0x8247, 3);
+    RAM(SND_FADE_LEVEL) = y;
+L_8249:;
+    mff_cycles(0x8249, 6);
+    SYNC_OUT;
+    mff_rts(); return;
+}
+
+/*  $824A (bank 3) - lifted by port/tools/lift.py */
+void func_824A_b3(void) {
+    REGS_IN;
+    mff_cycles(0x824A, 16);
+    a = 0x00;
+    c = 1;
+    m = RAM(SND_TMP + 2);
+    w = a - m - !c;
+    v = ((a ^ m) & (a ^ w) & 0x80) != 0;
+    c = w >= 0;
+    a = (uint8_t)w;
+    n = (a) >> 7;
+    z = (a) == 0;
+    RAM(SND_EFFECT_PITCH_SCALE) = a;
+    SYNC_OUT;
+    mff_rts(); return;
+}
