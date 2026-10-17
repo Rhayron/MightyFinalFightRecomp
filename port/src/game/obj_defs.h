@@ -246,9 +246,17 @@ void func_95AF_b6(void);
 void func_965C_b6(void);
 void func_968D_b6(void);
 void func_96EB_b6(void);
+void func_97E4_b6(void);
+void func_986E_b6(void);
+void func_98DE_b6(void);
+void func_99FC_b6(void);
+void func_9AD8_b6(void);
+void func_9B07_b6(void);
+void func_9C29_b6(void);
 
 /* ---- shared copies (obj_common.c) ---- */
 void obj_phase_jump(uint16_t pc, uint16_t lo, uint16_t hi);
+void obj_blink(uint16_t pc, uint16_t hide_rts);
 void obj_move_x_clamped(uint16_t pc, int bit0_right, void (*next_fn)(void));
 void obj_move_x_sides(uint16_t pc, uint16_t second, int bit0_right, void (*next_fn)(void));
 

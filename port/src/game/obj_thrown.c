@@ -581,34 +581,7 @@ void func_8F45_b6(void)
  */
 void func_8F8D_b6(void)
 {
-    REGS_IN;
-
-    mff_cycles(0x8F8D, 13);
-    RAM(OBJ_TIMER2 + x) = (uint8_t)(RAM(OBJ_TIMER2 + x) - 1);
-    a = RAM(OBJ_TIMER2 + x);
-    SET_NZ(a);
-    if (z) {
-        mff_cycles(0x8F93, 1);
-        JMP_FIXED(0x8FA2, 0xF2BE, func_F2BE);
-    }
-    mff_cycles(0x8F95, 4);
-    a &= 0x01;
-    SET_NZ(a);
-    if (z) {
-        mff_cycles(0x8F99, 6);
-        CALL_BANK(0x8F99, 0x9B62);
-        mff_cycles(0x8F9C, 2);
-        if (!z) {
-            mff_cycles(0x8F9C, 7);              /* BNE taken; RTS */
-            RTS_RETURN();
-        }
-    } else {
-        mff_cycles(0x8F97, 1);
-    }
-    mff_cycles(0x8F9E, 6);
-    CALL_BANK(0x8F9E, 0x9B6B);
-    mff_cycles(0x8FA1, 6);
-    RTS_RETURN();
+    obj_blink(0x8F8D, 0x8FA1);
 }
 
 /* ==================== Haggar's back throw, id 8 ==================== */

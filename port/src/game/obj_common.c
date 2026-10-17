@@ -30,6 +30,47 @@ void obj_phase_jump(uint16_t pc, uint16_t lo, uint16_t hi)
 }
 
 /*
+ * The blink of a dead object (the copy at `pc`, $18 bytes): obj_timer2
+ * counts down; at 0 the slot is cleared (JMP object_clear at pc + $15);
+ * otherwise it is hidden on even counts (0C:9B62) and shown on odd ones
+ * (0C:9B6B). After the hide a BNE (always taken: 9B62 leaves Z clear)
+ * goes to the RTS at `hide_rts`.
+ * Copies: 0C:8F8D, 994A (hide_rts = pc + $14), 9B07 (hide_rts = $9B03).
+ */
+void obj_blink(uint16_t pc, uint16_t hide_rts)
+{
+    REGS_IN;
+
+    mff_cycles(pc, 13);
+    RAM(OBJ_TIMER2 + x) = (uint8_t)(RAM(OBJ_TIMER2 + x) - 1);
+    a = RAM(OBJ_TIMER2 + x);
+    SET_NZ(a);
+    if (z) {
+        mff_cycles((uint16_t)(pc + 0x06), branch_taken((uint16_t)(pc + 0x06), (uint16_t)(pc + 0x15)));
+        JMP_FIXED((uint16_t)(pc + 0x15), 0xF2BE, func_F2BE);
+    }
+    mff_cycles((uint16_t)(pc + 0x08), 4);
+    a &= 0x01;
+    SET_NZ(a);
+    if (z) {
+        mff_cycles((uint16_t)(pc + 0x0C), 6);
+        CALL_BANK((uint16_t)(pc + 0x0C), 0x9B62);
+        mff_cycles((uint16_t)(pc + 0x0F), 2);
+        if (!z) {
+            mff_cycles((uint16_t)(pc + 0x0F), branch_taken((uint16_t)(pc + 0x0F), hide_rts));
+            mff_cycles(hide_rts, 6);
+            RTS_RETURN();
+        }
+    } else {
+        mff_cycles((uint16_t)(pc + 0x0A), branch_taken((uint16_t)(pc + 0x0A), (uint16_t)(pc + 0x11)));
+    }
+    mff_cycles((uint16_t)(pc + 0x11), 6);
+    CALL_BANK((uint16_t)(pc + 0x11), 0x9B6B);
+    mff_cycles((uint16_t)(pc + 0x14), 6);
+    RTS_RETURN();
+}
+
+/*
  * The horizontal move by obj_vx with the screen-edge clamp (the copy at
  * `pc`, $50 bytes, followed by `next_fn` at pc + $50). When obj_dir bit 0
  * (right) is set the first side runs: left (0F:F1A1) for the thrown
@@ -40,7 +81,8 @@ void obj_phase_jump(uint16_t pc, uint16_t lo, uint16_t hi)
  * ($10 or $F0 from scroll_x, area_screen as the high byte) instead of
  * moving; that never ran in coverage. The first side and the clamps then
  * JMP to pc + $50; the second side falls into it.
- * Copies: 0C:8E64, 8EF5, 960C, 9794 (bit0_right 0); 99AC, 9A88 (1).
+ * Copies: 0C:8E64, 8EF5, 960C (bit0_right 0); 9794, 99AC, 9A88 (1); and
+ * 0C:9698, 988B with the sides further apart (obj_move_x_sides).
  */
 void obj_move_x_clamped(uint16_t pc, int bit0_right, void (*next_fn)(void))
 {
