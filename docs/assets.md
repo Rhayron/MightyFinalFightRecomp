@@ -24,12 +24,15 @@ standard library only:
 | `assets_sprites.py` | animations, frames, layouts; a model of `objects_draw` |
 | `assets_verify.py` | runs the oracle with `--frame-log` and checks all of the above |
 | `assets_shotcheck.py` | compares an area PNG with an oracle screenshot in RGB |
+| `assets_runtime.py` | what the port loads (part `runtime`): `chr.bin`, `prg.bin` (port/README.md, "The data") |
 
 ## Files written
 
 | Path | What |
 |---|---|
-| `manifest.json` | generator version, ROM CRC32, the list of files |
+| `manifest.json` | generator version, ROM CRC32, the list of files (and, with part `runtime`, its counts) |
+| `chr.bin` | (part `runtime`) the CHR ROM, 128 banks of 1 KiB, for the port's runtime |
+| `prg.bin` | (part `runtime`) the PRG ROM without its code, as ranges (format in `assets_runtime.py`) |
 | `chr/chr_XX.png` | 1 KiB CHR bank `XX` (64 tiles, 8x8 grid), grey levels 0-3 |
 | `chr/chr_all.png` | all 8,192 tiles, 32 per row (bank = tile / 64) |
 | `palettes/nes.png`, `palettes/palettes.json` | the 64 NES colours and every gameplay palette table |

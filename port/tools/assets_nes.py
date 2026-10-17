@@ -40,6 +40,7 @@ class Rom:
             raise ValueError(f"{path}: CRC32 {self.crc32:08X}, expected {ROM_CRC32:08X} "
                              "(Mighty Final Fight (USA)); --no-crc skips this check")
         skip = 16 + (512 if data[6] & 4 else 0)
+        self.header = data[:16]
         self.prg = data[skip:skip + PRG_SIZE]
         self.chr = data[skip + PRG_SIZE:skip + PRG_SIZE + CHR_SIZE]
         self._tiles = {}

@@ -1,14 +1,23 @@
 """Extract Mighty Final Fight's graphics and stage data from the user's dump.
 
     py -3 -I port/tools/extract_assets.py ROM [--out DIR] [--no-crc] [--only PART ...]
-                                              [--sprite-contexts FILE ...]
+                                              [--sprite-contexts FILE ...] [--prg-map FILE]
 
 Default DIR is runs/assets (gitignored). Everything written there comes
 from the ROM and must never be committed. Formats and the code that reads
 each table: docs/assets.md. Python standard library only.
 
+The port builds its data with `--only runtime --out BUILD/assets` (port/
+CMakeLists.txt, -DMFF_ROM=dump); the other parts are for reading and for
+later renderers.
+
 Output:
     manifest.json                 what was written, ROM CRC, generator version
+    chr.bin, prg.bin              (part "runtime") what the port loads: the CHR
+                                  ROM, and the PRG ROM without its code
+                                  (assets_runtime.py; --prg-map takes the code
+                                  bytes from a P0 map instead of
+                                  port/tools/prg_code.txt)
     chr/chr_XX.png                each 1 KiB CHR bank (64 tiles, 8x8 grid, grey)
     chr/chr_all.png               all 8192 tiles, 32 per row
     palettes/nes.png, palettes.json
@@ -39,7 +48,7 @@ import assets_nes  # noqa: E402
 import assets_png  # noqa: E402
 import assets_stage as st  # noqa: E402
 
-GENERATOR = "extract_assets.py 1"
+GENERATOR = "extract_assets.py 2"
 
 
 def write_json(path, obj):
@@ -242,15 +251,21 @@ def main():
     ap.add_argument("rom")
     ap.add_argument("--out", default=os.path.join("runs", "assets"))
     ap.add_argument("--no-crc", action="store_true", help="skip the CRC32 check (other dumps are untested)")
-    ap.add_argument("--only", choices=["chr", "palettes", "stage", "sprites"], action="append")
+    ap.add_argument("--only", choices=["runtime", "chr", "palettes", "stage", "sprites"], action="append")
     ap.add_argument("--sprite-contexts", action="append",
                     help="contexts JSON from assets_verify.py --contexts (repeatable, merged): also draw one "
                          "sheet per object id (sprites/objXX.png)")
+    ap.add_argument("--prg-map", help="P0 map (runs/cdl/prgmap.bin): the code bytes prg.bin leaves out, "
+                                      "instead of port/tools/prg_code.txt")
     a = ap.parse_args()
     rom = assets_nes.Rom(a.rom, check_crc=not a.no_crc)
     os.makedirs(a.out, exist_ok=True)
     written = []
-    parts = a.only or ["chr", "palettes", "stage", "sprites"]
+    runtime = None
+    parts = a.only or ["runtime", "chr", "palettes", "stage", "sprites"]
+    if "runtime" in parts:
+        import assets_runtime
+        runtime = assets_runtime.write(rom, a.out, written, a.prg_map)
     if "chr" in parts:
         extract_chr(rom, a.out, written)
     if "palettes" in parts:
@@ -278,6 +293,12 @@ def main():
         "rom_crc32": f"{rom.crc32:08X}",
         "files": sorted(files),
     }
+    if runtime is None and a.only and os.path.exists(man_path):
+        old = json.load(open(man_path))
+        if old.get("rom_crc32") == man["rom_crc32"] and "runtime" in old:
+            runtime = old["runtime"]
+    if runtime is not None:
+        man["runtime"] = runtime
     write_json(man_path, man)
     print(f"{len(written)} files in {a.out}")
 
