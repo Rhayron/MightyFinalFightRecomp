@@ -1585,6 +1585,54 @@ bank = 0x0F
 addr = 0xFBD9
 name = "obj_dist_y_feet"
 comment = "obj_dist_y with the player's obj_y set to player_ground_y for the call and restored from $0F; callers 01:A251, AB5A, AB66, 03:B5DC, B5E8, 0D:A588, $FB47; obj_move.c (tidy/fixed)"
+[[label]]
+bank = 0x0F
+addr = 0xF000
+name = "obj_walk_right"
+comment = "JSR obj_face_right, then obj_step_right ($F003); callers 00:879F, 87C6, 87D8, 03:B36C, 0D:A93E, A99E, 0E:CCEF; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF003
+name = "obj_step_right"
+comment = "obj_move_right, bg_probe_2 of kind Y ($F014), then pits: AND #$40 at $F01A; another slot is pushed back out (push_out_left, SEC), the player starts the pit fall ($F03A) unless obj_vy < 0; caller 0E:D911; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF051
+name = "obj_walk_left"
+comment = "JSR obj_face_left, then obj_step_left ($F054); callers 00:87A7, 87CC, 03:B384, 0D:A931, A9BE, 0E:CCF7; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF054
+name = "obj_step_left"
+comment = "obj_step_right's code $51 bytes on, with obj_move_left and push_out_right; caller 0E:D95E; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF0A2
+name = "obj_walk_down"
+comment = "obj_move_down, bg_probe of kind Y; $10 = $10 is pushed back up (push_out_up, SEC at $F0C0), a pit too for slots but the player, who falls in ($F0D8); callers 03:B356, 0B:BA29, 0D:A97F, 0E:CD14, D9B1; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF0DC
+name = "player_pit_fall_start"
+comment = "action_before_fall = game_action, game_action = $24, obj_state = $80; game_action 4 releases the held enemy (obj_held,Y = $FF at $F0F3); obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF0F7
+name = "obj_walk_up"
+comment = "obj_move_up, bg_probe of kind Y; $10 = $30 is pushed back down (push_out_down, SEC at $F117); callers 03:B33E, 0B:BA13, 0D:A0AA, A962, 0E:CD38, D9D9; obj_walk.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF119
+name = "obj_jump_move"
+comment = "vertical step of the player's jumps: obj_fall's halves ($F20E/$F22E) and obj_gravity, bg_probe of kind Y (Y + 1 going up); landing on $10 pushes up and restarts obj_vy (SEC at $F14C), $40 and up starts the pit fall ($F170); callers 00:8092, 8318, 85C1, 8814, 8881, 0E:CF8C, D5F5, D740, DB05, DBD6; obj_walk.c (tidy/fixed)"
+
 
 [[label]]
 bank = 0x0F

@@ -1510,31 +1510,31 @@ addr = 0xEF83   # push_out_down, stage_probe.c
 [[replace_func]]
 addr = 0xEF9D   # push_out_up, stage_probe.c
 [[replace_func]]
-addr = 0xF000   # lifted, lifted_f.c
+addr = 0xF000   # obj_walk_right, obj_walk.c
 [[replace_func]]
-addr = 0xF003   # lifted, lifted_f.c
+addr = 0xF003   # obj_step_right, obj_walk.c
 [[replace_func]]
 addr = 0xF03F   # player_face_right, obj_move.c
 [[replace_func]]
 addr = 0xF048   # player_face_left, obj_move.c
 [[replace_func]]
-addr = 0xF051   # lifted, lifted_f.c
+addr = 0xF051   # obj_walk_left, obj_walk.c
 [[replace_func]]
-addr = 0xF054   # lifted, lifted_f.c
+addr = 0xF054   # obj_step_left, obj_walk.c
 [[replace_func]]
 addr = 0xF090   # obj_face_right, obj_move.c
 [[replace_func]]
 addr = 0xF099   # obj_face_left, obj_move.c
 [[replace_func]]
-addr = 0xF0A2   # lifted, lifted_f.c
+addr = 0xF0A2   # obj_walk_down, obj_walk.c
 [[replace_func]]
-addr = 0xF0DC   # lifted, lifted_f.c
+addr = 0xF0DC   # player_pit_fall_start, obj_walk.c
 [[replace_func]]
-addr = 0xF0F7   # lifted, lifted_f.c
+addr = 0xF0F7   # obj_walk_up, obj_walk.c
 [[replace_func]]
-addr = 0xF119   # lifted, lifted_f.c
+addr = 0xF119   # obj_jump_move, obj_walk.c
 [[replace_func]]
-addr = 0xF16E   # lifted, lifted_f.c
+addr = 0xF16E   # obj_walk.c
 [[replace_func]]
 addr = 0xF183   # obj_move_right, obj_move.c
 [[replace_func]]
