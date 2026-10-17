@@ -168,7 +168,7 @@ void func_D7F2(void) {
     mff_cycles(0xD81B, 2 + 3 + 2 + 3 + 2 + 6);
     a = 0x19;
     RAM(ACTION_TIMER) = a;
-    a = ACT_CODY_THROW;
+    a = ACT_THROW;
     RAM(GAME_ACTION) = a;
     a = SFX_THROW;
     SET_NZ(a);

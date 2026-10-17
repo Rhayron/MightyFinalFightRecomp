@@ -379,3 +379,605 @@ void func_8479_b0(void) {
     mff_cycles(0x8496, 6);
     RTS();
 }
+
+/* ---- Cody's slash, game_action $14 (cody_finisher sets it) ---- */
+
+#define ANIM_SLASH_FALL     0x3E
+
+/* $8540 in bank $00: an RTS that cody_slash branches to */
+void func_8540_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x8540, 6);
+    RTS();
+}
+
+/*
+ * cody_slash ($8541 in bank $00, proposed; Data Crystal: Cody's slash): the
+ * end of Cody's combo. Until the falling animation $3E: attack_id 7,
+ * attack_begin and a dash (obj_vx $0689). Its first step waits for frame 4
+ * at timer 1 (then obj_timer/obj_timer2[0] 0 and the next step). Before
+ * frame 6 Cody leaps (obj_vy $0438), with the attack on and attack_ground_y
+ * = player_ground_y; from frame 6, or in $3E, the dash stops (obj_vx 0).
+ * Then cody_slash_move.
+ */
+void func_8541_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x8541, 4 + 2 + 2);
+    a = RAM(OBJ_ANIM);
+    COMPARE(a, ANIM_SLASH_FALL);
+    if (!z) {
+        mff_cycles(0x8548, 2 + 3 + 6);
+        a = 0x07;
+        SET_NZ(a);
+        RAM(ATTACK_ID) = a;
+        JSR_FN(0x854C, func_F43B);              /* attack_begin */
+        mff_cycles(0x854F, 2 + 4 + 2 + 4);
+        a = 0x89;
+        RAM(OBJ_VX_FRAC) = a;
+        a = 0x06;
+        RAM(OBJ_VX) = a;
+    } else {
+        mff_cycles(0x8546, 1);
+    }
+    mff_cycles(0x8559, 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x0F;
+    if (a == 0) {
+        mff_cycles(0x8560, 4 + 2 + 2);
+        a = RAM(OBJ_ANIM_FRAME);
+        COMPARE(a, 4);
+        if (!z) {
+            mff_cycles(0x8565, 1);
+            BRANCH_TAIL(0x8540, 0);             /* RTS */
+        }
+        mff_cycles(0x8567, 4 + 2 + 2);
+        a = RAM(OBJ_ANIM_TIMER);
+        COMPARE(a, 1);
+        if (!z) {
+            mff_cycles(0x856C, 1);
+            BRANCH_TAIL(0x8540, 0);             /* RTS */
+        }
+        mff_cycles(0x856E, 6 + 2 + 4 + 4);
+        RAM(OBJ_STATE)++;
+        a = 0;
+        RAM(OBJ_TIMER) = a;
+        RAM(OBJ_TIMER2) = a;
+    } else {
+        mff_cycles(0x855E, 1);
+    }
+    mff_cycles(0x8579, 4 + 2 + 2);
+    a = RAM(OBJ_ANIM_FRAME);
+    COMPARE(a, 6);
+    if (!c) {
+        mff_cycles(0x8580, 4 + 2 + 2);
+        a = RAM(OBJ_ANIM);
+        COMPARE(a, ANIM_SLASH_FALL);
+        if (!z) {
+            mff_cycles(0x8587, 2 + 4 + 2 + 4 + 4 + 2 + 2);
+            a = 0x38;
+            RAM(OBJ_VY_FRAC) = a;
+            a = 0x04;
+            RAM(OBJ_VY) = a;
+            a = RAM(OBJ_VY);
+            COMPARE(a, 3);
+            if (c) {
+                mff_cycles(0x8598, 6);
+                JSR_FN(0x8598, func_F43B);      /* attack_begin */
+                mff_cycles(0x859B, 3 + 3 + 3);
+                a = RAM(PLAYER_GROUND_Y);
+                SET_NZ(a);
+                RAM(ATTACK_GROUND_Y) = a;
+                JMP_TAIL(0x85AA, 0);            /* cody_slash_move */
+            }
+            mff_cycles(0x8596, 1);
+        } else {
+            mff_cycles(0x8585, 1);
+        }
+    } else {
+        mff_cycles(0x857E, 1);
+    }
+    mff_cycles(0x85A2, 2 + 4 + 4);
+    a = 0;
+    RAM(OBJ_VX_FRAC) = a;
+    RAM(OBJ_VX) = a;
+    FALL_INTO(func_85AA_b0);
+}
+
+/* cody_slash_move ($85AA in bank $00, proposed): Cody faces and moves his
+ * way (player_dir), then cody_slash_fall. Reached by JMP from cody_slash
+ * (00:859F) and run on into from it. */
+void func_85AA_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x85AA, 3 + 2 + 2);
+    a = RAM(PLAYER_DIR) & PAD_LEFT;
+    SET_NZ(a);
+    if (z) {                                    /* right */
+        mff_cycles(0x85B0, 6);
+        JSR_FN(0x85B0, func_F090);              /* obj_face_right */
+        mff_cycles(0x85B3, 6);
+        JSR_FN(0x85B3, func_F183);              /* obj_move_right */
+        mff_cycles(0x85B6, 3);
+        JMP_TAIL(0x85BF, 0);                    /* cody_slash_fall */
+    }
+    mff_cycles(0x85AE, 1 + 6);
+    JSR_FN(0x85B9, func_F099);                  /* obj_face_left */
+    mff_cycles(0x85BC, 6);
+    JSR_FN(0x85BC, func_F1A1);                  /* obj_move_left */
+    FALL_INTO(func_85BF_b0);
+}
+
+/*
+ * cody_slash_fall ($85BF in bank $00, proposed): obj_fall (Y = 0). On the
+ * floor, cody_slash_land. While rising, frame 9 is held. Falling: the
+ * attack ends, the falling animation $3E (CHR bank 1) starts once (the
+ * step goes on), and past the ground line + 2 Cody lands on it
+ * (cody_slash_land_at). Reached by JMP from cody_slash_move (00:85B6) and
+ * run on into from it.
+ */
+void func_85BF_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x85BF, 2 + 6);
+    y = 0;
+    SET_NZ(y);
+    JSR_FN(0x85C1, func_F119);                  /* obj_fall */
+    mff_cycles(0x85C4, 2);
+    if (c) {
+        mff_cycles(0x85C6, 3);
+        JMP_TAIL(0x85FE, 0);                    /* cody_slash_land */
+    }
+    mff_cycles(0x85C4, 1 + 4 + 2);
+    a = RAM(OBJ_VY);
+    SET_NZ(a);
+    if (!n) {                                   /* rising */
+        mff_cycles(0x85CC, 2 + 4 + 2 + 2);
+        a = RAM(OBJ_ANIM_FRAME);
+        COMPARE(a, 9);
+        if (z) {
+            mff_cycles(0x8633, 2 + 4 + 2 + 4);
+            a = 9;
+            RAM(OBJ_ANIM_FRAME) = a;
+            a = 0;
+            SET_NZ(a);
+            RAM(OBJ_ANIM_TIMER) = a;
+        } else {
+            mff_cycles(0x8631, 1);
+        }
+        mff_cycles(0x863D, 6);
+        RTS();
+    }
+    mff_cycles(0x85CE, 6);
+    JSR_FN(0x85CE, func_F436);                  /* attack_end */
+    mff_cycles(0x85D1, 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x02;
+    if (a == 0) {
+        mff_cycles(0x85D8, 2 + 4 + 2);
+        a = ANIM_SLASH_FALL;
+        COMPARE(a, RAM(OBJ_ANIM));
+        if (!z) {
+            mff_cycles(0x85DF, 6);
+            JSR_FN(0x85DF, func_F294);          /* player_set_anim */
+            mff_cycles(0x85E2, 2 + 6);
+            a = 0x01;
+            SET_NZ(a);
+            JSR_FN(0x85E4, func_F440);          /* player_set_chr */
+            mff_cycles(0x85E7, 6);
+            RAM(OBJ_STATE)++;
+        } else {
+            mff_cycles(0x85DD, 1);
+        }
+    } else {
+        mff_cycles(0x85D6, 1);
+    }
+    mff_cycles(0x85EA, 3 + 2 + 2 + 4 + 2);
+    a = RAM(PLAYER_GROUND_Y);
+    c = 0;
+    ADC(2);
+    COMPARE(a, RAM(OBJ_Y));
+    if (c) {                                    /* not past the ground line */
+        mff_cycles(0x85F2, 2 + 6);
+        RTS();
+    }
+    mff_cycles(0x85F4, 2 + 3);                  /* BEQ never taken here */
+    JMP_TAIL(0x85F9, 0);                        /* cody_slash_land_at */
+}
+
+/* cody_slash_land_at ($85F9 in bank $00, proposed): obj_y = player_ground_y,
+ * then cody_slash_land. Reached by JMP from cody_slash_fall (00:85F6). */
+void func_85F9_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x85F9, 3 + 4);
+    a = RAM(PLAYER_GROUND_Y);
+    RAM(OBJ_Y) = a;
+    FALL_INTO(func_85FE_b0);
+}
+
+/*
+ * cody_slash_land ($85FE in bank $00, proposed): the slash is over:
+ * game_action 2, guy_jump_window, player_no_hit and combo_timer 0, a small
+ * rebound (obj_vy -$40/256) and walking speed in x ($0133),
+ * obj_timer/obj_timer2[0] 0, obj_state[0] $80. Reached by JMP from
+ * cody_slash_fall (00:85C6) and run on into from cody_slash_land_at.
+ */
+void func_85FE_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x85FE, 2 + 3 + 2 + 3 + 3 + 3 + 2 + 4 + 2 + 4 + 2 + 4 + 2 + 4 + 2 + 4 + 4 + 2 + 4 + 6);
+    a = ACT_LAND;
+    RAM(GAME_ACTION) = a;
+    a = 0;
+    RAM(GUY_JUMP_WINDOW) = a;
+    RAM(PLAYER_NO_HIT) = a;
+    RAM(COMBO_TIMER) = a;
+    a = 0xC0;
+    RAM(OBJ_VY_FRAC) = a;
+    a = 0xFF;
+    RAM(OBJ_VY) = a;
+    a = 0x33;
+    RAM(OBJ_VX_FRAC) = a;
+    a = 0x01;
+    RAM(OBJ_VX) = a;
+    a = 0;
+    RAM(OBJ_TIMER) = a;
+    RAM(OBJ_TIMER2) = a;
+    a = STATE_LIVE;
+    SET_NZ(a);
+    RAM(OBJ_STATE) = a;
+    RTS();
+}
+
+/*
+ * $87AA in bank $00 (proposed: lariat_step_end): the end of a step of
+ * Haggar's moving lariat (game_action $16, $86FF; that routine is not in
+ * the port and JMPs here at 00:87A2): while game_action is still $16 and
+ * something is held, obj_state[0] counts up.
+ */
+void func_87AA_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x87AA, 3 + 2 + 2);
+    a = RAM(GAME_ACTION);
+    COMPARE(a, ACT_LARIAT);
+    if (z) {
+        mff_cycles(0x87B0, 3 + 2);
+        a = RAM(JOY_HELD);
+        SET_NZ(a);
+        if (!z) {
+            mff_cycles(0x87B4, 6);
+            RAM(OBJ_STATE)++;
+            SET_NZ(RAM(OBJ_STATE));
+        } else {
+            mff_cycles(0x87B2, 1);
+        }
+    } else {
+        mff_cycles(0x87AE, 1);
+    }
+    mff_cycles(0x87B7, 6);
+    RTS();
+}
+
+/* ---- the A+B special, game_action $17 (player_special_start, $CA3C) ---- */
+
+/* the special's handler of each character */
+#define SPECIAL_HANDLER_LO  0x87F1   /* F7 64 AA */
+#define SPECIAL_HANDLER_HI  0x87F4   /* 87 88 88: $87F7, $8864, $88AA */
+/* attack_id by animation frame */
+#define SPECIAL_ATTACK_ID   0x88A6   /* 14 15 16 17 (Cody, Guy) */
+#define LARIAT_ATTACK_ID    0x8903   /* 0F 10 11 12, repeated (Haggar) */
+#define ANIM_LARIAT_MOVING  0x4B
+
+static void lariat_start(void);
+
+/*
+ * player_special ($87E2 in bank $00, proposed): JMP ($0000) to the
+ * character's special from $87F1/$87F4[player_id]: cody_special $87F7,
+ * guy_special $8864, haggar_special $88AA. Reached through
+ * player_action_dispatch (entry $17).
+ * Out: $00/$01 = the handler, A = its high byte.
+ */
+void func_87E2_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x87E2, 3 + 4);
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(SPECIAL_HANDLER_LO + y));
+    mff_cycles(0x87E7, 3 + 4);
+    RAM(TMP0) = a;
+    a = prg_read((uint16_t)(SPECIAL_HANDLER_HI + y));
+    SET_NZ(a);
+    mff_cycles(0x87EC, 3 + 5);
+    RAM(TMP1) = a;
+    JMP_IND(TMP0);
+}
+
+/*
+ * cody_special ($87F7 in bank $00, proposed): the attack is on with
+ * attack_id $88A6[frame], sound $25 every 8th frame (draw_parity),
+ * attack_ground_y = player_ground_y, and the jump obj_fall (Y = 0) carries;
+ * once falling to the ground line (set as the knockdown does) it ends
+ * (special_end); every frame special_cost.
+ */
+void func_87F7_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x87F7, 4 + 2 + 4);
+    a = RAM(OBJ_ANIM_FRAME);
+    y = a;
+    a = prg_read((uint16_t)(SPECIAL_ATTACK_ID + y));
+    SET_NZ(a);
+    mff_cycles(0x87FE, 3 + 6);
+    RAM(ATTACK_ID) = a;
+    JSR_FN(0x8800, func_F43B);                  /* attack_begin */
+    mff_cycles(0x8803, 3 + 2 + 2);
+    a = RAM(DRAW_PARITY) & 0x07;
+    if (a == 0) {
+        mff_cycles(0x8809, 2 + 6);
+        a = 0x25;
+        SET_NZ(a);
+        JSR_FN(0x880B, func_F34C);              /* sound_queue_push_sfx */
+    } else {
+        mff_cycles(0x8807, 1);
+    }
+    mff_cycles(0x880E, 3 + 3 + 2 + 6);
+    a = RAM(PLAYER_GROUND_Y);
+    RAM(ATTACK_GROUND_Y) = a;
+    y = 0;
+    SET_NZ(y);
+    JSR_FN(0x8814, func_F119);                  /* obj_fall */
+    mff_cycles(0x8817, 4 + 2);
+    a = RAM(OBJ_VY);
+    if (a & 0x80) {                             /* falling */
+        mff_cycles(0x881C, 4 + 2 + 2 + 3 + 2);
+        a = RAM(OBJ_Y);
+        c = 0;
+        ADC(2);
+        COMPARE(a, RAM(PLAYER_GROUND_Y));
+        if (c) {                                /* at the ground line: over */
+            mff_cycles(0x8826, 2);
+            if (z) {
+                mff_cycles(0x8826, 1 + 4);
+                RAM(OBJ_Y) = a;
+            } else {
+                mff_cycles(0x8828, 2 + 4 + 2);
+                SBC(3);
+                RAM(OBJ_Y) = a;
+                if (a != 0) {
+                    mff_cycles(0x882D, 1);
+                } else {
+                    mff_cycles(0x882F, 4);
+                    RAM(OBJ_Y) = a;
+                }
+            }
+            FALL_INTO(func_8832_b0);
+        }
+        mff_cycles(0x8824, 1);
+    } else {
+        mff_cycles(0x881A, 1);
+    }
+    FALL_INTO(func_884E_b0);
+}
+
+/* special_end ($8832 in bank $00, proposed): game_action, attack_live and
+ * guy_jump_window 0, a small rebound (obj_vy -$40/256), the combo restarts,
+ * player_stand, then special_cost. Run on into from cody_special; reached
+ * by JMP through $889F. */
+void func_8832_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x8832, 2 + 3 + 3 + 3 + 2 + 4 + 2 + 4 + 3 + 4);
+    a = 0;
+    RAM(GAME_ACTION) = a;
+    RAM(ATTACK_LIVE) = a;
+    RAM(GUY_JUMP_WINDOW) = a;
+    a = 0xC0;
+    RAM(OBJ_VY_FRAC) = a;
+    a = 0xFF;
+    RAM(OBJ_VY) = a;
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+    SET_NZ(a);
+    mff_cycles(0x8849, 3 + 6);
+    RAM(PLAYER_STAND_ANIM) = a;
+    JSR_AT(0x884B, 0xCEAA, 0);                  /* player_stand */
+    FALL_INTO(func_884E_b0);
+}
+
+/* special_cost ($884E in bank $00, proposed): when the special connected
+ * (special_hit) it costs 6 health, never below 0; special_hit is cleared.
+ * Out: A = 0. Run on into from cody_special and special_end; reached by
+ * JMP from guy_special (00:88A2). */
+void func_884E_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x884E, 3 + 2);
+    a = RAM(SPECIAL_HIT);
+    if (a != 0) {
+        mff_cycles(0x8852, 3 + 2 + 2 + 3 + 2);
+        a = RAM(HEALTH);
+        c = 1;
+        SBC(6);
+        RAM(HEALTH) = a;
+        if (a & 0x80) {
+            mff_cycles(0x885B, 2 + 3);
+            a = 0;
+            RAM(HEALTH) = a;
+        } else {
+            mff_cycles(0x8859, 1);
+        }
+    } else {
+        mff_cycles(0x8850, 1);
+    }
+    mff_cycles(0x885F, 2 + 3 + 6);
+    a = 0;
+    SET_NZ(a);
+    RAM(SPECIAL_HIT) = a;
+    RTS();
+}
+
+/* guy_special ($8864 in bank $00, proposed): as cody_special, ending by JMP
+ * (special_end through $889F, special_cost through $88A2). */
+void func_8864_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x8864, 4 + 2 + 4);
+    a = RAM(OBJ_ANIM_FRAME);
+    y = a;
+    a = prg_read((uint16_t)(SPECIAL_ATTACK_ID + y));
+    SET_NZ(a);
+    mff_cycles(0x886B, 3 + 6);
+    RAM(ATTACK_ID) = a;
+    JSR_FN(0x886D, func_F43B);                  /* attack_begin */
+    mff_cycles(0x8870, 3 + 2 + 2);
+    a = RAM(DRAW_PARITY) & 0x07;
+    if (a == 0) {
+        mff_cycles(0x8876, 2 + 6);
+        a = 0x25;
+        SET_NZ(a);
+        JSR_FN(0x8878, func_F34C);              /* sound_queue_push_sfx */
+    } else {
+        mff_cycles(0x8874, 1);
+    }
+    mff_cycles(0x887B, 3 + 3 + 2 + 6);
+    a = RAM(PLAYER_GROUND_Y);
+    RAM(ATTACK_GROUND_Y) = a;
+    y = 0;
+    SET_NZ(y);
+    JSR_FN(0x8881, func_F119);                  /* obj_fall */
+    mff_cycles(0x8884, 4 + 2);
+    a = RAM(OBJ_VY);
+    SET_NZ(a);
+    if (n) {                                    /* falling */
+        mff_cycles(0x8889, 4 + 2 + 2 + 3 + 2);
+        a = RAM(OBJ_Y);
+        c = 0;
+        ADC(2);
+        COMPARE(a, RAM(PLAYER_GROUND_Y));
+        if (c) {                                /* at the ground line: over */
+            mff_cycles(0x8893, 2);
+            if (z) {
+                mff_cycles(0x8893, 1 + 4);
+                RAM(OBJ_Y) = a;
+            } else {
+                mff_cycles(0x8895, 2 + 4 + 2);
+                SBC(3);
+                RAM(OBJ_Y) = a;
+                if (!z) {
+                    mff_cycles(0x889A, 1);
+                } else {
+                    mff_cycles(0x889C, 4);
+                    RAM(OBJ_Y) = a;
+                }
+            }
+            mff_cycles(0x889F, 3);
+            JMP_TAIL(0x8832, 0);                /* special_end */
+        }
+        mff_cycles(0x8891, 1);
+    } else {
+        mff_cycles(0x8887, 1);
+    }
+    mff_cycles(0x88A2, 3);
+    JMP_TAIL(0x884E, 0);                        /* special_cost */
+}
+
+/* $889F in bank $00: JMP special_end; haggar_special branches here. */
+void func_889F_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x889F, 3);
+    JMP_TAIL(0x8832, 0);                        /* special_end */
+}
+
+/*
+ * haggar_special ($88AA in bank $00, proposed): A+B with right or left held
+ * (joy_held $C1/$C2) starts the moving lariat: obj_state[0] $80,
+ * game_action $16, animation $4B. Otherwise the lariat spins in place: on
+ * frame 7 at timer 6 it ends (special_end); before that attack_id
+ * $8903[frame] with attack_begin, obj_dir flipped every frame, sound $13
+ * every 8th frame, attack_ground_y = player_ground_y and attack_end from
+ * timer 3 on.
+ */
+void func_88AA_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x88AA, 3 + 2 + 2);
+    a = RAM(JOY_HELD);
+    COMPARE(a, PAD_A | PAD_B | PAD_RIGHT);
+    if (z) {
+        mff_cycles(0x88AE, 1);
+        FALL_INTO(lariat_start);
+    }
+    mff_cycles(0x88B0, 2 + 2);
+    COMPARE(a, PAD_A | PAD_B | PAD_LEFT);
+    if (z) {
+        mff_cycles(0x88B2, 1);
+        FALL_INTO(lariat_start);
+    }
+    mff_cycles(0x88B4, 2 + 1 + 4 + 2 + 2);
+    a = RAM(OBJ_ANIM_FRAME);
+    COMPARE(a, 7);
+    if (z) {
+        mff_cycles(0x88CC, 4 + 2 + 2);
+        a = RAM(OBJ_ANIM_TIMER);
+        COMPARE(a, 6);
+        if (z) {                                /* the spin is over */
+            mff_cycles(0x88D3, 2 + 1);
+            BRANCH_TAIL(0x889F, 0);             /* special_end */
+        }
+        mff_cycles(0x88D1, 1);
+    } else {
+        mff_cycles(0x88CA, 1);
+    }
+    mff_cycles(0x88D5, 4 + 2 + 4);
+    a = RAM(OBJ_ANIM_FRAME);
+    y = a;
+    a = prg_read((uint16_t)(LARIAT_ATTACK_ID + y));
+    SET_NZ(a);
+    mff_cycles(0x88DC, 3 + 6);
+    RAM(ATTACK_ID) = a;
+    JSR_FN(0x88DE, func_F43B);                  /* attack_begin */
+    mff_cycles(0x88E1, 4 + 2 + 4 + 3 + 2 + 2);
+    a = RAM(OBJ_DIR) ^ (PAD_LEFT | PAD_RIGHT);
+    RAM(OBJ_DIR) = a;
+    a = RAM(DRAW_PARITY) & 0x07;
+    if (a == 0) {
+        mff_cycles(0x88EF, 2 + 6);
+        a = 0x13;
+        SET_NZ(a);
+        JSR_FN(0x88F1, func_F34C);              /* sound_queue_push_sfx */
+    } else {
+        mff_cycles(0x88ED, 1);
+    }
+    mff_cycles(0x88F4, 3 + 3 + 4 + 2 + 2);
+    a = RAM(PLAYER_GROUND_Y);
+    RAM(ATTACK_GROUND_Y) = a;
+    a = RAM(OBJ_ANIM_TIMER);
+    COMPARE(a, 3);
+    if (c) {
+        mff_cycles(0x88FF, 6);
+        JSR_FN(0x88FF, func_F436);              /* attack_end */
+    } else {
+        mff_cycles(0x88FD, 2);
+    }
+    mff_cycles(0x8902, 6);
+    RTS();
+}
+
+/* lariat_start (00:88B6, inside haggar_special): obj_state[0] $80,
+ * game_action $16, animation $4B. */
+static void lariat_start(void) {
+    REGS_IN;
+
+    mff_cycles(0x88B6, 2 + 4 + 2 + 3 + 2 + 6);
+    a = STATE_LIVE;
+    RAM(OBJ_STATE) = a;
+    a = ACT_LARIAT;
+    RAM(GAME_ACTION) = a;
+    a = ANIM_LARIAT_MOVING;
+    SET_NZ(a);
+    JSR_FN(0x88C1, func_F294);                  /* player_set_anim */
+    mff_cycles(0x88C4, 6);
+    RTS();
+}

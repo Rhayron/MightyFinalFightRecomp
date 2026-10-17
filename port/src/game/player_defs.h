@@ -92,7 +92,8 @@
 #define ACT_SELECT     0x07   /* player_state_transition: continued, to the select screen */
 #define ACT_CONTINUE   0x09   /* player_state_continue: the continue screen */
 #define ACT_HOLD       0x0A   /* player_state_0A: a boss in bank $03 holds the player */
-#define ACT_CODY_THROW 0x0B   /* player_state_throw: Cody's throw, and the death blink */
+#define ACT_THROW      0x0B   /* player_state_throw: Cody's throw, the end of the others,
+                                and the death blink */
 #define ACT_HITPOS     0x0C   /* player_state_hitpos: after a combo hit */
 #define ACT_NEXT_AREA  0x0E   /* player_state_transition: the area is over */
 #define ACT_EARTHQUAKE 0x0F   /* the HeadSmasher has landed: the screen shakes */
@@ -102,6 +103,8 @@
 #define ACT_GUY_THROW     0x13   /* Guy: B while holding an enemy */
 #define ACT_CODY_SLASH    0x14   /* Cody's combo finisher */
 #define ACT_HAGGAR_THROW  0x15   /* Haggar's back throw: B while holding */
+#define ACT_LARIAT        0x16   /* Haggar's moving special ($86FF, no routine in the port) */
+#define ACT_SPECIAL       0x17   /* the A+B special (Data Crystal: special power) */
 #define ACT_LYING         0x1F   /* down after a knockdown, getting up */
 #define ACT_GRAB_KNEE     0x21   /* Cody: B with no direction while holding */
 #define ACT_PIT_FALL      0x24   /* falling into a pit (player_pit_fall, $CFD1) */
@@ -287,5 +290,23 @@ void func_83A1_b0(void);
 void func_83DC_b0(void);
 void func_8429_b0(void);
 void func_8479_b0(void);
+void func_8497_b0(void);
+void func_849C_b0(void);
+void func_8540_b0(void);
+void func_8541_b0(void);
+void func_85AA_b0(void);
+void func_85BF_b0(void);
+void func_85F9_b0(void);
+void func_85FE_b0(void);
+void func_863E_b0(void);
+void func_8643_b0(void);
+void func_87AA_b0(void);
+void func_87E2_b0(void);
+void func_87F7_b0(void);
+void func_8832_b0(void);
+void func_884E_b0(void);
+void func_8864_b0(void);
+void func_889F_b0(void);
+void func_88AA_b0(void);
 
 #endif
