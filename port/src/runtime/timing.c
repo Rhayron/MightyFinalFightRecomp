@@ -112,6 +112,7 @@ void timing_reset_depth(void) { s_depth = 0; s_pending = 0; }
 uint64_t timing_interrupt_epoch(void) { return s_epoch; }
 void timing_note_interrupt(void) { s_epoch++; }
 uint32_t timing_frame_cycles(void) { return s_ops; }
+uint16_t timing_pc(void) { return s_pc; }
 int timing_in_irq(void) { return s_in_irq; }
 
 /* 513 cycles, 514 when the write lands on an odd cycle */

@@ -3,9 +3,99 @@
 Work in progress. This holds the **P3 scaffold**: Mighty Final Fight on
 NESRecomp's legacy, function-level backend (one C function per 6502 routine),
 the **lockstep** check that compares it frame by frame with the
-cycle-accurate build in the repo root (the oracle), and **P4**: every
-routine of the game in C in `port/src/game/`, building and running without
-the scaffold's generated code.
+cycle-accurate build in the repo root (the oracle), **P4**: every routine of
+the game in C in `port/src/game/`, building and running without the
+scaffold's generated code, and **P5**: the game on its own runtime, with no
+code from nesrecomp and no ROM at run time.
+
+## P5: build and run
+
+`port/CMakeLists.txt` builds **MightyFinalFight** from `port/src/game`,
+`port/src/glue/dispatch.c` and `port/src/runtime`. Point it at your dump
+once; CMake extracts the game's data into `BUILD/assets` while it
+configures, and from then on neither the build nor the game reads the ROM.
+
+```bash
+cmake -S port -B build_mff -A x64 -DMFF_ROM="rom/Mighty Final Fight (USA).nes"
+cmake --build build_mff --config Release
+build_mff/Release/MightyFinalFight.exe --smoke 600       # headless, 600 frames
+MFF_EXE=build_mff/Release/MightyFinalFight.exe port/tests/run_routes.sh check
+```
+
+- The dump must be Mighty Final Fight (USA), CRC32 `15EB0BEE` with the
+  header. Without CMake: `py -3 -I port/tools/extract_assets.py DUMP --only
+  runtime --out DIR` and run with `--assets DIR` (or `MFF_ASSETS=DIR`). The
+  executable looks in `assets/` next to itself and one level up, and says
+  how to make the data when it finds none.
+- `--sprite-limit` (or `MFF_SPRITE_LIMIT=1`) shows at most 8 sprites per
+  line, as the console does; without it every sprite is drawn, as the
+  scaffold's renderer does and the test baselines expect.
+- The test hooks are the scaffold's: `MFF_FRAMELOG`, `MFF_PICLOG`,
+  `MFF_INPUT`, `MFF_BOT`, plus `MFF_SHOTS=F1,F2,...` (PNG pictures of those
+  frames, in `MFF_SHOT_DIR`) and `MFF_PRG_READS=FILE` (every PRG byte read).
+
+### The runtime (port/src/runtime)
+
+The routines were written against the scaffold's runtime and include its
+interface by name (`nes_runtime.h`, `coroutine.h`); `port/src/runtime`
+implements that interface for this one game, so no routine changed:
+
+| File | What |
+|---|---|
+| `bus.c` | CPU registers and RAM, the address decoder, open bus, the pads |
+| `ppu_regs.c` | `$2000-$2007` (t/v/w and the `$2007` read buffer), nametables, palette, OAM |
+| `mmc3.c` | bank registers, PRG windows, CHR banks, mirroring, the scanline counter |
+| `apu.c` | the APU registers, kept for P6; nothing the APU does reaches the game |
+| `timing.c` | the cycle clock, the frame boundary (89,342 dots, one less on odd frames with rendering on), OAM DMA's 513/514 cycles, interrupt entry |
+| `frame.c` | one frame: pads and test hooks, the NMI, the scanline pass with the raster IRQs, the picture |
+| `render_frame.c` | the 256x240 picture from the frame's record (`render.h`) |
+| `dispatch_rt.c` | dispatch by address, JMP loops flattened, and a clear stop when a target has no routine (there is no interpreter) |
+| `coroutine.c` | the four tasks on C stacks of their own (fibers on Windows, ucontext elsewhere) |
+| `mff_hooks.c` | where the NMI may land, and `nmi_tail` (`$C119`): game rules the scaffold kept in `extras.c` |
+| `cart.c` | loads `chr.bin` and `prg.bin`; a read of a PRG byte the data leaves out stops the run and names it |
+| `testhooks.c`, `png_write.c` | the scaffold's frame log, picture log and keyed input; screenshots |
+| `main.c`, `video_sdl.c` | command line; the window (a stub for now) |
+
+What the game can see is reproduced exactly as the scaffold's runtime had
+it: the cycle count and the place the NMI lands (only at the scheduler's
+`$FEBD` while a task waits), the IRQ handlers running during the frame's
+scanline pass at the line the MMC3 counter fires (241 clocks a frame while
+the background is on), `$2002` with its sprite-0 bit, the coroutines'
+switching, the tail table. All 9 routes are identical to the baselines in
+RAM, OAM, palette and picture every frame, and against the scaffold built
+from the same routines the cycle stamps of every picture match too.
+
+### The picture
+
+`frame.c` fills a record at the frame boundary: the PPU state when the
+picture starts, then a region per raster split, opened by the game's IRQ
+handler after the scanline the MMC3 fired on (in Mighty Final Fight: the
+status rows on top, the playfield with the camera's scroll, in round 1
+areas 1 and 2 a still sky first, and the bottom rows with their own CHR
+banks). `render_frame.c` draws the background line by line from the
+regions and the sprites over it with the PPU's priority rules, with the
+scaffold renderer's scroll model, which is what the baselines hold. Two
+places where that model is not the console's: every sprite is drawn
+(`--sprite-limit` gives 8 per line), and a split restarts the vertical
+scroll from the Y the handler writes to `$2005` (the console keeps counting
+lines), which is why the bottom status rows show the top rows' tiles in the
+other CHR banks.
+
+### The data (BUILD/assets)
+
+`port/tools/extract_assets.py DUMP --only runtime` (`assets_runtime.py`)
+checks the CRC32 and writes `chr.bin` (the CHR ROM), `prg.bin` (the PRG ROM
+without its code) and `manifest.json`. The routines read PRG only for their
+tables, so `prg.bin` leaves out the 46,368 bytes the P0 map classes as code
+(`port/tools/prg_code.txt`, offsets only, made by `prg_code.py` from
+`runs/cdl/prgmap.bin`) except the 297 the game also reads as data: the
+screens each area's list names past its end, read when the camera stops
+(five of them point into the fixed banks' code; worked out from the dump),
+and the bytes in `port/tools/prg_code_read.txt`. `MFF_PRG_READS` on data
+with every byte, and `port/tools/prg_reads.py`, find such bytes: over the 9
+routes and 36 bot sessions of 100,000 frames, 45,973 PRG bytes were read and
+all are in `prg.bin`. A byte the data leaves out stops a headless run with
+its address (in a window the game reads 0 there and goes on).
 
 ## P4: every routine in port/src/game
 

@@ -87,6 +87,34 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   convertido sistema a sistema (nomes, comentários, estruturas), que está com cinco agentes (som,
   objetos, fase, jogador, fluxo de telas). `port/tools/exit_use.py` diz que registradores e flags cada
   rotina recebe e devolve de fato, para enxugar o resto.
+- **P5: o port roda no próprio runtime e sem a ROM.** `port/src/runtime` (C11) é a máquina que as
+  rotinas precisam, escrita para este jogo: CPU e RAM, barramento, registradores da PPU, MMC3,
+  registradores da APU (guardados, sem som: P6), relógio de ciclos com a fronteira de frame e a NMI,
+  a IRQ de raster, despacho por endereço com o achatamento de laços de JMP e as corrotinas das
+  tarefas. Implementa a interface do runtime do andaime (`nes_runtime.h`), então nenhuma rotina
+  mudou; `port/CMakeLists.txt` gera `MightyFinalFight` só com `port/src/game`, `dispatch.c` e o
+  runtime, nada do nesrecomp. A imagem é composta uma vez por frame (`render_frame.c`) a partir de um
+  registro que o runtime preenche na fronteira do frame: o estado no início e uma região por split,
+  aberta pelo handler de IRQ depois da linha em que o MMC3 disparou. Os dados vêm só de
+  `BUILD/assets`, extraídos do dump uma vez quando o CMake configura (`-DMFF_ROM=dump`;
+  `extract_assets.py --only runtime`): `chr.bin` e `prg.bin`, este sem os 46.368 bytes que o mapa da
+  P0 classifica como código, menos 297 que o jogo também lê como dado (as telas que a lista de cada
+  área nomeia depois do fim, lidas quando a câmera para, e um byte de tabela lido além do fim; ler um
+  byte que falta para a execução e diz qual). As 9 rotas ficam idênticas às bases em RAM, OAM, paleta
+  e imagem a cada frame, com a ROM fora do alcance; contra o andaime compilado com as mesmas rotinas,
+  até o ciclo de cada imagem bate. A imagem guarda duas diferenças do console porque as bases as têm:
+  todos os sprites aparecem (`--sprite-limit` dá os 8 por linha do console) e um split reinicia a
+  rolagem vertical no Y que o handler escreve em `$2005` (por isso a barra de baixo mostra os tiles da
+  de cima com os bancos de CHR dela). Compilar e rodar:
+
+  ```bash
+  cmake -S port -B build_mff -A x64 -DMFF_ROM="rom/Mighty Final Fight (USA).nes"
+  cmake --build build_mff --config Release
+  build_mff/Release/MightyFinalFight.exe --smoke 600   # sem janela
+  MFF_EXE=build_mff/Release/MightyFinalFight.exe port/tests/run_routes.sh check
+  ```
+
+  Detalhes (teclas, variáveis de teste, formato dos dados) no `port/README.md`.
 
 ---
 
@@ -187,6 +215,8 @@ Reescrever 15 mil instruções de uma vez é inviável de testar. Em vez disso:
   - mapas de fase e blocos (o formato vem do disassembly; provavelmente comprimido);
   - textos (intro, diálogos, final) e as sequências de música e efeitos.
 - O port lê só `build/assets/`. Sem os assets, mostra uma tela pedindo o dump e roda o extrator.
+  (Hoje, P5: o executável carrega `chr.bin` e `prg.bin` da parte "runtime" do extrator e, sem eles,
+  diz na saída como gerá-los; o CMake roda o extrator com `-DMFF_ROM`.)
 - O formato dos assets fica documentado e estável: é a base para pacotes HD na etapa 2.
 
 ### 2.6 Renderização

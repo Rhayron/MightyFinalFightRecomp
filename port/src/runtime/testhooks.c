@@ -155,6 +155,7 @@ void hooks_picture(const uint32_t *fb) {
 }
 
 void hooks_exit_log(void) {
+    mmc3_write_prg_reads();
     if (s_interp_path) {
         FILE *f = fopen(s_interp_path, "a");
         if (f) {

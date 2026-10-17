@@ -20,6 +20,8 @@
  * reload is pending, otherwise count down; at 0 with the IRQ on it fires.
  */
 #include "machine.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define PRG_BANKS_8K (PRG_SIZE / 0x2000)
@@ -91,9 +93,41 @@ void mmc3_write(uint16_t a, uint8_t v) {
     }
 }
 
+/* MFF_PRG_READS=FILE: every PRG byte the game reads, with where it first
+ * read it (port/tools/prg_reads.py compares that with the code list) */
+static struct { uint16_t pc; uint32_t frame; } *s_reads;
+static int s_reads_on = -1;
+
+static void note_read(uint32_t off) {
+    if (s_reads_on < 0) {
+        const char *e = getenv("MFF_PRG_READS");
+        s_reads_on = e && *e;
+        if (s_reads_on) s_reads = calloc(PRG_SIZE, sizeof *s_reads);
+        if (!s_reads) s_reads_on = 0;
+    }
+    if (s_reads_on && !s_reads[off].frame) {
+        s_reads[off].pc = timing_pc();
+        s_reads[off].frame = (uint32_t)g_frame_count + 1;
+    }
+}
+
+void mmc3_write_prg_reads(void) {
+    const char *path = getenv("MFF_PRG_READS");
+    FILE *f;
+    if (s_reads_on <= 0 || !path || !(f = fopen(path, "w"))) return;
+    fprintf(f, "# PRG bytes the game read: bank (8 KiB), offset, the run of instructions that\n"
+               "# first read it, the frame\n");
+    for (uint32_t off = 0; off < PRG_SIZE; off++)
+        if (s_reads[off].frame)
+            fprintf(f, "%02X %04X %04X %u\n", off >> 13, off & 0x1FFF, s_reads[off].pc,
+                    s_reads[off].frame - 1);
+    fclose(f);
+}
+
 uint8_t mmc3_prg_read(uint16_t a) {
     int bank = g_mmc3_win_bank8k[(a >> 13) & 3];
     uint32_t off = (uint32_t)bank * 0x2000 + (a & 0x1FFF);
+    if (s_reads_on) note_read(off);
     if (!cart_has_prg(off)) cart_missing_prg(bank, a);
     return g_cart.prg[off];
 }

@@ -1,7 +1,7 @@
 /*
  * machine.h - what the parts of the port's runtime share
  *
- *   cart.c        PRG and CHR data (build/assets, or a dump in stage 1)
+ *   cart.c        PRG and CHR data, from build/assets (never the ROM)
  *   bus.c         CPU registers and RAM, the address decoder, the pads
  *   ppu_regs.c    PPU registers, nametables, palette, OAM
  *   mmc3.c        bank registers and the scanline IRQ counter
@@ -37,9 +37,9 @@ typedef struct {
 
 extern Cart g_cart;
 
-/* build/assets (stage 3) or a dump (stage 1); 0 on success */
+/* chr.bin and prg.bin from the extracted data (build/assets): 0 on
+ * success, -1 if they are not there */
 int cart_load_assets(const char *dir);
-int cart_load_dump(const char *path);
 /* a PRG byte the data does not hold was read: stop and say where */
 void cart_missing_prg(int bank8k, uint16_t addr);
 
@@ -63,6 +63,7 @@ int mmc3_clock_scanline(void);      /* 1 when the counter fires an IRQ */
 int mmc3_mirroring(void);
 void mmc3_chr_map(uint16_t banks[8]);   /* 1 KiB CHR bank behind each $400 of pattern space */
 uint8_t mmc3_chr_read(uint16_t a);      /* a pattern byte, $0000-$1FFF */
+void mmc3_write_prg_reads(void);        /* MFF_PRG_READS, at exit */
 
 /* ---- apu.c ---- */
 void apu_power_on(void);
@@ -104,6 +105,7 @@ uint64_t timing_interrupt_epoch(void);
 void timing_note_interrupt(void);
 void timing_add_dma_stall(void);    /* OAM DMA: 513 or 514 cycles */
 uint32_t timing_frame_cycles(void); /* cycles into the current frame */
+uint16_t timing_pc(void);           /* where the last run of instructions began */
 int timing_in_irq(void);
 /* run the game's IRQ handler as an interrupt of the code that was running */
 void timing_call_irq_handler(void);

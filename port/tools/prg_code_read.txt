@@ -1,0 +1,12 @@
+# Code bytes the game also reads as data, so build/assets/prg.bin keeps them
+# although port/tools/prg_code.txt lists them as code. Offsets only, no ROM
+# bytes. The past-the-end screens of the areas are not here: assets_runtime.py
+# works them out from the dump (past_end_screens).
+#
+# Found by running the port with MFF_PRG_READS=FILE on full PRG data and
+# port/tools/prg_reads.py over the files (9 test routes and 36 bot sessions
+# of 100,000 frames, 2026-10-16).
+#
+# bank (8 KiB), offset in the bank, length; hex
+0C 05BF 0001  # 0C:8527 CMP $8590,Y: a 3-entry table indexed past its end (Y = $2F from the
+              # $A897 table); seen in cody_tour frame 20182 and a bot session
