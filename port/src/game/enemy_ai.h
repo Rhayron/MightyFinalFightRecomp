@@ -5,8 +5,8 @@
  *
  * Bank $0D sits at $A000 while objects_update dispatches an id below $60
  * (the quirk in docs/objects.md), and all of its code is this AI: the
- * behaviours of the common enemies (ids $20-$35, 0C:9CED/9CF1/9CF5, and the
- * ones that enter differently, $2C-$5F) run 0C:9D1F, which calls
+ * behaviours of the common enemies (ids $20-$35, 0C:9CED/9CF1/9CF5, which
+ * the entrances $2C-$5F become: enemy_entrances.c) run 0C:9D1F, which calls
  * enemy_react ($AB29) and then jumps through the table at 0C:9D3B/9D4B by
  * obj_state & $0F to one of the sixteen phases below.
  *
@@ -39,14 +39,8 @@
 #define AI_CHARGE       0x8E    /* $A73A enemy_charge */
 #define AI_DROP_IN      0x8F    /* $A89C enemy_drop_in (set by 0C:9EAB) */
 
-/* ---- obj_kind of the common enemies (docs/ram_map.md) ---- */
-#define KIND_POISON     0x00
-#define KIND_TWO_P      0x01
-#define KIND_BRED       0x02
-/* KIND_AXL (3) is obj_defs.h's */
-#define KIND_EL_GADO    0x04
-#define KIND_ANDORE     0x05
-#define KIND_KNIFE      0x06    /* = KIND_6: El Gado's knife (proposed), id $2E */
+/* obj_kind of the common enemies, KIND_POISON ... KIND_ANDORE and
+ * KIND_KNIFE (El Gado's knife, id $2E), are obj_defs.h's */
 
 #define ENEMY_ID_FIRST  0x20    /* tables indexed by obj_id - $20 cover $20-$35 */
 #define OBJ_KNIFE       0x2E    /* the knife's behaviour id (0C:9D71) */
