@@ -598,11 +598,13 @@ static void sodom_pieces(void)
 
     mff_cycles(0x8703, 7);
     a = RAM(GAME_ACTION);
+    c = a >= 0x04;                              /* attack_end and player_stand pass C on */
     release = a == 0x04;
     if (release) {
         mff_cycles(0x8707, 1);
     } else {
         mff_cycles(0x8709, 4);
+        c = a >= 0x21;
         release = a == 0x21;
         if (!release)
             mff_cycles(0x870B, 1);

@@ -989,58 +989,58 @@ bank = 6
 addr = 0x9D71   # enemy_common.c
 [[replace_func]]
 bank = 6
-addr = 0x9D9E   # lifted, lifted_b6.c
+addr = 0x9D9E   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9DA4   # lifted, lifted_b6.c
+addr = 0x9DA4   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9DAA   # lifted, lifted_b6.c
+addr = 0x9DAA   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9E20   # lifted, lifted_b6.c
+addr = 0x9E20   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9E24   # lifted, lifted_b6.c
+addr = 0x9E24   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9E28   # lifted, lifted_b6.c
+addr = 0x9E28   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9E32   # lifted, lifted_b6.c
+addr = 0x9E32   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9E36   # lifted, lifted_b6.c
+addr = 0x9E36   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9E40   # lifted, lifted_b6.c
+addr = 0x9E40   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9E44   # lifted, lifted_b6.c
+addr = 0x9E44   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9EC5   # lifted, lifted_b6.c
+addr = 0x9EC5   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9ECD   # lifted, lifted_b6.c
+addr = 0x9ECD   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9EF4   # lifted, lifted_b6.c
+addr = 0x9EF4   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9EF8   # lifted, lifted_b6.c
+addr = 0x9EF8   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9F05   # lifted, lifted_b6.c
+addr = 0x9F05   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9F0E   # lifted, lifted_b6.c
+addr = 0x9F0E   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9F12   # lifted, lifted_b6.c
+addr = 0x9F12   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9FBB   # lifted, lifted_b6.c
+addr = 0x9FBB   # enemy_entrances.c
 [[replace_func]]
 bank = 6
 addr = 0x9FF6   # enemy_common.c
@@ -2874,16 +2874,16 @@ bank = 6
 addr = 0x95AE   # obj_thrown.c
 [[replace_func]]
 bank = 6
-addr = 0x9E2E   # lifted, lifted_late.c
+addr = 0x9E2E   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9E3C   # lifted, lifted_late.c
+addr = 0x9E3C   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9EC9   # lifted, lifted_late.c
+addr = 0x9EC9   # enemy_entrances.c
 [[replace_func]]
 bank = 6
-addr = 0x9F01   # lifted, lifted_late.c
+addr = 0x9F01   # enemy_entrances.c
 [[replace_func]]
 bank = 6
 addr = 0xA592   # lifted, lifted_late.c
