@@ -194,70 +194,70 @@ bank = 1
 addr = 0xB330   # enemy_tables.c
 [[replace_func]]
 bank = 1
-addr = 0xB331   # lifted, lifted_b1.c
+addr = 0xB331   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB390   # lifted, lifted_b1.c
+addr = 0xB390   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB39B   # lifted, lifted_b1.c
+addr = 0xB39B   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB3F4   # lifted, lifted_b1.c
+addr = 0xB3F4   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB546   # lifted, lifted_b1.c
+addr = 0xB546   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB57B   # lifted, lifted_b1.c
+addr = 0xB57B   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB615   # lifted, lifted_b1.c
+addr = 0xB615   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB660   # lifted, lifted_b1.c
+addr = 0xB660   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB666   # lifted, lifted_b1.c
+addr = 0xB666   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB6F5   # lifted, lifted_b1.c
+addr = 0xB6F5   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB7BD   # lifted, lifted_b1.c
+addr = 0xB7BD   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB7C9   # lifted, lifted_b1.c
+addr = 0xB7C9   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB879   # lifted, lifted_b1.c
+addr = 0xB879   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB912   # lifted, lifted_b1.c
+addr = 0xB912   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB925   # lifted, lifted_b1.c
+addr = 0xB925   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xB977   # lifted, lifted_b1.c
+addr = 0xB977   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xBA01   # lifted, lifted_b1.c
+addr = 0xBA01   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xBA1C   # lifted, lifted_b1.c
+addr = 0xBA1C   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xBA53   # lifted, lifted_b1.c
+addr = 0xBA53   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xBA88   # lifted, lifted_b1.c
+addr = 0xBA88   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xBAD0   # lifted, lifted_b1.c
+addr = 0xBAD0   # boss_abigail.c
 [[replace_func]]
 bank = 1
-addr = 0xBB29   # lifted, lifted_b1.c
+addr = 0xBB29   # boss_abigail.c
 [[replace_func]]
 bank = 1
 addr = 0xBB91   # enemy_drums.c

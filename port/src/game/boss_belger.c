@@ -43,8 +43,6 @@
 /* ---- ids, kinds, slots ---- */
 #define OBJ_BELGER_SHOT     0x9D
 #define OBJ_BELGER_DOWN     0x9B    /* 03:BF38: lies, then the closing scene */
-#define OBJ_BOSS_TALK       0x6E    /* in slot $0D while the boss talk runs */
-#define KIND_BELGER         0x0B
 #define KIND_BELGER_SHOT    0x0C
 #define BELGER_SLOT         (OBJ_SPAWN_GROUP + 0x0F)    /* $04FF: Belger's slot (0E:CBE1 reads it) */
 
@@ -108,7 +106,6 @@
 #define PHASES1_HI          0xBCF7
 #define PHASES2_LO          0xBCEC
 #define PHASES2_HI          0xBCFD
-#define DIR_BY_INDEX        0xFBF0  /* bank $0F: obj_dir by the 16-way index of 0F:FB5B */
 #define SPEED_VX            0xBD0C  /* by the 16-way index */
 #define SPEED_VX_FRAC       0xBD1C
 #define SPEED_VY            0xBD2C
@@ -176,7 +173,7 @@ void func_B696_b5(void)
     RAM(OBJ_KIND + x) = a;
     a = 0x00;
     RAM(OBJ_ATTACK + x) = a;
-    a = RAM(OBJ_ID + 13);
+    a = RAM(BOSS_TALK_ID);
     c = a >= OBJ_BOSS_TALK;
     if (a == OBJ_BOSS_TALK) {
         mff_cycles(0xB6BF, 9);

@@ -77,6 +77,20 @@
 
 /* ---- names ---- */
 
+/* the boss-talk object: the invisible id $6E in slot $0D starts each boss
+ * talk (obj_props.c); the bosses stand untouchable while it lives
+ * (01:A116, 03:B40E, 0B:B6B8) */
+#define OBJ_BOSS_TALK   0x6E
+#define BOSS_TALK_ID    (OBJ_ID + 0x0D)
+
+/* obj_kind ($05B0) of the bosses here (docs/objects.md) */
+#define KIND_ABIGAIL    0x09
+#define KIND_BELGER     0x0B
+
+/* bank $0F's table of obj_dir pad bits by the 16-way direction index of
+ * 0F:FB5B (clockwise from up: 0 up, 4 right, 8 down, 12 left) */
+#define DIR_BY_INDEX    0xFBF0
+
 /* player_id ($34) */
 #define PLAYER_CODY     0x00
 #define PLAYER_GUY      0x01
