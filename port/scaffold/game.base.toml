@@ -1684,28 +1684,28 @@ bank = 0
 addr = 0x88AA   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x8B00   # lifted, lifted_b0.c
+addr = 0x8B00   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8B15   # lifted, lifted_b0.c
+addr = 0x8B15   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8B98   # lifted, lifted_b0.c
+addr = 0x8B98   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8BB1   # lifted, lifted_b0.c
+addr = 0x8BB1   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8C38   # lifted, lifted_b0.c
+addr = 0x8C38   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8D8D   # lifted, lifted_b0.c
+addr = 0x8D8D   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8DD1   # lifted, lifted_b0.c
+addr = 0x8DD1   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8E3E   # lifted, lifted_b0.c
+addr = 0x8E3E   # player_actions.c
 [[replace_func]]
 bank = 0
 addr = 0x8FAF   # lifted, lifted_b0.c

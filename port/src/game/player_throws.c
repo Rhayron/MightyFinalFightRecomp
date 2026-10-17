@@ -389,3 +389,394 @@ static void haggar_throw_wait(void) {
     mff_cycles(0x86FE, 6);
     RTS();
 }
+
+/* ---- the knee, game_action $21 (B with no direction while holding) ---- */
+
+/* the knee's handler of each character */
+#define KNEE_HANDLER_LO     0x8B0F   /* 15 B1 38 */
+#define KNEE_HANDLER_HI     0x8B12   /* 8B 8B 8C: $8B15, $8BB1, $8C38 */
+#define KNEE_CHR            0x8CBE   /* 0C 16 13 */
+#define KNEE_ATTACK_ID      0x8CC1   /* 1B 1C 1D: the first, second and third knee */
+#define GRAB_ANIM           0xE213   /* 31 32 33: holding an enemy */
+#define GRAB_CHR            0xE25B   /* 0C 14 08 */
+
+/* the held enemy's ids that end the knees: knocked down, dying, pushed back */
+static const uint8_t k_knee_stop_ids[] = { 0x05, 0x06, 0x07, 0x02 };
+
+/*
+ * player_knee ($8B00 in bank $00, proposed): game_action $21. JMP ($0000) to
+ * the character's knee from $8B0F/$8B12[player_id]: cody_knee $8B15,
+ * guy_knee $8BB1, haggar_knee $8C38. Reached through player_action_dispatch
+ * (entry $21).
+ * Out: $00/$01 = the handler, A = its high byte.
+ */
+void func_8B00_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x8B00, 3 + 4);
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(KNEE_HANDLER_LO + y));
+    mff_cycles(0x8B05, 3 + 4);
+    RAM(TMP0) = a;
+    a = prg_read((uint16_t)(KNEE_HANDLER_HI + y));
+    SET_NZ(a);
+    mff_cycles(0x8B0A, 3 + 5);
+    RAM(TMP1) = a;
+    JMP_IND(TMP0);
+}
+
+/*
+ * cody_knee ($8B15 in bank $00, proposed): up to three knees into the held
+ * enemy, counted in grab_hit_count. Off screen (obj_flags bit 7 clear) the
+ * enemy is let go (knee_end). The animation $75 with CHR $8CBE[player_id];
+ * at timer 0 a knee goes out: attack_id $8CC1[count], obj_hit_timer of the
+ * enemy $1C, attack_begin (after the third, knee_end); attack_end at timer
+ * 3; at timer $10 the hold goes on (game_action 4, the holding animation
+ * and CHR bank, grab_timer $3C, obj_hit_timer 0, obj_state[0] $80, the
+ * combo restarted) unless the enemy is down, dying or pushed back
+ * (obj_id 5, 6, 7 or 2: knee_end).
+ */
+void func_8B15_b0(void) {
+    unsigned i;
+    REGS_IN;
+
+    mff_cycles(0x8B15, 3 + 4 + 2);
+    y = RAM(GRAB_SLOT);
+    a = RAM(OBJ_FLAGS + y);
+    if (!(a & 0x80)) {
+        mff_cycles(0x8B1A, 1);
+        FALL_INTO(func_8B98_b0);                /* knee_end */
+    }
+    mff_cycles(0x8B1C, 3 + 2 + 4 + 2);
+    y = RAM(PLAYER_ID);
+    a = 0x75;
+    COMPARE(a, RAM(OBJ_ANIM));
+    if (!z) {
+        mff_cycles(0x8B25, 6);
+        JSR_FN(0x8B25, func_F294);              /* player_set_anim */
+        mff_cycles(0x8B28, 4);
+        a = prg_read((uint16_t)(KNEE_CHR + y));
+        SET_NZ(a);
+        mff_cycles(0x8B2B, 6);
+        JSR_FN(0x8B2B, func_F440);              /* player_set_chr */
+    } else {
+        mff_cycles(0x8B23, 1);
+    }
+    mff_cycles(0x8B2E, 4 + 2);
+    a = RAM(OBJ_ANIM_TIMER);
+    if (a == 0) {
+        mff_cycles(0x8B33, 3 + 2 + 2);
+        y = RAM(GRAB_HIT_COUNT);
+        COMPARE(y, 3);
+        if (z) {
+            mff_cycles(0x8B37, 1);
+            FALL_INTO(func_8B98_b0);            /* knee_end */
+        }
+        mff_cycles(0x8B39, 4);
+        a = prg_read((uint16_t)(KNEE_ATTACK_ID + y));
+        mff_cycles(0x8B3C, 3 + 3 + 2 + 5 + 6);
+        RAM(ATTACK_ID) = a;
+        y = RAM(GRAB_SLOT);
+        a = 0x1C;
+        SET_NZ(a);
+        RAM(OBJ_HIT_TIMER + y) = a;
+        JSR_FN(0x8B45, func_F43B);              /* attack_begin */
+        mff_cycles(0x8B48, 5);
+        RAM(GRAB_HIT_COUNT)++;
+    } else {
+        mff_cycles(0x8B31, 1);
+    }
+    mff_cycles(0x8B4A, 4 + 2 + 2);
+    a = RAM(OBJ_ANIM_TIMER);
+    COMPARE(a, 3);
+    if (z) {
+        mff_cycles(0x8B51, 6);
+        JSR_FN(0x8B51, func_F436);              /* attack_end */
+    } else {
+        mff_cycles(0x8B4F, 1);
+    }
+    mff_cycles(0x8B54, 4 + 2 + 2);
+    a = RAM(OBJ_ANIM_TIMER);
+    COMPARE(a, 0x10);
+    if (!z) {
+        mff_cycles(0x8B59, 1 + 6);
+        RTS();
+    }
+    mff_cycles(0x8B5B, 3 + 4);
+    y = RAM(GRAB_SLOT);
+    a = RAM(OBJ_ID + y);
+    for (i = 0; i < sizeof k_knee_stop_ids; i++) {
+        mff_cycles(0x8B60, 2 + 2);              /* CMP #, BEQ */
+        COMPARE(a, k_knee_stop_ids[i]);
+        if (z) {
+            mff_cycles(0x8B60, 1);
+            FALL_INTO(func_8B98_b0);            /* knee_end */
+        }
+    }
+    mff_cycles(0x8B70, 2 + 3 + 3 + 4);          /* back to holding */
+    a = ACT_GRAB;
+    RAM(GAME_ACTION) = a;
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(GRAB_ANIM + y));
+    SET_NZ(a);
+    mff_cycles(0x8B79, 6);
+    JSR_FN(0x8B79, func_F294);                  /* player_set_anim */
+    mff_cycles(0x8B7C, 4);
+    a = prg_read((uint16_t)(GRAB_CHR + y));
+    SET_NZ(a);
+    mff_cycles(0x8B7F, 6);
+    JSR_FN(0x8B7F, func_F440);                  /* player_set_chr */
+    mff_cycles(0x8B82, 4);
+    a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+    mff_cycles(0x8B85, 3 + 2 + 3 + 3 + 2 + 5 + 2 + 4 + 6);
+    RAM(PLAYER_STAND_ANIM) = a;
+    a = 0x3C;
+    RAM(GRAB_TIMER) = a;
+    y = RAM(GRAB_SLOT);
+    a = 0;
+    RAM(OBJ_HIT_TIMER + y) = a;
+    a = STATE_LIVE;
+    SET_NZ(a);
+    RAM(OBJ_STATE) = a;
+    RTS();
+}
+
+/* knee_end ($8B98 in bank $00, proposed): the knees are over and the enemy
+ * let go of: game_action and grab_hit_count 0, attack_end, obj_state[0]
+ * $80, the combo restarted, player_stand. Run on into from cody_knee;
+ * branched to from guy_knee and reached by JMP from haggar_knee (00:8CB8). */
+void func_8B98_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x8B98, 2 + 3 + 3 + 6);
+    a = ACT_IDLE;
+    SET_NZ(a);
+    RAM(GAME_ACTION) = a;
+    RAM(GRAB_HIT_COUNT) = a;
+    JSR_FN(0x8B9E, func_F436);                  /* attack_end */
+    mff_cycles(0x8BA1, 2 + 4 + 3 + 4);
+    a = STATE_LIVE;
+    RAM(OBJ_STATE) = a;
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+    SET_NZ(a);
+    mff_cycles(0x8BAB, 3 + 6);
+    RAM(PLAYER_STAND_ANIM) = a;
+    JSR_AT(0x8BAD, 0xCEAA, 0);                  /* player_stand */
+    mff_cycles(0x8BB0, 6);
+    RTS();
+}
+
+/* guy_knee ($8BB1 in bank $00, proposed): as cody_knee with the animation
+ * $76, knee_end by branches, and the next combo step $0E (Guy's jab) once
+ * back to holding. */
+void func_8BB1_b0(void) {
+    unsigned i;
+    REGS_IN;
+
+    mff_cycles(0x8BB1, 3 + 4 + 2);
+    y = RAM(GRAB_SLOT);
+    a = RAM(OBJ_FLAGS + y);
+    SET_NZ(a);
+    if (!n) {
+        mff_cycles(0x8BB6, 1);
+        BRANCH_TAIL(0x8B98, 0);                 /* knee_end */
+    }
+    mff_cycles(0x8BB8, 3 + 2 + 4 + 2);
+    y = RAM(PLAYER_ID);
+    a = 0x76;
+    COMPARE(a, RAM(OBJ_ANIM));
+    if (!z) {
+        mff_cycles(0x8BC1, 6);
+        JSR_FN(0x8BC1, func_F294);              /* player_set_anim */
+        mff_cycles(0x8BC4, 4);
+        a = prg_read((uint16_t)(KNEE_CHR + y));
+        SET_NZ(a);
+        mff_cycles(0x8BC7, 6);
+        JSR_FN(0x8BC7, func_F440);              /* player_set_chr */
+    } else {
+        mff_cycles(0x8BBF, 1);
+    }
+    mff_cycles(0x8BCA, 4 + 2);
+    a = RAM(OBJ_ANIM_TIMER);
+    if (a == 0) {
+        mff_cycles(0x8BCF, 3 + 2 + 2);
+        y = RAM(GRAB_HIT_COUNT);
+        COMPARE(y, 3);
+        if (z) {
+            mff_cycles(0x8BD3, 1);
+            BRANCH_TAIL(0x8B98, 0);             /* knee_end */
+        }
+        mff_cycles(0x8BD5, 4);
+        a = prg_read((uint16_t)(KNEE_ATTACK_ID + y));
+        mff_cycles(0x8BD8, 3 + 3 + 2 + 5 + 6);
+        RAM(ATTACK_ID) = a;
+        y = RAM(GRAB_SLOT);
+        a = 0x1C;
+        SET_NZ(a);
+        RAM(OBJ_HIT_TIMER + y) = a;
+        JSR_FN(0x8BE1, func_F43B);              /* attack_begin */
+        mff_cycles(0x8BE4, 5);
+        RAM(GRAB_HIT_COUNT)++;
+    } else {
+        mff_cycles(0x8BCD, 1);
+    }
+    mff_cycles(0x8BE6, 4 + 2 + 2);
+    a = RAM(OBJ_ANIM_TIMER);
+    COMPARE(a, 3);
+    if (z) {
+        mff_cycles(0x8BED, 6);
+        JSR_FN(0x8BED, func_F436);              /* attack_end */
+    } else {
+        mff_cycles(0x8BEB, 1);
+    }
+    mff_cycles(0x8BF0, 4 + 2 + 2);
+    a = RAM(OBJ_ANIM_TIMER);
+    COMPARE(a, 0x10);
+    if (!z) {
+        mff_cycles(0x8BF5, 2 + 6);
+        RTS();
+    }
+    mff_cycles(0x8BF7, 3 + 4);
+    y = RAM(GRAB_SLOT);
+    a = RAM(OBJ_ID + y);
+    for (i = 0; i < sizeof k_knee_stop_ids; i++) {
+        mff_cycles(0x8BFC, 2 + 2);              /* CMP #, BEQ */
+        COMPARE(a, k_knee_stop_ids[i]);
+        if (z) {
+            mff_cycles(0x8BFC, 2);              /* BEQ taken, to the page before */
+            BRANCH_TAIL(0x8B98, 0);             /* knee_end */
+        }
+    }
+    mff_cycles(0x8C0C, 2 + 3 + 3 + 4);          /* back to holding */
+    a = ACT_GRAB;
+    RAM(GAME_ACTION) = a;
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(GRAB_ANIM + y));
+    SET_NZ(a);
+    mff_cycles(0x8C15, 6);
+    JSR_FN(0x8C15, func_F294);                  /* player_set_anim */
+    mff_cycles(0x8C18, 4);
+    a = prg_read((uint16_t)(GRAB_CHR + y));
+    SET_NZ(a);
+    mff_cycles(0x8C1B, 6);
+    JSR_FN(0x8C1B, func_F440);                  /* player_set_chr */
+    mff_cycles(0x8C1E, 4);
+    a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+    mff_cycles(0x8C21, 3 + 2 + 3 + 3 + 2 + 5 + 2 + 4 + 2 + 3 + 6);
+    RAM(PLAYER_STAND_ANIM) = a;
+    a = 0x3C;
+    RAM(GRAB_TIMER) = a;
+    y = RAM(GRAB_SLOT);
+    a = 0;
+    RAM(OBJ_HIT_TIMER + y) = a;
+    a = STATE_LIVE;
+    RAM(OBJ_STATE) = a;
+    a = 0x0E;
+    SET_NZ(a);
+    RAM(PLAYER_STAND_ANIM) = a;
+    RTS();
+}
+
+/* haggar_knee ($8C38 in bank $00, proposed): as cody_knee with the
+ * animation $77, no on-screen test, knee_end by JMP (00:8CB8) and the next
+ * combo step $0F (Haggar's jab) once back to holding. */
+void func_8C38_b0(void) {
+    unsigned i;
+    REGS_IN;
+
+    mff_cycles(0x8C38, 3 + 2 + 4 + 2);
+    y = RAM(PLAYER_ID);
+    a = 0x77;
+    COMPARE(a, RAM(OBJ_ANIM));
+    if (!z) {
+        mff_cycles(0x8C41, 6);
+        JSR_FN(0x8C41, func_F294);              /* player_set_anim */
+        mff_cycles(0x8C44, 4);
+        a = prg_read((uint16_t)(KNEE_CHR + y));
+        SET_NZ(a);
+        mff_cycles(0x8C47, 6);
+        JSR_FN(0x8C47, func_F440);              /* player_set_chr */
+    } else {
+        mff_cycles(0x8C3F, 1);
+    }
+    mff_cycles(0x8C4A, 4 + 2);
+    a = RAM(OBJ_ANIM_TIMER);
+    if (a == 0) {
+        mff_cycles(0x8C4F, 3 + 2 + 2);
+        y = RAM(GRAB_HIT_COUNT);
+        COMPARE(y, 3);
+        if (z) {
+            mff_cycles(0x8C53, 1 + 3);
+            JMP_TAIL(0x8B98, 0);                /* knee_end */
+        }
+        mff_cycles(0x8C55, 4);
+        a = prg_read((uint16_t)(KNEE_ATTACK_ID + y));
+        mff_cycles(0x8C58, 3 + 3 + 2 + 5 + 6);
+        RAM(ATTACK_ID) = a;
+        y = RAM(GRAB_SLOT);
+        a = 0x1C;
+        SET_NZ(a);
+        RAM(OBJ_HIT_TIMER + y) = a;
+        JSR_FN(0x8C61, func_F43B);              /* attack_begin */
+        mff_cycles(0x8C64, 5);
+        RAM(GRAB_HIT_COUNT)++;
+    } else {
+        mff_cycles(0x8C4D, 1);
+    }
+    mff_cycles(0x8C66, 4 + 2 + 2);
+    a = RAM(OBJ_ANIM_TIMER);
+    COMPARE(a, 3);
+    if (z) {
+        mff_cycles(0x8C6D, 6);
+        JSR_FN(0x8C6D, func_F436);              /* attack_end */
+    } else {
+        mff_cycles(0x8C6B, 1);
+    }
+    mff_cycles(0x8C70, 4 + 2 + 2);
+    a = RAM(OBJ_ANIM_TIMER);
+    COMPARE(a, 0x10);
+    if (!z) {
+        mff_cycles(0x8C75, 1 + 6);
+        RTS();
+    }
+    mff_cycles(0x8C77, 3 + 4);
+    y = RAM(GRAB_SLOT);
+    a = RAM(OBJ_ID + y);
+    for (i = 0; i < sizeof k_knee_stop_ids; i++) {
+        mff_cycles(0x8C7C, 2 + 2);              /* CMP #, BEQ */
+        COMPARE(a, k_knee_stop_ids[i]);
+        if (z) {
+            mff_cycles(0x8C7C, 1 + 3);
+            JMP_TAIL(0x8B98, 0);                /* knee_end */
+        }
+    }
+    mff_cycles(0x8C8C, 2 + 3 + 3 + 4);          /* back to holding */
+    a = ACT_GRAB;
+    RAM(GAME_ACTION) = a;
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(GRAB_ANIM + y));
+    SET_NZ(a);
+    mff_cycles(0x8C95, 6);
+    JSR_FN(0x8C95, func_F294);                  /* player_set_anim */
+    mff_cycles(0x8C98, 4);
+    a = prg_read((uint16_t)(GRAB_CHR + y));
+    SET_NZ(a);
+    mff_cycles(0x8C9B, 6);
+    JSR_FN(0x8C9B, func_F440);                  /* player_set_chr */
+    mff_cycles(0x8C9E, 4);
+    a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+    mff_cycles(0x8CA1, 3 + 2 + 3 + 3 + 2 + 5 + 2 + 4 + 2 + 3 + 6);
+    RAM(PLAYER_STAND_ANIM) = a;
+    a = 0x3C;
+    RAM(GRAB_TIMER) = a;
+    y = RAM(GRAB_SLOT);
+    a = 0;
+    RAM(OBJ_HIT_TIMER + y) = a;
+    a = STATE_LIVE;
+    RAM(OBJ_STATE) = a;
+    a = 0x0F;
+    SET_NZ(a);
+    RAM(PLAYER_STAND_ANIM) = a;
+    RTS();
+}

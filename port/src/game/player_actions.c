@@ -467,3 +467,299 @@ void func_82AF_b0(void) {
     mff_cycles(0x82FF, 6);
     RTS();
 }
+
+/* ---- losing a life and the next one ---- */
+
+/*
+ * action_pit_fall ($8D8D in bank $00, proposed): game_action $24, falling
+ * into a pit (player_pit_fall $CFD1 and obj_fall set it). In round 4's
+ * second area the first step sends the player away from the screen's
+ * middle (obj_dir 2 left of x $80, 1 from it) at walking speed, and every
+ * step after he drifts that way. Then pit_fall_down.
+ */
+void func_8D8D_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x8D8D, 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x0F;
+    if (a == 0) {
+        mff_cycles(0x8D94, 3 + 2 + 2);
+        a = RAM(ROUND);
+        COMPARE(a, 3);
+        if (!z) {
+            mff_cycles(0x8D98, 1);
+            FALL_INTO(func_8DD1_b0);            /* pit_fall_down */
+        }
+        mff_cycles(0x8D9A, 3 + 2 + 2);
+        a = RAM(SUB_AREA);
+        COMPARE(a, 1);
+        if (!z) {
+            mff_cycles(0x8D9E, 1);
+            FALL_INTO(func_8DD1_b0);            /* pit_fall_down */
+        }
+        mff_cycles(0x8DA0, 4 + 2 + 2);
+        a = RAM(OBJ_X);
+        COMPARE(a, 0x80);
+        if (c) {
+            mff_cycles(0x8DA5, 1 + 2);
+            a = PAD_RIGHT;
+        } else {
+            mff_cycles(0x8DA7, 2 + 2 + 1);
+            a = PAD_LEFT;
+        }
+        mff_cycles(0x8DAD, 4 + 3 + 4);
+        RAM(OBJ_DIR) = a;
+        y = RAM(PLAYER_ID);
+        a = prg_read((uint16_t)(WALK_VX_FRAC + y));
+        mff_cycles(0x8DB5, 4 + 4);
+        RAM(OBJ_VX_FRAC) = a;
+        a = prg_read((uint16_t)(WALK_VX + y));
+        mff_cycles(0x8DBB, 4 + 6);
+        RAM(OBJ_VX) = a;
+        RAM(OBJ_STATE)++;
+    } else {
+        mff_cycles(0x8D92, 1);
+    }
+    mff_cycles(0x8DC1, 4 + 2 + 2);
+    a = RAM(OBJ_DIR) & PAD_RIGHT;
+    SET_NZ(a);
+    if (!z) {
+        mff_cycles(0x8DC8, 6);
+        JSR_FN(0x8DC8, func_F183);              /* obj_move_right */
+        mff_cycles(0x8DCB, 3);
+        JMP_TAIL(0x8DD1, 0);                    /* pit_fall_down */
+    }
+    mff_cycles(0x8DC6, 1 + 6);
+    JSR_FN(0x8DCE, func_F1A1);                  /* obj_move_left */
+    FALL_INTO(func_8DD1_b0);
+}
+
+/*
+ * pit_fall_down ($8DD1 in bank $00, proposed): the player falls ($F1FD,
+ * without the floor probe) in the falling animation and the jump's CHR
+ * bank; from y $A8 down the sound $28 plays and the sprite is hidden
+ * (obj_flags bit 2). guy_jump_window, scroll_y, jump_moving, combo_timer,
+ * attack_live, player_invuln and slot 0's obj_timer, obj_timer2 and
+ * obj_ground_y go to 0, attack_end. From y $E4 down a life is lost
+ * (obj_state[0] $80): with lives left a new one drops in (game_action
+ * $25), without the continue screen comes at once (special_screen_id 0,
+ * game_action 9, JMP player_state_continue). Reached by JMP from
+ * action_pit_fall (00:8DCB) and run on into from it.
+ */
+void func_8DD1_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x8DD1, 6);
+    JSR_FN(0x8DD1, func_F1FD);                  /* obj_fall, no probe */
+    /* a test with no effect: both ways go on at $8DE0 (Haggar letting go of
+     * an enemy, action_before_fall 4, may have been meant) */
+    mff_cycles(0x8DD4, 3 + 2 + 2);
+    a = RAM(ACTION_BEFORE_FALL);
+    COMPARE(a, ACT_GRAB);
+    if (z) {
+        mff_cycles(0x8DDA, 3 + 2 + 2);
+        a = RAM(PLAYER_ID);
+        COMPARE(a, PLAYER_HAGGAR);
+        if (!z)
+            mff_cycles(0x8DDE, 1);
+    } else {
+        mff_cycles(0x8DD8, 1);
+    }
+    mff_cycles(0x8DE0, 3 + 4);
+    y = RAM(PLAYER_ID);
+    a = prg_read((uint16_t)(ANIM_FALL + y));
+    SET_NZ(a);
+    mff_cycles(0x8DE5, 6);
+    JSR_FN(0x8DE5, func_F294);                  /* player_set_anim */
+    mff_cycles(0x8DE8, 4);
+    a = prg_read((uint16_t)(CHR_JUMP + y));
+    SET_NZ(a);
+    mff_cycles(0x8DEB, 6);
+    JSR_FN(0x8DEB, func_F440);                  /* player_set_chr */
+    mff_cycles(0x8DEE, 4 + 2 + 2);
+    a = RAM(OBJ_Y);
+    COMPARE(a, 0xA8);
+    if (c) {
+        mff_cycles(0x8DF5, 2 + 6);
+        a = SFX_KNOCKDOWN;
+        SET_NZ(a);
+        JSR_FN(0x8DF7, func_F34C);              /* sound_queue_push_sfx */
+        mff_cycles(0x8DFA, 4 + 2 + 4);
+        a = RAM(OBJ_FLAGS) | 0x04;              /* hidden */
+        RAM(OBJ_FLAGS) = a;
+    } else {
+        mff_cycles(0x8DF3, 2);
+    }
+    mff_cycles(0x8E02, 2 + 6 * 3 + 3 * 4 + 6);
+    a = 0;
+    SET_NZ(a);
+    RAM(GUY_JUMP_WINDOW) = a;
+    RAM(SCROLL_Y) = a;
+    RAM(JUMP_MOVING) = a;
+    RAM(COMBO_TIMER) = a;
+    RAM(ATTACK_LIVE) = a;
+    RAM(PLAYER_INVULN) = a;
+    RAM(OBJ_TIMER) = a;
+    RAM(OBJ_TIMER2) = a;
+    RAM(OBJ_GROUND_Y) = a;
+    JSR_FN(0x8E19, func_F436);                  /* attack_end */
+    mff_cycles(0x8E1C, 4 + 2 + 2);
+    a = RAM(OBJ_Y);
+    COMPARE(a, 0xE4);
+    if (c) {
+        mff_cycles(0x8E23, 2 + 4 + 5 + 3 + 2);
+        a = STATE_LIVE;
+        RAM(OBJ_STATE) = a;
+        RAM(LIVES)--;
+        a = RAM(LIVES);
+        if (a & 0x80) {
+            mff_cycles(0x8E2E, 2 + 3 + 2 + 3 + 3);
+            a = 0;
+            RAM(SPECIAL_SCREEN_ID) = a;
+            a = ACT_CONTINUE;
+            SET_NZ(a);
+            RAM(GAME_ACTION) = a;
+            JMP_TAIL(0xDC6C, -1);               /* player_state_continue */
+        }
+        mff_cycles(0x8E2C, 1 + 2 + 3);
+        a = ACT_DROP_IN;
+        SET_NZ(a);
+        RAM(GAME_ACTION) = a;
+    } else {
+        mff_cycles(0x8E21, 1);
+    }
+    mff_cycles(0x8E3D, 6);
+    RTS();
+}
+
+/*
+ * action_drop_in ($8E3E in bank $00, proposed; Data Crystal: falling,
+ * invincible): game_action $25, a new life. The first step puts the player
+ * high on the screen (y $10, x $38 from the camera's left edge; when
+ * scroll_x is 0 only obj_x is set), refills health (player_health_reset),
+ * the falling animation and CHR bank, obj_vy $0580, obj_flags $D0. Every
+ * step he comes down (obj_move_down); at y $88 (round 2: $98, never
+ * executed) he lands: facing right, respawn_timer2 $B6 and respawn_timer1
+ * $1E (the blinking invincibility), obj_state[0] and player_no_hit $80, the
+ * player's state cleared (game_action, jump_moving, scroll_y, obj_timer,
+ * obj_timer2, grab_hit_count, attack_live, weapon_held, combo_timer,
+ * weapon_ammo, guy_jump_window), player_stand, a fall started ($F26E) and
+ * the combo restarted (special_screen_id $B5 would count up; never
+ * executed).
+ */
+void func_8E3E_b0(void) {
+    REGS_IN;
+
+    mff_cycles(0x8E3E, 4 + 2 + 2);
+    a = RAM(OBJ_STATE) & 0x0F;
+    SET_NZ(a);
+    if (z) {
+        mff_cycles(0x8E45, 3 + 2);
+        a = RAM(SCROLL_X);
+        if (a == 0) {
+            mff_cycles(0x8E49, 2 + 4 + 2 + 1);
+            a = 0x38;
+            RAM(OBJ_X) = a;
+        } else {
+            mff_cycles(0x8E47, 1 + 3 + 2 + 2 + 4 + 3 + 2 + 4);
+            a = RAM(SCROLL_X);
+            c = 0;
+            ADC(0x38);
+            RAM(OBJ_X) = a;
+            a = RAM(SCROLL_X_HI);
+            ADC(0);
+            RAM(OBJ_X_HI) = a;
+        }
+        mff_cycles(0x8E5F, 2 + 4 + 2 + 4 + 4 + 6);
+        a = 0x10;
+        RAM(OBJ_Y) = a;
+        a = 0;
+        SET_NZ(a);
+        RAM(OBJ_Y_HI) = a;
+        RAM(OBJ_ID) = a;
+        JSR_AT(0x8E6C, 0xDE33, 0);              /* player_health_reset */
+        mff_cycles(0x8E6F, 3 + 4);
+        y = RAM(PLAYER_ID);
+        a = prg_read((uint16_t)(ANIM_FALL + y));
+        SET_NZ(a);
+        mff_cycles(0x8E74, 6);
+        JSR_FN(0x8E74, func_F294);              /* player_set_anim */
+        mff_cycles(0x8E77, 4);
+        a = prg_read((uint16_t)(CHR_JUMP + y));
+        SET_NZ(a);
+        mff_cycles(0x8E7A, 6);
+        JSR_FN(0x8E7A, func_F440);              /* player_set_chr */
+        mff_cycles(0x8E7D, 6 + 2 + 4 + 2 + 4 + 2 + 4);
+        RAM(OBJ_STATE)++;
+        a = 0x80;
+        RAM(OBJ_VY_FRAC) = a;
+        a = 0x05;
+        RAM(OBJ_VY) = a;
+        a = FLAGS_FACING_RIGHT;
+        SET_NZ(a);
+        RAM(OBJ_FLAGS) = a;
+    } else {
+        mff_cycles(0x8E43, 1);
+    }
+    mff_cycles(0x8E8F, 6);
+    JSR_FN(0x8E8F, func_F1BF);                  /* obj_move_down */
+    mff_cycles(0x8E92, 3 + 2 + 2);
+    a = RAM(ROUND);
+    if (a == 1) {
+        mff_cycles(0x8E98, 2 + 2 + 1);
+        a = 0x98;
+    } else {
+        mff_cycles(0x8E96, 1 + 2);
+        a = 0x88;
+    }
+    mff_cycles(0x8E9E, 3 + 4 + 3 + 2);
+    RAM(TMP0) = a;
+    a = RAM(OBJ_Y);
+    COMPARE(a, RAM(TMP0));
+    if (c) {                                    /* landed */
+        mff_cycles(0x8EA7, 2 + 3 + 2 + 3 + 2 + 3 + 2 + 4 + 3 + 2 + 9 * 3 + 2 * 4 + 6);
+        a = PAD_RIGHT;
+        RAM(PLAYER_DIR) = a;
+        a = 0xB6;
+        RAM(RESPAWN_TIMER2) = a;
+        a = 0x1E;
+        RAM(RESPAWN_TIMER1) = a;
+        a = STATE_LIVE;
+        RAM(OBJ_STATE) = a;
+        RAM(PLAYER_NO_HIT) = a;
+        a = 0;
+        SET_NZ(a);
+        RAM(GAME_ACTION) = a;
+        RAM(JUMP_MOVING) = a;
+        RAM(SCROLL_Y) = a;
+        RAM(OBJ_TIMER) = a;
+        RAM(OBJ_TIMER2) = a;
+        RAM(GRAB_HIT_COUNT) = a;
+        RAM(ATTACK_LIVE) = a;
+        RAM(WEAPON_HELD) = a;
+        RAM(COMBO_TIMER) = a;
+        RAM(WEAPON_AMMO) = a;
+        RAM(GUY_JUMP_WINDOW) = a;
+        JSR_AT(0x8ED4, 0xCEAA, 0);              /* player_stand */
+        mff_cycles(0x8ED7, 6);
+        JSR_FN(0x8ED7, func_F26E);              /* the start of a fall */
+        mff_cycles(0x8EDA, 3 + 4);
+        y = RAM(PLAYER_ID);
+        a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+        mff_cycles(0x8EDF, 3 + 3 + 2 + 2);
+        RAM(PLAYER_STAND_ANIM) = a;
+        a = RAM(SPECIAL_SCREEN_ID);
+        COMPARE(a, 0xB5);
+        if (z) {
+            mff_cycles(0x8EE7, 5);
+            RAM(SPECIAL_SCREEN_ID)++;
+            SET_NZ(RAM(SPECIAL_SCREEN_ID));
+        } else {
+            mff_cycles(0x8EE5, 1);
+        }
+    } else {
+        mff_cycles(0x8EA5, 1);
+    }
+    mff_cycles(0x8EE9, 6);
+    RTS();
+}

@@ -106,7 +106,7 @@
 #define ACT_LARIAT        0x16   /* Haggar's moving special ($86FF, no routine in the port) */
 #define ACT_SPECIAL       0x17   /* the A+B special (Data Crystal: special power) */
 #define ACT_LYING         0x1F   /* down after a knockdown, getting up */
-#define ACT_GRAB_KNEE     0x21   /* Cody: B with no direction while holding */
+#define ACT_GRAB_KNEE     0x21   /* the knee: B with no direction while holding */
 #define ACT_PIT_FALL      0x24   /* falling into a pit (player_pit_fall, $CFD1) */
 #define ACT_DROP_IN       0x25   /* a new life drops in */
 
@@ -142,6 +142,7 @@
 #define ANIM_JUMP_MOVING    0xE1EC   /* 0A 0B 0C: jump with left/right */
 #define ANIM_JUMP_KICK      0xE1FE   /* 1C 1D 1E */
 #define ANIM_KNOCKED_DOWN   0xE20D   /* 2B 2C 2D */
+#define ANIM_FALL           0xE219   /* 37 38 39: falling (a jump's descent, a pit) */
 #define ANIM_JUMP_BACK      0xE21C   /* 3A 3B 3C: moving away from the facing side */
 /* CHR banks for the sprite (player_set_chr, $F440) */
 #define CHR_JUMP            0xE22E   /* 01 05 12 */
@@ -185,6 +186,8 @@ void func_F119(void);   /* obj_fall: slot X falls by obj_vy with gravity; C set
                            on the floor, $10 = the probed tile's attribute */
 void func_F183(void);   /* obj_move_right: x += vx (slot X) */
 void func_F1A1(void);   /* obj_move_left: x -= vx (slot X) */
+void func_F1BF(void);   /* obj_move_down: y += vy (slot X) */
+void func_F1FD(void);   /* obj_fall: slot X falls by vy with gravity, no floor probe */
 void func_F288(void);   /* obj_set_anim: obj_anim[X] = A, frame and timer 0 */
 void func_F26E(void);   /* the start of a fall: obj_vy = -$40/256 for the player */
 void func_F294(void);   /* player_set_anim: obj_anim[0] = A, frame and timer 0 */
@@ -308,5 +311,13 @@ void func_884E_b0(void);
 void func_8864_b0(void);
 void func_889F_b0(void);
 void func_88AA_b0(void);
+void func_8B00_b0(void);
+void func_8B15_b0(void);
+void func_8B98_b0(void);
+void func_8BB1_b0(void);
+void func_8C38_b0(void);
+void func_8D8D_b0(void);
+void func_8DD1_b0(void);
+void func_8E3E_b0(void);
 
 #endif
