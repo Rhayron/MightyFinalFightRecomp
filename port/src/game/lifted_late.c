@@ -2447,82 +2447,6 @@ void func_9BA4_b2(void) {
     mff_rts(); return;
 }
 
-/*  $A724 (bank 2) - lifted by port/tools/lift.py */
-void func_A724_b2(void) {
-    REGS_IN;
-    mff_cycles(0xA724, 3);
-    SYNC_OUT;
-    nes_cpu_instruction_boundary(0xA8A8, 2); call_by_address_tail(0xA8A8, 2); return;
-}
-
-/*  $A82A (bank 2) - lifted by port/tools/lift.py */
-void func_A82A_b2(void) {
-    REGS_IN;
-    mff_cycles(0xA82A, 11);
-    a = 0xFF;
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(WEAPON_HELD) = a;
-    SYNC_OUT;
-    if (!mff_call_fn(0x0830, func_F2BE, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xA831, 6);
-    SYNC_OUT;
-    mff_rts(); return;
-}
-
-/*  $A851 (bank 2) - lifted by port/tools/lift.py */
-void func_A851_b2(void) {
-    REGS_IN;
-    mff_cycles(0xA851, 6);
-    SYNC_OUT;
-    if (!mff_call_fn(0x0853, func_F71A, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xA854, 2);
-    if (c) { mff_cycles(0xA854, 1); SYNC_OUT; call_by_address_tail((uint16_t)(g_code_window_base + 0x0850), 2); return; }
-    mff_cycles(0xA856, 58);
-    RAM(TMP15) = y;
-    a = RAM(OBJ_DIR + x);
-    RAM(OBJ_DIR + y) = a;
-    a = RAM(SCROLL_X_HI);
-    RAM(OBJ_X_HI + y) = a;
-    a = RAM(OBJ_Y_HI);
-    RAM(OBJ_Y_HI + y) = a;
-    a = RAM(OBJ_X + x);
-    RAM(OBJ_X + y) = a;
-    a = RAM(OBJ_Y + x);
-    RAM(OBJ_Y + y) = a;
-    a = RAM(PLAYER_ID);
-    a &= 0x01;
-    y = a;
-    a = prg_read((uint16_t)(0xA8A5 + y));
-    mff_cycles(0xA87D, 9);
-    y = RAM(TMP15);
-    n = (y) >> 7;
-    z = (y) == 0;
-    SYNC_OUT;
-    if (!mff_call_fn(0x0881, func_F2A0, 0xE000)) return;
-    SYNC_IN;
-    mff_cycles(0xA882, 57);
-    a = 0x6A;
-    RAM(OBJ_ID + y) = a;
-    RAM(OBJ_SAVED_ID + y) = a;
-    a = 0x80;
-    RAM(OBJ_STATE + y) = a;
-    RAM(OBJ_SAVED_STATE + y) = a;
-    RAM(OBJ_SPAWN_INDEX + y) = a;
-    a = 0x00;
-    RAM(OBJ_THROW_FLAG + y) = a;
-    a = 0x2F;
-    RAM(OBJ_ATTACK + y) = a;
-    a = RAM(WEAPON_AMMO);
-    n = (a) >> 7;
-    z = (a) == 0;
-    RAM(OBJ_TIMER + y) = a;
-    SYNC_OUT;
-    mff_rts(); return;
-}
-
 /*  $80E3 (bank 4) - lifted by port/tools/lift.py */
 void func_80E3_b4(void) {
     REGS_IN;
@@ -9499,14 +9423,6 @@ L_91B3:;
 void func_91B2_b0(void) {
     REGS_IN;
     mff_cycles(0x91B2, 6);
-    SYNC_OUT;
-    mff_rts(); return;
-}
-
-/*  $A850 (bank 2) - lifted by port/tools/lift.py */
-void func_A850_b2(void) {
-    REGS_IN;
-    mff_cycles(0xA850, 6);
     SYNC_OUT;
     mff_rts(); return;
 }

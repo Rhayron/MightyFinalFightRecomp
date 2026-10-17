@@ -2184,100 +2184,100 @@ bank = 2
 addr = 0x9AF4   # lifted, lifted_b2.c
 [[replace_func]]
 bank = 2
-addr = 0xA700   # lifted, lifted_b2.c
+addr = 0xA700   # prop_behaviors, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA703   # lifted, lifted_b2.c
+addr = 0xA703   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA706   # lifted, lifted_b2.c
+addr = 0xA706   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA709   # lifted, lifted_b2.c
+addr = 0xA709   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA70C   # lifted, lifted_b2.c
+addr = 0xA70C   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA70F   # lifted, lifted_b2.c
+addr = 0xA70F   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA712   # lifted, lifted_b2.c
+addr = 0xA712   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA715   # lifted, lifted_b2.c
+addr = 0xA715   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA718   # lifted, lifted_b2.c
+addr = 0xA718   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA71B   # lifted, lifted_b2.c
+addr = 0xA71B   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA71E   # lifted, lifted_b2.c
+addr = 0xA71E   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA721   # lifted, lifted_b2.c
+addr = 0xA721   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA727   # lifted, lifted_b2.c
+addr = 0xA727   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA72A   # lifted, lifted_b2.c
+addr = 0xA72A   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA72D   # lifted, lifted_b2.c
+addr = 0xA72D   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA730   # lifted, lifted_b2.c
+addr = 0xA730   # prop_none, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA731   # lifted, lifted_b2.c
+addr = 0xA731   # hidden_food, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA7A5   # lifted, lifted_b2.c
+addr = 0xA7A5   # weapon_pickup, obj_weapons.c
 [[replace_func]]
 bank = 2
-addr = 0xA8A8   # lifted, lifted_b2.c
+addr = 0xA8A8   # thrown_weapon, obj_weapons.c
 [[replace_func]]
 bank = 2
-addr = 0xA916   # lifted, lifted_b2.c
+addr = 0xA916   # dropped_weapon, obj_weapons.c
 [[replace_func]]
 bank = 2
-addr = 0xA957   # lifted, lifted_b2.c
+addr = 0xA957   # dropped_weapon_fall, obj_weapons.c
 [[replace_func]]
 bank = 2
-addr = 0xA9E4   # lifted, lifted_b2.c
+addr = 0xA9E4   # boss_talk, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAA82   # lifted, lifted_b2.c
+addr = 0xAA82   # go_sign, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAB08   # lifted, lifted_b2.c
+addr = 0xAB08   # thrasher_look_in, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAB41   # lifted, lifted_b2.c
+addr = 0xAB41   # andore_charge, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xABC4   # lifted, lifted_b2.c
+addr = 0xABC4   # boss_low_palette, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xABE1   # lifted, lifted_b2.c
+addr = 0xABE1   # elevator, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAC58   # lifted, lifted_b2.c
+addr = 0xAC58   # elevator_step, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAC7D   # lifted, lifted_b2.c
+addr = 0xAC7D   # elevator_lights, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xACE1   # lifted, lifted_b2.c
+addr = 0xACE1   # elevator_floor, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAD37   # lifted, lifted_b2.c
+addr = 0xAD37   # shaft_light, obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xAD58   # lifted, lifted_b2.c
+addr = 0xAD58   # floor_indicator, obj_props.c
 [[replace_func]]
 bank = 4
 addr = 0x8000   # stage_list_setup, stage_spawn.c
@@ -2733,13 +2733,13 @@ bank = 2
 addr = 0x9BA4   # lifted, lifted_late.c
 [[replace_func]]
 bank = 2
-addr = 0xA724   # lifted, lifted_late.c
+addr = 0xA724   # obj_props.c
 [[replace_func]]
 bank = 2
-addr = 0xA82A   # lifted, lifted_late.c
+addr = 0xA82A   # weapon_take, obj_weapons.c
 [[replace_func]]
 bank = 2
-addr = 0xA851   # lifted, lifted_late.c
+addr = 0xA851   # weapon_drop, obj_weapons.c
 [[replace_func]]
 bank = 3
 addr = 0x8118   # snd_start, sound_driver.c
@@ -2943,7 +2943,7 @@ bank = 0
 addr = 0x91B2   # lifted, lifted_late.c
 [[replace_func]]
 bank = 2
-addr = 0xA850   # lifted, lifted_late.c
+addr = 0xA850   # obj_weapons.c
 [[replace_func]]
 bank = 4
 addr = 0x892C   # lifted, lifted_late.c
