@@ -1282,153 +1282,153 @@ addr = 0xCF88   # lifted, lifted_c.c
 [[replace_func]]
 addr = 0xCFD1   # lifted, lifted_c.c
 [[replace_func]]
-addr = 0xD00E   # lifted, lifted_d.c
+addr = 0xD00E   # player_jump.c
 [[replace_func]]
-addr = 0xD03F   # lifted, lifted_d.c
+addr = 0xD03F   # player_jump.c
 [[replace_func]]
-addr = 0xD18E   # lifted, lifted_d.c
+addr = 0xD18E   # player_jump.c
 [[replace_func]]
-addr = 0xD242   # lifted, lifted_d.c
+addr = 0xD242   # player_jump.c
 [[replace_func]]
-addr = 0xD2B7   # lifted, lifted_d.c
+addr = 0xD2B7   # player_states.c
 [[replace_func]]
-addr = 0xD30F   # lifted, lifted_d.c
+addr = 0xD30F   # player_attack.c
 [[replace_func]]
-addr = 0xD346   # lifted, lifted_d.c
+addr = 0xD346   # player_attack.c
 [[replace_func]]
-addr = 0xD39E   # lifted, lifted_d.c
+addr = 0xD39E   # player_attack.c
 [[replace_func]]
-addr = 0xD3B3   # lifted, lifted_d.c
+addr = 0xD3B3   # player_attack.c
 [[replace_func]]
-addr = 0xD438   # lifted, lifted_d.c
+addr = 0xD438   # player_attack.c
 [[replace_func]]
-addr = 0xD45A   # lifted, lifted_d.c
+addr = 0xD45A   # player_states.c
 [[replace_func]]
-addr = 0xD45E   # lifted, lifted_d.c
+addr = 0xD45E   # player_attack.c
 [[replace_func]]
-addr = 0xD477   # lifted, lifted_d.c
+addr = 0xD477   # player_attack.c
 [[replace_func]]
-addr = 0xD47D   # lifted, lifted_d.c
+addr = 0xD47D   # player_attack.c
 [[replace_func]]
-addr = 0xD4CF   # lifted, lifted_d.c
+addr = 0xD4CF   # player_attack.c
 [[replace_func]]
-addr = 0xD4E5   # lifted, lifted_d.c
+addr = 0xD4E5   # player_attack.c
 [[replace_func]]
-addr = 0xD4E6   # lifted, lifted_d.c
+addr = 0xD4E6   # player_attack.c
 [[replace_func]]
-addr = 0xD4F2   # lifted, lifted_d.c
+addr = 0xD4F2   # player_attack.c
 [[replace_func]]
-addr = 0xD50F   # lifted, lifted_d.c
+addr = 0xD50F   # player_attack.c
 [[replace_func]]
-addr = 0xD522   # lifted, lifted_d.c
+addr = 0xD522   # player_attack.c
 [[replace_func]]
-addr = 0xD55D   # lifted, lifted_d.c
+addr = 0xD55D   # player_attack.c
 [[replace_func]]
-addr = 0xD55E   # lifted, lifted_d.c
+addr = 0xD55E   # player_attack.c
 [[replace_func]]
-addr = 0xD567   # lifted, lifted_d.c
+addr = 0xD567   # player_attack.c
 [[replace_func]]
-addr = 0xD570   # lifted, lifted_d.c
+addr = 0xD570   # player_attack.c
 [[replace_func]]
-addr = 0xD58D   # lifted, lifted_d.c
+addr = 0xD58D   # player_attack.c
 [[replace_func]]
-addr = 0xD5B7   # lifted, lifted_d.c
+addr = 0xD5B7   # player_attack.c
 [[replace_func]]
-addr = 0xD5F3   # lifted, lifted_d.c
+addr = 0xD5F3   # player_attack.c
 [[replace_func]]
-addr = 0xD61F   # lifted, lifted_d.c
+addr = 0xD61F   # player_attack.c
 [[replace_func]]
-addr = 0xD641   # lifted, lifted_d.c
+addr = 0xD641   # player_attack.c
 [[replace_func]]
-addr = 0xD6D4   # lifted, lifted_d.c
+addr = 0xD6D4   # player_attack.c
 [[replace_func]]
-addr = 0xD6DF   # lifted, lifted_d.c
+addr = 0xD6DF   # player_attack.c
 [[replace_func]]
-addr = 0xD6E0   # lifted, lifted_d.c
+addr = 0xD6E0   # player_attack.c
 [[replace_func]]
-addr = 0xD70A   # lifted, lifted_d.c
+addr = 0xD70A   # player_attack.c
 [[replace_func]]
-addr = 0xD777   # lifted, lifted_d.c
+addr = 0xD777   # player_attack.c
 [[replace_func]]
-addr = 0xD79A   # lifted, lifted_d.c
+addr = 0xD79A   # player_attack.c
 [[replace_func]]
-addr = 0xD7A3   # lifted, lifted_d.c
+addr = 0xD7A3   # player_grab.c
 [[replace_func]]
-addr = 0xD7B8   # lifted, lifted_d.c
+addr = 0xD7B8   # player_grab.c
 [[replace_func]]
-addr = 0xD7F2   # lifted, lifted_d.c
+addr = 0xD7F2   # player_grab.c
 [[replace_func]]
-addr = 0xD82E   # lifted, lifted_d.c
+addr = 0xD82E   # player_grab.c
 [[replace_func]]
-addr = 0xD83B   # lifted, lifted_d.c
+addr = 0xD83B   # player_grab.c
 [[replace_func]]
-addr = 0xD886   # lifted, lifted_d.c
+addr = 0xD886   # player_grab.c
 [[replace_func]]
-addr = 0xD88C   # lifted, lifted_d.c
+addr = 0xD88C   # player_grab.c
 [[replace_func]]
-addr = 0xD89A   # lifted, lifted_d.c
+addr = 0xD89A   # player_grab.c
 [[replace_func]]
-addr = 0xD8A8   # lifted, lifted_d.c
+addr = 0xD8A8   # player_grab.c
 [[replace_func]]
-addr = 0xD8B7   # lifted, lifted_d.c
+addr = 0xD8B7   # player_grab.c
 [[replace_func]]
-addr = 0xD8E5   # lifted, lifted_d.c
+addr = 0xD8E5   # player_grab.c
 [[replace_func]]
-addr = 0xD93C   # lifted, lifted_d.c
+addr = 0xD93C   # player_grab.c
 [[replace_func]]
-addr = 0xD986   # lifted, lifted_d.c
+addr = 0xD986   # player_grab.c
 [[replace_func]]
-addr = 0xD9A3   # lifted, lifted_d.c
+addr = 0xD9A3   # player_grab.c
 [[replace_func]]
-addr = 0xD9E9   # lifted, lifted_d.c
+addr = 0xD9E9   # player_grab.c
 [[replace_func]]
-addr = 0xD9FA   # lifted, lifted_d.c
+addr = 0xD9FA   # player_hurt.c
 [[replace_func]]
-addr = 0xDA3F   # lifted, lifted_d.c
+addr = 0xDA3F   # player_hurt.c
 [[replace_func]]
-addr = 0xDB03   # lifted, lifted_d.c
+addr = 0xDB03   # player_hurt.c
 [[replace_func]]
-addr = 0xDB2C   # lifted, lifted_d.c
+addr = 0xDB2C   # player_hurt.c
 [[replace_func]]
-addr = 0xDB6C   # lifted, lifted_d.c
+addr = 0xDB6C   # player_hurt.c
 [[replace_func]]
-addr = 0xDBD4   # lifted, lifted_d.c
+addr = 0xDBD4   # player_hurt.c
 [[replace_func]]
-addr = 0xDBFD   # lifted, lifted_d.c
+addr = 0xDBFD   # player_hurt.c
 [[replace_func]]
-addr = 0xDC29   # lifted, lifted_d.c
+addr = 0xDC29   # player_hurt.c
 [[replace_func]]
-addr = 0xDC6C   # lifted, lifted_d.c
+addr = 0xDC6C   # player_states.c
 [[replace_func]]
-addr = 0xDCDD   # lifted, lifted_d.c
+addr = 0xDCDD   # player_states.c
 [[replace_func]]
-addr = 0xDD6A   # lifted, lifted_d.c
+addr = 0xDD6A   # player_attack.c
 [[replace_func]]
-addr = 0xDD7F   # lifted, lifted_d.c
+addr = 0xDD7F   # player_attack.c
 [[replace_func]]
-addr = 0xDD8E   # lifted, lifted_d.c
+addr = 0xDD8E   # player_attack.c
 [[replace_func]]
-addr = 0xDDB7   # lifted, lifted_d.c
+addr = 0xDDB7   # player_attack.c
 [[replace_func]]
-addr = 0xDDC1   # lifted, lifted_d.c
+addr = 0xDDC1   # player_attack.c
 [[replace_func]]
-addr = 0xDDC4   # lifted, lifted_d.c
+addr = 0xDDC4   # player_attack.c
 [[replace_func]]
-addr = 0xDDD3   # lifted, lifted_d.c
+addr = 0xDDD3   # player_attack.c
 [[replace_func]]
-addr = 0xDDE2   # lifted, lifted_d.c
+addr = 0xDDE2   # player_attack.c
 [[replace_func]]
-addr = 0xDDFF   # lifted, lifted_d.c
+addr = 0xDDFF   # player_attack.c
 [[replace_func]]
-addr = 0xDE0E   # lifted, lifted_d.c
+addr = 0xDE0E   # player_attack.c
 [[replace_func]]
-addr = 0xDE33   # lifted, lifted_d.c
+addr = 0xDE33   # player_states.c
 [[replace_func]]
-addr = 0xDE5E   # lifted, lifted_d.c
+addr = 0xDE5E   # player_round.c
 [[replace_func]]
-addr = 0xDF50   # lifted, lifted_d.c
+addr = 0xDF50   # player_round.c
 [[replace_func]]
-addr = 0xDFE9   # lifted, lifted_d.c
+addr = 0xDFE9   # player_round.c
 [[replace_func]]
 addr = 0xE03B   # area_start, stage_area.c
 [[replace_func]]
@@ -1566,7 +1566,7 @@ addr = 0xF32E   # lifted, lifted_f.c
 [[replace_func]]
 addr = 0xF343   # lifted, lifted_f.c
 [[replace_func]]
-addr = 0xF34C   # lifted, lifted_f.c
+addr = 0xF34C   # sound_queue_push_sfx, sound.c
 [[replace_func]]
 addr = 0xF365   # lifted, lifted_f.c
 [[replace_func]]
@@ -1654,135 +1654,135 @@ addr = 0xFE00   # lifted, lifted_f.c
 [[replace_func]]
 addr = 0xFF4C   # lifted, lifted_f.c
 [[replace_func]]
-addr = 0xFF72   # lifted, lifted_f.c
+addr = 0xFF72   # sound_update, sound.c
 [[replace_func]]
-addr = 0xFF8E   # lifted, lifted_f.c
-[[replace_func]]
-bank = 0
-addr = 0x8000   # lifted, lifted_b0.c
+addr = 0xFF8E   # sound_update_queue, sound.c
 [[replace_func]]
 bank = 0
-addr = 0x8065   # lifted, lifted_b0.c
+addr = 0x8000   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8066   # lifted, lifted_b0.c
+addr = 0x8065   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x807E   # lifted, lifted_b0.c
+addr = 0x8066   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8090   # lifted, lifted_b0.c
+addr = 0x807E   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8193   # lifted, lifted_b0.c
+addr = 0x8090   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x821D   # lifted, lifted_b0.c
+addr = 0x8193   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x82AF   # lifted, lifted_b0.c
+addr = 0x821D   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8300   # lifted, lifted_b0.c
+addr = 0x82AF   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x83A1   # lifted, lifted_b0.c
+addr = 0x8300   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x83DC   # lifted, lifted_b0.c
+addr = 0x83A1   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x8429   # lifted, lifted_b0.c
+addr = 0x83DC   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x8479   # lifted, lifted_b0.c
+addr = 0x8429   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x8497   # lifted, lifted_b0.c
+addr = 0x8479   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x849C   # lifted, lifted_b0.c
+addr = 0x8497   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8540   # lifted, lifted_b0.c
+addr = 0x849C   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8541   # lifted, lifted_b0.c
+addr = 0x8540   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x85AA   # lifted, lifted_b0.c
+addr = 0x8541   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x85BF   # lifted, lifted_b0.c
+addr = 0x85AA   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x85F9   # lifted, lifted_b0.c
+addr = 0x85BF   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x85FE   # lifted, lifted_b0.c
+addr = 0x85F9   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x863E   # lifted, lifted_b0.c
+addr = 0x85FE   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x8643   # lifted, lifted_b0.c
+addr = 0x863E   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x87AA   # lifted, lifted_b0.c
+addr = 0x8643   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x87E2   # lifted, lifted_b0.c
+addr = 0x87AA   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x87F7   # lifted, lifted_b0.c
+addr = 0x87E2   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x8832   # lifted, lifted_b0.c
+addr = 0x87F7   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x884E   # lifted, lifted_b0.c
+addr = 0x8832   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x8864   # lifted, lifted_b0.c
+addr = 0x884E   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x889F   # lifted, lifted_b0.c
+addr = 0x8864   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x88AA   # lifted, lifted_b0.c
+addr = 0x889F   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x8B00   # lifted, lifted_b0.c
+addr = 0x88AA   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x8B15   # lifted, lifted_b0.c
+addr = 0x8B00   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8B98   # lifted, lifted_b0.c
+addr = 0x8B15   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8BB1   # lifted, lifted_b0.c
+addr = 0x8B98   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8C38   # lifted, lifted_b0.c
+addr = 0x8BB1   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8D8D   # lifted, lifted_b0.c
+addr = 0x8C38   # player_throws.c
 [[replace_func]]
 bank = 0
-addr = 0x8DD1   # lifted, lifted_b0.c
+addr = 0x8D8D   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8E3E   # lifted, lifted_b0.c
+addr = 0x8DD1   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8FAF   # lifted, lifted_b0.c
+addr = 0x8E3E   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x90AC   # lifted, lifted_b0.c
+addr = 0x8FAF   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x90CB   # lifted, lifted_b0.c
+addr = 0x90AC   # player_actions.c
+[[replace_func]]
+bank = 0
+addr = 0x90CB   # player_actions.c
 [[replace_func]]
 bank = 0
 addr = 0x9297   # lifted, lifted_b0.c
@@ -2742,10 +2742,10 @@ bank = 2
 addr = 0xA851   # lifted, lifted_late.c
 [[replace_func]]
 bank = 3
-addr = 0x8118   # lifted, lifted_late.c
+addr = 0x8118   # snd_start, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x825B   # lifted, lifted_late.c
+addr = 0x825B   # snd_effect_row, sound_effect.c
 [[replace_func]]
 bank = 4
 addr = 0x80E3   # lifted, lifted_late.c
@@ -2955,13 +2955,13 @@ bank = 4
 addr = 0x8955   # lifted, lifted_late.c
 [[replace_func]]
 bank = 3
-addr = 0x822D   # lifted, lifted_late.c
+addr = 0x822D   # snd_fade_in, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x8234   # lifted, lifted_late.c
+addr = 0x8234   # snd_fade_out, sound_driver.c
 [[replace_func]]
 bank = 3
-addr = 0x824A   # lifted, lifted_late.c
+addr = 0x824A   # snd_pitch_scale, sound_driver.c
 
 # ---- generated by port/tools/legacy_config.py from the P0 map; do not edit below ----
 
