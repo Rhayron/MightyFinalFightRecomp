@@ -2551,52 +2551,52 @@ bank = 4
 addr = 0xA321   # bg_palette_step, stage_palette.c
 [[replace_func]]
 bank = 4
-addr = 0xA700   # lifted, lifted_b4.c
+addr = 0xA700   # ending_text, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xA713   # lifted, lifted_b4.c
+addr = 0xA713   # ending_text_screen, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xA71D   # lifted, lifted_b4.c
+addr = 0xA71D   # ending_text_type, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xA788   # lifted, lifted_b4.c
+addr = 0xA788   # ending_step_left, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xA78E   # lifted, lifted_b4.c
+addr = 0xA78E   # ending_text_clear, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xA7D0   # lifted, lifted_b4.c
+addr = 0xA7D0   # ending_hold, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAB00   # lifted, lifted_b4.c
+addr = 0xAB00   # ending_pose, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAB34   # lifted, lifted_b4.c
+addr = 0xAB34   # cody_pose, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAB77   # lifted, lifted_b4.c
+addr = 0xAB77   # cody_pose_next, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xABD0   # lifted, lifted_b4.c
+addr = 0xABD0   # guy_pose, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xABDF   # lifted, lifted_b4.c
+addr = 0xABDF   # guy_pose_spin, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAC20   # lifted, lifted_b4.c
+addr = 0xAC20   # guy_pose_leap, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAC75   # lifted, lifted_b4.c
+addr = 0xAC75   # guy_pose_hold, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAC81   # lifted, lifted_b4.c
+addr = 0xAC81   # haggar_pose, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xACB7   # lifted, lifted_b4.c
+addr = 0xACB7   # haggar_pose_run, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xACE1   # lifted, lifted_b4.c
+addr = 0xACE1   # haggar_pose_stop, stage_ending.c
 [[replace_func]]
 bank = 4
-addr = 0xAD0B   # lifted, lifted_b4.c
+addr = 0xAD0B   # haggar_pose_hold, stage_ending.c

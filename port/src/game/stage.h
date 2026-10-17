@@ -140,6 +140,25 @@ void func_A013_b4(void);    /* sprite_set_palette */
 void func_A300_b4(void);    /* bg_palette_animate */
 void func_A321_b4(void);    /* bg_palette_step */
 
+/* the full ending (stage_ending.c) */
+void func_A700_b4(void);    /* ending_text */
+void func_A713_b4(void);    /* ending_text_screen */
+void func_A71D_b4(void);    /* ending_text_type */
+void func_A788_b4(void);    /* ending_step_left */
+void func_A78E_b4(void);    /* ending_text_clear */
+void func_A7D0_b4(void);    /* ending_hold */
+void func_AB00_b4(void);    /* ending_pose */
+void func_AB34_b4(void);    /* cody_pose */
+void func_AB77_b4(void);    /* cody_pose_next */
+void func_ABD0_b4(void);    /* guy_pose */
+void func_ABDF_b4(void);    /* guy_pose_spin */
+void func_AC20_b4(void);    /* guy_pose_leap */
+void func_AC75_b4(void);    /* guy_pose_hold */
+void func_AC81_b4(void);    /* haggar_pose */
+void func_ACB7_b4(void);    /* haggar_pose_run */
+void func_ACE1_b4(void);    /* haggar_pose_stop */
+void func_AD0B_b4(void);    /* haggar_pose_hold */
+
 /* elsewhere */
 void func_F436(void);   /* attack_live = 0 */
 void func_FF4D(void);   /* bank_switch */
