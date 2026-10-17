@@ -111,7 +111,7 @@
 #define WEAPON_HELD              0x00A9  /* $FF while the player carries a picked-up weapon (05:A82A), 0 when it is dropped on a hit ( */
 #define TEXT_CURSOR              0x00AA  /* special screen: character position in the current text line (index at 04:9926, PPU column  */
 #define TEXT_TIMER               0x00AB  /* special screen: delay counter between text steps ($F0 after a page at 04:98BD, $0A at 04:9 */
-#define UNK_AC                   0x00AC  /* purpose unknown: unclear (RAM survey); named so no raw address remains (rename with eviden */
+#define TALK_BAR_CUTS            0x00AC  /* boss talk: pieces of the boss's life bar a right answer has erased; 0 when a talk page ope */
 #define WEAPON_AMMO              0x00AD  /* Guy's throws left with a picked-up weapon: 7 at pickup (05:A826), DEC per throw (00:8292); */
 #define CREDITS                  0x00AF  /* 3 at a new game: the continue screen's CREDIT 3 */
 #define HUD_ENEMY_SLOT           0x00B0  /* slot whose life bar the HUD shows: the enemy just hit (0C:8569, 8598, 9BC8), the held one  */
@@ -123,7 +123,7 @@
 #define UNK_B6                   0x00B6  /* purpose unknown: written, never read in coverage; named so no raw address remains (rename  */
 #define GAME_FINISHED            0x00B7  /* $FF after the last round (0E:DE99-DEAA, with paused $FF and the ending music $08); gamepla */
 #define INTRO_PAGE               0x00B8  /* 0..4, each drawn by $9A00 in bank 00 (main_task) */
-#define UNK_B9                   0x00B9  /* purpose unknown: unclear (RAM survey); named so no raw address remains (rename with eviden */
+#define UNK_B9                   0x00B9  /* the bonus stage's count (proposed name bonus_count): 0 when it starts (0B:B351), INC by ba */
 #define GRAB_HIT_COUNT           0x00BA  /* hits delivered during a grab: each hit sets attack_id from $8CC1[n] and INC (00:8B33-8B48, */
 #define CAMERA_AUTOSCROLL        0x00BB  /* $FF with camera_lock (0F:E467); once the lock is lifted, walking past the screen centre st */
 #define KEEP_ON_SCREEN           0x00BC  /* $FF in areas whose script asks for it (08:8ABF, 8C43, 8CA5, 8CE1, 8D6F, 8DA8): knocked-bac */

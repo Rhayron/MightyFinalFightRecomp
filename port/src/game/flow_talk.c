@@ -243,7 +243,7 @@ static const uint8_t k_commands[] = {
 /*
  * talk_open, $980F (bank 04; name proposed): phase 0. $F0 waits ($98AF);
  * the other commands put up their message and set $F0 with text_timer
- * $F0 ($98BD); a page clears the box ($9A9E), zeroes the bar cuts (unk_ac),
+ * $F0 ($98BD); a page clears the box ($9A9E), zeroes talk_bar_cuts,
  * text_cursor, dialogue_choice and text_timer, and goes to phase 1.
  * Caller: JMP ($000C) at $980C.
  */
@@ -283,7 +283,7 @@ void func_980F_b2(void) {
     CALL_04(0x983C, 0x9A9E);
     mff_cycles(0x983F, 25);
     a = 0x00;
-    RAM(UNK_AC) = a;
+    RAM(TALK_BAR_CUTS) = a;
     RAM(TEXT_CURSOR) = a;
     RAM(DIALOGUE_CHOICE) = a;
     RAM(TEXT_TIMER) = a;
@@ -709,7 +709,7 @@ void func_99DD_b2(void) {
 /*
  * talk_answer, $9A74 (bank 04; name proposed): the right answer (byte
  * PAGE_ANSWER = dialogue_choice) costs the boss (talk_find_boss) 8 life:
- * obj_life - 8, a piece of its bar erased ($9AF4), unk_ac + 1.
+ * obj_life - 8, a piece of its bar erased ($9AF4), talk_bar_cuts + 1.
  * In: TMP12/TMP13 = the page. Out: X = the boss's slot when right.
  * Caller: talk_page_end ($9A5E).
  */
@@ -739,8 +739,8 @@ void func_9A74_b2(void) {
     RAM(OBJ_LIFE + x) = a;
     CALL_04(0x9A88, 0x9AF4);
     mff_cycles(0x9A8B, 11);
-    RAM(UNK_AC)++;
-    SET_NZ(RAM(UNK_AC));
+    RAM(TALK_BAR_CUTS)++;
+    SET_NZ(RAM(TALK_BAR_CUTS));
     SYNC_OUT;
     mff_rts();
 }
@@ -908,7 +908,7 @@ void func_9AD9_b2(void) {
 
 /*
  * talk_bar_cut, $9AF4 (bank 04; name proposed): erases a piece of the
- * boss's life bar on the status bar: tile $10 at $2072 - unk_ac.
+ * boss's life bar on the status bar: tile $10 at $2072 - talk_bar_cuts.
  * Caller: talk_answer ($9A88).
  */
 void func_9AF4_b2(void) {
@@ -922,7 +922,7 @@ void func_9AF4_b2(void) {
     x++;
     a = 0x72;
     c = 1;
-    m = RAM(UNK_AC);
+    m = RAM(TALK_BAR_CUTS);
     w = a - m - !c;
     v = ((a ^ m) & (a ^ w) & 0x80) != 0;
     c = w >= 0;
