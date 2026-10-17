@@ -120,6 +120,57 @@ def jumps(prg, kind, tables_path):
             continue
         out.append(Jump(where, f"P0 table {t.get('name', '')} x{n}", reads, offs))
 
+    def pops_return(t):
+        """Does the routine at t take its return address off the stack into a
+        zero-page pointer (PLA / STA zz / PLA / STA zz+1) and jump through it:
+        a JSR to it is followed by an inline jump table (snd_jump_inline)."""
+        seen, o, zz = [], t, None
+        for _ in range(24):
+            if o >= len(prg) or prg[o] not in OFFICIAL:
+                return False
+            seen.append(o)
+            if prg[o] == 0x6C:
+                break
+            o += LENGTH[prg[o]]
+        ops = [prg[s] for s in seen]
+        for k in range(len(ops) - 3):
+            if ops[k] == 0x68 and ops[k + 1] == 0x85 and ops[k + 2] == 0x68 and ops[k + 3] == 0x85:
+                zz = prg[seen[k + 1] + 1]
+                if prg[seen[k + 3] + 1] == zz + 1:
+                    return ops[-1] == 0x6C
+        return False
+
+    inline = {}
+    for b8 in range(len(prg) // 0x2000):
+        for o in range(b8 * 0x2000, (b8 + 1) * 0x2000 - 2):
+            if kind[o] in CODE and prg[o] == 0x20:
+                t = resolve(b8, prg[o + 1] | prg[o + 2] << 8)
+                if t is not None and t not in inline:
+                    inline[t] = pops_return(t)
+    for b8 in range(len(prg) // 0x2000):
+        for o in range(b8 * 0x2000, (b8 + 1) * 0x2000 - 2):
+            if not (kind[o] in CODE and prg[o] == 0x20):
+                continue
+            t = resolve(b8, prg[o + 1] | prg[o + 2] << 8)
+            if not inline.get(t):
+                continue
+            # the table right after the JSR; its length from an AND #2^k-1 just before, else while it decodes
+            count = 64
+            if o >= 2 and prg[o - 2] == 0x29 and (prg[o - 1] + 1) & prg[o - 1] == 0:
+                count = prg[o - 1] + 1
+            offs, tab = [], o + 3
+            for k in range(count):
+                if tab + 2 * k + 1 >= (b8 + 1) * 0x2000 or kind[tab + 2 * k] in CODE:
+                    break                       # the table ends where code starts
+                tt = resolve(b8, prg[tab + 2 * k] | prg[tab + 2 * k + 1] << 8)
+                if tt is None or not decodes(prg, tt):
+                    if count == 64:
+                        break
+                    continue
+                offs.append(tt)
+            out.append(Jump(f"{b8:02X}:{cpu(o):04X}", f"inline table after JSR ${cpu(t):04X} x{len(offs)}",
+                            set(), offs))
+
     for b8 in range(len(prg) // 0x2000):
         starts = [o for o in range(b8 * 0x2000, (b8 + 1) * 0x2000) if kind[o] in CODE]
         for i, o in enumerate(starts):
