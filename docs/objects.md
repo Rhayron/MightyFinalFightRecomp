@@ -349,13 +349,15 @@ gives the frame to `0D:AB29` when the player holds it or a fresh hit makes it
 flinch (C set), keeps `obj_y` in the area's walkable band (`0C:9FF6`, which
 runs on into bank `$0D`: `$81-$B0`, `$71-$A0` in round 0 area 1 and round 3
 area 1, `$91-$B0` in round 1 area 1; not in phases 9 and `$F`, which are in
-the air) and jumps through its phase table (`$9D3B`/`$9D4B`, 16 bank-`$0D`
-routines). Known phases: 0 start, 1 choose a move (the moves end at
-`0D:A8E4/A8E8`, back to 1), 3 AxL's block, 8 the flinch of a fresh hit, 9
-Poison's and El Gado's jump attack, `$A` El Gado's knife throw, `$D` stand
-`obj_ai_timer` frames, `$E` Andore's charge (`obj_timer` 3 is the rush), `$F`
-fall to `obj_ground_y` with the attack out. `obj_tier` 1/2/4 becomes 0/1/2
-through `$A897` (bank `$0D`) for the damage indexes and AxL's block odds.
+the air) and jumps through its phase table (`$9D3B`/`$9D4B`): the AI of bank
+`$0D` (`port/src/game/enemy_ai.c` lists the phases: 0 `enemy_start`, 1
+`enemy_approach`, 2 `enemy_maneuver`, 3 `enemy_block` (AxL), 4
+`enemy_close_in`, 5 `enemy_attack`, 6 `enemy_jump_start`, 7 `enemy_retreat`,
+8 `enemy_hit_stun`, 9 `enemy_jump`, `$A` `enemy_knife_throw` (El Gado), `$B`
+`enemy_slide`, `$C` `enemy_recover`, `$D` `enemy_idle`, `$E` `enemy_charge`
+(Andore; `obj_timer` 3 is the rush), `$F` `enemy_drop_in`). `obj_tier`
+1/2/4 becomes 0/1/2 through `$A897` (bank `$0D`) for the damage indexes and
+AxL's block odds.
 
 Id `$2E` is El Gado's knife (`0C:9D71`): `0D:A5DA`, from his phase `$A`,
 puts it `$12` px ahead of him and 3 px lower with `obj_vx` `$0330`, attack
@@ -366,7 +368,9 @@ The player can knock it out of the air (kind 6 has knocked-down animations
 
 The ids from `$36` up, and `$2C`, `$2D`, `$2F`, are entrances
 (`port/src/game/enemy_entrances.c`): they set the enemy up and turn it into
-its plain id (`$9FBB`, `$9FCC` by id) in the phase it starts in.
+its plain id (`enemy_become_common`, `0C:9FBB`, `$9FCC` by id) in the phase
+it starts in: `entrance_charge`, `entrance_drop`, `entrance_stand`,
+`entrance_sit`.
 
 | Ids | Entry | Entrance |
 |---|---|---|

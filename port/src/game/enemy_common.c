@@ -14,28 +14,21 @@
  * Every frame the behaviour stores the tier and the kind again, counts
  * down the short immunity left after getting up (obj_invuln), withdraws
  * its attack (the phases put it out again on the frames that hurt), stirs
- * the RNG, lets the checks in bank $0D take the frame (0D:AB29: held by
- * the player, let go, the flinch of a fresh hit), keeps to the band
+ * the RNG, lets enemy_react (0D:AB29: held by the player, let go, the
+ * flinch of a fresh hit) take the frame, keeps to the band
  * (enemy_keep_on_band) and jumps through its phase table on obj_state &
- * $0F. The phases are bank-$0D code: objects_update maps bank $0D at
- * $A000 for every id below $60 (docs/objects.md, "Update"). What they
- * do, from the code that starts or tests them:
- *   0 $A04C  start: AI counters cleared, standing animation, phase 1
- *   1 $A060  choose the next move (the moves end at 0D:A8E4/A8E8, which
- *            come back here with obj_ai_timer 8 or 0)
- *   2 $A0E8, 4 $A210, 5 $A2C3, 6 $A41D, 7 $A3F5: walking up, attacks
- *   3 $A18E  AxL's block (set by obj_take_hit, obj_hits.c)
- *   8 $A411  the flinch of a fresh hit (0D:ABA2 sets it) until
- *            obj_hit_timer runs out
- *   9 $A494  Poison's and El Gado's jump attack: crouch, jump, land on
- *            obj_ground_y (in the air: no band)
- *  $A $A54F  El Gado lines up with the player and throws the knife
- *            (0D:A5DA)
- *  $B $A652, $C $A717
- *  $D $A732  stand obj_ai_timer frames (enemy_stand_in)
- *  $E $A73A  Andore's charge; obj_timer 3 is the rush itself
- *  $F $A89C  fall to obj_ground_y with the kind's attack out
- *            (enemy_drop_in; in the air: no band)
+ * $0F. The phases are the AI of bank $0D (enemy_ai.c, enemy_moves.c,
+ * enemy_walk.c; enemy_ai.h names them AI_*), mapped at $A000 for every
+ * id below $60 (docs/objects.md, "Update"):
+ *    0 $A04C enemy_start       8 $A411 enemy_hit_stun
+ *    1 $A060 enemy_approach    9 $A494 enemy_jump (in the air: no band)
+ *    2 $A0E8 enemy_maneuver   $A $A54F enemy_knife_throw (El Gado)
+ *    3 $A18E enemy_block      $B $A652 enemy_slide
+ *    4 $A210 enemy_close_in   $C $A717 enemy_recover
+ *    5 $A2C3 enemy_attack     $D $A732 enemy_idle (entrance_stand)
+ *    6 $A41D enemy_jump_start $E $A73A enemy_charge (Andore)
+ *    7 $A3F5 enemy_retreat    $F $A89C enemy_drop_in (entrance_drop; in
+ *                                      the air: no band)
  */
 #include "enemy_defs.h"
 
@@ -48,9 +41,6 @@
 #define BAND_TOP            0xA046
 #define BAND_BOTTOM         0xA049
 
-/* phases in the air, which keep their own y */
-#define PHASE_JUMP          0x89
-
 /* the knife leaves the screen: its screen x (obj_x - scroll_x) at or past
  * $FA going right, under 8 going left */
 #define KNIFE_RIGHT_EDGE    0xFA
@@ -62,8 +52,8 @@
  * $9CF5); `pc`/`cycles` are the entry's LDA #tier (and its BNE $9CF7).
  * The RNG step adds sprite 3's x (oam_buffer+15), rng+1, rng+2 and the
  * carry the behaviour was entered with into rng.
- * In: X = slot, C from objects_update. Out: the RTS at $9D24 when 0D:AB29
- * took the frame (C set), else as the phase.
+ * In: X = slot, C from objects_update. Out: the RTS at $9D24 when
+ * enemy_react took the frame (C set), else as the phase.
  * Callers: obj_behavior_lo/hi.
  */
 static void enemy_common(uint16_t pc, int cycles, uint8_t tier)
@@ -98,7 +88,7 @@ static void enemy_common(uint16_t pc, int cycles, uint8_t tier)
     SET_NZ(a);
     mff_cycles(0x9D1C, 11);
     RAM(OBJ_KIND + x) = a;
-    CALL_BANK(0x9D1F, ENEMY_CHECKS);
+    CALL_BANK(0x9D1F, ENEMY_REACT);
     mff_cycles(0x9D22, 2);
     if (c) {
         mff_cycles(0x9D24, 6);
@@ -237,14 +227,14 @@ void func_9FF6_b6(void)
 
     mff_cycles(0x9FF6, 8);
     a = RAM(OBJ_STATE + x);
-    CMP_FLAGS(a, PHASE_JUMP);
+    CMP_FLAGS(a, AI_JUMP);
     if (z) {
         mff_cycles(0x9FFB, 2);                  /* BEQ $A045, into the next page */
         mff_cycles(0xA045, 6);
         RTS_RETURN();
     }
     mff_cycles(0x9FFD, 4);
-    CMP_FLAGS(a, PHASE_DROP);
+    CMP_FLAGS(a, AI_DROP_IN);
     if (z) {
         mff_cycles(0x9FFF, 1);                  /* BEQ $A045 */
         mff_cycles(0xA045, 6);

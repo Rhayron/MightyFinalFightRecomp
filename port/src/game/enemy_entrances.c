@@ -4,12 +4,12 @@
  * into the plain id of its kind and tier ($20-$35, enemy_common.c), at
  * the phase it starts in. docs/objects.md, "The common enemies".
  *
- *   $2C $2D $2F  Andore charging in (andore_charge_in), tiers 1/2/4;
+ *   $2C $2D $2F  Andore charging in (entrance_charge), tiers 1/2/4;
  *                never executed, and no spawn table lists them
- *   $36-$3E      dropping onto the player (enemy_drop_in): Poison
+ *   $36-$3E      dropping onto the player (entrance_drop): Poison
  *                $36-$38, AxL $39-$3B, El Gado $3C-$3E, tiers 1/2/4
- *   $3F, $4F-$5F standing a moment first (enemy_stand_in), all six kinds
- *   $40-$4B      sitting in wait (enemy_sit_in): Two P $40-$42 and
+ *   $3F, $4F-$5F standing a moment first (entrance_stand), all six kinds
+ *   $40-$4B      sitting in wait (entrance_sit): Two P $40-$42 and
  *                $46-$48, Bred $43-$45 and $49-$4B, two poses
  *   $4C-$4E      El Gado by $9F91/$9FCC, but their behaviour is the plain
  *                RTS (0C:84EF): an object with them stays as it is
@@ -59,7 +59,7 @@ void func_9FBB_b6(void);
 /* ======================= Andore charging in, ids $2C $2D $2F ======================= */
 
 /*
- * andore_charge_in, $9D9E/$9DA4/$9DAA (name proposed; never executed):
+ * entrance_charge, $9D9E/$9DA4/$9DAA (name proposed; never executed):
  * the behaviour of ids $2C, $2D, $2F (A = tier, Y = Andore's plain id
  * $25/$2B/$35; `pc`/`cycles` are the entry's LDY/LDA and its BNE $9DAE).
  * Kind 5 (Andore); it waits until the player is less than $80 px away in
@@ -72,7 +72,7 @@ void func_9FBB_b6(void);
  * In: X = slot. Out: the RTS at $9DC1 (waiting) or $9E1F, A = the id.
  * Callers: obj_behavior_lo/hi (ids $2C, $2D, $2F).
  */
-static void andore_charge_in(uint16_t pc, int cycles, uint8_t tier, uint8_t id)
+static void entrance_charge(uint16_t pc, int cycles, uint8_t tier, uint8_t id)
 {
     REGS_IN;
 
@@ -132,7 +132,7 @@ static void andore_charge_in(uint16_t pc, int cycles, uint8_t tier, uint8_t id)
     c = 0;
     ADC_A(CHARGE_DAMAGE);
     RAM(OBJ_ATTACK_DAMAGE + x) = a;
-    RAM(OBJ_STATE + x) = PHASE_CHARGE;
+    RAM(OBJ_STATE + x) = AI_CHARGE;
     RAM(OBJ_TIMER + x) = CHARGE_STEP;
     a = RAM(OBJ_TIMER2 + x);
     SET_NZ(a);
@@ -143,23 +143,23 @@ static void andore_charge_in(uint16_t pc, int cycles, uint8_t tier, uint8_t id)
 
 void func_9D9E_b6(void)
 {
-    andore_charge_in(0x9D9E, 7, TIER_1, 0x25);  /* LDY #$25; LDA #1; BNE $9DAE */
+    entrance_charge(0x9D9E, 7, TIER_1, 0x25);  /* LDY #$25; LDA #1; BNE $9DAE */
 }
 
 void func_9DA4_b6(void)
 {
-    andore_charge_in(0x9DA4, 7, TIER_2, 0x2B);  /* LDY #$2B; LDA #2; BNE $9DAE */
+    entrance_charge(0x9DA4, 7, TIER_2, 0x2B);  /* LDY #$2B; LDA #2; BNE $9DAE */
 }
 
 void func_9DAA_b6(void)
 {
-    andore_charge_in(0x9DAA, 4, TIER_4, 0x35);  /* LDY #$35; LDA #4 */
+    entrance_charge(0x9DAA, 4, TIER_4, 0x35);  /* LDY #$35; LDA #4 */
 }
 
 /* ======================= dropping in, ids $36-$3E ======================= */
 
 /*
- * enemy_drop_in, $9E48 (name proposed): the drop-in entrances, A = tier,
+ * entrance_drop, $9E48 (name proposed): the drop-in entrances, A = tier,
  * Y = kind (0 Poison, 3 AxL, 4 El Gado). The enemy waits hidden (the stage
  * list spawns it with obj_flags $D4) until the player is less than 8 px
  * away in x, or at once in round 3 area 1; then it shows, takes the
@@ -170,7 +170,7 @@ void func_9DAA_b6(void)
  * fall, attack out).
  * In: X = slot. Out: the RTS at $9E62 (waiting), or as $9FBB.
  */
-static void enemy_drop_in(void)
+static void entrance_drop(void)
 {
     REGS_IN;
     int at_once = 0;
@@ -238,7 +238,7 @@ static void enemy_drop_in(void)
     y = a;
     a = mff_pull();
     RAM(CHR_BANKS + 3 + y) = a;
-    a = PHASE_DROP;
+    a = AI_DROP_IN;
     SET_NZ(a);
     RAM(OBJ_STATE + x) = a;
     JMP_TAIL(0x9EB0, 0x9FBB);                   /* enemy_become_common */
@@ -255,7 +255,7 @@ static void drop_in_entry(uint16_t pc, int cycles, uint8_t tier, uint8_t kind)
     mff_cycles(pc, cycles);
     g_cpu.A = tier;
     g_cpu.Y = kind;
-    enemy_drop_in();
+    entrance_drop();
 }
 
 void func_9E20_b6(void) { drop_in_entry(0x9E20, 10, TIER_1, KIND_POISON); }   /* id $36, never executed */
@@ -271,14 +271,15 @@ void func_9E36_b6(void) { drop_in_entry(0x9E36, 7, TIER_4, KIND_EL_GADO); }   /*
 /* ======================= standing first, ids $3F, $4F-$5F ======================= */
 
 /*
- * enemy_stand_in, $9ECF (name proposed): the standing entrances, A =
+ * entrance_stand, $9ECF (name proposed): the standing entrances, A =
  * tier. The kind comes from the id ($9F91), the attack is withdrawn, and
  * the enemy stands for $78 frames (phase $D, obj_ai_timer) with its
- * kind's standing animation (0D:AAAE) before it chooses a move, as the
+ * kind's standing animation (enemy_anim_stand, 0D:AAAE) before it
+ * chooses a move (enemy_idle), as the
  * plain id.
  * In: X = slot. Out: as $9FBB.
  */
-static void enemy_stand_in(void)
+static void entrance_stand(void)
 {
     REGS_IN;
 
@@ -293,10 +294,10 @@ static void enemy_stand_in(void)
     mff_cycles(0x9EE1, 25);
     RAM(OBJ_KIND + x) = a;
     RAM(OBJ_AI_TIMER + x) = STAND_FRAMES;
-    a = PHASE_STAND;
+    a = AI_IDLE;
     SET_NZ(a);
     RAM(OBJ_STATE + x) = a;
-    CALL_BANK(0x9EEE, ENEMY_STAND_ANIM);
+    CALL_BANK(0x9EEE, ENEMY_ANIM_STAND);
     JMP_TAIL(0x9EF1, 0x9FBB);                   /* enemy_become_common */
 }
 
@@ -310,7 +311,7 @@ static void stand_in_entry(uint16_t pc, int cycles, uint8_t tier)
 {
     mff_cycles(pc, cycles);
     g_cpu.A = tier;
-    enemy_stand_in();
+    entrance_stand();
 }
 
 void func_9EC5_b6(void) { stand_in_entry(0x9EC5, 5, TIER_1); }   /* LDA #1; BNE $9ECF */
@@ -320,7 +321,7 @@ void func_9ECD_b6(void) { stand_in_entry(0x9ECD, 2, TIER_4); }   /* LDA #4 */
 /* ======================= sitting in wait, ids $40-$4B ======================= */
 
 /*
- * enemy_sit_in, $9F19 (name proposed): the sitting entrances, A = tier,
+ * entrance_sit, $9F19 (name proposed): the sitting entrances, A = tier,
  * obj_timer3 = the pose (0 or 2). The kind comes from the id ($9F91),
  * the attack is withdrawn. Phase 0 sits it down: animation $A2 held at
  * frame kind - 1 + pose and that frame's sprite bank ($9F8D), phase 1.
@@ -330,7 +331,7 @@ void func_9ECD_b6(void) { stand_in_entry(0x9ECD, 2, TIER_4); }   /* LDA #4 */
  * the plain id at phase 0.
  * In: X = slot. Out: the RTS at $9F5C or $9F8C, or as $9FBB.
  */
-static void enemy_sit_in(void)
+static void entrance_sit(void)
 {
     REGS_IN;
 
@@ -420,7 +421,7 @@ static void sit_in_entry(uint16_t pc, int pre, uint8_t pose, uint16_t lda_pc, in
     RAM(OBJ_TIMER3 + x) = pose;
     mff_cycles(lda_pc, post);
     g_cpu.A = tier;
-    enemy_sit_in();
+    entrance_sit();
 }
 
 /* tier 1: LDA #pose (BEQ $9EFA), STA obj_timer3, LDA #1, BNE $9F19 */
