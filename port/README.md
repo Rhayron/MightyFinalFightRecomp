@@ -294,15 +294,16 @@ its address (in a window the game reads 0 there and goes on).
 
 ## P4: every routine in port/src/game
 
-Every routine of the game now has a C body in `port/src/game/`, in files by
-system: some written by hand (the scheduler and tasks, NMI and IRQ, VRAM
-uploads, the RNG, the pads, banking), the rest produced by the lifter below
-and then tidied (names, comments citing ROM addresses, structured control
-flow), such as the sound driver in `sound_*.c`. With the CMake option
+Every routine of the game has a C body in `port/src/game/`, in files by
+system (the map below): some written by hand (the scheduler and tasks, NMI
+and IRQ, VRAM uploads, the RNG, the pads, banking), the rest produced by the
+lifter below and then tidied: names from `disasm/labels.toml`, comments that
+say what the code does and cite ROM addresses as evidence, named tables,
+structured control flow. No lifted file is left. With the CMake option
 `MFF_EJECTED` the port builds from `port/src/game`, `port/src/glue` and the
 runtime alone, no generated code at all, and plays the nine test routes
-identically to the original scaffold, without the runtime's interpreter ever
-running a ROM instruction.
+identically to the original scaffold, cycle counts included, without the
+runtime's interpreter ever running a ROM instruction.
 
 ```bash
 port/tests/run_routes.sh baseline   # once, on the pure scaffold (regen.sh --pure)
@@ -325,8 +326,34 @@ by NMI count), three 50,000-frame tours by the in-process bot
 (`port/scaffold/bot.c`, `MFF_BOT=char:seed:skip`) that go through every
 round, beat the final boss and run into the ending, and three 60,000-frame
 games with other bot seeds. The check compares, every
-frame, all of CPU RAM but the dead part of the stack page, OAM, palette and
-a hash of the rendered picture.
+frame, all of CPU RAM but the dead part of the stack page, OAM, palette, a
+hash of the rendered picture and the CPU cycle count when it was drawn. The
+NMI lands only at the top of the scheduler's idle scan, so a routine that
+costs a cycle more or less changes no RAM byte, only that count:
+`selfcheck.py` fails as soon as the count moves off the offset it has at
+picture 0 (0 for the scaffold; the port on its own runtime charges the 6502's
+reset and NMI sequences, 7 cycles each, which `--nmi-cycles 7` models).
+
+### Map of port/src/game
+
+| System | Files |
+|---|---|
+| Machine services | `boot.c` (reset), `tasks.c` (the four cooperative tasks and the scheduler), `interrupts.c` (NMI, IRQ, VRAM uploads), `bank.c`, `ppu.c`, `input.c`, `rng.c`, `objects.c` (clearing the slots) |
+| Game flow and screens | `flow_main_task.c` (power-on to the first round), `flow_gameplay.c` (the gameplay frame), `flow_screen.c` (fades, clears), `flow_screens.c` (bank `$04`'s screens), `flow_select.c`, `flow_round_map.c`, `flow_continue.c`, `flow_area.c` (an area's graphics), `flow_story_text.c`, `flow_talk.c` (the message box: boss talks, round messages); `flow.h` |
+| Stage | `stage_area.c`, `stage_camera.c`, `stage_columns.c` (background streaming), `stage_draw.c` (objects into OAM), `stage_hud.c`, `stage_probe.c` (background probes), all fixed bank; `stage_spawn.c`, `stage_events.c` (bank `$08`); `stage_palette.c`, `stage_ending.c` (bank `$09`); `stage.h` |
+| Player | `player_states.c` (`player_state` and its dispatch), `player_state_idle.c`, `player_state_walk.c`, `player_jump.c`, `player_attack.c`, `player_grab.c`, `player_hurt.c`, `player_round.c` (fixed bank); `player_actions.c`, `player_specials.c`, `player_throws.c`, `player_power.c`, `player_exits.c` (bank `$00`'s actions); `player_defs.h` |
+| Objects | `obj_update.c` (`objects_update` and its collision checks), `obj_hits.c`, `obj_knockdown.c`, `obj_thrown.c`, `obj_items.c`, `obj_common.c` (bank `$0C`); `obj_move.c`, `obj_walk.c`, `obj_anim.c`, `obj_reach.c`, `obj_combat.c` (fixed-bank helpers); `obj_props.c`, `obj_weapons.c` (bank `$05`, ids `$60`-`$6F`); `obj_defs.h`, `obj_fixed.h`, `obj_props.h` |
+| Common enemies | `enemy_common.c`, `enemy_entrances.c` (bank `$0C`, ids `$20`-`$5F`); `enemy_ai.c`, `enemy_walk.c`, `enemy_moves.c` (the AI, bank `$0D`); `enemy_defs.h`, `enemy_ai.h` |
+| Bosses and set pieces | `boss_thrasher_sodom.c`, `boss_sodom_rematch.c`, `boss_b01_shared.c`, `boss_b01_scene.c` (bank `$01`, ids `$80`-`$8F`); `boss_abigail.c`, `boss_belger.c`, `boss_belger_end.c`, `enemy_drums.c`, `enemy_tables.c` (banks `$03`/`$0B`, ids `$90`-`$9F`, `$70`-`$7F`); `boss_b01.h`, `enemy.h` |
+| Sound | `sound.c` (the game's side), `sound_driver.c`, `sound_music.c`, `sound_effect.c`, `sound_voice.c`, `sound_output.c` (the driver, banks `$06`/`$07`); `sound_driver.h` |
+| Shared | `mff.h` (the exactness rules, charges, calls and exits), `hw.h` (the hardware registers by name), `state.h` (RAM names, generated from `labels.toml`) |
+
+`docs/engine.md` and `docs/objects.md` describe the systems with the same
+names; `docs/objects.md`, "Ids", maps every object id to its routine and file.
+What P4 leaves (PLAN_DECOMP.md): the lifter's register model (A/X/Y and the
+flags in locals that meet `g_cpu` at every call), 55 `goto`s that jump to a
+tail several 6502 branches share, INC/DEC of memory through the temporary
+`t`, and names still marked "(proposed)".
 
 ### The lifter
 
@@ -364,8 +391,10 @@ Two passes clean the output (`lift_opt.py`):
   base cycles per opcode, +1 for a taken branch (+2 across a page), no
   page-cross penalty on loads, +2 when a JMP becomes a tail call.
 - A routine charges a run of instructions, then does its work. Runs end at
-  every hardware access (it then happens at the cycle it did) and at every
-  call.
+  every hardware access (it then happens at the cycle it did: the OAM DMA's
+  stall, 513 or 514 cycles, follows the parity of the cycle of the
+  `STA $4014`) and at every call. A charge of 0 cycles is not free: the
+  runtime counts at least one.
 - The scaffold takes the NMI only between tasks, and around the scheduler
   only at the top of its scan (`$FEBD`): the sound driver reads a register
   nmi_tail never sets, so the place the NMI interrupted leaked into its

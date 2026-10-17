@@ -6565,3 +6565,39 @@ bank = 0x0F
 addr = 0xEF9D
 name = "push_out_up"
 comment = "moves slot X up to the top of the probe point's 16-pixel row (obj_y -= $11 & $0F), onto the previous vertical page if it wraps (no route). Called by: 0F:F0BD, F146. stage_probe.c (proposed)"
+
+[[label]]
+bank = 0x00
+addr = 0x93AF
+name = "weapon_drop_on_exit"
+comment = "the weapon in hand falls where the player is (slot 1, id $67, animation $93EC[player_id]) when an area ends with a weapon held; JSR at 00:9320 (action_walk_out); never executed in any run. player_actions.c (proposed; the C called it weapon_drop, which is 05:A851's name)"
+
+[[label]]
+bank = 0x00
+addr = 0x9A13
+name = "story_text_new_screen"
+comment = "a new screen of story text from line 0, column 0, then story_text_type; run on into from story_text (00:9A00), JMP from story_text_type (00:9A8B) after a full screen. flow_story_text.c (proposed; story_text_screen is 0E:C888, the screen set-up before pages 0, 2 and 4)"
+
+[[label]]
+bank = 0x03
+addr = 0xB330
+name = "b03_no_behavior"
+comment = "an RTS: ids $92, $93 and $96-$9A of bank $03's behaviour table (03:B300 + 3 * (id & $0F)) JMP here. enemy_tables.c"
+
+[[label]]
+bank = 0x0B
+addr = 0xB330
+name = "b0b_no_behavior"
+comment = "an RTS: ids $73, $75-$7A, $7C, $7E and $7F of bank $0B's behaviour table (0B:B300 + 3 * (id & $0F)) JMP here. enemy_tables.c"
+
+[[label]]
+bank = 0x0B
+addr = 0xB331
+name = "bonus_stage_controller"
+comment = "behaviour of id $70 (and $71, which nothing makes; JMPs at 0B:B300/B303), the bonus stage's controller in slot $0F (put there by 00:94F7): nothing while a special screen is up, else its phase: 0 start (music 9, twenty drums), 1 a drum while fewer than two roll, 2 wait, 3 the prize. enemy_drums.c (proposed; the RAM flag $B2 is bonus_stage)"
+
+[[label]]
+bank = 0x0B
+addr = 0xB696
+name = "belger"
+comment = "behaviour of id $74 (JMP at 0B:B30C), Belger, round 5's boss: his slot in $04FF, obj_kind $0B; stands while the boss talk (id $6E in slot $0D) runs; the change to his second form when obj_life drops under $5A; then the phase of his form (tables $BCE6/$BCF7, $BCEC/$BCFD). boss_belger.c"

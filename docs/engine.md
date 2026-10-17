@@ -120,8 +120,9 @@ per-type tables (bank `$08`).
 
 Once a frame, in task 0:
 
-1. Special states: `game_action` 9 (continue), `$B7`, `$62`
-   (`gameplay_special_screen`, bank `$04` `$9800`).
+1. Special states: `game_action` 9 (continue), `game_finished` (`$B7`),
+   `special_screen_id` (`$62`: `gameplay_special_screen` runs the message
+   box, bank `$04` `$9800`, instead of the game; `flow_talk.c`).
 2. `gameplay_pause_check`: START toggles `paused` (`$98`) with sound `$15`
    (`inputs/10_cody_poweron.txt` pauses at frames 18909 and 18925).
 3. `gameplay_update`: `player_state` (fixed bank, dispatched on `game_action`
@@ -131,13 +132,30 @@ Once a frame, in task 0:
    `player_action_dispatch` (bank `$00`), `$E2A3`, banks `$08/$09`
    (`stage_spawns` `$8080`, `stage_events` `$8900`, `$A300`), bank `$0C`
    `objects_update` (every live slot: map the id's behaviour bank into `$A000`,
-   dispatch through `obj_behavior_lo/hi`, 160 ids, 101 distinct routines -
-   see `tools/mff_dispatch.py`), `$E6AB`.
+   dispatch through `obj_behavior_lo/hi`: 160 ids, 101 distinct entries, of
+   which 64 are the `JMP` tables of banks `$05`, `$0B`, `$01` and `$03`, and 70
+   routines behind them; `docs/objects.md`, "Ids"), `hud_update` (`$E6AB`;
+   skipped while `special_screen_id` is set, and `$F9` there is a token: the
+   scene after Belger sets it every frame and `0F:E6B4` takes it back to 0
+   instead of drawing the status bar).
 4. `gameplay_draw` (`$C31D`, `$E9BC`), `gameplay_frame_end`
    (`task_wait_frame`), and around again.
 
 ## Odds and ends
 
+- The player's states have a few paths no run takes: `player_idle_buttons`
+  tests A at `0E:CAEB`, but `player_state_idle` has taken A already
+  (`0E:CA2E`); the grab's `BEQ` at `0E:CE6A` (no Left or Right held) never
+  branches, because the grab search runs only with one held; and
+  `player_respawn_blink` reads its white `$FCCB,Y` without loading Y (it is
+  0 from `rng_step`, and all three bytes are `$30`).
+- Leaving an area: `game_action` `$19` walks the player out the way of each
+  area (`00:9359`, by round and area from `$9382`). Round 4's first area
+  ends otherwise: from its third screen the camera sets `game_action` `$26`
+  (`0F:E383`), a scripted drop (`00:91BE`). The CDL runs never saw that, nor
+  the exits `00:9610`, `961A` and `961F`.
+- The credits' music is a round's tune by `lives` (`04:962D`, table
+  `04:965E`: 0-4, lives mod 5).
 - `rom_integrity_check` (`0E:C5B3`): after CAPCOM PRESENTS the game compares
   16 bytes at `$FFE0` with a copy at `$C8DD` and requires `$FFF8 = 8`;
   otherwise it hangs. Irrelevant to the port.

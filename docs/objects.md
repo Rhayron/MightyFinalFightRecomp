@@ -57,8 +57,8 @@ writes slots `$0D` and `$0F` field by field).
 | `$0460` | `obj_dir` | Direction in pad bits: 1 right, 2 left, 4 down, 8 up |
 | `$0470` | `obj_throw_flag` | `$FF` when thrown with the pad held forward (a different throw path) |
 | `$0480` | `obj_spawn_index` | Entry of the stage object list the slot came from, `$FF` none |
-| `$0490` | `obj_life_max` (sic) | **Current** life. Hits subtract from it; negative = dead. See "Wrong labels" |
-| `$04A0` | `obj_life` (sic) | **Maximum** life, the length of the HUD bar. See "Wrong labels" |
+| `$0490` | `obj_life` | Current life. Hits subtract from it; negative = dead. See "Names fixed" |
+| `$04A0` | `obj_life_max` | Maximum life, written only at spawn; the HUD bar is `obj_life_max / 8` long |
 | `$04B0` | `obj_hit_cooldown` | Frames before the slot can be hit again |
 | `$04C0` | `obj_invuln` | Nonzero = cannot be hit; also the stage counter of a knockdown |
 | `$04D0` | `obj_hit_player` | `$FF` when this object's attack hit the player |
@@ -316,6 +316,7 @@ every even pass and by 1 after odd ones.
 | `F314`, `F32E`, `F343` | point `obj_dir` at the player, copy it into the flags, both |
 | `F365`, `F374`, `F38B` | distance to the player in y, in x, and the direction index |
 | `FB3E`, `FB5B`, `FB72`, `FBD9` | the AI's tests around the player's ground line: within A px in x and Y in y (C set); `F38B` to his feet; to the spot `$FBCC[obj_kind]` px beside him on the object's side; `F365` from his ground line |
+| `F38B` | `obj_dir_index`: the direction from slot X to the player as a 16-step compass, 0 up, 4 right, 8 down, `$0C` left, clockwise; `FBF0` turns an index into pad bits for `obj_dir` |
 | `F000` / `F051` | face right / left, then `F003` / `F054`: move, `bg_probe_2` of kind Y; a pit's edge is a wall (pushed back out, C set) for any slot but the player, who starts falling in (`F0DC`) unless coming down |
 | `F0A2` / `F0F7` | move down / up, `bg_probe` of kind Y; put back on top of a `$10` / below a `$30` (C set) |
 | `F119` | a jump's vertical step: `F20E`/`F22E` (`obj_fall`'s halves), gravity, `bg_probe`; landing on `$10` (C set) or the pit fall |
@@ -324,34 +325,83 @@ every even pass and by 1 after odd ones.
 
 ## Ids
 
-`obj_behavior` has 160 entries (`tools/mff_dispatch.py` lists them, with the
-bank caveat above). The ones the engine itself relies on:
+`obj_behavior_lo/hi` (`0C:83AF`/`0C:844F`) has 160 entries, ids `$00`-`$9F`
+(`tools/mff_dispatch.py` lists them). `objects_update` maps a bank at `$A000`
+by the id first (`0C:8010-803B`, above); from `$60` up each bank opens with
+sixteen `JMP`s, one per id, and `obj_behavior` points at them:
 
-| Id | Routine | What |
-|---|---|---|
-| 0 | `0C:84EF` (RTS) | No behaviour: animation only (display objects in slots 1-2) |
-| 1 (9 shares it) | `0C:89F8` | Hit spark |
-| 2 | `0C:9733` | Pushed back by a light hit |
-| 3, 5 | `0C:983B` | Knocked down (3 by a thrown body, 5 by a heavy hit) |
-| 4, 8, `$0E`, `$0F` | `0C:8C1C`, `8FA5`, `91B7`, `9332` | Thrown bodies |
-| 6, 7, `$16` | `0C:9962`, `9A3F` | Dying |
-| `$10`-`$13` | `0C:8AEE` | Items: picked up with B when the player is close (`0C:8B22-8B3F`) |
-| `$1F` | `0C:9B74` | Falling into a pit |
-| `$20`-`$35` | `0C:9CED/9CF1/9CF5` | Common enemies: low digit = kind (via `0C:9D5B`), group = tier (below) |
-| `$2E` | `0C:9D71` | El Gado's knife |
-| `$2C` `$2D` `$2F`, `$36`-`$5F` | `0C:9D9E`-`9F12` | Common enemies' entrances (below) |
-| `$66` | `05:A712` | Dropped weapon |
-| `$70`, `$72` | `0B:B331`, `B5D7` | Bonus stage after the bosses of rounds 2 and 4: its controller (slot `$0F`, put there by `00:94F7`) and its drums (`enemy_drums.c`) |
-| `$74` | `0B:B696` | Belger, two forms (`boss_belger.c`) |
-| `$7B`, `$7D` | `0B:BD7F` | The scene after Belger, Belger's slot (`boss_belger_end.c`) |
-| `$80`, `$81`/`$83` | bank `$01` | Thrasher, Sodom |
-| `$90` | `03:B3F4` | Abigail (`boss_abigail.c`) |
-| `$91`, `$94`, `$95` | `03:BB91`, `BBCB`, `BD46` | Round 1's rolling drum, its invisible dispenser, a smashed drum and the item it leaves (`enemy_drums.c`) |
-| `$9B`-`$9F` | `03:BF38`, `BFBE`, `BF95`, `BF48`, `BED2` | Belger down, Cody's part of the scene, Belger's shot, Belger's fall, Belger killed |
+| Ids | Bank at `$A000` | `obj_behavior` points at | Ids with no behaviour go to |
+|---|---|---|---|
+| `$00`-`$5F` | `$0D` (the common-enemy AI) | the routine itself, in bank `$0C` (`$84EF`-`$9F12`) | `0C:84EF` `obj_behavior_none`, an RTS |
+| `$60`-`$6F` | `$05` | `05:A700 + 3 * (id & $0F)`, a `JMP` | `05:A730` `prop_behaviors` (RTS) |
+| `$70`-`$7F` | `$0B` | `0B:B300 + 3 * (id & $0F)` | `0B:B330` `b0b_no_behavior` (RTS) |
+| `$80`-`$8F` | `$01` | `01:A000 + 3 * (id & $0F)` | `01:A030` `b01_no_behavior` (RTS) |
+| `$90`-`$9F` | `$03` | `03:B300 + 3 * (id & $0F)` | `03:B330` `b03_no_behavior` (RTS) |
 
-Banks `$03` and `$0B` hold the behaviours of ids `$90-$9F` and `$70-$7F`
-behind a table of sixteen JMPs at `$B300`; the ids not listed above point at
-an RTS (`enemy_tables.c`, `enemy.h`).
+That makes 101 distinct entries and 70 distinct routines behind them, 64
+without the RTSs. Banks `$03` and `$0B` hold different code at the same
+addresses (`03:B331` and `0B:B331` have nothing in common). The port keeps
+the tables as one-line jumps: `obj_props.c` (`$05`), `enemy_tables.c` (`$03`,
+`$0B`), `boss_b01_shared.c` (`$01`).
+
+| Id | Routine | What | `port/src/game` |
+|---|---|---|---|
+| 0 | `0C:84EF` `obj_behavior_none` | Nothing: animation only (display objects in slots 1-2) | `obj_update.c` |
+| 1 | `0C:89F8` (an RTS) | Hit spark: it only animates, and its script's end marker frees it | `obj_hits.c` |
+| 2 | `0C:9733` `pushed_back` | Pushed back by a light hit | `obj_knockdown.c` |
+| 3, 5 | `0C:983B` `knocked_down` | Knocked down by a thrown body (3) or a heavy hit (5) | `obj_knockdown.c` |
+| 4 | `0C:8C1C` `thrown_cody` | The enemy Cody throws | `obj_thrown.c` |
+| 6 | `0C:9962` `killed_light` | Killed by a light attack | `obj_knockdown.c` |
+| 7, `$16` | `0C:9A3F` `killed` | Killed by another attack (`$16`: by a slam) | `obj_knockdown.c` |
+| 8 | `0C:8FA5` `thrown_back` | The enemy Haggar's back throw slams behind him | `obj_thrown.c` |
+| 9 | `0C:89F8` (an RTS) | A slot-1/2 object with animation `$74` after a contact (`0C:8095-80BE`, never executed) | `obj_hits.c` |
+| `$0A`-`$0D`, `$14`, `$15`, `$17`-`$1E` | `0C:84EF` | Nothing | |
+| `$0E` | `0C:91B7` `thrown_smash` | The enemy Haggar lifts for the HeadSmasher | `obj_thrown.c` |
+| `$0F` | `0C:9332` `thrown_guy` | The enemy Guy throws | `obj_thrown.c` |
+| `$10`-`$13` | `0C:8AEE` `obj_item` | Items, taken with B (`0C:8B22-8B3F`) through `$8B5C/$8B60` by id: food (`$10`, health, or points at full health), a credit (`$11`), two lives (`$12`), one life (`$13`), each up to 9 | `obj_items.c` |
+| `$1F` | `0C:9B74` `pit_fall` | Falling into a pit | `obj_knockdown.c` |
+| `$20`-`$25` | `0C:9CED` `enemy_common` | Poison, Two P, Bred, AxL, El Gado, Andore at tier 1 (below) | `enemy_common.c` |
+| `$26`-`$2B` | `0C:9CF1` `enemy_common_tier2` | The same at tier 2 | `enemy_common.c` |
+| `$30`-`$35` | `0C:9CF5` `enemy_common_tier4` | The same at tier 4 | `enemy_common.c` |
+| `$2C`, `$2D`, `$2F` | `0C:9D9E`, `9DA4`, `9DAA` `entrance_charge` | Andore charging in, tiers 1, 2, 4 (never executed) | `enemy_entrances.c` |
+| `$2E` | `0C:9D71` `knife_fly` | El Gado's knife | `enemy_common.c` |
+| `$36`-`$3E` | `0C:9E20`-`9E44`, then `entrance_drop` (`$9E48`) | Poison, AxL, El Gado dropping in, tiers 1, 2, 4 each | `enemy_entrances.c` |
+| `$3F`, `$4F`-`$5F` | `0C:9EC5`/`9EC9`/`9ECD` (tier 1/2/4), then `entrance_stand` (`$9ECF`) | Standing first | `enemy_entrances.c` |
+| `$40`-`$4B` | `0C:9EF4`-`9F12`, then `entrance_sit` (`$9F19`) | Two P and Bred sitting in wait | `enemy_entrances.c` |
+| `$4C`-`$4E` | `0C:84EF` | El Gado by the entrance tables, but nothing sets them up | |
+| `$60` | `05:A730` | Nothing; no list entry or code makes it | `obj_props.c` |
+| `$61` | `05:A731` `hidden_food` | Hidden food (round 5 area 2) | `obj_props.c` |
+| `$62` | `05:AD58` `floor_indicator` | The elevator's floor indicator (B1-B4) | `obj_props.c` |
+| `$63` | `05:AD37` `shaft_light` | The lights that slide up the elevator shaft | `obj_props.c` |
+| `$64` | `05:ABE1` `elevator` | The elevator of round 4 area 2 | `obj_props.c` |
+| `$65` | `05:ABC4` `boss_low_palette` | Round 1 area 3: animates background palette 2 once Thrasher is under `$10` of life | `obj_props.c` |
+| `$66`, `$67` | `05:A916` `dropped_weapon` | The weapon a hit knocks out of the player's hand (`0F:FAFB`; `$67` in slot 1, `00:93E6`) | `obj_weapons.c` |
+| `$68` | `05:AB08` `thrasher_look_in` | Thrasher looking in at the end of round 1 area 2 | `obj_props.c` |
+| `$69`, `$6A` | `05:A7A5` `weapon_pickup` | A weapon on the floor, taken with B; `$6A` is Guy's put back, with his throws left | `obj_weapons.c` |
+| `$6B` | `05:AB41` `andore_charge` | Andore's charge in the exit scene of round 1 area 2 | `obj_props.c` |
+| `$6C`, `$6D` | `05:A8A8` `thrown_weapon` | A thrown weapon: Cody's knife (`$6C`), Guy's (`$6D`) | `obj_weapons.c` |
+| `$6E` | `05:A9E4` `boss_talk` | The boss talk (below) | `obj_props.c` |
+| `$6F` | `05:AA82` `go_sign` | The GO sign | `obj_props.c` |
+| `$70`, `$71` | `0B:B331` `bonus_stage_controller` | The bonus stage's controller, slot `$0F`; nothing makes `$71` | `enemy_drums.c` |
+| `$72` | `0B:B5D7` `bonus_drum` | A drum of the bonus stage | `enemy_drums.c` |
+| `$74` | `0B:B696` `belger` | Belger, round 5's boss | `boss_belger.c` |
+| `$7B`, `$7D` | `0B:BD7F` `belger_end_scene` | The scene after Belger, from his slot | `boss_belger_end.c` |
+| `$73`, `$75`-`$7A`, `$7C`, `$7E`, `$7F` | `0B:B330` | Nothing | `enemy_tables.c` |
+| `$80` | `01:A0FD` `thrasher_update` | Thrasher, round 1's boss | `boss_thrasher_sodom.c` |
+| `$81` | `01:A101` `sodom_update` | Sodom, round 2's boss | `boss_thrasher_sodom.c` |
+| `$83` | `01:AA33` `sodom_rematch_update` | Sodom again: round 4's boss area (area 11) and round 5's second area (13) | `boss_sodom_rematch.c` |
+| `$8F` | `01:A09B` `scene_prop_update` | Cody's partner in the scene after Belger, once it has stood in for him (never executed) | `boss_b01_scene.c` |
+| `$82`, `$84`-`$8E` | `01:A030` | Nothing | `boss_b01_shared.c` |
+| `$90` | `03:B3F4` `abigail` | Abigail, round 3's boss | `boss_abigail.c` |
+| `$91` | `03:BB91` `drum_roll` | A drum rolling at the player (round 1 area 2) | `enemy_drums.c` |
+| `$94` | `03:BBCB` `drum_dispenser` | The drums' invisible dispenser | `enemy_drums.c` |
+| `$95` | `03:BD46` `drum_smashed` | A smashed drum: two halves and, outside the bonus stage, an item | `enemy_drums.c` |
+| `$9B` | `03:BF38` `belger_down` | Belger down: waits, then becomes the scene's `$7D` | `boss_belger_end.c` |
+| `$9C` | `03:BFBE` `cody_scene_partner` | Cody's part of the scene; becomes `$8F` | `boss_belger_end.c` |
+| `$9D` | `03:BF95` `belger_shot` | Belger's shot (kind `$0C`) | `boss_belger.c` |
+| `$9E` | `03:BF48` `belger_fall` | Belger's fall | `boss_belger_end.c` |
+| `$9F` | `03:BED2` `belger_killed` | Belger's life out (`0C:8211`): knocked down as id 5 with saved id `$9B` | `boss_belger.c` |
+| `$92`, `$93`, `$96`-`$9A` | `03:B330` | Nothing | `enemy_tables.c` |
 
 The enemy ids from Data Crystal in `docs/ram_map.md` (Poison `20 26 30`, ...) are
 these behaviour ids: `$20-$25`, `$26-$2B` and `$30-$35` are the same six
@@ -377,6 +427,19 @@ the air) and jumps through its phase table (`$9D3B`/`$9D4B`): the AI of bank
 (Andore; `obj_timer` 3 is the rush), `$F` `enemy_drop_in`). `obj_tier`
 1/2/4 becomes 0/1/2 through `$A897` (bank `$0D`) for the damage indexes and
 AxL's block odds.
+
+Not every kind uses every phase. In the tour logs Two P and Bred only show
+0-2, 4, 5, 7 and 8; AxL adds 3 (his block), `$D` and `$F`; Poison 6, 9, `$C`
+and `$F` (her back flip); El Gado 6, 9-`$D` and `$F` (jump, knife, slide);
+Andore `$D` and `$E` (the charge). Phases 1, 2, 4 and 7 end in `enemy_walk`
+(`0D:A953`), which sends an enemy that meets a pit back to phase 1 with
+`obj_pit_flag`; nearly every phase ends in `enemy_reset` (`0D:A8E8`). The
+walking speed is the kind's (`enemy_set_speed`, `0D:AC34`, by
+`$ACA7/$ACAD`): Bred 0.8 px a frame, AxL and Andore 0.9, Poison 1.2, Two P
+and El Gado 1.4, split into x and y by the 16-step direction index. An
+attack starts when the player is within the kind's
+`enemy_attack_range_x/y` (`0D:A3A7/A3AD`, through `0F:FB3E`); the hit
+itself lands by `obj_attack`'s reach box (`0F:F6AA-F6EA`, `obj_reach.c`).
 
 Id `$2E` is El Gado's knife (`0C:9D71`): `0D:A5DA`, from his phase `$A`,
 puts it `$12` px ahead of him and 3 px lower with `obj_vx` `$0330`, attack
@@ -404,20 +467,165 @@ logs the waiting ids `$38`, `$3E`, `$43`, `$49`, `$4A`, `$4B` show up (rounds
 0-4); `$36`, `$39`, `$3A`, `$3C`, the tier-2 standing entry and `$41`/`$44`
 never ran (`runs/cdl`).
 
-## Wrong labels
+## Bosses
 
-- `$0490` is named `obj_life_max` and `$04A0` `obj_life`, but it is the other
-  way round. Damage is subtracted from `$0490` (`0C:86E4`), `$0490` going
-  negative is the death test (`0C:80CB`, `8111`, `8134`, `9BA5`), the HUD fills
-  the bar from `$0490` and sizes it from `$04A0 / 8` (`0F:E8E0`, `E8F2`), and
-  in `base_cody_round1.flog` slot `$0C`'s `$0490` goes `28 26 1E 16 0E 06 FE`
-  over five hits while `$04A0` stays `28`. `$04A0` is only written at spawn,
-  with the same value. Data Crystal's "enemy life `$049B/$049E`" was right.
-  Consequences: the bots' "finish a long fight" patch (`port/scaffold/bot.c`
-  line 157, `tools/bot.py` line 181) writes 1 to `$04A0`, which only shortens
-  the HUD bar (Belger in `base_cody_tour.flog`: `$04AC` goes from `$68` to 1 at
-  frame 40414 while `$049C` stays `$59`); and the note that Abigail "took no
-  damage, `obj_life` stayed put" was watching the maximum.
+While the boss talk sits in slot `$0D` every boss stands still and cannot be
+hit. The boss talk, id `$6E` (`05:A9E4`), is an invisible object the stage
+list puts at the start of each boss area (type `$18`): once the camera stops
+and the player is free it holds him (`game_action` `$0A`) and starts the talk
+pages, which `gameplay_special_screen` runs instead of the game
+(`flow_talk.c`). Thrasher's first page (3, BOW DOWN BEFORE ME!) is a
+question: the right answer, NO, costs him 8 of life (`04:9A74`,
+`talk_answer`).
+
+**Thrasher and Sodom** (`$80`, `$81`, bank `$01`, `boss_thrasher_sodom.c`)
+share one behaviour; the kind (7 or 8) picks the animations, the swing and a
+few decisions. Each frame (`01:A103`): `obj_kind`, no attack out,
+`obj_invuln` counted down, the talk wait, `boss_check` (`01:A6D6`: held by
+the player, hit, the drop-in), then the phase through `$A6C4/$A6CD`:
+
+| Phase | Routine | What |
+|---|---|---|
+| 0 | `$A13C` | Enter: circle if on screen 1, else walk in (8) |
+| 1 | `$A169` | Circle the arena's edges, turning at the corners; attack once the player is in reach (Thrasher `$1C` x `$0A`, Sodom `$24` x 9); at the corners Thrasher may jump, Sodom rush |
+| 2 | `$A2ED` | Swing: one to three (Thrasher), one (Sodom) |
+| 3 | `$A417` | Wander around the player for `$78` frames (Thrasher) |
+| 4 | `$A473` | Rush: aim, run, slide to a stop (Sodom) |
+| 5 | `$A557` | Jump twice on the spot; the landings hit (Thrasher) |
+| 6 | `$A5CF` | Leap forward to the arena's side (Thrasher) |
+| 7 | `$A633` | Hurt |
+| 8 | `$A651` | Walk in |
+
+A swing that hits leaves the player at most `$22` frames of invincibility
+instead of `$3C` (`01:A3E1`). A new life dropping in (`game_action` `$25`)
+knocks any bank-`$01` boss down (`01:A794`); a player lying on the ground
+sends Thrasher and the round 2 Sodom back to phase 0 unless they circle or
+jump (`01:A766`).
+
+**Sodom again** (`$83`, `boss_sodom_rematch.c`; type `$16`, life `$68`) is
+round 4's boss and stands in round 5's second area. His tier follows his
+life: 1 from `$30` up, 2 below, 3 once enraged (phase 0 enrages a tier-2
+Sodom: `$7C` frames unhittable and a `$74`-frame show). Phases through
+`$AAC6/$AACF`: 0 decide (`$AAD8`), 1 approach (`$AB0A`), 2 the swing
+(`$A2ED`), 3 the enraged charges (`$AC4E`), 4 the rush (`$A473`), 5 back off
+(`$ABB6`), 6 wait then rush or approach (`$ADBA`), 7 hurt (`$AD8C`), 8 a
+follow-up blow (`$AE19`, set only by never-executed code). Phase 6's
+distance ladder is broken: the `BCS` at `01:ADD8` jumps over the `$3C` and
+`$50` rungs, so from `$28` to `$63` px the rush threshold is `$0C` and
+closer than `$28` it is 0 (always an approach); `$ADDE-$ADED` never run. No
+P4 route reaches him; the coverage sessions did (`cyc_seeds.txt`
+`4k:02:AA33`), while `runs/cdl/map.cdl` has none of his code.
+
+**Abigail** (`$90`, `boss_abigail.c`): each frame (`03:B3F4`) counts
+`obj_invuln` and `obj_tier` (a grab cooldown) down; then, by priority, stands
+during the talk, breaks a grab (he slips out of the player's at once),
+reacts to a hit (half the time a counter-grab, half a charge), backs off
+while the player lies down, walks back when off the player's screen, else the
+phase (`$B536/$B53E`): 0 start (`$B546`), 1 approach at 1 px a frame
+(`$B57B`), 2 back off (`$B666`), 3 one or three punches (`$B6F5`, the last of
+three strong), 4 the charge (`$B7C9`: wind-up, a 2.3 px a frame rush that
+slows down), 5 the grab (`$B879`: three blows and a throw, unbreakable), 6
+decide (`$BA1C`), 7 the uppercut against a jumping player (`$BA88`).
+
+**Belger** (`$74`, `boss_belger.c`) fights in two forms, `obj_tier` 0 and 1,
+each with its phase table:
+
+| Phase | First form (`$BCE6/$BCF7`) | Second form (`$BCEC/$BCFD`) |
+|---|---|---|
+| 0 | `$B80B` start | `$B929` start: to his page |
+| 1 | `$BB8C` hurt | `$BB8C` hurt |
+| 2 | `$BBAC` back to his page (never executed) | the same |
+| 3 | `$B825` approach | `$B958` turn away |
+| 4 | `$B86F` circle the player | `$B97B` patrol up and down, shoot |
+| 5 | `$B8D3` punch | `$BA68` walk to the screen's edge |
+| 6 | | `$BA9A` fire a shot (id `$9D`, `0B:BBEC`) |
+| 7 | | `$BAD0` rest `$5A` frames |
+| 8 | | `$BAE8` dizzy (never executed) |
+| 9 | | `$BB05` punch, then leap |
+| 10 | | `$BB53` the leap |
+
+The change comes when his life drops under `$5A`: music `$F2`, then, once
+the player stands, talk page `$3C` and `obj_tier` 1 (music 6 from then on).
+The tours only get there through the bots' life patch (`cody_tour` frame
+28298). His life running out makes him `$9F` (`0C:8211`), knocked down as id
+5 with saved id `$9B`.
+
+**The scene after Belger** (`boss_belger_end.c`, never played by a route):
+`$9B` waits and becomes `$7D`, the scene's controller in Belger's slot. Every
+frame it sets `special_screen_id` `$F9`, which `hud_update` (`0F:E6B4`) takes
+back to 0 instead of drawing the status bar, and drives the player through
+`player_state` with forced pad bits. Its phases: 0 the player jumps, Belger's
+fall (`$9E`); 1 the jump goes on until the player lands; 2 the round-clear
+screen, music `$0F`; 6 a wait; 3 by character: Cody's partner scene (`$9C`,
+then `$8F`), Guy walks off; either way the player then becomes Haggar
+(`player_id` 2, `player_level` two less: `DEC DEC` at `0B:BE79`) and walks to
+the meeting point, and the controller becomes `$7B`; 4 a figure enters from
+the right (animation `$23`, sprite bank `$36`); 5 it walks left to x `$B0`; 7
+a last wait, then `game_action` `$0E` ends the round with `player_id` back.
+`$7B` and `$7D` differ only in the sprite data `object_draw` maps
+(`$EB93`: `$0A` and `$02`).
+
+## Stage objects (ids `$60`-`$6F`, bank `$05`)
+
+`obj_props.c` and `obj_weapons.c`; the stage list's per-type tables
+(`08:8442`, `08:85E6`) place most of them.
+
+- **Hidden food** (`$61`): list type `$1C`, round 5 area 2, hidden (flags
+  `$D4`), animation `$61`; the player's first punch thrown at it from
+  `$11`-`$17` px to its right (facing it) gives sound `$22` and health
+  `$FCC0[1]`, up to the level's full health, and frees it. Alive in every
+  tour through that area, never punched.
+- **The elevator** (`$64`, round 4 area 2, list type `$1F`): shakes the
+  screen, cycles background palettes 2-3 and makes the floor indicator
+  (`$62`, B1-B4, chime `$30`) and the lights that slide up the shaft
+  (`$63`).
+- **Thrasher's low-life palette** (`$65`, round 1 area 3, type `$1B`): once
+  slot `$0C`'s Thrasher is under `$10` of life, background palette 2 runs
+  color script 7. No route gets him that low.
+- **Thrasher looking in** (`$68`, end of round 1 area 2, type `$19`) and
+  **Andore's charge** (`$6B`, made in slot `$0D` by `00:9297` in the exit
+  scene of round 1 area 2): no route plays either.
+- **The boss talk** (`$6E`, above) and **the GO sign** (`$6F`, put up by
+  `stage_events` at `08:8987`, chime `$31`).
+- **Weapons**: `$69` lies on the floor (list types `$0A`-`$0C`, the same
+  entry showing each character his own: Cody's knife, Guy's, Haggar's pipe)
+  and is taken with B (`weapon_held` `$FF`; Guy gets 7 throws in
+  `weapon_ammo`). Guy taking another puts his back down as a `$6A` carrying
+  his throws in `obj_timer`. `$66`/`$67` is the weapon a hit knocks out of
+  the player's hand (Guy keeps his): it flies, lands, and may lie there as a
+  `$69` again, or blinks and goes. `$6C`/`$6D` are thrown weapons, flying
+  until they leave the screen; their speed fraction is meant to be `$19` but
+  the next store writes `player_id` over it (`05:A8AF-A8B6`), so it is 0, 1
+  or 2.
+
+## Drums and the bonus stage
+
+Round 1's second area rolls drums at the player (`$91`, 1.2 px a frame,
+attack `$9E`, damage `$3F`), sent by an invisible dispenser (`$94`). The
+bonus stage after the bosses of rounds 2 and 4 starts in the player's
+end-of-area step (`00:94F7`): `bonus_stage` (`$B2`) `$FF`, special screen
+`$FD` (BONUS STAGE) and the controller `$70` in slot `$0F`, which rolls twenty
+drums (`$72`) and pays for the ones smashed (`bonus_drum_count`, `$B9`: 8 or
+more win a prize, all `$14` add PERFECT). Any object with animation `$7B`
+whose life runs out becomes `$95` (`0C:821F`): two halves flying off and,
+outside the bonus stage, an item. While `bonus_stage` is set the A+B special
+is off (`0E:CA40`, `0E:D305`). No route plays the bonus stage (the bots skip
+those areas).
+
+## Names fixed
+
+- `$0490` and `$04A0` were named the other way round until 2026-10-16.
+  Damage is subtracted from `$0490` (`0C:86E4`), its going negative is the
+  death test (`0C:80CB`, `8111`, `8134`, `9BA5`), the HUD fills the bar from
+  it and sizes it from `$04A0 / 8` (`0F:E8E0`, `E8F2`), and in
+  `base_cody_round1.flog` slot `$0C`'s `$0490` goes `28 26 1E 16 0E 06 FE`
+  over five hits while `$04A0` stays `28`. So `$0490` is `obj_life` (Data
+  Crystal's "enemy life `$049B/$049E`") and `$04A0` `obj_life_max`. Until
+  then the bots' "finish a long fight" patch wrote the maximum, which only
+  shortened the HUD bar (Belger in `base_cody_tour.flog`: `$04AC` from `$68`
+  to 1 at frame 40414 while `$049C` stayed `$59`); it now writes `$0490`
+  (`port/scaffold/bot.c`, `tools/bot.py`). The early note that Abigail "took
+  no damage" was watching the maximum too.
 - The comments on `obj_flags` ("bit 4 = drawn") and `object_draw` ("if obj_flags
   bit 4") read bit 4 as visibility. It selects world versus screen
   coordinates; slots with bit 4 clear are drawn too.

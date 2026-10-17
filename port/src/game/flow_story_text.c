@@ -51,7 +51,7 @@ void func_9A1D_b0(void);
 /*
  * story_text ($9A00 in bank $00, proposed): clear the text lines
  * (story_text_clear, which waits a frame), point $0C at page intro_page,
- * then story_text_screen.
+ * then story_text_new_screen.
  * Callers (banks $00/$01 mapped): main_task (0E:C5D5, C607, C615, C642,
  * C650) and player_state_transition's ending (0E:DECB, DEFE).
  */
@@ -74,7 +74,7 @@ void func_9A00_b0(void) {
 }
 
 /*
- * story_text_screen ($9A13 in bank $00, proposed): a new screen of text
+ * story_text_new_screen ($9A13 in bank $00, proposed): a new screen of text
  * from line 0, column 0, then story_text_type. Run on into from story_text;
  * reached by JMP from story_text_type (00:9A8B) after a full screen.
  */
@@ -96,9 +96,9 @@ void func_9A13_b0(void) {
  * page: a letter goes out at the line and column (story_text_letter: three
  * frames pass) and the routine JMPs to itself; $FE goes to the next line,
  * and after the third holds the screen, clears it and starts another
- * (story_text_screen); $FF holds the page and returns (JMP
+ * (story_text_new_screen); $FF holds the page and returns (JMP
  * story_text_hold). A, B, SELECT or START pressed: RTS at once.
- * Run on into from story_text_screen; reached by JMP from itself (00:9A7A).
+ * Run on into from story_text_new_screen; reached by JMP from itself (00:9A7A).
  */
 void func_9A1D_b0(void) {
     REGS_IN;
@@ -202,7 +202,7 @@ void func_9A1D_b0(void) {
     mff_cycles(0x9A88, 6);
     JSR_AT(0x9A88, 0x9AC0, 0);                  /* story_text_clear */
     mff_cycles(0x9A8B, 3);
-    JMP_TAIL(0x9A13, 0);                        /* story_text_screen */
+    JMP_TAIL(0x9A13, 0);                        /* story_text_new_screen */
 }
 
 /*

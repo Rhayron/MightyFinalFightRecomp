@@ -512,8 +512,8 @@ void func_82AF_b0(void) {
 #define OBJ_ID_WEAPON       0x67
 
 /*
- * weapon_drop ($93AF in bank $00, proposed; never executed in any run):
- * the weapon in hand falls where the player is: slot 1 live (obj_state
+ * weapon_drop_on_exit ($93AF in bank $00, proposed; never executed in any
+ * run): the weapon in hand falls where the player is: slot 1 live (obj_state
  * $80, obj_flags $90) at the player's position, animation
  * $93EC[player_id] from its start, obj_dir = player_dir, id $67.
  * Called by action_walk_out (JSR at 00:9320) when an area ends with a
