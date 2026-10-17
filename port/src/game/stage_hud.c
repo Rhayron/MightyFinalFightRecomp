@@ -85,7 +85,7 @@ static uint8_t bar_tile(uint16_t pc, uint8_t life) {
  * runs ($62; $F9 there would clear it, no route), or the stage is being
  * skipped (game_action $0E). While the player holds an enemy, its bar is
  * the one shown.
- * Called by: gameplay_update, JSR at $C981 (gameplay.c).
+ * Called by: gameplay_update, JSR at $C981 (flow_gameplay.c).
  */
 void func_E6AB(void) {
     REGS_IN;
