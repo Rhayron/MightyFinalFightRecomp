@@ -1984,31 +1984,31 @@ bank = 0
 addr = 0xAE19   # lifted, lifted_b0.c
 [[replace_func]]
 bank = 2
-addr = 0x8000   # lifted, lifted_b2.c
+addr = 0x8000   # flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x8016   # lifted, lifted_b2.c
+addr = 0x8016   # flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x8900   # lifted, lifted_b2.c
+addr = 0x8900   # flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x8940   # lifted, lifted_b2.c
+addr = 0x8940   # flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x89C0   # lifted, lifted_b2.c
+addr = 0x89C0   # flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x8A40   # lifted, lifted_b2.c
+addr = 0x8A40   # flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x8AC0   # lifted, lifted_b2.c
+addr = 0x8AC0   # flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x8B40   # lifted, lifted_b2.c
+addr = 0x8B40   # flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x8C00   # lifted, lifted_b2.c
+addr = 0x8C00   # flow_screens.c
 [[replace_func]]
 bank = 2
 addr = 0x8D00   # lifted, lifted_b2.c
@@ -2035,7 +2035,7 @@ bank = 2
 addr = 0x8F07   # lifted, lifted_b2.c
 [[replace_func]]
 bank = 2
-addr = 0x9000   # lifted, lifted_b2.c
+addr = 0x9000   # flow_screens.c
 [[replace_func]]
 bank = 2
 addr = 0x9100   # lifted, lifted_b2.c

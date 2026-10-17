@@ -52,10 +52,14 @@
 #define SCREEN_CAPCOM       0x00    /* CAPCOM PRESENTS (setup 04:8900) */
 #define SCREEN_TITLE        0x01    /* setup 04:8940 */
 #define SCREEN_SELECT       0x02    /* run by 04:9100 */
+#define SCREEN_CONTINUE     0x03    /* run by 04:9300 (0E:DCAE) */
 #define SCREEN_LICENSE      0x04    /* LICENSED BY NINTENDO (setup 04:89C0) */
-#define SCREEN_STORY_1      0x06    /* the picture of story page 1 (setup 04:8B40) */
-#define SCREEN_STORY_2      0x07    /* the picture of story page 3 (setup 04:8AC0) */
-#define SCREEN_ROUND_MAP    0x08    /* run by 04:8D00 */
+#define SCREEN_GAME_OVER    0x05    /* run by 04:9500 (0E:DCD3) */
+#define SCREEN_STORY_1      0x06    /* story page 1's picture (setup 04:8B40); also the first
+                                     * ending picture (setup 04:9000, 0E:DEB4) */
+#define SCREEN_STORY_2      0x07    /* story page 3's picture (setup 04:8AC0) */
+#define SCREEN_ROUND_MAP    0x08    /* + the round, 8-12 (0F:E15C); run by 04:8D00 */
+#define SCREEN_ENDING_2     0x0D    /* the second ending picture (setup 04:8C00, 0E:DEE7) */
 
 /* ---- main_task (flow_main_task.c) ---- */
 #define RNG_SEED            0x88    /* rng at power-on */
