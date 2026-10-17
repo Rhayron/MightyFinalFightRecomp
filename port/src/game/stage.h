@@ -22,8 +22,8 @@
 
 /* N and Z as a load, a transfer, INC/DEC or a logic op leaves them */
 #define SET_NZ(val)    (n = ((uint8_t)(val)) >> 7, z = ((uint8_t)(val)) == 0)
-/* CMP/CPX/CPY reg, m: C = reg >= m, N and Z of reg - m */
-#define SET_CMP(reg, mv) (c = (uint8_t)(reg) >= (uint8_t)(mv), SET_NZ((uint8_t)(reg) - (uint8_t)(mv)))
+/* CMP/CPX/CPY reg, mv: C = reg >= mv, N and Z of reg - mv; mv is read once, into m */
+#define SET_CMP(reg, mv) (m = (uint8_t)(mv), c = (uint8_t)(reg) >= m, SET_NZ((uint8_t)(reg) - m))
 /* ADC m / SBC m on a with the carry in c, setting N/Z/C/V */
 #define ADC_A(mv) do { uint8_t m_ = (uint8_t)(mv); int w_ = a + m_ + c; \
         v = (~(a ^ m_) & (a ^ w_) & 0x80) != 0; c = w_ > 0xFF; a = (uint8_t)w_; SET_NZ(a); } while (0)

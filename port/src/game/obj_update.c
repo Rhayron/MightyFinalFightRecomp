@@ -194,7 +194,7 @@ void func_800B_b6(void)
     mff_push(a);
     SYNC_OUT;
     {
-        uint16_t jt = nes_read16zp(0x0000);
+        uint16_t jt = nes_read16zp(TMP0);
         nes_cpu_instruction_boundary(jt, 2);
         call_by_address(jt);
         call_by_address_tail(0x805E, 6);

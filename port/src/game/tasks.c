@@ -185,7 +185,7 @@ scan:
         mff_cycles(0xFEEB, 4); g_cpu.A = RAM(TASKS + 3 + g_cpu.X); mff_nz(g_cpu.A);
         mff_cycles(0xFEED, 3); RAM(TASK_ENTRY + 1) = g_cpu.A;
         mff_cycles(0xFEEF, 5);
-        jt = nes_read16zp(0x93);
+        jt = nes_read16zp(TASK_ENTRY);
         nes_cpu_instruction_boundary(jt, 2);
         coroutine_start(RAM(TASK_CURRENT), jt);
         return;

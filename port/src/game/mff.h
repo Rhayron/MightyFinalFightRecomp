@@ -43,8 +43,8 @@ static inline void mff_cycles(uint16_t pc, int cycles) {
 /* RTS under push_all_jsr: the caller pushed the return address. */
 static inline void mff_rts(void) {
     uint8_t lo, hi;
-    g_cpu.S++; lo = g_ram[0x100 + g_cpu.S];
-    g_cpu.S++; hi = g_ram[0x100 + g_cpu.S];
+    g_cpu.S++; lo = g_ram[STACK_PAGE + g_cpu.S];
+    g_cpu.S++; hi = g_ram[STACK_PAGE + g_cpu.S];
     g_rts_target = (uint16_t)((hi << 8) | lo);
 }
 
@@ -57,8 +57,8 @@ static inline void mff_rts(void) {
 static inline int mff_call(uint16_t site, uint16_t target) {
     uint8_t s = g_cpu.S;
     uint16_t ret = (uint16_t)(g_code_window_base | ((site + 2) & 0x1FFF));
-    g_ram[0x100 + g_cpu.S] = (uint8_t)(ret >> 8); g_cpu.S--;
-    g_ram[0x100 + g_cpu.S] = (uint8_t)ret; g_cpu.S--;
+    g_ram[STACK_PAGE + g_cpu.S] = (uint8_t)(ret >> 8); g_cpu.S--;
+    g_ram[STACK_PAGE + g_cpu.S] = (uint8_t)ret; g_cpu.S--;
     if (!nes_dispatch_call(target, -1)) g_cpu.S += 2;
     return g_cpu.S == s;
 }
@@ -68,13 +68,13 @@ static inline int mff_call(uint16_t site, uint16_t target) {
  * balance check - the generated callers skip it too. */
 static inline void mff_call_yield(uint16_t site, uint16_t target) {
     uint16_t ret = (uint16_t)(g_code_window_base | ((site + 2) & 0x1FFF));
-    g_ram[0x100 + g_cpu.S] = (uint8_t)(ret >> 8); g_cpu.S--;
-    g_ram[0x100 + g_cpu.S] = (uint8_t)ret; g_cpu.S--;
+    g_ram[STACK_PAGE + g_cpu.S] = (uint8_t)(ret >> 8); g_cpu.S--;
+    g_ram[STACK_PAGE + g_cpu.S] = (uint8_t)ret; g_cpu.S--;
     if (!nes_dispatch_call(target, -1)) g_cpu.S += 2;
 }
 
-static inline void mff_push(uint8_t v) { g_ram[0x100 + g_cpu.S] = v; g_cpu.S--; }
-static inline uint8_t mff_pull(void) { g_cpu.S++; return g_ram[0x100 + g_cpu.S]; }
+static inline void mff_push(uint8_t v) { g_ram[STACK_PAGE + g_cpu.S] = v; g_cpu.S--; }
+static inline uint8_t mff_pull(void) { g_cpu.S++; return g_ram[STACK_PAGE + g_cpu.S]; }
 
 /* the flags as PHP pushes them (B and bit 5 set) and as PLP/RTI take them */
 static inline uint8_t mff_p(void) {
@@ -129,16 +129,16 @@ static inline void mff_jmp_charge(uint16_t pc, uint16_t target) {
 static inline int mff_call_at(uint16_t rp_low, uint16_t target, int bank) {
     uint8_t s = g_cpu.S;
     uint16_t ret = (uint16_t)(g_code_window_base | rp_low);
-    g_ram[0x100 + g_cpu.S] = (uint8_t)(ret >> 8); g_cpu.S--;
-    g_ram[0x100 + g_cpu.S] = (uint8_t)ret; g_cpu.S--;
+    g_ram[STACK_PAGE + g_cpu.S] = (uint8_t)(ret >> 8); g_cpu.S--;
+    g_ram[STACK_PAGE + g_cpu.S] = (uint8_t)ret; g_cpu.S--;
     if (!nes_dispatch_call(target, bank)) g_cpu.S += 2;
     return g_cpu.S == s;
 }
 static inline int mff_call_fn(uint16_t rp_low, void (*fn)(void), uint16_t window) {
     uint8_t s = g_cpu.S;
     uint16_t ret = (uint16_t)(g_code_window_base | rp_low);
-    g_ram[0x100 + g_cpu.S] = (uint8_t)(ret >> 8); g_cpu.S--;
-    g_ram[0x100 + g_cpu.S] = (uint8_t)ret; g_cpu.S--;
+    g_ram[STACK_PAGE + g_cpu.S] = (uint8_t)(ret >> 8); g_cpu.S--;
+    g_ram[STACK_PAGE + g_cpu.S] = (uint8_t)ret; g_cpu.S--;
     if (window) {
         uint16_t swb = g_code_window_base;
         g_code_window_base = window;
