@@ -1,9 +1,177 @@
 /*
- * player_states.c - player_state handlers that do not fit the jump, attack,
- * grab or hurt files (player_state dispatches on game_action through
- * 0E:C9CA/C9F5)
+ * player_states.c - player_state, which runs the handler of game_action
+ * each frame, and the handlers that do not fit the idle, walk, jump,
+ * attack, grab or hurt files
  */
 #include "player_defs.h"
+
+void func_C9B9(void);
+
+/* player_state's table: the handler of each game_action, 43 entries ($00 to
+ * $2A). 8, $0D and $0F up are player_state_default, an RTS: those actions
+ * run in bank $00 (player_action_dispatch) */
+#define STATE_TABLE_LO      0xC9CA
+#define STATE_TABLE_HI      0xC9F5
+
+/* the player's last sprite color ($0617) while it blinks after a new life
+ * drops in: its own color, or white */
+#define BLINK_COLOR         0xFCC8   /* 21 15 19 */
+#define BLINK_WHITE         0xFCCB   /* 30 30 30 */
+/* animations and actions during which player_no_hit stays set */
+#define KEEP_NO_HIT_ANIM    0xE297   /* 34 35 52 */
+static const uint8_t k_keep_no_hit_anims[] = { 0x49, 0x36, 0x4C, 0x5C, 0x15, 0x14, 0x5B };
+static const uint8_t k_keep_no_hit_actions[] = { 0x12, 0x18, 0x14 };
+
+/*
+ * player_state ($C9B6, labels.toml): the player's frame, called by
+ * gameplay_update (0E:C93B): player_respawn_blink ($CED1), then the handler
+ * of game_action (player_state_run).
+ */
+void func_C9B6(void) {
+    REGS_IN;
+
+    mff_cycles(0xC9B6, 6);
+    JSR_AT(0xC9B6, 0xCED1, -1);                 /* player_respawn_blink */
+    FALL_INTO(func_C9B9);
+}
+
+/*
+ * player_state_run ($C9B9, proposed): X = 0 (slot 0) and JMP (indirect)
+ * through STATE_TABLE_LO/HI[game_action], by way of $00/$01. Run on into
+ * by player_state; bank $0B calls it directly with joy_pressed/joy_held set
+ * by the code (0B:BDA8, BDD2, BE9B, BF02; never executed in the CDL runs).
+ */
+void func_C9B9(void) {
+    REGS_IN;
+
+    mff_cycles(0xC9B9, 2 + 3 + 4);
+    x = 0;
+    y = RAM(GAME_ACTION);
+    a = prg_read((uint16_t)(STATE_TABLE_LO + y));
+    mff_cycles(0xC9C0, 3 + 4);
+    RAM(TMP0) = a;
+    a = prg_read((uint16_t)(STATE_TABLE_HI + y));
+    SET_NZ(a);
+    mff_cycles(0xC9C5, 3 + 5);
+    RAM(TMP1) = a;
+    JMP_IND(TMP0);
+}
+
+/*
+ * player_state_default ($CCB4, labels.toml): RTS. The table's entry for
+ * game_action 8, $0D and $0F up: bank $00 runs those actions after
+ * player_state (player_action_dispatch). player_punch_start runs on into
+ * this RTS too.
+ */
+void func_CCB4(void) {
+    REGS_IN;
+
+    mff_cycles(0xCCB4, 6);
+    RTS();
+}
+
+/*
+ * player_respawn_blink ($CED1, proposed): the invincibility after a new
+ * life drops in (bank $00 sets respawn_timer1 $1E and respawn_timer2 $B6,
+ * 00:8EAB-8EAF). While respawn_timer1, then respawn_timer2, counts down,
+ * the player's last sprite color ($0617, palette_request $FF) is its own
+ * color ($FCC8) or, when bit 1 of the timer (before the DEC) is set, white
+ * ($FCCB). The white path reads $FCCB,Y without loading Y: Y is what the
+ * caller left, 0 in an ordinary frame (rng_step, gameplay_frame_end's last
+ * call before the wait, ends with Y = 0); the three bytes are all $30, so
+ * only a Y above 2 would read another color.
+ * With both timers 0, player_no_hit is cleared, except in the animations
+ * $E297[player_id], $49, $36, $4C, $5C, $15, $14, $5B and during game_action
+ * $12, $18, $14 (moves that keep enemies' attacks off).
+ * Called by player_state (0E:C9B6) and bank $0B (0B:BE13).
+ */
+void func_CED1(void) {
+    REGS_IN;
+    int white, i;
+    uint16_t pc;
+
+    mff_cycles(0xCED1, 3 + 2);
+    a = RAM(RESPAWN_TIMER1);
+    if (a != 0) {
+        mff_cycles(0xCED5, 5 + 2 + 2);
+        RAM(RESPAWN_TIMER1)--;
+        a &= 0x02;
+        white = a != 0;
+        if (white)
+            mff_cycles(0xCED9, 1);
+    } else {
+        mff_cycles(0xCED3, 1 + 3 + 2);
+        a = RAM(RESPAWN_TIMER2);
+        if (a == 0) {
+            mff_cycles(0xCEEF, 1);
+            goto no_hit;
+        }
+        mff_cycles(0xCEF1, 5 + 2 + 2);
+        RAM(RESPAWN_TIMER2)--;
+        a &= 0x02;
+        SET_NZ(a);
+        white = !z;
+        if (white)
+            mff_cycles(0xCEF5, 1);
+        else
+            mff_cycles(0xCEF7, 2 + 1);          /* BEQ $CEDB (always) */
+    }
+    if (!white) {
+        mff_cycles(0xCEDB, 3 + 4);
+        y = RAM(PLAYER_ID);
+        a = prg_read((uint16_t)(BLINK_COLOR + y));
+        mff_cycles(0xCEE0, 2);
+        white = a == 0;                         /* never: no 0 in the table */
+        if (!white)
+            mff_cycles(0xCEE0, 1);
+    }
+    if (white) {
+        mff_cycles(0xCEE2, 4);
+        a = prg_read((uint16_t)(BLINK_WHITE + y));
+    }
+    mff_cycles(0xCEE5, 4 + 2 + 3 + 6);
+    RAM(PALETTE_BUF + 23) = a;
+    a = 0xFF;
+    SET_NZ(a);
+    RAM(PALETTE_REQUEST) = a;
+    RTS();
+
+no_hit:
+    mff_cycles(0xCEFA, 3 + 4 + 4);
+    y = RAM(PLAYER_ID);
+    a = RAM(OBJ_ANIM);
+    COMPARE(a, prg_read((uint16_t)(KEEP_NO_HIT_ANIM + y)));
+    mff_cycles(0xCF02, 2);
+    if (z) {
+        mff_cycles(0xCF02, 1);
+        goto done;
+    }
+    for (i = 0, pc = 0xCF04; i < (int)sizeof k_keep_no_hit_anims; i++, pc += 4) {
+        mff_cycles(pc, 2 + 2);                  /* CMP #anim, BEQ $CF32 */
+        COMPARE(a, k_keep_no_hit_anims[i]);
+        if (z) {
+            mff_cycles((uint16_t)(pc + 2), 1);
+            goto done;
+        }
+    }
+    mff_cycles(0xCF20, 3);
+    a = RAM(GAME_ACTION);
+    for (i = 0, pc = 0xCF22; i < (int)sizeof k_keep_no_hit_actions; i++, pc += 4) {
+        mff_cycles(pc, 2 + 2);                  /* CMP #action, BEQ $CF32 */
+        COMPARE(a, k_keep_no_hit_actions[i]);
+        if (z) {
+            mff_cycles((uint16_t)(pc + 2), 1);
+            goto done;
+        }
+    }
+    mff_cycles(0xCF2E, 2 + 3);
+    a = 0;
+    SET_NZ(a);
+    RAM(PLAYER_NO_HIT) = a;
+done:
+    mff_cycles(0xCF32, 6);
+    RTS();
+}
 
 /* game_action of the move Guy starts with B inside his jump window */
 #define WINDOW_ACTION       0xE24C   /* 23 18 00 */
