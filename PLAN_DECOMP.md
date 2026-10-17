@@ -102,10 +102,11 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   área nomeia depois do fim, lidas quando a câmera para, e um byte de tabela lido além do fim; ler um
   byte que falta para a execução e diz qual). As 9 rotas ficam idênticas às bases em RAM, OAM, paleta
   e imagem a cada frame, com a ROM fora do alcance; contra o andaime compilado com as mesmas rotinas,
-  até o ciclo de cada imagem bate. A imagem guarda duas diferenças do console porque as bases as têm:
-  todos os sprites aparecem (`--sprite-limit` dá os 8 por linha do console) e um split reinicia a
-  rolagem vertical no Y que o handler escreve em `$2005` (por isso a barra de baixo mostra os tiles da
-  de cima com os bancos de CHR dela). Compilar e jogar:
+  até o ciclo de cada imagem bate. A janela mostra a imagem como a PPU desenha (`--picture
+  console`: 8 sprites por linha, a posição vertical seguindo pelos splits): nos 7.635 frames de
+  `inputs/10_cody_poweron.txt` do power-on até o primeiro lag do oráculo ela é idêntica à do
+  oráculo, pixel a pixel (`port/tests/oracle_pictures.py`). O log de imagem das rotas continua com a
+  do renderizador do andaime, que é o que as bases têm. Compilar e jogar:
 
   ```bash
   cmake -S port -B build_mff -A x64 -DMFF_ROM="rom/Mighty Final Fight (USA).nes" -DMFF_SDL=ON

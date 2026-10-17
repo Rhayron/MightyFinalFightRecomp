@@ -25,12 +25,19 @@
 #include "render.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 long g_smoke_frames;
 int g_window;
-int g_sprite_limit;
+int g_picture = PICTURE_CONSOLE;
 
-static uint32_t s_fb[FRAME_W * FRAME_H];        /* black until the first picture */
+/* Two pictures of each frame: the scaffold renderer's, which the picture
+ * log hashes and the sprite-0 hit comes from (so the game sees the same
+ * thing whatever is shown), and the one shown (g_picture: the window,
+ * screenshots). Both keep the last picture while rendering is off, and
+ * start out all zero, as the scaffold's framebuffer did. */
+static uint8_t s_pix_test[FRAME_W * FRAME_H], s_pix_show[FRAME_W * FRAME_H];
+static uint32_t s_rgb_test[FRAME_W * FRAME_H], s_rgb_show[FRAME_W * FRAME_H];
 static FrameRecord s_rec;
 static int s_split_last = 240, s_split_hold;    /* the sprite-0 split's line, held 6 frames */
 
@@ -82,7 +89,7 @@ static void scanline(int line) {
     if (ppu_v_writes() != vw) ppu_sync_from_v();
     s_rec.irq_fired = 1;
     s_rec.last_irq = line;
-    ppu_capture_region(&s_rec, line + 1);
+    ppu_capture_region(&s_rec, line + 1, ppu_v_writes() != vw);
 }
 
 static void picture(void) {
@@ -94,16 +101,27 @@ static void picture(void) {
     f->irq_fired = 0;
     f->last_irq = -2;
     f->split_y = 240;
+    f->mirroring = mmc3_mirroring();
     if (mask & 0x08) {
         ppu_render_sync();
         f->mirroring = mmc3_mirroring();
         f->split_y = split_line();
-        ppu_capture_region(f, 0);
+        ppu_capture_region(f, 0, 0);
         scanline(-1);
         for (int line = 0; line < FRAME_H; line++) scanline(line);
+    } else {
+        ppu_capture_region(f, 0, 0);            /* the sprites' state; no scanline pass */
     }
     ppu_capture_end(f);
-    if (render_frame(f, s_fb, g_sprite_limit)) ppu_set_status(0x40, 0);
+    if (render_frame(f, s_pix_test, PICTURE_SCAFFOLD)) ppu_set_status(0x40, 0);
+    picture_rgb(s_pix_test, s_rgb_test);
+    if (g_picture != PICTURE_SCAFFOLD && (g_window || hooks_want_picture())) {
+        render_frame(f, s_pix_show, g_picture);
+        picture_rgb(s_pix_show, s_rgb_show);
+    } else {
+        memcpy(s_pix_show, s_pix_test, sizeof s_pix_show);
+        memcpy(s_rgb_show, s_rgb_test, sizeof s_rgb_show);
+    }
 }
 
 static void smoke_exit(void) {
@@ -121,8 +139,8 @@ void frame_run(void) {
     hooks_frame_start(g_frame_count);
     deliver_nmi();
     picture();
-    hooks_picture(s_fb);
-    if (g_window) video_frame(s_fb);
+    hooks_picture(s_rgb_test, s_rgb_show, s_pix_show);
+    if (g_window) video_frame(s_rgb_show);
     g_frame_count++;
     if (g_smoke_frames > 0 && (long)g_frame_count >= g_smoke_frames) smoke_exit();
 }

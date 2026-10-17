@@ -90,7 +90,7 @@ int ppu_split_active(void);
 uint32_t ppu_v_writes(void);
 void ppu_sync_from_v(void);
 void ppu_capture_start(FrameRecord *f);
-void ppu_capture_region(FrameRecord *f, int first_line);
+void ppu_capture_region(FrameRecord *f, int first_line, int v_set);
 void ppu_capture_end(FrameRecord *f);
 
 /* ---- timing.c ---- */
@@ -114,7 +114,7 @@ void timing_call_irq_handler(void);
 void frame_run(void);               /* the frame boundary with NMI enabled */
 extern long g_smoke_frames;         /* --smoke N: exit after N frames (0: run on) */
 extern int g_window;                /* a window is open (video_sdl.c) */
-extern int g_sprite_limit;          /* 8 sprites per line, as the console */
+extern int g_picture;               /* PICTURE_CONSOLE or PICTURE_SCAFFOLD (render.h): what is shown */
 
 /* ---- png_write.c ---- */
 int png_write_argb(const char *path, const uint32_t *px, int w, int h);
@@ -122,7 +122,10 @@ int png_write_argb(const char *path, const uint32_t *px, int w, int h);
 /* ---- testhooks.c ---- */
 void hooks_init(void);
 void hooks_frame_start(uint64_t frame);     /* before the NMI */
-void hooks_picture(const uint32_t *fb);     /* after the picture */
+/* after the picture: the scaffold renderer's (the picture log), the one
+ * shown, and the shown one as palette indices */
+void hooks_picture(const uint32_t *test, const uint32_t *shown, const uint8_t *shown_pix);
+int hooks_want_picture(void);                /* screenshots or a picture dump asked for */
 void hooks_exit_log(void);
 
 /* ---- mff_hooks.c ---- */

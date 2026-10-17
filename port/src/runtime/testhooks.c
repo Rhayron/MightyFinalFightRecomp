@@ -6,7 +6,9 @@
  * MFF_FRAMELOG=FILE  per frame, before the NMI: u32 frame, CPU RAM [$800],
  *                    OAM [$100], palette RAM [$20]
  * MFF_PICLOG=FILE    per frame, after the picture: u32 frame, u32 FNV-1a of
- *                    the 256x240 ARGB pixels, u32 low CPU cycle count
+ *                    the 256x240 ARGB pixels, u32 low CPU cycle count. The
+ *                    picture is the scaffold renderer's whatever --picture
+ *                    shows: the baselines hold that one
  * MFF_INPUT=FILE     pad 1 keyed by the game's NMI count (port/tests/
  *                    nmi_input.py): lines "count repeat buttons(hex)"
  * MFF_BOT=C:SEED:SKIP  the in-process player (port/scaffold/bot.c)
@@ -15,6 +17,8 @@
  *                    the answer is always none
  * MFF_SHOTS=F1,F2,.. the pictures of those frames as PNG, in MFF_SHOT_DIR
  *                    (default the current directory): frame_NNNNNN.png
+ * MFF_PICDUMP=FILE   per frame: u32 frame, then the picture shown as 256x240
+ *                    palette indices (port/tests/oracle_pictures.py)
  */
 #include "machine.h"
 #include <stdio.h>
@@ -23,7 +27,7 @@
 
 void mff_bot_frame(uint64_t frame);     /* port/scaffold/bot.c */
 
-static FILE *s_framelog, *s_piclog;
+static FILE *s_framelog, *s_piclog, *s_picdump;
 static const char *s_interp_path;
 static long s_shots[64];
 static int s_nshots;
@@ -99,6 +103,7 @@ void hooks_init(void) {
     const char *in = getenv("MFF_INPUT"), *shots = getenv("MFF_SHOTS"), *dir = getenv("MFF_SHOT_DIR");
     s_framelog = open_log("MFF_FRAMELOG");
     s_piclog = open_log("MFF_PICLOG");
+    s_picdump = open_log("MFF_PICDUMP");
     if (in && *in) keys_load(in);
     for (const char *p = shots; p && *p && s_nshots < 64;) {
         char *end;
@@ -133,18 +138,25 @@ void hooks_frame_start(uint64_t frame) {
     mff_bot_frame(frame);
 }
 
-void hooks_picture(const uint32_t *fb) {
+int hooks_want_picture(void) { return s_nshots > 0 || s_picdump != NULL; }
+
+void hooks_picture(const uint32_t *test, const uint32_t *shown, const uint8_t *shown_pix) {
     uint32_t rec[3], h = 2166136261u;
     for (int i = 0; i < s_nshots; i++) {
         if (s_shots[i] == (long)g_frame_count) {
             char path[1024];
             snprintf(path, sizeof path, "%s/frame_%06ld.png", s_shot_dir, s_shots[i]);
-            if (png_write_argb(path, fb, 256, 240)) fprintf(stderr, "[mff] cannot write %s\n", path);
+            if (png_write_argb(path, shown, 256, 240)) fprintf(stderr, "[mff] cannot write %s\n", path);
         }
+    }
+    if (s_picdump) {
+        uint32_t fr = (uint32_t)g_frame_count;
+        fwrite(&fr, 4, 1, s_picdump);
+        fwrite(shown_pix, 1, 256 * 240, s_picdump);
     }
     if (!s_piclog) return;
     for (int i = 0; i < 256 * 240; i++) {
-        h ^= fb[i];
+        h ^= test[i];
         h *= 16777619u;
     }
     rec[0] = (uint32_t)g_frame_count;
@@ -168,4 +180,5 @@ void hooks_exit_log(void) {
     }
     if (s_framelog) fflush(s_framelog);
     if (s_piclog) fflush(s_piclog);
+    if (s_picdump) fflush(s_picdump);
 }

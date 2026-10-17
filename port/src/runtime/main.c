@@ -1,7 +1,7 @@
 /*
  * main.c - Mighty Final Fight, the port (PLAN_DECOMP.md P5)
  *
- *   MightyFinalFight [--assets DIR] [--smoke N] [--window [--scale N]] [--sprite-limit]
+ *   MightyFinalFight [--assets DIR] [--smoke N] [--window [--scale N]] [--picture console|scaffold]
  *
  * Runs the game from power-on: the machine (runtime/) starts in its reset
  * state and the game's reset routine takes over; it never returns.
@@ -14,12 +14,16 @@
  *                   ignored, the picture log replaces them)
  *   --window        play in a window (keyboard and gamepad; needs MFF_SDL)
  *   --scale N       window size, N times 256x240 (default 3)
- *   --sprite-limit  show at most 8 sprites per line, as the console does
- *                   (MFF_SPRITE_LIMIT=1 too)
+ *   --picture P     console (default): the picture as the PPU draws it, 8
+ *                   sprites per line; scaffold: as the scaffold's renderer
+ *                   drew it (MFF_PICTURE=P too). The picture log
+ *                   (MFF_PICLOG) always holds the scaffold's, which is what
+ *                   the test baselines have
  * A path given without an option (the test scripts pass the dump's) is
  * ignored: the port reads only the extracted data, never the ROM.
  * Environment for the tests: MFF_FRAMELOG, MFF_PICLOG, MFF_INPUT, MFF_BOT,
- * MFF_SHOTS (runtime/testhooks.c), MFF_LAG (runtime/mff_hooks.c).
+ * MFF_SHOTS, MFF_PICDUMP, MFF_PRG_READS (runtime/testhooks.c, mmc3.c),
+ * MFF_LAG (runtime/mff_hooks.c).
  */
 #include "machine.h"
 #include <stdarg.h>
@@ -91,7 +95,7 @@ static const char *find_assets(const char *given, const char *argv0) {
 }
 
 int main(int argc, char **argv) {
-    const char *assets = NULL, *ignored = NULL, *e;
+    const char *assets = NULL, *ignored = NULL, *picture = getenv("MFF_PICTURE");
     int scale = 3;
     for (int i = 1; i < argc; i++) {
         const char *a = argv[i];
@@ -101,7 +105,7 @@ int main(int argc, char **argv) {
         else if ((!strcmp(a, "--smoke-interval") || !strcmp(a, "--smoke-output")) && more) i++;
         else if (!strcmp(a, "--window")) g_window = 1;
         else if (!strcmp(a, "--scale") && more) scale = atoi(argv[++i]);
-        else if (!strcmp(a, "--sprite-limit")) g_sprite_limit = 1;
+        else if (!strcmp(a, "--picture") && more) picture = argv[++i];
         else if (!strcmp(a, "--help") || !strcmp(a, "-h")) usage();
         else if (a[0] != '-' && !ignored) ignored = a;
         else {
@@ -109,8 +113,11 @@ int main(int argc, char **argv) {
             usage();
         }
     }
-    e = getenv("MFF_SPRITE_LIMIT");
-    if (e && *e == '1') g_sprite_limit = 1;
+    if (picture && *picture) {
+        if (!strcmp(picture, "console")) g_picture = PICTURE_CONSOLE;
+        else if (!strcmp(picture, "scaffold")) g_picture = PICTURE_SCAFFOLD;
+        else usage();
+    }
     assets = find_assets(assets, argv[0]);
     if (!assets) {
         fprintf(stderr,

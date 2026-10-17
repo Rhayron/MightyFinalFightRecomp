@@ -33,12 +33,13 @@ MFF_EXE=build_mff/Release/MightyFinalFight.exe port/tests/run_routes.sh check
   Right Shift = Select, arrows; a game controller works too (B/Y = A,
   A/X = B). Tab runs fast, F11 or Alt+Enter is full screen, Esc quits. No
   sound yet (P6).
-- `--sprite-limit` (or `MFF_SPRITE_LIMIT=1`) shows at most 8 sprites per
-  line, as the console does; without it every sprite is drawn, as the
-  scaffold's renderer does and the test baselines expect.
+- `--picture console` (the default) shows the picture as the PPU draws it;
+  `--picture scaffold` as the scaffold's renderer drew it ("The picture"
+  below). `MFF_PICTURE` does the same.
 - The test hooks are the scaffold's: `MFF_FRAMELOG`, `MFF_PICLOG`,
   `MFF_INPUT`, `MFF_BOT`, plus `MFF_SHOTS=F1,F2,...` (PNG pictures of those
-  frames, in `MFF_SHOT_DIR`) and `MFF_PRG_READS=FILE` (every PRG byte read).
+  frames, in `MFF_SHOT_DIR`), `MFF_PICDUMP=FILE` (the shown pictures as
+  palette indices) and `MFF_PRG_READS=FILE` (every PRG byte read).
 
 ### The runtime (port/src/runtime)
 
@@ -78,14 +79,35 @@ picture starts, then a region per raster split, opened by the game's IRQ
 handler after the scanline the MMC3 fired on (in Mighty Final Fight: the
 status rows on top, the playfield with the camera's scroll, in round 1
 areas 1 and 2 a still sky first, and the bottom rows with their own CHR
-banks). `render_frame.c` draws the background line by line from the
-regions and the sprites over it with the PPU's priority rules, with the
-scaffold renderer's scroll model, which is what the baselines hold. Two
-places where that model is not the console's: every sprite is drawn
-(`--sprite-limit` gives 8 per line), and a split restarts the vertical
-scroll from the Y the handler writes to `$2005` (the console keeps counting
-lines), which is why the bottom status rows show the top rows' tiles in the
-other CHR banks.
+banks). `render_frame.c` draws it in one of two ways (`render.h`):
+
+- **console**: as the PPU draws it. 8 sprites per line (the first 8 in OAM
+  order: the game's flicker), the vertical position counting on through
+  the splits (a `$2005` Y write waits for the next frame), and a split's
+  scroll and banks reaching the line after the one its handler runs on.
+  Checked against the cycle-accurate build in the repo root: on
+  `inputs/10_cody_poweron.txt` all 7,635 pictures from power-on to the
+  oracle's first lag frame (where the two games part) are identical,
+  pixel for pixel in palette indices (`port/tests/oracle_pictures.py`).
+- **scaffold**: as the scaffold's renderer drew it, which is what the test
+  baselines hold: every sprite drawn, and a split restarting the vertical
+  scroll from the Y the handler writes to `$2005` (so the playfield sits
+  one line high and the bottom status rows show the top rows' tiles in the
+  other CHR banks). On the same stretch 2,829 of the 7,635 pictures differ
+  from the oracle's.
+
+The window and the screenshots show the console's picture unless told
+otherwise; the picture log (`MFF_PICLOG`) always hashes the scaffold's, and
+the sprite-0 hit the game can see in `$2002` comes from it too, so what is
+shown never changes the game.
+
+```bash
+oracle=build_headless/Release/MightyFinalFightRecomp.exe
+$oracle ROM --frames 7700 --input inputs/10_cody_poweron.txt --frame-log o.flog
+MFF_INPUT=port/tests/routes/cody_round1.keyed MFF_FRAMELOG=p.flog MFF_PICDUMP=p.pix \
+    build_mff/Release/MightyFinalFight.exe --smoke 7800
+py -3 -I port/tests/oracle_pictures.py o.flog p.flog p.pix
+```
 
 ### The data (BUILD/assets)
 

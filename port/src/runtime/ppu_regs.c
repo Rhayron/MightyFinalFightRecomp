@@ -276,7 +276,7 @@ void ppu_capture_start(FrameRecord *f) {
     s_copied_at = P.vram_writes;
 }
 
-void ppu_capture_region(FrameRecord *f, int first_line) {
+void ppu_capture_region(FrameRecord *f, int first_line, int v_set) {
     PpuRegion *r;
     if (P.vram_writes != s_copied_at) {     /* a raster IRQ wrote VRAM: a copy of its own */
         if (f->ncopies == MAX_NT_COPIES)
@@ -294,6 +294,10 @@ void ppu_capture_region(FrameRecord *f, int first_line) {
     r->hud_ctrl = P.hud_ctrl;
     r->hud_x = P.hud_x;
     r->hud_y = P.hud_y;
+    r->t = P.t;
+    r->fine_x = P.fine_x;
+    r->v_set = v_set;
+    r->v = P.v_set;
     memcpy(r->pal, P.pal, sizeof r->pal);
     mmc3_chr_map(r->chr);
     r->nt = f->nt_copy[f->ncopies - 1];
