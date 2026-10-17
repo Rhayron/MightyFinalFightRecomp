@@ -190,12 +190,17 @@ void func_C000(void) {
         mff_cycles(0xC020, 1);
     }
 
-    mff_cycles(0xC029, 35);
+    /* the run ends at STA $4014: the DMA's stall is 513 cycles, 514 when
+     * the write lands on an odd cycle, so the write must come at its own
+     * cycle (charging $C03F-$C041 first put it 5 cycles late, which made
+     * the stall 1 cycle off whenever that flipped the parity) */
+    mff_cycles(0xC029, 30);
     RAM(IRQ_SCROLL + 1) = RAM(SCROLL_X);
     RAM(IRQ_SCROLL + 2) = RAM(SCROLL_NT);
     RAM(IRQ_SCROLL) = RAM(UNK_F8);
     hw_write(OAM_ADDR, 0);
     hw_write(OAM_DMA, 2);
+    mff_cycles(0xC03F, 5);
     if (RAM(VRAM_LIST_REQUEST)) {
         mff_cycles(0xC043, 6);
         if (!mff_call(0xC043, 0xC1FD)) return;

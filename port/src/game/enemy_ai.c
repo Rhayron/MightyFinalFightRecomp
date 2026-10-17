@@ -59,12 +59,13 @@
 #define WAIT_ODDS           0xAE32
 #define WAIT_TIME           0xAE38
 #define CLOSE_IN_TRIES      0xA3DF
-/* by obj_kind: the reach of the attack (x, y; 0F:FB3E), the odds of a
- * retreat instead of an attack (rng & $0F below it), the hits of a combo
- * (0 = 1 or 3 at random, odds by tier in COMBO_ODDS + 3), the frame of the
- * attack animation that puts the hit out */
-#define REACH_X             0xA3A7
-#define REACH_Y             0xA3AD
+/* by obj_kind: how near the player must be for an attack (x, y; 0F:FB3E;
+ * labels.toml enemy_attack_range_x/y, not the hit's own reach of
+ * 0F:F6AA-F6EA), the odds of a retreat instead of an attack (rng & $0F
+ * below it), the hits of a combo (0 = 1 or 3 at random, odds by tier in
+ * COMBO_ODDS + 3), the frame of the attack animation that puts the hit out */
+#define ATTACK_RANGE_X      0xA3A7
+#define ATTACK_RANGE_Y      0xA3AD
 #define RETREAT_ODDS        0xA2BD
 #define COMBO_HITS          0xA2AC
 #define COMBO_ODDS          0xAE2C
@@ -516,8 +517,9 @@ void func_A18E_b6(void)
 /*
  * enemy_close_in, $A210 (name proposed): phase 4. Facing the player; a
  * wait in obj_ai_timer first (JMP enemy_close_in_wait). Then, while the
- * player is out of the kind's reach (REACH_X x REACH_Y, 0F:FB3E), it walks
- * to the spot beside him (0F:FB72, JMP enemy_walk_index) until
+ * player is out of the kind's reach (ATTACK_RANGE_X x ATTACK_RANGE_Y,
+ * 0F:FB3E), it walks to the spot beside him (0F:FB72, JMP
+ * enemy_walk_index) until
  * obj_ai_count tries are spent (JMP enemy_reset_wait). In reach: AxL lets
  * a jumping player be (enemy_reset); the kind's RETREAT_ODDS give a
  * retreat (phase 7, $1E frames); otherwise the attack (phase 5):
@@ -540,10 +542,10 @@ void func_A210_b6(void)
     mff_cycles(0xA216, 1);
     mff_cycles(0xA21B, 8);
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(REACH_X + y));
+    a = prg_read((uint16_t)(ATTACK_RANGE_X + y));
     mff_cycles(0xA221, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(REACH_Y + y));
+    a = prg_read((uint16_t)(ATTACK_RANGE_Y + y));
     mff_cycles(0xA226, 11);
     y = a;
     a = RAM(TMP0);
@@ -823,10 +825,10 @@ static void attack_next_hit(void)
     mff_cycles(0xA350, 1);
     mff_cycles(0xA365, 8);
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(REACH_X + y));
+    a = prg_read((uint16_t)(ATTACK_RANGE_X + y));
     mff_cycles(0xA36B, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(REACH_Y + y));
+    a = prg_read((uint16_t)(ATTACK_RANGE_Y + y));
     mff_cycles(0xA370, 11);
     y = a;
     a = RAM(TMP0);

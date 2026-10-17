@@ -370,7 +370,7 @@ void func_AB00_b4(void) {
     RAM(TMP1) = a;
     SYNC_OUT;
     {
-        uint16_t jt = nes_read16zp(0x0000);
+        uint16_t jt = nes_read16zp(TMP0);
         nes_cpu_instruction_boundary(jt, 2);
         call_by_address_tail(jt, -1);
     }

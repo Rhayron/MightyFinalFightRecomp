@@ -34,8 +34,8 @@
  */
 #include "flow.h"
 
-/* N, Z and C after CMP/CPX/CPY of `r` with `val` */
-#define CMP_NZC(r, val) (c = (uint8_t)(r) >= (uint8_t)(val), SET_NZ((uint8_t)(r) - (uint8_t)(val)))
+/* N, Z and C after CMP/CPX/CPY of `r` with `val` (read once, into m) */
+#define CMP_NZC(r, val) (m = (uint8_t)(val), c = (uint8_t)(r) >= m, SET_NZ((uint8_t)(r) - m))
 /* JSR at `site` to bank-04 code, through the dispatcher */
 #define CALL_04(site, target) do { \
         SYNC_OUT; \
@@ -146,7 +146,7 @@ void func_9800_b2(void) {
     RAM(TMP13) = a;
     SYNC_OUT;
     {
-        uint16_t jt = nes_read16zp(0x000C);
+        uint16_t jt = nes_read16zp(TMP12);
         nes_cpu_instruction_boundary(jt, 2);
         call_by_address_tail(jt, -1);
     }

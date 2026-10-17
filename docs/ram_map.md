@@ -77,12 +77,15 @@ so; Data Crystal = their word only.
 | `$009E` | `spawn_list_next` | Next stage-list entry to spawn. Data Crystal's "total enemies" | Code |
 | `$009F` | `spawn_list_prev` | First stage-list entry still ahead of the screen | Code |
 | `$00AA` / `$00AB` | `text_cursor` / `text_timer` | Special screen text position and delay | Code |
+| `$00AC` | `talk_bar_cuts` | Pieces of the boss's life bar a right answer in the boss talk has erased | Code |
 | `$00B0` | `hud_enemy_slot` | Slot whose life bar the HUD shows (bosses first) | **Verified** — follows the enemy being hit |
 | `$00B1` | `hud_enemy_timer` | Frames that bar has been shown (hidden at `$96`) | Code |
+| `$00B2` | `bonus_stage` | `$FF` while the drum bonus stage runs (set at `00:94F7`); the A+B special is off then | Code |
 | `$00B4` | `dialogue_choice` | Special-screen two-way cursor (bit 7) | Code |
 | `$00B5` | `screen_event` | Triggers the per-screen setup in `stage_events` | Code |
 | `$00B7` | `game_finished` | `$FF` after the last round | Code |
 | `$00B8` | `intro_page` | Story page 0-4 | Code |
+| `$00B9` | `bonus_drum_count` | Drums smashed in the bonus stage (8 or more win a prize) | Code |
 | `$00BB` | `camera_autoscroll` | After the lock lifts, the camera scrolls itself to the next screen | **Verified** |
 | `$00BC` | `keep_on_screen` | Knocked-back enemies held `$10` px inside the screen | **Verified** |
 | `$05A0`-`$05A2` | `spawn_groups` | Timed-spawner scratch | Code |
@@ -140,8 +143,9 @@ Never accessed and always 0 in the logs: `$1C`-`$1F`, `$26`, `$3D`, `$45`-`$4F`,
 object tables `$0350`, `$0370`, `$0390`, `$03B0`. Written but never read: `$1B`,
 `$33`, `$5A`, `$A5`, `$B6`. `$F8` is never written; the nmi copies its 0 to
 `$7C`. `$00`-`$13` are scratch (pointers and temporaries of single routines).
-Unclear, left unnamed: `$AC` and `$B9` (special-screen and boss counters, never
-nonzero in the logs), `$B2` (set only at `00:94F7`, never in the logs).
+`$AC`, `$B2` and `$B9`, never nonzero in the logs, are the boss talk's and the
+bonus stage's (`talk_bar_cuts`, `bonus_stage`, `bonus_drum_count` above): no
+route plays a right answer or the bonus stage.
 
 ## Object slots
 
@@ -175,8 +179,8 @@ are entries of these tables.
 | `$0460+i` | `obj_dir` | Pad bits: 1 right, 2 left, 4 down, 8 up | **Verified** — 1, 2, 4, 8, 5, 6, 9, `$0A` seen |
 | `$0470+i` | `obj_throw_flag` | `$FF` when thrown with the pad held forward | Code — never set in the logs |
 | `$0480+i` | `obj_spawn_index` | Stage-list entry the slot came from, `$FF` none | **Verified** |
-| `$0490+i` | `obj_life_max` (wrong name) | **Current** life; negative = dead. Data Crystal's `$049B/E` | **Verified** — slot `$0C` in `base_cody_round1.flog`: `28 26 1E 16 0E 06 FE` over the hits |
-| `$04A0+i` | `obj_life` (wrong name) | **Maximum** life: written once at spawn, sizes the HUD bar | **Verified** — stays `$28` while `$0490` falls. The bots' patch of this byte does not end fights |
+| `$0490+i` | `obj_life` | Current life; negative = dead. Data Crystal's `$049B/E`. (Named `obj_life_max` until 2026-10-16, `docs/objects.md`, "Names fixed") | **Verified** — slot `$0C` in `base_cody_round1.flog`: `28 26 1E 16 0E 06 FE` over the hits |
+| `$04A0+i` | `obj_life_max` | Maximum life: written once at spawn, sizes the HUD bar | **Verified** — stays `$28` while `$0490` falls |
 | `$04B0+i` | `obj_hit_cooldown` | Frames before the slot can be hit again (`$FB17[attack]`) | **Verified** — 2 or `$10` after a hit, -1 per frame |
 | `$04C0+i` | `obj_invuln` | Nonzero = cannot be hit; `$FF`/`$FE`/`$FD` = knockdown stages | **Verified** |
 | `$04D0+i` | `obj_hit_player` | `$FF` when its attack hit the player | Code |
@@ -241,13 +245,14 @@ still display objects around round starts (state 0 most of the time).
 
 ## Object ids (`$0320+i`)
 
-These are behaviour ids (`obj_behavior_lo/hi`, `docs/objects.md`). The three
-ids of each common enemy are the same enemy at tier 1, 2 and 4 (`obj_tier`);
-the low digit gives the kind. Engine ids: 0 animation only, 1 hit spark, 2
-pushed back, 3/5 knocked down, 4/8/`$0E`/`$0F` thrown bodies, 6/7/`$16` dying,
-`$10`-`$13` items, `$1F` falling into a pit, `$66` dropped weapon.
+These are behaviour ids (`obj_behavior_lo/hi`); `docs/objects.md`, "Ids", has
+all 160 with their routines. The three ids of each common enemy are the same
+enemy at tier 1, 2 and 4 (`obj_tier`); the low digit gives the kind. Engine
+ids: 0 animation only, 1 hit spark, 2 pushed back, 3/5 knocked down,
+4/8/`$0E`/`$0F` thrown bodies, 6/7/`$16` dying, `$10`-`$13` items, `$1F`
+falling into a pit.
 
-| Enemy | Ids |
+| Who | Ids |
 |---|---|
 | Poison | `20` `26` `30` |
 | Two P | `21` `27` `31` |
@@ -256,15 +261,17 @@ pushed back, 3/5 knocked down, 4/8/`$0E`/`$0F` thrown bodies, 6/7/`$16` dying,
 | El Gado | `24` `2A` `34` |
 | Andore | `25` `2B` `35` |
 | El Gado's knife | `2E` |
-| Entrances: Andore charging in, dropping in, standing, sitting (`docs/objects.md`, "The common enemies") | `2C` `2D` `2F`, `36`-`5F` |
+| Entrances: Andore charging in, dropping in, standing, sitting | `2C` `2D` `2F`, `36`-`4B`, `4F`-`5F` |
+| Stage objects: hidden food, elevator (`62`-`64`), Thrasher's palette and look-in, Andore's charge, boss talk, GO sign | `61`-`65`, `68`, `6B`, `6E`, `6F` |
+| Weapons: dropped, on the floor, thrown | `66` `67`, `69` `6A`, `6C` `6D` |
+| Bonus stage: controller, drums | `70`, `72` |
+| Drums of round 1: rolling, dispenser, smashed | `91`, `94`, `95` |
 | Thrasher (boss) | `80` |
-| Sodom easy / hard | `81` / `83` |
+| Sodom: round 2 / rounds 4-5 | `81` / `83` |
 | Abigail | `90` |
-| Cyborg Belger | `74` |
-| Drums | `72` |
-| GO sign | `6F` |
-| Enemy killed | `16` |
-| Cyborg killed | `9B` |
+| Cyborg Belger, his shot | `74`, `9D` |
+| Enemy killed (by a slam) | `16` |
+| Belger killed, down, falling; the scene after him | `9F`, `9B`, `9E`; `7D` `7B`, `9C`, `8F` |
 
 ## Save-state access
 

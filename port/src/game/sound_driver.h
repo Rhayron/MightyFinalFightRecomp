@@ -20,9 +20,10 @@
 #include "mff.h"
 #include "state.h"
 
-/* ---- 6502 flag helpers for the lifted locals (n, z, c set as the 6502 does) */
+/* ---- 6502 flag helpers for the lifted locals (n, z, c set as the 6502 does;
+ * CMP reads its operand once, into m) */
 #define NZ(v_)       (n = (uint8_t)(v_) >> 7, z = (uint8_t)(v_) == 0)
-#define CMP(r_, m_)  (c = (uint8_t)(r_) >= (uint8_t)(m_), NZ((uint8_t)((r_) - (m_))))
+#define CMP(r_, m_)  (m = (uint8_t)(m_), c = (uint8_t)(r_) >= m, NZ((uint8_t)((r_) - m)))
 
 /* ---- channels
  * X: 3 pulse 1 ($4000), 2 pulse 2 ($4004), 1 triangle ($4008), 0 noise

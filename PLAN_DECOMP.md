@@ -56,37 +56,38 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   outro caminho (tarefa em outro ponto do código, RNG mexido pelo `$92`). **Mudança de plano:** a
   regressão da P4 é andaime original × andaime limpo (exata no jogo todo); o oráculo certifica o
   andaime nos trechos sem lag; lag fiel (NMI no PC interrompido do oráculo) fica para a P7.
-- **P4 em andamento: o port já roda sem código gerado.** **Mudanças de plano:** (1) em vez de ejetar o
-  código gerado inteiro (dezenas de MB, o mesmo código repetido em cada chamada), cada rotina ganha
-  um corpo próprio em `port/src/game/` e entra no andaime por `[[replace_func]]`; (2) além das
-  escritas à mão, um *lifter* (`port/tools/lift.py`, `lift_bank.py`) converte as rotinas para C:
-  semântica tirada da ROM e cada decisão de controle e de ciclos tirada da cópia do andaime puro, com
-  nomes de RAM do `labels.toml` (`state.h`), registradores e flags em variáveis locais, flags mortas
-  removidas e `if`/laços no lugar dos `goto` nos formatos simples (`lift_structure.py`). Nesta
-  etapa a rotina tem de deixar RAM, registradores, flags **e ciclos** iguais aos do original;
-  `port/tests/run_routes.sh check` compara frame a frame (RAM, OAM, paleta e a imagem) com o andaime
-  sem substituições em 9 rotas: o round 1 com os três personagens, três *tours* de 50.000 frames
-  (bot dentro do andaime, `port/scaffold/bot.c`) que passam por todos os rounds, pelo chefe final e
-  pelo final, e três jogos de 60.000 frames com outras sementes do bot. Hoje: todas as 1.049 rotinas
-  do jogo estão em `port/src/game` (escalonador, tarefas,
-  NMI/IRQ, VRAM, RNG, controle e outras à mão; o resto convertido), e com a opção `MFF_EJECTED`
-  o port compila **sem nenhum código gerado** (`port/tools/dispatch_gen.py` gera a tabela de
-  despacho) e fica idêntico nas 9 rotas. **Correção (16/10, noite):** até ali o port ainda executava
-  código da ROM: um despacho sem rotina cai no interpretador do runtime, sem aviso e de forma exata, por
-  isso as rotas não acusavam (~93 milhões de instruções por bateria, quase tudo na continuação do laço
-  de objetos, `$805E`, que nenhuma ferramenta tinha listado). `port/tools/find_entries.py` acha
-  estaticamente cada destino de salto sem rotina (tabelas maiores que o que as rotas usaram, endereços
-  de retorno empilhados, desvios); 97 rotinas novas (`lifted_late.c`) e 16 entradas no gerador fecharam
-  a lacuna, e agora o `port_check.sh` falha se faltar rotina e as rotas falham se o interpretador rodar
-  qualquer instrução. **Mudança no andaime:** a NMI só entra no topo do laço do
-  escalonador (`$FEBD`): o driver de som lê um registrador que nunca inicializa, e o ponto exato da
-  NMI vazava para o estado dele. Agentes em paralelo adiantaram a P5 (assets: 90.490 frames
-  idênticos ao oráculo, `docs/assets.md`), a P6 (driver de som em Python idêntico ao oráculo,
-  `docs/sound.md`) e nomearam 133 variáveis de RAM (`docs/objects.md`). Os registradores de hardware
-  e os endereços crus já saíram do código do jogo (`hw.h`, `state.h`); falta da P4 arrumar o código
-  convertido sistema a sistema (nomes, comentários, estruturas), que está com cinco agentes (som,
-  objetos, fase, jogador, fluxo de telas). `port/tools/exit_use.py` diz que registradores e flags cada
-  rotina recebe e devolve de fato, para enxugar o resto.
+- **P4 (17/10): todas as rotinas arrumadas em arquivos por sistema.** Como se chegou aqui: (1) em vez
+  de ejetar o código gerado inteiro (dezenas de MB, o mesmo código repetido em cada chamada), cada
+  rotina ganhou um corpo próprio em `port/src/game/`, que entra no andaime por `[[replace_func]]`;
+  (2) um *lifter* (`port/tools/lift.py`, `lift_bank.py`, `lift_opt.py`, `lift_structure.py`)
+  converteu o que não foi escrito à mão, com a semântica tirada da ROM e cada decisão de controle e de
+  ciclos tirada da cópia do andaime puro; (3) nove agentes em paralelo levaram cada banco para arquivos
+  por sistema (jogador, chefes, inimigos comuns, objetos, adereços, fase, fluxo de telas, som), com
+  nomes, comentários que dizem o que o código faz e citam endereços da ROM como evidência, tabelas
+  nomeadas e `if`/laços no lugar dos `goto`. Não sobra nenhum `lifted_*.c`; o mapa por sistema está no
+  `port/README.md`. Hoje são 1.168 pontos de entrada em 74 arquivos `.c` e 14 `.h` (55 mil linhas);
+  com `MFF_EJECTED` o port compila sem código gerado e, sem o interpretador do runtime rodar nenhuma
+  instrução da ROM (`find_entries.py` acha estaticamente cada destino de salto sem rotina), fica
+  idêntico ao andaime puro nas 9 rotas (o round 1 com os três personagens, três *tours* de 50.000
+  frames e três jogos de 60.000 com o bot dentro do andaime): RAM, OAM, paleta, imagem **e a contagem
+  de ciclos de cada imagem**. O `selfcheck.py` só mostrava a primeira diferença de ciclos, `-1` na
+  imagem 0 em toda rota; um trace de cada cobrança de ciclos (andaime puro × port, alinhados) mostrou
+  dois erros do port, invisíveis na RAM porque a NMI só entra no topo do laço ocioso do escalonador:
+  a NMI cobrava `$C029-$C041` antes do `STA $4014`, 5 ciclos de atraso que trocavam a paridade do DMA
+  de OAM (513 ou 514 ciclos), e um `mff_cycles(0xC9A7, 0)` do lifter que o runtime cobra como 1 ciclo
+  em todo frame do `gameplay_draw`. Corrigidos, os ciclos batem exatamente, e o check falha em
+  qualquer desvio (o runtime da P5 cobra por desenho os 7 ciclos da entrada da NMI: `--nmi-cycles 7`
+  modela isso). **Critério de pronto:** nenhum endereço de RAM cru fora do `state.h` (os 7 ponteiros
+  `nes_read16zp(0x..)` e a página da pilha do `mff.h` viraram nomes), nenhum registrador de hardware
+  fora dos nomes do `hw.h`, as 9 rotas verdes nos dois runtimes; o lockstep com lag tirado do oráculo
+  fica para a P7. `labels.toml`: 864 rótulos e 255 variáveis de RAM, sem nome repetido (356 nomes de
+  rotina que os agentes deixaram como "proposed" nos comentários foram coletados por script, com a
+  evidência do comentário), e o disassembly continua remontando byte a byte. **Fica:** 55 `goto` em 10
+  arquivos, todos saltos para uma cauda que vários desvios do 6502 compartilham (`player_jump.c` 21,
+  `enemy_moves.c` 8, `player_state_idle.c` 7, `player_state_walk.c` 6, `player_states.c` 4, o
+  escalonador 2); 83 INC/DEC de memória pelo temporário `t` do lifter; o modelo de registradores do
+  lifter (A/X/Y e flags em variáveis locais sincronizadas com `g_cpu` em cada chamada e saída), que
+  sai quando o estado deixar os 2 KB (P9); e os nomes ainda marcados "(proposed)".
 - **P5: o port roda no próprio runtime e sem a ROM.** `port/src/runtime` (C11) é a máquina que as
   rotinas precisam, escrita para este jogo: CPU e RAM, barramento, registradores da PPU, MMC3,
   a APU ligada ao sintetizador 2A03 da P6, relógio de ciclos com a fronteira de frame e a NMI,

@@ -86,7 +86,7 @@ static void screen_dispatch(uint16_t pc, uint16_t lo, uint16_t hi) {
     RAM(TMP7) = a;
     SYNC_OUT;
     {
-        uint16_t jt = nes_read16zp(0x0006);
+        uint16_t jt = nes_read16zp(TMP6);
         nes_cpu_instruction_boundary(jt, 2);
         call_by_address_tail(jt, -1);
     }
@@ -252,7 +252,7 @@ static void area_dispatch(uint16_t pc, uint16_t round_lo, uint16_t round_hi,
     RAM(TMP5) = a;
     SYNC_OUT;
     {
-        uint16_t jt = nes_read16zp(0x0004);
+        uint16_t jt = nes_read16zp(TMP4);
         nes_cpu_instruction_boundary(jt, 2);
         call_by_address_tail(jt, -1);
     }

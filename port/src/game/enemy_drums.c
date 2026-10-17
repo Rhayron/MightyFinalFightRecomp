@@ -772,7 +772,7 @@ void func_BE9B_b1(void)
 /* ======================= the bonus stage (bank $0B) ======================= */
 
 /*
- * bonus_stage, $B331 (bank $0B; name proposed): behaviour of id $70 (and
+ * bonus_stage_controller, $B331 (bank $0B; name proposed): behaviour of id $70 (and
  * $71, which nothing makes), the bonus stage's controller in slot $0F.
  * Nothing runs while a special screen is up; otherwise the phase:
  *   0 ($B349) start: music 9, twenty drums, the first in $78 frames;
