@@ -98,7 +98,7 @@ static void snd_lfo_reset(void) {
  * ($071C,X) and, when the previous note differs and a portamento speed is
  * set, slides from it instead: the speed's sign from the direction, the
  * sliding bit on, the pitch starting at the old note. The same note again
- * on a tied note changes nothing (the LFO check, $8644).
+ * on a tied note changes nothing (snd_lfo_check).
  * Callers: snd_effect_note (JMP), snd_music_next. */
 void func_85DE_b3(void) {
     REGS_IN;
@@ -186,7 +186,8 @@ void func_85DE_b3(void) {
 
 /* snd_set_pitch, $8636: channel X's pitch = A:$C3 (high:low; the noise
  * channel's high byte is its period index), then the LFO restarts if the
- * instrument wants it at every note (byte 4 bit 7) or just changed ($8644).
+ * instrument wants it at every note (byte 4 bit 7) or just changed
+ * (snd_lfo_check).
  * Callers: snd_effect_note and snd_music_next (the noise channel),
  * snd_note_pitch (fall through). */
 void func_8636_b3(void) {
@@ -207,7 +208,7 @@ void func_8636_b3(void) {
     }
 }
 
-/* the LFO check, $8644: snd_lfo_reset if channel X's instrument just
+/* snd_lfo_check, $8644: snd_lfo_reset if channel X's instrument just
  * changed ($0704 bit 3).
  * Out: A = $0704,X & 8 or (reset) $0704,X; N, Z from it.
  * Callers: snd_effect_note (JMP, a held note), snd_music_next (a tied

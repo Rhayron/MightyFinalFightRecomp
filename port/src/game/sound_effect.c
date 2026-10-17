@@ -404,7 +404,7 @@ void func_8326_b3(void) {
  *    note 83 when the slide speed is negative (rising), note 9 otherwise;
  *  - bit 7: hold: the pitch stays, no new attack (the triangle alone keys
  *    on again, which restarts its frame count); then the LFO reset check
- *    ($8644);
+ *    (snd_lfo_check);
  *  - else key on (snd_key_on), the period high rewritten, and the pitch:
  *    on the noise channel (note - 1) ^ $0F is the period index, $C3 = 0
  *    (snd_set_pitch); on the others note - 1 + $D2 (snd_note_pitch).

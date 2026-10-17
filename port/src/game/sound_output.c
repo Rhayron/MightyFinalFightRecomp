@@ -169,7 +169,7 @@ void func_8702_b3(void) {
     func_871A_b3();
 }
 
-/* the next phase, $871A: $0704,X + 1 (attack to decay, decay to sustain,
+/* snd_env_next, $871A: $0704,X + 1 (attack to decay, decay to sustain,
  * release to off), then the level A is stored ($871D) and output.
  * Callers: snd_env_decay (JMP); snd_env_attack and snd_env_release (fall
  * through). */
@@ -181,7 +181,7 @@ void func_871A_b3(void) {
     snd_set_level();
 }
 
-/* $871D: the level A into $0710,X, then snd_output */
+/* snd_set_level, $871D: the level A into $0710,X, then snd_output */
 static void snd_set_level(void) {
     REGS_IN;
     mff_cycles(0x871D, 5);
@@ -243,9 +243,9 @@ void func_8720_b3(void) {
     }
 }
 
-/* the fade, $8740 ($F5/$F6, never used), A = the fade level: the music
- * triangle sounds while its gate counter * the level >> 8 is not 0; the
- * others' level is at most the fade level ($875B). */
+/* snd_output_fade, $8740 ($F5/$F6, never used), A = the fade level: the
+ * music triangle sounds while its gate counter * the level >> 8 is not 0;
+ * the others' level is at most the fade level ($875B). */
 static void snd_output_fade(void) {
     REGS_IN;
     mff_cycles(0x8740, 4);
@@ -281,8 +281,8 @@ static void snd_output_fade(void) {
     }
 }
 
-/* the triangle, $8752: $4008 = $FF (linear counter on) while the level is
- * not 0, $00 otherwise */
+/* snd_output_triangle, $8752: $4008 = $FF (linear counter on) while the
+ * level is not 0, $00 otherwise */
 static void snd_output_triangle(void) {
     REGS_IN;
     mff_cycles(0x8752, 6);
@@ -505,8 +505,9 @@ static void snd_output_regs(void) {
     snd_output_period();
 }
 
-/* $8814: Y:$C2 = the pitch. On an effect channel of a looping effect the
- * pitch scale ($D8, command $F7, never used) adds pitch * scale >> 8.
+/* snd_output_period, $8814: Y:$C2 = the pitch. On an effect channel of a
+ * looping effect the pitch scale ($D8, command $F7, never used) adds
+ * pitch * scale >> 8.
  * The noise channel's period is (high & 15) | instrument byte 7 ($400E),
  * high byte 0. The others convert the pseudo-float (snd_float_to_period,
  * $8849): octave = the last threshold ($8953) at or below the high byte,
@@ -797,7 +798,7 @@ void func_88A0_b3(void) {
     mff_rts();
 }
 
-/* the envelope's phase 4 (off), $8914: RTS */
+/* snd_env_off, $8914: RTS, the envelope phase 4 (off) */
 void func_8914_b3(void) {
     mff_cycles(0x8914, 6);
     mff_rts();

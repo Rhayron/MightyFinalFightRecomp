@@ -114,9 +114,9 @@ void func_8393_b3(void) {
  *  - a rest: key off, gate $FF (snd_music_gate_open);
  *  - a note: the gate = max(1, ticks * gate ratio >> 8). Tied to the
  *    previous note (flag $80): no attack, and the pitch stays unless a
- *    portamento speed is set ($8644, then snd_music_tie_next). Otherwise
- *    key on and, if the effect does not own the channel, the period high
- *    rewritten. Then the pitch: on the noise channel
+ *    portamento speed is set (snd_lfo_check, snd_music_tie_next).
+ *    Otherwise key on and, if the effect does not own the channel, the
+ *    period high rewritten. Then the pitch: on the noise channel
  *    ((pitch - 1) & 15) ^ 15 is the period index (snd_set_pitch, $C3 = 0);
  *    elsewhere the note number octave_base[flags & $0F] + pitch - 1 + $CB
  *    + channel transpose (snd_note_pitch); then the tie flag moves to
