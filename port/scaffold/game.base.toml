@@ -2115,73 +2115,73 @@ bank = 2
 addr = 0x91BF   # flow_select.c
 [[replace_func]]
 bank = 2
-addr = 0x9300   # lifted, lifted_b2.c
+addr = 0x9300   # continue_screen, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x938A   # lifted, lifted_b2.c
+addr = 0x938A   # continue_loop, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x9398   # lifted, lifted_b2.c
+addr = 0x9398   # continue_walk, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x93B0   # lifted, lifted_b2.c
+addr = 0x93B0   # continue_turn, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x9413   # lifted, lifted_b2.c
+addr = 0x9413   # continue_pick, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x942A   # lifted, lifted_b2.c
+addr = 0x942A   # continue_draw_credits, flow_continue.c
 [[replace_func]]
 bank = 2
-addr = 0x9600   # lifted, lifted_b2.c
+addr = 0x9600   # credits_setup, flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x9800   # lifted, lifted_b2.c
+addr = 0x9800   # talk_screen, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x980F   # lifted, lifted_b2.c
+addr = 0x980F   # talk_open, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x98AF   # lifted, lifted_b2.c
+addr = 0x98AF   # talk_wait, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x98BD   # lifted, lifted_b2.c
+addr = 0x98BD   # talk_hold, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x98DD   # lifted, lifted_b2.c
+addr = 0x98DD   # talk_type, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x999B   # lifted, lifted_b2.c
+addr = 0x999B   # talk_page_end, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x99D6   # lifted, lifted_b2.c
+addr = 0x99D6   # talk_next_page, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x99DD   # lifted, lifted_b2.c
+addr = 0x99DD   # talk_goto_page, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9A74   # lifted, lifted_b2.c
+addr = 0x9A74   # talk_answer, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9A8F   # lifted, lifted_b2.c
+addr = 0x9A8F   # talk_end, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9A9E   # lifted, lifted_b2.c
+addr = 0x9A9E   # talk_box_clear, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9AA0   # lifted, lifted_b2.c
+addr = 0x9AA0   # talk_text, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9AC2   # lifted, lifted_b2.c
+addr = 0x9AC2   # talk_find_boss, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9AD1   # lifted, lifted_b2.c
+addr = 0x9AD1   # talk_boss_anim_e4, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9AD9   # lifted, lifted_b2.c
+addr = 0x9AD9   # talk_boss_anim_ea, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9AF4   # lifted, lifted_b2.c
+addr = 0x9AF4   # talk_bar_cut, flow_talk.c
 [[replace_func]]
 bank = 2
 addr = 0xA700   # prop_behaviors, obj_props.c
@@ -2724,13 +2724,13 @@ bank = 1
 addr = 0xBED2   # lifted, lifted_late.c
 [[replace_func]]
 bank = 2
-addr = 0x9B18   # lifted, lifted_late.c
+addr = 0x9B18   # talk_fill_health, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9B7E   # lifted, lifted_late.c
+addr = 0x9B7E   # talk_extra_life, flow_talk.c
 [[replace_func]]
 bank = 2
-addr = 0x9BA4   # lifted, lifted_late.c
+addr = 0x9BA4   # talk_extra_credit, flow_talk.c
 [[replace_func]]
 bank = 2
 addr = 0xA724   # obj_props.c
