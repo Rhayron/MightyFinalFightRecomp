@@ -100,6 +100,18 @@ static uint64_t apu_now(void) {
 void apu_power_on(void) {
     const char *wav = getenv("MFF_WAV"), *log = getenv("MFF_APU_LOG");
     synth_init(&s_apu, APU_RATE, dmc_read, NULL);
+    /* Power-on as the oracle has it: its runner runs one APU clock (clock 0)
+     * before the CPU's first cycle, with its sound output still off, so the
+     * frame counter counts it and the tone generators do not. synth_init's
+     * state is the one before that clock; starting at cycle 1 with the
+     * generators as they are leaves them where the oracle's are (else the
+     * noise register shifts one cycle early, and its sequence parts from
+     * the oracle's at the first period change). The state is public for
+     * this (synth_2a03.h); slow_at makes the first cycle recompute the
+     * schedule. */
+    s_apu.now = 1;
+    s_apu.slow_at = 1;
+    s_apu.dirty = 1;
     s_frame_at = 0;
     s_frame_len = FIRST_VBLANK;
     s_boundaries = 0;
