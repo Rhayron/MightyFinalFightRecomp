@@ -77,31 +77,34 @@ MMC3 counter fires (241 clocks a frame while the background is on),
 `$2002` with its sprite-0 bit, the coroutines' switching, the tail table.
 Where the scaffold's runtime is not the console's, the oracle decided:
 
-- **Cycles**: the scaffold's plus what it leaves out and the console
-  spends: the reset sequence (7), the NMI's interrupt sequence (7) and
-  `nmi_tail`'s own instructions around `sound_update` (52 and 26), so a
-  picture's cycle stamp is 85 past the scaffold's; the game cannot see it
-  (the NMI still lands only at `$FEBD`), and the sound needs it ("The
-  sound").
+- **Cycles**: the scaffold's plus what its runner leaves out and the
+  console spends: the reset sequence (7) and the NMI's interrupt sequence
+  (7 a frame); `nmi_tail`'s own instructions around `sound_update` (52 and
+  26) charge in both. The game cannot see it (the NMI still lands only at
+  `$FEBD`), and the sound needs it ("The sound"). `selfcheck.py
+  --nmi-cycles` (`MFF_NMI_CYCLES`, 7 by default for this executable in
+  `run_routes.sh`) takes it into account, so any other cycle difference
+  fails the check.
 - **`nmi_tail`'s stack**: it makes the console's pushes, the JSR's too.
-  The scaffold (`port/scaffold/extras.c`) calls `sound_update` without
-  the JSR's push, and its RTS pops two bytes: after every NMI S is `$01`
-  instead of `$FF`, and the raster IRQ's interrupt frame lands on `$0101`,
-  `$0100` and `$01FF`. `$0100-$0103` are `bg_pal_anim_on`: the background
-  palette animations of palettes 0 and 1 stop (round 3 area 2, palette 1,
-  is the one the routes reach). The oracle tours found it ("Tours").
+  Until 2026-10-17 the scaffold (`port/scaffold/extras.c`) called
+  `sound_update` without the JSR's push, and its RTS popped two bytes:
+  after every NMI S was `$01` instead of `$FF`, and the raster IRQ's
+  interrupt frame landed on `$0101`, `$0100` and `$01FF`. `$0100-$0103` are
+  `bg_pal_anim_on`: the background palette animations of palettes 0 and 1
+  stopped (round 3 area 2, palette 1, is the one the routes reach). The
+  oracle tours found it ("Tours"); `extras.c` now has the runtime's
+  `nmi_tail` and the baselines were recorded again.
 - **Nametable RAM at power-on**: the oracle's pattern of `$F0`/`$0F` runs,
   not zeros. Round 4's elevator shakes the screen a line, and on the
   frames the picture starts a line low the last line shows the other
   nametable row, which the game never writes there.
 
-So against the scaffold's baselines the 3 round-1 routes and `cody_full`
-are identical in RAM, OAM, palette and picture every frame (the dead part
-of the stack apart), and the 3 tours and 2 alt games differ in exactly
+So against the scaffold's baselines all 9 routes are identical in RAM,
+OAM, palette and picture every frame (the dead part of the stack apart),
+and in cycles up to the NMI entries above. (Against the baselines recorded
+before the `nmi_tail` fix, the 3 tours and 2 alt games differed in exactly
 `palette_request`, `palette_buf+7`, `palette_base+7` and palette entry 7,
-420 to 1,287 frames each from round 3 area 2 on, where the baselines carry
-the scaffold's `nmi_tail` (the oracle's tours agree with the runtime).
-The scaffold needs the same `nmi_tail` and new baselines.
+from round 3 area 2 on; the oracle's tours agree with the fixed version.)
 
 ### The picture
 

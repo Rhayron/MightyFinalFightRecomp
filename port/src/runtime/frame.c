@@ -19,9 +19,11 @@
  * one) and the MMC3 is not clocked.
  *
  * This is when the scaffold's runtime ran these things too, so the game's
- * raster IRQs run at the same point of its code. The NMI's own cycles count
- * here as on the console (the 7 of the interrupt sequence, and nmi_tail's in
- * mff_hooks.c), which the scaffold leaves out: 85 a frame.
+ * raster IRQs run at the same point of its code. The NMI's interrupt
+ * sequence counts here as on the console (7 cycles), which the scaffold's
+ * runner leaves out; nmi_tail's own 52 + 26 (mff_hooks.c) both charge, the
+ * scaffold's extras.c too since 2026-10-17. port/tests/selfcheck.py's
+ * --nmi-cycles (MFF_NMI_CYCLES) accounts for the 7.
  */
 #include "machine.h"
 #include "render.h"
