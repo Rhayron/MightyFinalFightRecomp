@@ -546,6 +546,139 @@ these measures):
 | title, 350 frames | the model's writes | 1117.5 / 1120.8 | 0.979 | 0.911 | 3.48 |
 | round 1, 700 frames | the model's writes | 1373.3 / 1373.1 | 0.967 | 0.936 | 2.71 |
 
+The port's synthesizer, below, reproduces the oracle's WAV sample for sample.
+
+## The synthesizer (synth_2a03)
+
+`port/src/audio/synth_2a03.c` and `.h`: the 2A03's sound as a small C11
+library, with no globals and nothing outside the C library. Two pulse
+channels (duty, envelope, sweep and its mute, length counter), the triangle
+(linear counter), noise (both modes), the DMC (sample fetches through a
+callback, IRQ), the frame counter (4- and 5-step, IRQ), the nonlinear mixer
+and the NES front-loader's output stage (90 Hz and 440 Hz high-pass, 14 kHz
+low-pass), averaged down to the output rate.
+
+```c
+Synth2A03 apu;                                   /* about 34 KB, most of it the output buffer */
+synth_init(&apu, 48000, dmc_read, user);         /* power-on, CPU cycle 0 */
+synth_write(&apu, 0x4003, 0x08, cycle);          /* $4000-$4017, stamped with a CPU cycle */
+uint8_t status = synth_read_status(&apu, cycle); /* $4015 */
+synth_run(&apu, frame_end);                      /* everything before frame_end */
+int n = synth_take_samples(&apu, pcm, max);      /* 16-bit mono at the init rate */
+```
+
+The functions are `synth_*`, not `apu_*`: the runtimes the scaffold links
+(`runner/src/apu.c`, `runner/cyc/hw_apu.c`) already define `apu_write` and
+`apu_read_status`. `synth_irq` gives the IRQ line. The header documents the
+time base: a write stamped `cycle` is first seen by that cycle, even cycles
+are the APU's put half-cycles.
+
+Inside, each CPU cycle follows the rules of the cycle runner's APU (frame
+counter steps and their interrupt flag, the length-load race against half
+frames, halt flags taking effect a cycle late, timers on get cycles), so the
+levels match cycle for cycle; the mixer adds the same single-precision tables
+and the output stage runs the same double-precision filters on the mean
+level of each sample's cycles. Most cycles only count timers and add the mix
+(`run_fast`); frame counter, length and DMC work is scheduled on the cycles
+that have it, and the mix is recomputed only when a channel output changes.
+Worst case (every channel busy, noise at its shortest period, `synth_selftest`)
+it makes 60 s of audio in 0.5-0.65 s, under 0.2 ms per frame; Cody's whole
+20,000-frame route replays in 2.7 s with the file reading and writing. What
+it cannot know is when the CPU lets a DMC fetch through: it fetches 4 cycles
+after the output unit asks and 5-6 after `$4015` starts a sample, the
+console's timing when the CPU is reading on those cycles. Bit 5 of `$4015`
+(open bus) reads 0.
+
+**How it is checked** (`port/tests/synth`, its own CMake project):
+
+- `capture/oracle_capture.c` is linked into copies of the oracle made from
+  their own object files, unchanged: `mff_apu_capture` from
+  `build_headless` (the game) and `interp_apu_capture` from `build_cyc`
+  (`cyc_interp`, any ROM). It installs the runner's per-cycle trace observer
+  (`cyc_trace_cycle_hook`; `--hash-out` turns the trace on) and writes the
+  runner's APU state at the start of the run, every write to `$4000-$4017`
+  and every `$4015` read with the APU clock it lands on, the frame starts,
+  and with `MFF_APU_LEVELS=A:B` the five channel outputs after each clock.
+  The copy's `--wav-out` is byte for byte the oracle's.
+- `synth_replay` starts the synthesizer from that state (the runner's
+  `HwApu`, decoded), plays the writes and reads, and compares the WAVs over
+  frame windows, each read, and each logged cycle's outputs. `--quantize`
+  replaces the cycles with the burst the port will use, `--phase` starts the
+  oscillators at random points, `--prg` serves DMC fetches from an NROM image.
+- `synth_check.py --oracle-root <checkout>` runs every passage below in
+  parallel; `make_apu_rom.py` writes the NROM program for what the game never
+  does (envelopes that decay and loop, sweeps muting both ways, linear counter
+  values, both noise modes, lengths running out, halts and `$4015` disables,
+  the 4-step frame interrupt polled through `$4015`, the 5-step mode, the DMC
+  one-shot with its IRQ, looping, at several rates, `$4011` writes).
+- `synth_selftest` checks the documented timings without the oracle.
+
+Results (2026-10-17, every window from its first frame to its last):
+
+| Passage | Frames | Samples | Differ |
+|---|---|---|---|
+| intro story (`$07`), power-on, no input | 2062-4428 | 1,890,487 | 0 |
+| title (`$0C`) | 4429-5120 | 552,690 | 0 |
+| character select (`$0D`), Cody's route | 4547-4637 | 72,680 | 0 |
+| round 1 (`$00`) and its effects, Cody's route | 4778-17664 | 10,292,649 | 0 |
+| continue screen (`$0A`) | 17685-18809 | 898,521 | 0 |
+| round 1 and its effects, Guy's route | 4761-16464 | 9,347,806 | 0 |
+| round 2 (`$01`), `states/rounds/cody_r2` | 64269-69268 | 3,993,423 | 0 |
+| round 3 (`$02`) and effects, `cody_r3` | 115869-120868 | 3,993,423 | 0 |
+| round 4 (`$03`) and effects, `cody_r4` | 239869-244868 | 3,993,423 | 0 |
+| round 5 (`$04`) from its first note, `cody_r5` | 280160-285076 | 3,927,133 | 0 |
+| round 2 boss (`$05`), `r2boss_guy_bot` | 144861-148860 | 3,194,738 | 0 |
+| final boss (`$05`), `god5_cody_from` | 335869-339868 | 3,194,738 | 0 |
+| ending (`$08`), tour state `runs/cdl/tour2_cody_21/f054669` | 54669-55588 | 734,789 | 0 |
+| credits (`$03`, typing `$2B`), same run | 55589-57668 | 1,661,265 | 0 |
+| each song `$00-$0F` from its first note (16 runs) | 1,700 each | 21,724,209 | 0 |
+| each effect `$12-$35` over the title music (36 runs) | 250 each | 7,188,156 | 0 |
+| the APU test program on `cyc_interp` | 0-759 | 606,939 | 0 |
+
+77.3 million samples, all identical (maximum difference 0, correlation 1);
+the 122 `$4015` reads (all from the test program: the game never reads it)
+give the same values; and the channel outputs match on all 6,278,293 logged
+cycles (the title music's first 60 frames, and the test program's frame
+interrupt and DMC part).
+
+With writes that do not carry the oracle's cycles (each frame's writes at
+1,500 + 290 i cycles after its start, as the port will place them), sample
+equality is out of reach, so `sound_wavcmp.py` measures the same windows
+(first 30 s). The floor is what oscillator phase alone does to those
+measures: the exact writes, oscillators started at random points, against the
+exact render. The burst placement sits at that floor:
+
+| Window | Env r | Cosine | dB | Floor env r | Floor cosine | Floor dB |
+|---|---|---|---|---|---|---|
+| intro story | 0.970 | 0.964 | 2.06 | 0.969 | 0.964 | 2.02 |
+| title | 0.975 | 0.916 | 3.46 | 0.985 | 0.919 | 3.37 |
+| select | 0.990 | 0.958 | 2.17 | 0.985 | 0.957 | 2.06 |
+| round 1 (Cody) | 0.959 | 0.937 | 2.78 | 0.961 | 0.941 | 2.66 |
+| continue | 0.920 | 0.946 | 2.65 | 0.933 | 0.948 | 2.58 |
+| round 1 (Guy) | 0.925 | 0.929 | 2.91 | 0.953 | 0.934 | 2.74 |
+| round 2 | 0.960 | 0.967 | 1.96 | 0.936 | 0.957 | 2.42 |
+| round 3 | 0.959 | 0.948 | 2.48 | 0.950 | 0.942 | 2.69 |
+| round 4 | 0.957 | 0.932 | 2.87 | 0.961 | 0.936 | 2.72 |
+| round 5 | 0.976 | 0.968 | 1.74 | 0.956 | 0.953 | 2.14 |
+| round 2 boss | 0.964 | 0.948 | 2.48 | 0.962 | 0.942 | 2.66 |
+| final boss | 0.966 | 0.966 | 1.91 | 0.966 | 0.952 | 2.45 |
+| ending | 0.987 | 0.960 | 2.12 | 0.981 | 0.960 | 2.09 |
+| credits | 0.977 | 0.944 | 2.58 | 0.981 | 0.952 | 2.35 |
+
+Two things about the oracle a comparison has to know (both affect what is
+observed, not the sound):
+
+- The runner clocks its tone generators (timers, sequencers, envelopes,
+  sweeps, the linear counter) only while its audio output is on. A run
+  without `--wav-out` leaves them at power-on, and so does a state saved by
+  such a run: loading it with audio on continues from that stale tone state,
+  which is why the replay starts from the oracle's own `HwApu` and not from
+  a state of its own making.
+- The APU clocks at tick 0 of each CPU cycle, normally after the CPU's
+  access; a PPU register access (`$2002` polling, `$2007`) runs the first
+  ticks of its cycle during the access, the APU clock included. The capture
+  tells the two apart by the APU's put/get flag.
+
 ## For the port (P6)
 
 - `sound_model.py` is a template for `sound_driver.c`: one function per
@@ -553,10 +686,16 @@ these measures):
   bytes in the same places if the lockstep should see no sound differences
   at all; `$C3` after `$Fx` needs the caller's Y, or an exception in the
   comparison as `sound_check.py` makes.
-- The channel state the synthesizer needs is the register image after each
-  frame's writes (`sound_dump.py --frames` prints it); the driver writes
-  each frame's registers in one burst ~1,500-6,500 cycles after the NMI.
-- The synthesizer needs pulse (duty, constant volume, sweep mute), triangle
-  (linear counter on/off at `$4008 = $FF/$00`, reload on `$400B` writes),
-  noise (both modes) and no DMC playback. `apu_render.py` is a working
-  reference for that, in the runner's mixer and output-stage constants.
+- The synthesizer takes the writes themselves, in order, not just the
+  register image after each frame (`sound_dump.py --frames` prints both): a
+  `$4003`/`$4007`/`$400B`/`$400F` write restarts a waveform, an envelope or
+  a length counter. The driver writes each frame's registers in one burst
+  ~1,500-6,500 cycles after the NMI.
+- The synthesizer is done: `synth_2a03` (above). The game uses pulse (duty,
+  constant volume, sweep mute), triangle (linear counter on/off at
+  `$4008 = $FF/$00`, reload on `$400B` writes) and noise (both modes), and
+  never plays the DMC; the library does all of it. Give it the driver's
+  writes stamped where the port puts them (the burst at 1,500 + 290 i cycles
+  measures the same as the exact cycles) and run it to each frame's end.
+- What is left of P6 is `sound_driver.c`: `sound_model.py` in C, writing
+  through `synth_write` instead of registers.
