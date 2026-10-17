@@ -103,8 +103,9 @@
 #define ACT_GUY_THROW     0x13   /* Guy: B while holding an enemy */
 #define ACT_CODY_SLASH    0x14   /* Cody's combo finisher */
 #define ACT_HAGGAR_THROW  0x15   /* Haggar's back throw: B while holding */
-#define ACT_LARIAT        0x16   /* Haggar's moving special ($86FF, no routine in the port) */
+#define ACT_LARIAT        0x16   /* Haggar's moving special (action_lariat, $86FF) */
 #define ACT_SPECIAL       0x17   /* the A+B special (Data Crystal: special power) */
+#define ACT_WALK_OUT      0x19   /* the area is cleared: walk out (action_walk_out, player_exits.c) */
 #define ACT_LYING         0x1F   /* down after a knockdown, getting up */
 #define ACT_GRAB_KNEE     0x21   /* the knee: B with no direction while holding */
 #define ACT_PIT_FALL      0x24   /* falling into a pit (player_pit_fall, $CFD1) */
@@ -138,16 +139,20 @@
 /* ---- per-character tables in the fixed bank (3 bytes each) ---- */
 /* animation ids to set (player_set_anim, $F294) */
 #define ANIM_STAND          0xE1E3   /* 01 02 03 (player_stand, $CEAA) */
+#define ANIM_WALK           0xE1E6   /* 04 05 06 */
 #define ANIM_JUMP           0xE1E9   /* 07 08 09 */
 #define ANIM_JUMP_MOVING    0xE1EC   /* 0A 0B 0C: jump with left/right */
 #define ANIM_JUMP_KICK      0xE1FE   /* 1C 1D 1E */
 #define ANIM_KNOCKED_DOWN   0xE20D   /* 2B 2C 2D */
+#define ANIM_GET_UP         0xE210   /* 2E 2F 30 */
 #define ANIM_FALL           0xE219   /* 37 38 39: falling (a jump's descent, a pit) */
 #define ANIM_JUMP_BACK      0xE21C   /* 3A 3B 3C: moving away from the facing side */
 /* CHR banks for the sprite (player_set_chr, $F440) */
+#define CHR_STAND           0xE22B   /* 00 04 08: standing and walking */
 #define CHR_JUMP            0xE22E   /* 01 05 12 */
 #define CHR_JUMP_KICK       0xE243   /* 02 06 13 */
 #define CHR_KNOCKED_DOWN    0xE255   /* 0D 15 12 */
+#define CHR_GET_UP          0xE258   /* 00 04 0B */
 /* walking speed (player_state_idle sets it each frame, 0E:CAA2) */
 #define WALK_VX_FRAC        0xE1C1   /* 4C 80 19 */
 #define WALK_VX             0xE1C4   /* 01 01 01 */
@@ -157,6 +162,7 @@
 #define JUMP_BACK_VX_FRAC   0xE1CD   /* 80 B3 33 */
 #define JUMP_BACK_VX        0xE1D0   /* 01 01 01 */
 /* animation ids to compare with obj_anim */
+#define IS_WALKING          0xE273   /* 04 05 06 */
 #define IS_JUMP_KICK_MOVING 0xE276   /* 1F 20 21 */
 #define IS_JUMP_KICK        0xE279   /* 1C 1D 1E */
 #define IS_JUMP_MOVING      0xE27F   /* 0A 0B 0C */
@@ -173,6 +179,8 @@
 #define POWER_ACTION        0xFCCE   /* 23 27 10 */
 
 /* ---- routines elsewhere ---- */
+void func_F000(void);   /* obj_face_right ($F090), then $F003 */
+void func_F051(void);   /* obj_face_left ($F099), then $F054 */
 void func_F003(void);   /* steps slot X right by vx and probes the background
                            (Y = probe point); C set = blocked */
 void func_F03F(void);   /* player_face_right: obj_flags[0] |= $40 */
@@ -187,6 +195,7 @@ void func_F119(void);   /* obj_fall: slot X falls by obj_vy with gravity; C set
 void func_F183(void);   /* obj_move_right: x += vx (slot X) */
 void func_F1A1(void);   /* obj_move_left: x -= vx (slot X) */
 void func_F1BF(void);   /* obj_move_down: y += vy (slot X) */
+void func_F1DF(void);   /* obj_move_up: y -= vy (slot X) */
 void func_F1FD(void);   /* obj_fall: slot X falls by vy with gravity, no floor probe */
 void func_F288(void);   /* obj_set_anim: obj_anim[X] = A, frame and timer 0 */
 void func_F26E(void);   /* the start of a fall: obj_vy = -$40/256 for the player */
@@ -285,6 +294,10 @@ void func_8065_b0(void);
 void func_8066_b0(void);
 void func_807E_b0(void);
 void func_8090_b0(void);
+void func_80AE_b0(void);
+void func_80C5_b0(void);
+void func_8177_b0(void);
+void func_817E_b0(void);
 void func_8193_b0(void);
 void func_821D_b0(void);
 void func_82AF_b0(void);
@@ -303,6 +316,7 @@ void func_85F9_b0(void);
 void func_85FE_b0(void);
 void func_863E_b0(void);
 void func_8643_b0(void);
+void func_86FF_b0(void);
 void func_87AA_b0(void);
 void func_87E2_b0(void);
 void func_87F7_b0(void);
@@ -311,16 +325,57 @@ void func_884E_b0(void);
 void func_8864_b0(void);
 void func_889F_b0(void);
 void func_88AA_b0(void);
+void func_891B_b0(void);
+void func_8992_b0(void);
+void func_89F6_b0(void);
+void func_8A31_b0(void);
+void func_8A55_b0(void);
+void func_8AD3_b0(void);
 void func_8B00_b0(void);
 void func_8B15_b0(void);
 void func_8B98_b0(void);
 void func_8BB1_b0(void);
 void func_8C38_b0(void);
+void func_8CC4_b0(void);
 void func_8D8D_b0(void);
 void func_8DD1_b0(void);
 void func_8E3E_b0(void);
+void func_8EEA_b0(void);
+void func_8F82_b0(void);
 void func_8FAF_b0(void);
+void func_8FF8_b0(void);
+void func_9043_b0(void);
+void func_9072_b0(void);
 void func_90AC_b0(void);
 void func_90CB_b0(void);
+void func_914D_b0(void);
+void func_916E_b0(void);
+void func_91B2_b0(void);
+void func_91BE_b0(void);
+void func_9297_b0(void);
+void func_92BA_b0(void);
+void func_92E1_b0(void);
+void func_93AF_b0(void);
+void func_93EF_b0(void);
+void func_9410_b0(void);
+void func_943F_b0(void);
+void func_945E_b0(void);
+void func_94F2_b0(void);
+void func_94F7_b0(void);
+void func_9565_b0(void);
+void func_958B_b0(void);
+void func_95BA_b0(void);
+void func_95FA_b0(void);
+void func_9610_b0(void);
+void func_9615_b0(void);
+void func_961A_b0(void);
+void func_961F_b0(void);
+void func_963D_b0(void);
+void func_96EF_b0(void);
+void func_97A9_b0(void);
+void func_97C8_b0(void);
+void func_9819_b0(void);
+void func_984F_b0(void);
+void func_987A_b0(void);
 
 #endif
