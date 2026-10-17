@@ -837,7 +837,8 @@ void func_FA91(void)
  * not in k_contact_skip_ids nor the animations $74/$7F/$79, not
  * invulnerable, on screen). Slot X hidden ends the test (C set). A slot
  * that does not count goes on through JMP $FA84 (tail calls each way, the
- * scaffold charges both); the other steps loop here.
+ * scaffold charges both); the other steps go to the next slot here (the
+ * top of the loop, $FA84 inline).
  * Out: C clear = contact (Y = the slot 1/2 object's obj_attack, $0F its
  * slot); C set = none.
  * Reached from obj_contact_test and by the JMP at 0F:FA8C.
@@ -845,8 +846,21 @@ void func_FA91(void)
 void func_F9E9(void)
 {
     REGS_IN;
+    int first;
 
-    for (;;) {
+    for (first = 1;; first = 0) {
+        if (!first) {                           /* $FA84: the next slot */
+            mff_cycles(0xFA84, 12);
+            RAM(TMP16)--;
+            c = 1;                              /* CMP #0 */
+            if (RAM(TMP16) == 0) {
+                mff_cycles(0xFA8A, 1);
+                mff_cycles(0xFA8F, 2);
+                mff_cycles(0xFA90, 6);
+                RTS_RETURN();
+            }
+            mff_cycles(0xFA8C, 3);
+        }
         mff_cycles(0xF9E9, 9);
         y = RAM(TMP16);
         if (!(RAM(OBJ_STATE + y) & OBJ_LIVE)) {
@@ -877,27 +891,27 @@ void func_F9E9(void)
         mff_cycles(0xFA04, 6);
         if (!(RAM(OBJ_STATE + x) & OBJ_LIVE)) {
             mff_cycles(0xFA07, 1);
-            goto next;
+            continue;
         }
         /* from here on never executed */
         mff_cycles(0xFA09, 6);
         a = RAM(OBJ_ID + x);
         if (a == OBJ_NONE) {
             mff_cycles(0xFA0C, 1);
-            goto next;
+            continue;
         }
         if (cmp_list(0xFA0E, 0xFA84, a, k_contact_skip_ids, 16) < 16)
-            goto next;
+            continue;
         mff_cycles(0xFA4E, 8);
         a = RAM(OBJ_ANIM + x);
         if (a == ANIM_CONTACT_SKIP_1) {
             mff_cycles(0xFA53, 1);
-            goto next;
+            continue;
         }
         mff_cycles(0xFA55, 4);
         if (a == ANIM_CONTACT_SKIP_2) {
             mff_cycles(0xFA57, 1);
-            goto next;
+            continue;
         }
         mff_cycles(0xFA59, 4);
         if (a == ANIM_CONTACT_SKIP_3)
@@ -906,13 +920,13 @@ void func_F9E9(void)
         mff_cycles(0xFA60, 6);
         if (RAM(OBJ_INVULN + x) != 0) {
             mff_cycles(0xFA63, 1);
-            goto next;
+            continue;
         }
         mff_cycles(0xFA65, 6);
         a = RAM(OBJ_FLAGS + x);
         if (!(a & OBJF_ON_SCREEN)) {
             mff_cycles(0xFA68, 1);
-            goto next;
+            continue;
         }
         mff_cycles(0xFA6A, 4);
         if (a & OBJF_HIDDEN) {
@@ -934,17 +948,6 @@ void func_F9E9(void)
             mff_cycles(0xFA90, 6);
             RTS_RETURN();
         }
-    next:
-        mff_cycles(0xFA84, 12);
-        RAM(TMP16)--;
-        c = 1;                                  /* CMP #0 */
-        if (RAM(TMP16) == 0) {
-            mff_cycles(0xFA8A, 1);
-            mff_cycles(0xFA8F, 2);
-            mff_cycles(0xFA90, 6);
-            RTS_RETURN();
-        }
-        mff_cycles(0xFA8C, 3);
     }
     /* $FA5D: JMP $FA84 */
     mff_cycles(0xFA5D, 3);

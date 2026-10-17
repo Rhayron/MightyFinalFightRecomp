@@ -334,6 +334,8 @@ void func_F455(void)
         RAM(OBJ_FLAGS) = a; \
     } while (0)
 
+static void knocked_back(int left);
+
 /*
  * player_take_hit, $F8D5: slot X's attack hit the player (objects_update
  * set player_invuln = $3C just before). Nothing while player_no_hit bit 7
@@ -356,7 +358,7 @@ void func_F455(void)
 void func_F8D5(void)
 {
     REGS_IN;
-    int knockback;
+    int removed, knockback;
 
     mff_cycles(0xF8D5, 5);
     if (RAM(PLAYER_NO_HIT) & NO_HIT_BIT) {
@@ -365,32 +367,34 @@ void func_F8D5(void)
     }
     mff_cycles(0xF8D7, 1);
     mff_cycles(0xF8DA, 6);
-    a = RAM(OBJ_STATE + 1);
-    if (a & OBJ_LIVE) {
+    removed = 0;
+    if (RAM(OBJ_STATE + 1) & OBJ_LIVE) {
         mff_cycles(0xF8DF, 8);
         if (RAM(OBJ_ANIM + 1) == ANIM_SLOT12_74) {      /* never executed */
             mff_cycles(0xF8E6, 8);
             RAM(OBJ_STATE + 1) = 0x00;
             mff_cycles(0xF8EB, 1);
-            goto slots_done;
+            removed = 1;                                /* slot 2 is not looked at */
+        } else {
+            mff_cycles(0xF8E4, 1);
         }
-        mff_cycles(0xF8E4, 1);
     } else {
         mff_cycles(0xF8DD, 1);
     }
-    mff_cycles(0xF8ED, 6);
-    if (RAM(OBJ_STATE + 2) & OBJ_LIVE) {
-        mff_cycles(0xF8F2, 8);                          /* never executed from here */
-        if (RAM(OBJ_ANIM + 2) == ANIM_SLOT12_74) {
-            mff_cycles(0xF8F9, 6);
-            RAM(OBJ_STATE + 2) = 0x00;
+    if (!removed) {
+        mff_cycles(0xF8ED, 6);
+        if (RAM(OBJ_STATE + 2) & OBJ_LIVE) {
+            mff_cycles(0xF8F2, 8);                      /* never executed from here */
+            if (RAM(OBJ_ANIM + 2) == ANIM_SLOT12_74) {
+                mff_cycles(0xF8F9, 6);
+                RAM(OBJ_STATE + 2) = 0x00;
+            } else {
+                mff_cycles(0xF8F7, 1);
+            }
         } else {
-            mff_cycles(0xF8F7, 1);
+            mff_cycles(0xF8F0, 1);
         }
-    } else {
-        mff_cycles(0xF8F0, 1);
     }
-slots_done:
     mff_cycles(0xF8FE, 5);
     a = RAM(PLAYER_INVULN);
     if (a == 0) {
@@ -474,12 +478,16 @@ slots_done:
         a = RAM(GAME_ACTION);
         if (a == ACTION_JUMP) {
             mff_cycles(0xF968, 1);
-            goto knocked_back_left;
+            SYNC_OUT;
+            knocked_back(1);
+            return;
         }
         mff_cycles(0xF96A, 4);
         if (a == ACTION_CODY_SLASH) {
             mff_cycles(0xF96C, 1);
-            goto knocked_back_left;
+            SYNC_OUT;
+            knocked_back(1);
+            return;
         }
         mff_cycles(0xF96E, 12);
         RAM(GAME_ACTION) = ACTION_HIT;
@@ -509,21 +517,35 @@ slots_done:
         RTS_RETURN();
     }
 
-    /* knocked back */
     mff_cycles(0xF999, 34);
     FACE_ATTACKER();
     if (a == OBJF_PLAYER_LEFT) {
         mff_cycles(0xF9B1, 1);
-        goto knocked_back_left;
+        SYNC_OUT;
+        knocked_back(1);
+        return;
     }
     mff_cycles(0xF9B3, 4);
     a = DIR_RIGHT;
     mff_cycles(0xF9B5, 1);
-    goto knocked_back;
-knocked_back_left:
-    mff_cycles(0xF9B7, 2);
-    a = DIR_LEFT;
-knocked_back:
+    SYNC_OUT;
+    knocked_back(0);
+}
+
+/*
+ * $F9B7-$F9E4, player_take_hit's knockback: player_dir = A, or 2 when
+ * `left` (the LDA #2 at $F9B7); the knockback animation and sprite bank
+ * by player_id ($E20A, $E252), the attack and the combo stopped, Cody and
+ * Haggar lose the weapon and its ammo; game_action 6, obj_state $80.
+ */
+static void knocked_back(int left)
+{
+    REGS_IN;
+
+    if (left) {
+        mff_cycles(0xF9B7, 2);
+        a = DIR_LEFT;
+    }
     mff_cycles(0xF9B9, 10);
     RAM(PLAYER_DIR) = a;
     y = RAM(PLAYER_ID);
