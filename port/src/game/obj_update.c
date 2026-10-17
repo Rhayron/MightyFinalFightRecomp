@@ -13,10 +13,12 @@
  *
  * In the port the scaffold made a function of every JMP target ($800B,
  * $819A, $81B8, $81F0 ...), and every JMP between them is a tail call
- * through the dispatcher. $805E is no function: after a behaviour returns,
- * call_by_address_tail($805E) hands the rest of the frame's update to the
- * interpreter (as in the scaffold this port is checked against), so only a
- * dead slot reaches objects_next_slot here.
+ * through the dispatcher. The places the code reaches otherwise are
+ * functions too (port/tools/find_entries.py): $805E (objects_next_slot),
+ * where call_by_address_tail($805E) lands after a behaviour returns and a
+ * dead slot goes directly; $80D3 (obj_hit_by_player), also the target of
+ * the never-executed JMP after a slot-1/2 contact; the RTS at $821E and
+ * the JMP $83A8 at $8241, where the thrown-body tests branch.
  */
 #include "obj_defs.h"
 
@@ -60,8 +62,8 @@ static const uint8_t k_body_pass_ids2[] = {
     0x6D, OBJ_SPARK, OBJ_THROWN_CODY, OBJ_THROWN_BACK, OBJ_THROWN_SMASH, OBJ_THROWN_GUY, 0x61, 0x62,
 };
 
-static void objects_next_slot(void);
-static void obj_hit_by_player(void);
+void func_805E_b6(void);       /* objects_next_slot */
+void func_80D3_b6(void);       /* obj_hit_by_player */
 
 /*
  * $8000 (bank $0C entry): JMP objects_update.
@@ -79,7 +81,7 @@ void func_8000_b6(void)
  * objects_update, $8003: sets gravity ($99) to $38 and runs slot 1, from
  * which the loop goes on (func_800B_b6).
  * In: nothing. Out: as the loop leaves it (an RTS once update_slot reaches
- * $10, through the interpreter after the first behaviour).
+ * $10, from objects_next_slot after the last behaviour).
  * Caller: JMP at 0C:8000.
  */
 void func_8003_b6(void)
@@ -116,7 +118,7 @@ void func_800B_b6(void)
     if (!(a & OBJ_LIVE)) {
         mff_cycles(0x800E, 1);
         SYNC_OUT;
-        objects_next_slot();
+        func_805E_b6();                         /* objects_next_slot */
         return;
     }
 
@@ -200,18 +202,21 @@ void func_800B_b6(void)
 }
 
 /*
- * $805E-$81B5 of objects_update: the next slot (an RTS when update_slot
- * reaches $10) and its checks before it is dispatched:
+ * objects_next_slot, $805E (name proposed): $805E-$81B5 of
+ * objects_update, the next slot (an RTS when update_slot reaches $10) and
+ * its checks before it is dispatched:
  *  1. obj_hit_cooldown nonzero: count it down, skip to its own attack;
  *  2. a thrown body checks the others (thrown_body_collide);
  *  3. 0F:F9E5 tests it against the objects in slots 2 and 1;
  *  4. the player's attack (0F:F738): on a hit, a spark and, unless it is
  *     dying already, obj_hit_by_player; then
  *  5. its own attack against the player (func_81F0_b6).
- * Reached from func_800B_b6 for a dead slot (the BPL at 0C:800E); the
- * behaviours' RTS reaches $805E in the interpreter.
+ * In: nothing (update_slot). Out: as the path taken.
+ * Callers: every behaviour's RTS (to the $805D that func_800B_b6 pushes,
+ * through call_by_address_tail); func_800B_b6 for a dead slot (the BPL at
+ * 0C:800E).
  */
-static void objects_next_slot(void)
+void func_805E_b6(void)
 {
     REGS_IN;
     int i, thrown;
@@ -273,8 +278,8 @@ static void objects_next_slot(void)
     mff_cycles(0x8093, 2);
     if (!c) {
         /* never executed: the slot-1/2 object (TMP15) goes, or with
-         * animation $74 turns into id 9; this slot takes the hit ($80D3,
-         * left to the interpreter) */
+         * animation $74 turns into id 9; this slot takes the hit (JMP
+         * $80D3, obj_hit_by_player) */
         mff_cycles(0x8095, 11);
         y = RAM(TMP15);
         a = RAM(OBJ_ANIM + y);
@@ -314,7 +319,7 @@ static void objects_next_slot(void)
         if (!n) {
             mff_cycles(0x80CB, 1);
             SYNC_OUT;
-            obj_hit_by_player();
+            func_80D3_b6();                     /* obj_hit_by_player */
             return;
         }
         /* dying already: the spark is all */
@@ -326,7 +331,8 @@ static void objects_next_slot(void)
 }
 
 /*
- * $80D3-$81B5 of objects_update: the player's attack hit slot X, which was
+ * obj_hit_by_player, $80D3 (name proposed): $80D3-$81B5 of
+ * objects_update, the player's attack hit slot X, which was
  * alive. obj_take_hit deals the damage (AxL may block); the attack the
  * object had out is cancelled; obj_land_y is set to the line it will land
  * on: obj_ground_y if it was in the air (or if obj_y + $0A came out 0),
@@ -337,9 +343,11 @@ static void objects_next_slot(void)
  * knocked down (id 5), both from phase 0, or nothing. AxL takes no
  * knockback when he blocked (obj_hit_timer cleared). On to the slot's
  * behaviour (JMP $800B).
- * Reached from objects_next_slot (the BPL at 0C:80CB).
+ * In: X = slot. Out: as the path taken.
+ * Callers: objects_next_slot (the BPL at 0C:80CB; the JMP at 0C:80AC,
+ * never executed).
  */
-static void obj_hit_by_player(void)
+void func_80D3_b6(void)
 {
     REGS_IN;
     int i, airborne;
@@ -631,6 +639,17 @@ void func_81F0_b6(void)
 }
 
 /*
+ * $821E: the RTS between obj_hit_dies' Belger path and its $7B path,
+ * where thrown_body_collide ends for a body still in phase 0.
+ * Caller: the BEQ at 0C:8249.
+ */
+void func_821E_b6(void)
+{
+    mff_cycles(0x821E, 6);
+    mff_rts();
+}
+
+/*
  * obj_kill, $822F: slot X stays live at phase 0 ($80), its attack is
  * withdrawn, the combo window closed, and its stage-list entry released
  * (obj_spawn_index = $FF) so the list can spawn it again.
@@ -649,6 +668,18 @@ void func_822F_b6(void)
     g_cpu.A = 0xFF;
     mff_nz(0xFF);
     mff_rts();
+}
+
+/*
+ * $8241: JMP thrown_body_next ($83A8), after obj_kill's RTS: where the
+ * thrown-body tests skip a slot.
+ * Callers: the branches of thrown_body_test (0C:825C, 8273, 827B, 8280,
+ * 8285, 8299, 82A0 and the k_body_pass_ids tests).
+ */
+void func_8241_b6(void)
+{
+    mff_jmp_charge(0x8241, 0x83A8);
+    call_by_address_tail(0x83A8, 6);
 }
 
 /*
@@ -691,8 +722,7 @@ void func_8244_b6(void)
  * Y, first part. Slots with the body's own id are skipped; so is the
  * slot when the invulnerability that counts is set: the target's
  * (obj_invuln,Y) when Haggar throws with attack 9 or $13, otherwise the
- * body's own (obj_invuln,X). Skips go to the JMP $83A8 at $8241, which the
- * interpreter runs.
+ * body's own (obj_invuln,X). Skips go to the JMP $83A8 at $8241.
  * In: X = body, Y = slot to test. Out: as the rest of the test.
  * Callers: JMP at 0C:83AB (the next slot); the fall-through from
  * thrown_body_collide (0C:8254).
@@ -1023,7 +1053,7 @@ void func_8347_b6(void)
  * thrown_body_next, $83A8 (name proposed): DEY, and the next slot down
  * (JMP $8256) until slot 0, where the test ends (RTS).
  * In: Y = slot just tested. Out: Y - 1, N/Z from it.
- * Callers: JMP at 0C:8241 (the skips, interpreted) and 0C:8333; the BCS
+ * Callers: JMP at 0C:8241 (the skips) and 0C:8333; the BCS
  * at 0C:832E and 0C:8345; the fall-through from thrown_body_knock.
  */
 void func_83A8_b6(void)
