@@ -80,10 +80,10 @@ void func_F26E(void);   /* obj_init_vy */
 void func_F32E(void);   /* obj_flip_from_dir */
 void func_F38B(void);   /* obj_dir_index */
 void func_F406(void);   /* scene_frame */
-void func_F428(void);
-void func_F430(void);
+void func_F428(void);   /* attack_start */
+void func_F430(void);   /* attack_swing_sound */
 void func_F436(void);   /* attack_end */
-void func_F43B(void);   /* attack_start */
+void func_F43B(void);   /* attack_begin */
 void func_F4E1(void);
 void func_F522(void);
 void func_F558(void);

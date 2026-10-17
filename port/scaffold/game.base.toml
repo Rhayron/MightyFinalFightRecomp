@@ -1598,43 +1598,43 @@ addr = 0xF4E1   # lifted, lifted_f.c
 [[replace_func]]
 addr = 0xF522   # lifted, lifted_f.c
 [[replace_func]]
-addr = 0xF558   # lifted, lifted_f.c
+addr = 0xF558   # obj_reach.c
 [[replace_func]]
-addr = 0xF55A   # lifted, lifted_f.c
+addr = 0xF55A   # enemy_attack_test, obj_reach.c
 [[replace_func]]
-addr = 0xF63F   # lifted, lifted_f.c
+addr = 0xF63F   # obj_reach.c
 [[replace_func]]
-addr = 0xF679   # lifted, lifted_f.c
+addr = 0xF679   # obj_reach.c
 [[replace_func]]
-addr = 0xF6A9   # lifted, lifted_f.c
+addr = 0xF6A9   # obj_reach.c
 [[replace_func]]
 addr = 0xF71A   # find_free_slot, obj_anim.c
 [[replace_func]]
 addr = 0xF72A   # find_free_effect_slot, obj_anim.c
 [[replace_func]]
-addr = 0xF738   # lifted, lifted_f.c
+addr = 0xF738   # player_attack_test, obj_reach.c
 [[replace_func]]
-addr = 0xF7EA   # lifted, lifted_f.c
+addr = 0xF7EA   # obj_reach.c
 [[replace_func]]
-addr = 0xF7EF   # lifted, lifted_f.c
+addr = 0xF7EF   # obj_reach.c
 [[replace_func]]
-addr = 0xF7FF   # lifted, lifted_f.c
+addr = 0xF7FF   # obj_reach.c
 [[replace_func]]
-addr = 0xF833   # lifted, lifted_f.c
+addr = 0xF833   # obj_reach.c
 [[replace_func]]
-addr = 0xF83D   # lifted, lifted_f.c
+addr = 0xF83D   # obj_reach.c
 [[replace_func]]
-addr = 0xF84C   # lifted, lifted_f.c
+addr = 0xF84C   # obj_reach.c
 [[replace_func]]
 addr = 0xF8D5   # lifted, lifted_f.c
 [[replace_func]]
-addr = 0xF9E5   # lifted, lifted_f.c
+addr = 0xF9E5   # obj_contact_test, obj_reach.c
 [[replace_func]]
-addr = 0xF9E9   # lifted, lifted_f.c
+addr = 0xF9E9   # obj_reach.c
 [[replace_func]]
-addr = 0xFA84   # lifted, lifted_f.c
+addr = 0xFA84   # obj_reach.c
 [[replace_func]]
-addr = 0xFA91   # lifted, lifted_f.c
+addr = 0xFA91   # obj_reach.c
 [[replace_func]]
 addr = 0xFAC4   # lifted, lifted_f.c
 [[replace_func]]

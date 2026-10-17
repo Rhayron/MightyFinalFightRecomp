@@ -1651,6 +1651,54 @@ addr = 0xF44F
 name = "obj_set_anim_chr5"
 comment = "JSR obj_set_anim, STY $ED (chr_banks+5, R5); 01:A4CD, 05:AB33, 0D:A59C, A692, JMPs 01:AE2E, 0D:A4C3; obj_anim.c (tidy/fixed)"
 
+[[label]]
+bank = 0x0F
+addr = 0xF6AA
+name = "enemy_reach_y"
+comment = "enemy_attack_test: the reach in y by obj_attack & $1F (CMP $F6AA,Y at $F6A6); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF6CA
+name = "enemy_reach_x_back"
+comment = "enemy_attack_test: the reach in x behind the attacker (CMP $F6CA,Y at $F694; in front of it when the player's facing decides); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF6EA
+name = "enemy_reach_x_front"
+comment = "enemy_attack_test: the reach in x in front of the attacker (CMP $F6EA,Y at $F674); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF869
+name = "player_reach_y"
+comment = "player_attack_test: the reach in y by attack_id (CMP $F869,Y at $F85E); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF88D
+name = "player_reach_x_front"
+comment = "player_attack_test: the reach in x in front of the player by attack_id (CMP $F88D,Y at $F847, the player facing slot X); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF8B1
+name = "player_reach_x_back"
+comment = "player_attack_test: the reach in x behind the player by attack_id (CMP $F8B1,Y at $F835); obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xF9E5
+name = "obj_contact_test"
+comment = "objects_update (0C:8090): does the object in slot 2, then 1 ($10 = 2 counting down, the loop at $F9E9) touch slot X; C clear = contact; past the slot 1/2 checks never executed; obj_reach.c (tidy/fixed)"
+
+[[label]]
+bank = 0x0F
+addr = 0xFAC0
+name = "contact_reach"
+comment = "obj_contact_test's reach by the slot 1/2 object's obj_attack: y at $FAC0,Y ($FABA), x at $FAC2,Y ($FAA9); 0E 14 14 14, then drop_weapon's code; never read; obj_reach.c (tidy/fixed)"
+
 
 [[label]]
 bank = 0x0F
