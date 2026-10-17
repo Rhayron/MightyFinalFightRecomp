@@ -268,8 +268,13 @@ static void events_run_script(void) {
     mff_rts();
 }
 
-/* $892C: the screen's setup when screen_event is set */
-static void events_screen_event(void) {
+/*
+ * events_screen_event, $892C (bank 4; name proposed): the screen's setup
+ * (screen_setup, $972A) when screen_event is set, which it then clears.
+ * Called by: stage_events (falling in, BNE at $892A), events_area_cleared
+ * when no slot is free for the GO sign (BCS at $896C).
+ */
+void func_892C_b4(void) {
     REGS_IN;
 
     mff_cycles(0x892C, 5);
@@ -293,13 +298,66 @@ static void events_screen_event(void) {
 }
 
 /*
- * $8956-$89D1 (and $893C-$8955): the area is cleared (area_clear $FF; $7F,
- * the GO sign is up, does nothing). On the area's last screen the player
- * walks out (game_action $19) as soon as he stands or punches. Elsewhere,
- * when the player is idle and no enemy is left, the GO sign comes up in a
- * free slot (none free: the screen event check instead).
+ * $8955: the RTS of events_walk_out and events_area_cleared (BPL at $8958
+ * and the branches before it).
  */
-static void events_area_cleared(void) {
+void func_8955_b4(void) {
+    mff_cycles(0x8955, 6);
+    mff_rts();
+}
+
+/*
+ * events_walk_out, $893C (bank 4; name proposed): the cleared area's last
+ * screen: unless he is already walking out (game_action $19), the player
+ * walks out as soon as he stands or punches (game_action 0 or 3): slot 0
+ * live, game_action $19.
+ * Called by: events_area_cleared (BEQ at $895E).
+ */
+void func_893C_b4(void) {
+    REGS_IN;
+
+    mff_cycles(0x893C, 7);
+    a = RAM(GAME_ACTION);
+    SET_CMP(a, GA_AREA_EXIT);
+    if (z) {
+        mff_cycles(0x8940, 1);
+        SYNC_OUT;
+        func_8955_b4();
+        return;
+    }
+    mff_cycles(0x8942, 5);
+    a = RAM(GAME_ACTION);
+    if (a != GA_IDLE) {
+        mff_cycles(0x8946, 4);
+        SET_CMP(a, 0x03);                       /* punching */
+        if (!z) {
+            mff_cycles(0x894A, 2 + 1);          /* BNE always taken here */
+            SYNC_OUT;
+            func_8955_b4();
+            return;
+        }
+        mff_cycles(0x8948, 1);
+    } else {
+        mff_cycles(0x8944, 1);
+    }
+    mff_cycles(0x894C, 11);
+    RAM(OBJ_STATE) = 0x80;
+    a = GA_AREA_EXIT;
+    SET_NZ(a);
+    RAM(GAME_ACTION) = a;
+    SYNC_OUT;
+    func_8955_b4();
+}
+
+/*
+ * events_area_cleared, $8956 (bank 4; name proposed): the area is cleared
+ * (area_clear $FF; $7F, the GO sign is up, does nothing). On the area's
+ * last screen events_walk_out. Elsewhere, when the player is idle and no
+ * enemy is left, the GO sign comes up in a free slot (none free: the
+ * screen event check instead).
+ * Called by: stage_events (BNE at $8926; JMP at $8921, no route).
+ */
+void func_8956_b4(void) {
     REGS_IN;
     unsigned i;
 
@@ -307,47 +365,18 @@ static void events_area_cleared(void) {
     a = RAM(AREA_CLEAR);
     SET_NZ(a);
     if (!n) {
-        mff_cycles(0x8958, 1 + 6);
+        mff_cycles(0x8958, 1);
         SYNC_OUT;
-        mff_rts();
+        func_8955_b4();
         return;
     }
     mff_cycles(0x895A, 8);
     a = RAM(AREA_SCREEN);
     c = a >= RAM(AREA_SCREEN_COUNT);
     if (a == RAM(AREA_SCREEN_COUNT)) {
-        /* the last screen: walk out */
-        mff_cycles(0x895E, 1 + 7);
-        a = RAM(GAME_ACTION);
-        SET_CMP(a, GA_AREA_EXIT);
-        if (z) {
-            mff_cycles(0x8940, 1 + 6);
-            SYNC_OUT;
-            mff_rts();
-            return;
-        }
-        mff_cycles(0x8942, 5);
-        a = RAM(GAME_ACTION);
-        if (a != GA_IDLE) {
-            mff_cycles(0x8946, 4);
-            SET_CMP(a, 0x03);                   /* punching */
-            if (!z) {
-                mff_cycles(0x894A, 2 + 1 + 6);  /* BNE always taken here */
-                SYNC_OUT;
-                mff_rts();
-                return;
-            }
-            mff_cycles(0x8948, 1);
-        } else {
-            mff_cycles(0x8944, 1);
-        }
-        mff_cycles(0x894C, 11 + 6);
-        RAM(OBJ_STATE) = 0x80;
-        a = GA_AREA_EXIT;
-        SET_NZ(a);
-        RAM(GAME_ACTION) = a;
+        mff_cycles(0x895E, 1);
         SYNC_OUT;
-        mff_rts();
+        func_893C_b4();                         /* the last screen: walk out */
         return;
     }
 
@@ -380,7 +409,7 @@ static void events_area_cleared(void) {
     if (c) {
         mff_cycles(0x896C, 1);
         SYNC_OUT;
-        events_screen_event();
+        func_892C_b4();                     /* events_screen_event */
         return;
     }
     mff_cycles(0x896E, 25);
@@ -482,7 +511,7 @@ void func_8900_b4(void) {
     if (a != 0) {
         mff_cycles(0x8926, 1);
         SYNC_OUT;
-        events_area_cleared();
+        func_8956_b4();                     /* events_area_cleared */
         return;
     }
     mff_cycles(0x8928, 5);
@@ -495,7 +524,7 @@ void func_8900_b4(void) {
         return;
     }
     SYNC_OUT;
-    events_screen_event();
+    func_892C_b4();                         /* events_screen_event */
 }
 
 /*
@@ -739,7 +768,7 @@ void func_8B8F_b4(void) { quota_when_empty(0x8B8F, 0x8DD7); }  /* screen 1: quot
 void func_8B9F_b4(void) { screen_dispatch(0x8B9F, 0x8BAE, 0x8BB2); }  /* screens: $8A43, $8BB6, $8BC5, $8BD4 */
 void func_8BB6_b4(void) { quota_or_spawn(0x8BB6, 0x8DD9); }  /* screen 1: quota met: clear; else the timed spawner */
 void func_8BC5_b4(void) { quota_or_spawn(0x8BC5, 0x8DD9); }  /* screen 2: quota met: clear; else the timed spawner */
-/* screen 3: $8BD4 is not reached (no routine) */
+void func_8BD4_b4(void) { quota_when_empty_or_spawn(0x8BD4, 0x8DD9); }  /* screen 3: quota met: clear once no enemy is left; else the timed spawner (no route) */
 
 /* area_index 7, round 3 area 2 */
 void func_8BE8_b4(void) { screen_dispatch(0x8BE8, 0x8BF7, 0x8BFB); }  /* screens: $8A43, $8BFF, $8C0E, $8C1E */
@@ -793,7 +822,7 @@ void func_9788_b4(void) { screen_dispatch(0x9788, 0x9797, 0x979B); }  /* screens
 void func_9787_b4(void) { script_none(0x9787); }  /* screen 0: nothing */
 void func_979F_b4(void) { sprite_set(0x979F, 0x99C6); }  /* screen 1 */
 void func_97A6_b4(void) { sprite_set(0x97A6, 0x99C6); }  /* screen 2 */
-/* screen 3: $97AD is not reached (no routine) */
+void func_97AD_b4(void) { sprite_set(0x97AD, 0x99C6); }  /* screen 3 (no route reaches it) */
 
 /* area_index 2, round 1 area 3 */
 void func_97B4_b4(void) { screen_dispatch(0x97B4, 0x97C3, 0x97C5); }  /* screens: $9787, $97C7 */
@@ -803,14 +832,14 @@ void func_97C7_b4(void) { sprite_set(0x97C7, 0x99CA); }  /* screen 1 */
 void func_97CE_b4(void) { screen_dispatch(0x97CE, 0x97DD, 0x97E1); }  /* screens: $9787, $97E5, $97EC, $97F3 */
 void func_97E5_b4(void) { sprite_set(0x97E5, 0x99CC); }  /* screen 1 */
 void func_97EC_b4(void) { sprite_set(0x97EC, 0x99CC); }  /* screen 2 */
-/* screen 3: $97F3 is not reached (no routine) */
+void func_97F3_b4(void) { sprite_set(0x97F3, 0x99CC); }  /* screen 3 (no route reaches it) */
 
 /* area_index 4, round 2 area 2 */
 void func_97FA_b4(void) { screen_dispatch(0x97FA, 0x9809, 0x980E); }  /* screens: $9787, $9813, $981A, $9821, $9828 */
 void func_9813_b4(void) { sprite_set(0x9813, 0x99D0); }  /* screen 1 */
 void func_981A_b4(void) { sprite_set(0x981A, 0x99D0); }  /* screen 2 */
 void func_9821_b4(void) { sprite_set(0x9821, 0x99D0); }  /* screen 3 */
-/* screen 4: $9828 is not reached (no routine) */
+void func_9828_b4(void) { sprite_set(0x9828, 0x99D0); }  /* screen 4 (no route reaches it) */
 
 /* area_index 5, round 2 area 3 */
 void func_982F_b4(void) { screen_dispatch(0x982F, 0x983E, 0x9840); }  /* screens: $9787, $9842 */
@@ -819,14 +848,14 @@ void func_9842_b4(void) { sprite_set(0x9842, 0x99D5); }  /* screen 1 */
 /* area_index 6, round 3 area 1 */
 void func_9849_b4(void) { screen_dispatch(0x9849, 0x9858, 0x985C); }  /* screens: $9787, $9860, $9867, $986E */
 void func_9860_b4(void) { sprite_set(0x9860, 0x99D7); }  /* screen 1 */
-/* screen 2: $9867 is not reached (no routine) */
-/* screen 3: $986E is not reached (no routine) */
+void func_9867_b4(void) { sprite_set(0x9867, 0x99D7); }  /* screen 2 (no route reaches it) */
+void func_986E_b4(void) { sprite_set(0x986E, 0x99D7); }  /* screen 3 (no route reaches it) */
 
 /* area_index 7, round 3 area 2 */
 void func_9875_b4(void) { screen_dispatch(0x9875, 0x9884, 0x9888); }  /* screens: $9787, $988C, $9893, $989A */
 void func_988C_b4(void) { sprite_set(0x988C, 0x99DB); }  /* screen 1 */
 void func_9893_b4(void) { sprite_set(0x9893, 0x99DB); }  /* screen 2 */
-/* screen 3: $989A is not reached (no routine) */
+void func_989A_b4(void) { sprite_set(0x989A, 0x99DB); }  /* screen 3 (no route reaches it) */
 
 /* area_index 8, round 3 area 3 */
 void func_98A1_b4(void) { screen_dispatch(0x98A1, 0x98B0, 0x98B2); }  /* screens: $9787, $98B4 */
@@ -863,4 +892,4 @@ void func_9998_b4(void) { sprite_set(0x9998, 0x99F0); }  /* screen 3 */
 /* area_index 14, round 5 area 3 */
 void func_999F_b4(void) { screen_dispatch(0x999F, 0x99AE, 0x99B1); }  /* screens: $9787, $99B4, $99BB */
 void func_99B4_b4(void) { sprite_set(0x99B4, 0x99F4); }  /* screen 1 */
-/* screen 2: $99BB is not reached (no routine) */
+void func_99BB_b4(void) { sprite_set(0x99BB, 0x99F4); }  /* screen 2 (no route reaches it) */
