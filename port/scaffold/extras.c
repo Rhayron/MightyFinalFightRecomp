@@ -370,9 +370,19 @@ void game_post_render(uint32_t *framebuf) {
  * interrupted PC ($A0/$A1 - 1) on the stack, calls sound_update ($FF72) and
  * RTSes back into the interrupted code. The legacy runner calls func_NMI
  * between frames, so the "interrupted PC" it finds on the stack is not a
- * place in the program ($FFFF -> RTS to $0000). What the tail does for the
- * game is: run sound_update, leave A/X/Y/P as they were. */
+ * place in the program ($FFFF -> RTS to $0000). The tail does all but the
+ * jump, as port/src/runtime/mff_hooks.c does: the same stack writes
+ * (sound_update's RTS pops the JSR's return address, so S comes back where
+ * it was), sound_update, A/X/Y/P as they were, and the console's cycles.
+ * Until 2026-10-17 it called sound_update without the JSR's push, which
+ * left S two bytes up after every NMI; the raster IRQ's interrupt frame then
+ * landed on $0101/$0100 and zeroed bg_pal_anim_on, so round 3 area 2's
+ * palette animation stopped (found by the P5 tours against the oracle). */
 extern void func_FF72(void);
+static void tail_push(uint8_t v) {
+    g_ram[0x100 + g_cpu.S] = v;
+    g_cpu.S--;
+}
 void func_C119(void) {
     uint8_t a = g_cpu.A, x = g_cpu.X, y = g_cpu.Y;
     { /* MFF_TAILTRACE=FIRST:N - registers and sound scratch at nmi_tail */
@@ -389,7 +399,27 @@ void func_C119(void) {
                     g_ram[0xC0], g_ram[0xC1], g_ram[0xC2], g_ram[0xC3], (unsigned long long)g_nes_cycles);
     }
     uint8_t n = g_cpu.N, v = g_cpu.V, d = g_cpu.D, i = g_cpu.I, z = g_cpu.Z, c = g_cpu.C;
-    func_FF72();
+    uint8_t p = (uint8_t)((n << 7) | (v << 6) | 0x30 | (d << 3) | (i << 2) | (z << 1) | c);  /* as PHP pushes it */
+    uint16_t ret = (uint16_t)(((g_ram[0xA1] << 8) | g_ram[0xA0]) - 1);
+    uint8_t s;
+    tail_push(p);                               /* PHP x3: room for the return address, and P */
+    tail_push(p);
+    tail_push(p);
+    tail_push(a);                               /* PHA, TXA/PHA, TYA/PHA */
+    tail_push(x);
+    tail_push(y);
+    s = g_cpu.S;                                /* TSX; STA $0105,X / $0106,X */
+    g_ram[(0x105 + s) & 0x7FF] = (uint8_t)ret;
+    g_ram[(0x106 + s) & 0x7FF] = (uint8_t)(ret >> 8);
+    tail_push(0xC1);                            /* JSR $FF72: returns to $C134 */
+    tail_push(0x33);
+    /* the console's cycles: PHP x3, PHA/TXA/PHA/TYA/PHA, TSX, SEC, the fake
+     * return (LDA zp, SBC #, STA abs,X twice) and the JSR; after it
+     * PLA/TAY/PLA/TAX/PLA, PLP and RTS ($C119-$C13A) */
+    maybe_trigger_vblank(52);
+    func_FF72();                                /* its RTS pops $C133 */
+    maybe_trigger_vblank(26);
+    g_cpu.S = (uint8_t)(g_cpu.S + 6);           /* PLA/TAY, PLA/TAX, PLA, PLP, RTS */
     g_cpu.A = a; g_cpu.X = x; g_cpu.Y = y;
     g_cpu.N = n; g_cpu.V = v; g_cpu.D = d; g_cpu.I = i; g_cpu.Z = z; g_cpu.C = c;
 }
