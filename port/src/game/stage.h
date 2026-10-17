@@ -134,6 +134,12 @@ void func_9038_b4(void);    /* timed_spawn */
 void func_921C_b4(void);    /* timed_spawn_r3a1 */
 void func_931D_b4(void);    /* timed_spawn_r3a1_set */
 
+/* sprite sets and background palette animation (stage_palette.c) */
+void func_A000_b4(void);    /* sprite_set_load */
+void func_A013_b4(void);    /* sprite_set_palette */
+void func_A300_b4(void);    /* bg_palette_animate */
+void func_A321_b4(void);    /* bg_palette_step */
+
 /* elsewhere */
 void func_F436(void);   /* attack_live = 0 */
 void func_FF4D(void);   /* bank_switch */

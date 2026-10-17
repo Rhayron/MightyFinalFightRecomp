@@ -2539,16 +2539,16 @@ bank = 4
 addr = 0x99B4   # area14_setup_screen1, stage_events.c
 [[replace_func]]
 bank = 4
-addr = 0xA000   # lifted, lifted_b4.c
+addr = 0xA000   # sprite_set_load, stage_palette.c
 [[replace_func]]
 bank = 4
-addr = 0xA013   # lifted, lifted_b4.c
+addr = 0xA013   # sprite_set_palette, stage_palette.c
 [[replace_func]]
 bank = 4
-addr = 0xA300   # lifted, lifted_b4.c
+addr = 0xA300   # bg_palette_animate, stage_palette.c
 [[replace_func]]
 bank = 4
-addr = 0xA321   # lifted, lifted_b4.c
+addr = 0xA321   # bg_palette_step, stage_palette.c
 [[replace_func]]
 bank = 4
 addr = 0xA700   # lifted, lifted_b4.c
