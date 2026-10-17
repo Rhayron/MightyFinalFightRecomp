@@ -139,7 +139,8 @@ void func_A731_b2(void)
     mff_cycles(0xA74F, 11);
     y = RAM(PLAYER_ID);
     a = RAM(OBJ_ANIM);
-    CMP_FLAGS(a, prg_read((uint16_t)(ANIM_FIRST_PUNCH + y)));
+    m = prg_read((uint16_t)(ANIM_FIRST_PUNCH + y));
+    CMP_FLAGS(a, m);
     mff_cycles(0xA757, 2);
     if (!z) {
         mff_cycles(0xA757, 1);
@@ -161,7 +162,8 @@ void func_A731_b2(void)
     RAM(TMP3) = a;
     y = RAM(PLAYER_LEVEL);
     a = RAM(HEALTH);
-    CMP_FLAGS(a, mem_read((uint16_t)(RAM16(TMP2) + y)));
+    m = mem_read((uint16_t)(RAM16(TMP2) + y));
+    CMP_FLAGS(a, m);
     mff_cycles(0xA770, 2);
     if (!z) {
         mff_cycles(0xA772, 11);
@@ -873,7 +875,8 @@ void func_A9E4_b2(void)
     mff_cycles(0xAA20, 2);
     if (a != m) {
         mff_cycles(0xAA22, 4);
-        CMP_FLAGS(a, prg_read((uint16_t)(TALK_POSE_2 + y)));
+        m = prg_read((uint16_t)(TALK_POSE_2 + y));
+        CMP_FLAGS(a, m);
         mff_cycles(0xAA25, 2);
         if (!z)
             RTS_AT(0xAA27);

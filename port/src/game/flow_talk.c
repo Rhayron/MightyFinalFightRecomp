@@ -175,7 +175,8 @@ static void talk_cmd_round_clear(void) {
     REGS_IN;
 
     mff_cycles(0x984C, 14);
-    RAM(LEVEL_SAVED) = RAM(PLAYER_LEVEL);
+    a = RAM(PLAYER_LEVEL);
+    RAM(LEVEL_SAVED) = a;
     y = TEXT_ROUND_CLEAR;
     SET_NZ(y);
     CALL_04(0x9852, 0x9AA0);
