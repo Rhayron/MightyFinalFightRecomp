@@ -10,6 +10,8 @@
  * vblank flag goes up and, if PPUCTRL enables it, frame.c delivers the NMI
  * and draws the picture before the interrupted code continues.
  *
+ * Every boundary also closes the frame's sound (apu.c), NMI or not.
+ *
  * The overshoot of the charge that crossed the boundary counts toward the
  * next frame. The game may hold the NMI back (g_nmi_veto: mff_hooks.c says
  * where it may land); then the boundary waits at the threshold for the
@@ -58,6 +60,7 @@ static void frame_boundary(void) {
     s_length = next_frame_length();
     s_depth++;
     ppu_vblank_begin();
+    apu_frame_boundary(s_length);
     if (ppu_ctrl() & 0x80) frame_run();
     s_depth--;
 }

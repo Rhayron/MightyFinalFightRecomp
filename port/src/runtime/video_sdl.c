@@ -2,9 +2,12 @@
  * video_sdl.c - a window to play in (built with -DMFF_SDL=ON; without it
  * the port runs headless only)
  *
- * The picture of each frame is shown as it is made (frame.c), and the
- * game is paced to the NES's frame rate, 60.0988 per second. Pad 1 reads
- * the keyboard and the first game controller:
+ * The picture of each frame is shown as it is made (frame.c), and its sound
+ * (apu.c, 48 kHz, 800 samples a frame) is queued to the audio device, which
+ * then sets the pace: the next frame runs when less than 50 ms is left to
+ * play. Without an audio device (or if it stops taking samples for a
+ * quarter of a second) the clock paces the game, 60.0988 frames a second.
+ * Pad 1 reads the keyboard and the first game controller:
  *
  *   NES        keyboard              controller
  *   A          X                     B or Y (right, top)
@@ -30,6 +33,7 @@ int video_open(int scale) {
 }
 void video_frame(const uint32_t *fb) { (void)fb; }
 void video_poll_input(void) {}
+void video_audio(const int16_t *pcm, int n) { (void)pcm; (void)n; }
 
 #else
 
@@ -46,9 +50,13 @@ static SDL_Texture *s_tex;
 static SDL_GameController *s_pad;
 static double s_next;                   /* when the next frame is due, in counter ticks */
 static int s_fast;
+static SDL_AudioDeviceID s_audio;
+#define AUDIO_RATE 48000
+#define AUDIO_AHEAD (AUDIO_RATE / 20 * 2)    /* bytes: 50 ms of 16-bit mono */
 
 static void quit(void) {
     hooks_exit_log();
+    if (s_audio) SDL_CloseAudioDevice(s_audio);
     SDL_Quit();
     exit(0);
 }
@@ -81,8 +89,24 @@ int video_open(int scale) {
     }
     for (int i = 0; i < SDL_NumJoysticks() && !s_pad; i++)
         if (SDL_IsGameController(i)) s_pad = SDL_GameControllerOpen(i);
+    {
+        SDL_AudioSpec want;
+        SDL_memset(&want, 0, sizeof want);
+        want.freq = AUDIO_RATE;
+        want.format = AUDIO_S16SYS;
+        want.channels = 1;
+        want.samples = 512;
+        if (SDL_InitSubSystem(SDL_INIT_AUDIO) == 0)
+            s_audio = SDL_OpenAudioDevice(NULL, 0, &want, NULL, 0);
+        if (s_audio) SDL_PauseAudioDevice(s_audio, 0);
+        else fprintf(stderr, "[mff] no sound: %s\n", SDL_GetError());
+    }
     s_next = (double)SDL_GetPerformanceCounter();
     return 0;
+}
+
+void video_audio(const int16_t *pcm, int n) {
+    if (s_audio && !s_fast) SDL_QueueAudio(s_audio, pcm, (Uint32)n * (Uint32)sizeof(int16_t));
 }
 
 static int pressed(SDL_GameControllerButton b) {
@@ -147,6 +171,24 @@ void video_frame(const uint32_t *fb) {
     SDL_RenderClear(s_ren);
     SDL_RenderCopy(s_ren, s_tex, NULL, NULL);
     SDL_RenderPresent(s_ren);
+    if (s_audio) {                                  /* the sound sets the pace */
+        Uint32 start = SDL_GetTicks();
+        if (s_fast) {
+            SDL_ClearQueuedAudio(s_audio);
+            return;
+        }
+        while (SDL_GetQueuedAudioSize(s_audio) > AUDIO_AHEAD) {
+            if (SDL_GetTicks() - start > 250) {     /* the device stopped playing: the clock paces */
+                fprintf(stderr, "[mff] the audio device stopped; going on without sound\n");
+                SDL_CloseAudioDevice(s_audio);
+                s_audio = 0;
+                s_next = (double)SDL_GetPerformanceCounter();
+                return;
+            }
+            SDL_Delay(1);
+        }
+        return;
+    }
     s_next += period;
     now = (double)SDL_GetPerformanceCounter();
     if (s_fast || now > s_next + 4 * period) {      /* fast, or fell behind: no catching up */

@@ -132,6 +132,13 @@ uint8_t mmc3_prg_read(uint16_t a) {
     return g_cart.prg[off];
 }
 
+/* a PRG read with no side effects (the DMC's sample fetches): 0 where the
+ * data leaves the byte out */
+uint8_t mmc3_prg_peek(uint16_t a) {
+    uint32_t off = (uint32_t)g_mmc3_win_bank8k[(a >> 13) & 3] * 0x2000 + (a & 0x1FFF);
+    return a >= 0x8000 && cart_has_prg(off) ? g_cart.prg[off] : 0;
+}
+
 int mmc3_clock_scanline(void) {
     if (s_reload || s_counter == 0) {
         s_counter = s_latch;

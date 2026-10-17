@@ -5,7 +5,7 @@
  *   bus.c         CPU registers and RAM, the address decoder, the pads
  *   ppu_regs.c    PPU registers, nametables, palette, OAM
  *   mmc3.c        bank registers and the scanline IRQ counter
- *   apu.c         APU registers (kept, not played: P6 adds the synthesizer)
+ *   apu.c         APU writes to the 2A03 synthesizer (port/src/audio), the sound out
  *   timing.c      the cycle clock, the frame boundary, NMI and IRQ entry
  *   frame.c       one frame: hooks, NMI, the scanline pass, the picture
  *   render_frame.c  the picture from a FrameRecord
@@ -59,6 +59,7 @@ enum { MIRROR_ONE_LOW = 0, MIRROR_ONE_HIGH = 1, MIRROR_VERTICAL = 2, MIRROR_HORI
 void mmc3_power_on(int vertical);
 void mmc3_write(uint16_t addr, uint8_t v);
 uint8_t mmc3_prg_read(uint16_t addr);
+uint8_t mmc3_prg_peek(uint16_t addr);      /* no side effects (DMC fetches) */
 int mmc3_clock_scanline(void);      /* 1 when the counter fires an IRQ */
 int mmc3_mirroring(void);
 void mmc3_chr_map(uint16_t banks[8]);   /* 1 KiB CHR bank behind each $400 of pattern space */
@@ -69,6 +70,9 @@ void mmc3_write_prg_reads(void);        /* MFF_PRG_READS, at exit */
 void apu_power_on(void);
 void apu_write(uint16_t addr, uint8_t v);
 uint8_t apu_read_status(void);
+/* a frame boundary (timing.c, NMI on or off): the sound up to it to the
+ * window and MFF_WAV; next_len is the new frame's length in cycles */
+void apu_frame_boundary(uint32_t next_len);
 
 /* ---- ppu_regs.c ---- */
 void ppu_power_on(void);
@@ -138,6 +142,7 @@ void coroutine_power_on(void);
 int video_open(int scale);
 void video_frame(const uint32_t *fb);       /* present and pace */
 void video_poll_input(void);                /* pad 1 from keyboard/gamepad */
+void video_audio(const int16_t *pcm, int n);    /* 48 kHz mono samples to play */
 
 /* ---- errors ---- */
 void mff_fatal(const char *fmt, ...);

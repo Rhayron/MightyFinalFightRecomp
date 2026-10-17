@@ -5,6 +5,7 @@ project(MightyFinalFight C)
 #   port/src/game          the game's routines
 #   port/src/glue          dispatch.c, the address -> routine table
 #   port/src/runtime       the machine they run on (C11)
+#   port/src/audio         the 2A03 synthesizer (P6)
 # and nothing from nesrecomp. The scaffold (port/scaffold) still builds the
 # same routines on NESRecomp's runtime for the P4 checks.
 #
@@ -29,13 +30,25 @@ add_executable(MightyFinalFight
     ${MFF_GAME_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/src/glue/dispatch.c
     ${MFF_RUNTIME_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/synth_2a03.c
     # the in-process player of the test routes (MFF_BOT), shared with the scaffold
     ${CMAKE_CURRENT_SOURCE_DIR}/scaffold/bot.c
 )
 target_include_directories(MightyFinalFight PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio
 )
+# the synthesizer matches the oracle sample for sample only with strict
+# floating point: no reassociation, no fused multiply-add (synth_2a03.h)
+if(MSVC)
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/audio/synth_2a03.c PROPERTIES
+                                COMPILE_OPTIONS "/fp:precise")
+else()
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/audio/synth_2a03.c PROPERTIES
+                                COMPILE_OPTIONS "-ffp-contract=off")
+    target_link_libraries(MightyFinalFight PRIVATE m)
+endif()
 
 if(MSVC)
     target_compile_options(MightyFinalFight PRIVATE /W3 /wd4102 /bigobj /MP)
