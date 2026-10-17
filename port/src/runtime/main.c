@@ -36,6 +36,9 @@
 #else
 #include <unistd.h>
 #endif
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
 
 void mff_fatal(const char *fmt, ...) {
     va_list ap;
@@ -60,8 +63,13 @@ static void usage(void) {
 static void exe_dir(char *out, size_t cap, const char *argv0) {
     char *slash;
     out[0] = 0;
-#ifdef _WIN32
+#if defined(_WIN32)
     if (!GetModuleFileNameA(NULL, out, (DWORD)cap)) out[0] = 0;
+#elif defined(__APPLE__)
+    {
+        uint32_t size = (uint32_t)cap;
+        if (_NSGetExecutablePath(out, &size) != 0) out[0] = 0;
+    }
 #else
     {
         ssize_t n = readlink("/proc/self/exe", out, cap - 1);

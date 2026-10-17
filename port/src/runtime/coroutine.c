@@ -14,8 +14,13 @@
  * scheduler's next pass through its loop top frees every task and clears
  * the interrupt depth.
  *
- * Windows uses fibers; elsewhere ucontext.
+ * Windows uses fibers; elsewhere ucontext (macOS still has it, deprecated,
+ * behind _XOPEN_SOURCE).
  */
+#if defined(__APPLE__) && !defined(_XOPEN_SOURCE)
+#define _XOPEN_SOURCE 700
+#define _DARWIN_C_SOURCE
+#endif
 #include "coroutine.h"
 #include "machine.h"
 #include <stdio.h>
@@ -125,6 +130,9 @@ void coroutine_start(int ch, uint16_t addr) {
 
 #else
 #include <ucontext.h>
+#ifdef __APPLE__
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 static ucontext_t s_sched;
 static ucontext_t s_ctx[COROUTINE_MAX_CHANNELS];

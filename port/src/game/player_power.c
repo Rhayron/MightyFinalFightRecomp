@@ -205,7 +205,6 @@ void func_8177_b0(void) {
 #define ANIM_GUY_LANDED     0x2F
 #define GUY_FLY_FRAMES      7
 
-static void guy_hop_on(void);
 static void guy_hop_drop(void);
 
 /*

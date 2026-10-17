@@ -15,9 +15,16 @@
 #   MFF_OUT   where this run writes its logs (default runs/p4)
 #   MFF_NMI_CYCLES  cycles per NMI the candidate charges and the baseline
 #             does not (selfcheck.py --nmi-cycles): 7 for the port on its
-#             own runtime (MightyFinalFight.exe), 0 for the scaffold
+#             own runtime (MightyFinalFight[.exe]), 0 for the scaffold
+#   PY        the Python to run the checks with (default: py -3 if there is
+#             one, as on Windows, else python3)
 set -e
 cd "$(dirname "$0")/../.."
+# a path the executable can open: Windows form under Git Bash, as is elsewhere
+hostpwd() { pwd -W 2>/dev/null || pwd; }
+if [ -z "$PY" ]; then
+  if command -v py >/dev/null 2>&1; then PY="py -3"; else PY=python3; fi
+fi
 MODE=${1:-check}
 shift || true
 BASE=${MFF_BASE:-runs/p4}
@@ -28,10 +35,10 @@ if [ "$MODE" = baseline ]; then
 else
   EXE=${MFF_EXE:-port/scaffold/build/Release/MffScaffold.exe}
 fi
-NMI_CYCLES=${MFF_NMI_CYCLES:-$([ "$(basename "$EXE")" = MightyFinalFight.exe ] && echo 7 || echo 0)}
-ROM=${MFF_ROM:-"$(pwd -W)/rom/Mighty Final Fight (USA).nes"}
+NMI_CYCLES=${MFF_NMI_CYCLES:-$(case "$(basename "$EXE")" in MightyFinalFight|MightyFinalFight.exe) echo 7;; *) echo 0;; esac)}
+ROM=${MFF_ROM:-"$(hostpwd)/rom/Mighty Final Fight (USA).nes"}
 mkdir -p "$OUT"
-OUTW=$(cd "$OUT" && pwd -W)
+OUTW=$(cd "$OUT" && hostpwd)
 if [ $# -gt 0 ]; then
   routes=()
   for n in "$@"; do routes+=($(ls port/tests/routes/$n.keyed port/tests/routes/$n.bot 2>/dev/null || true)); done
@@ -45,7 +52,7 @@ run_one() {
   out=$OUTW/$([ "$MODE" = baseline ] && echo base || echo cand)_$name.flog
   if [ "$ext" = keyed ]; then
     frames=$(( $(wc -l < "$route") + 300 ))
-    env=(MFF_INPUT="$(pwd -W)/$route")
+    env=(MFF_INPUT="$(hostpwd)/$route")
   else
     read -r bot frames < "$route"
     env=(MFF_BOT="$bot")
@@ -65,12 +72,12 @@ for r in "${routes[@]}"; do
   name=$(basename "$r"); name=${name%.*}
   if [ "$MODE" = check ]; then
     echo "== $name"
-    py -3 -I port/tests/selfcheck.py "$BASE/base_$name.flog" "$OUT/cand_$name.flog" --max 5 \
+    $PY -I port/tests/selfcheck.py "$BASE/base_$name.flog" "$OUT/cand_$name.flog" --max 5 \
       --pics "$BASE/base_$name.pic" "$OUT/cand_$name.pic" --nmi-cycles "$NMI_CYCLES" || status=1
-    py -3 -I port/tests/interp_report.py "$OUT/cand_$name.interp.jsonl" || status=1
+    $PY -I port/tests/interp_report.py "$OUT/cand_$name.interp.jsonl" || status=1
   else
     echo "$name: baseline $(( $(stat -c %s "$BASE/base_$name.flog") / 2340 )) frames"
-    py -3 -I port/tests/interp_report.py "$BASE/base_$name.interp.jsonl" || status=1
+    $PY -I port/tests/interp_report.py "$BASE/base_$name.interp.jsonl" || status=1
   fi
   grep -h "MISMATCH\|TRAP\|exit [0-9]\|reached data" "$OUT/$name.log" | head -3 || true
 done

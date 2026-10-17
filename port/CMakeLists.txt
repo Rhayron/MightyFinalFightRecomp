@@ -11,17 +11,29 @@ project(MightyFinalFight C)
 #
 # The game's data is extracted once from your dump into BUILD/assets, which
 # the executable loads at start; it never reads the ROM:
-#   cmake -S port -B build_port -A x64 -DMFF_ROM="path/to/Mighty Final Fight (USA).nes"
+#   cmake -S port -B build_port -DMFF_ROM="path/to/Mighty Final Fight (USA).nes" -DMFF_SDL=ON
 #   cmake --build build_port --config Release
-#   build_port/Release/MightyFinalFight.exe --window      (with -DMFF_SDL=ON)
+#   build_port/Release/MightyFinalFight.exe      (build_port/MightyFinalFight elsewhere)
+#
+# P8, three systems: Windows (MSVC; SDL2 from nesrecomp's bundled copy),
+# Linux and macOS (gcc or clang; SDL2 from the system: its CMake package,
+# else pkg-config). The same routes give the same frame logs on all of them.
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
 
 set(MFF_ROM "" CACHE FILEPATH "Mighty Final Fight (USA) dump (CRC32 15EB0BEE) to extract the game's data from")
 option(MFF_SDL "A window to play in (SDL2)" OFF)
-set(MFF_SDL2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../nesrecomp/runner/external/SDL2" CACHE PATH
-    "SDL2 development files (the one bundled with nesrecomp by default)")
+if(WIN32)
+    set(mff_sdl2_default "${CMAKE_CURRENT_SOURCE_DIR}/../nesrecomp/runner/external/SDL2")
+else()
+    set(mff_sdl2_default "")
+endif()
+set(MFF_SDL2_DIR "${mff_sdl2_default}" CACHE PATH
+    "SDL2 development files: on Windows the copy bundled with nesrecomp by default; empty uses the system's")
 
 file(GLOB MFF_GAME_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/game/*.c")
 file(GLOB MFF_RUNTIME_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/*.c")
@@ -55,16 +67,35 @@ if(MSVC)
     target_compile_definitions(MightyFinalFight PRIVATE _CRT_SECURE_NO_WARNINGS)
     target_link_options(MightyFinalFight PRIVATE /STACK:16777216)
 else()
-    target_compile_options(MightyFinalFight PRIVATE -Wall -Wno-unused-label -Wno-unused-variable
-                           -Wno-unused-but-set-variable)
+    # -Wno-type-limits: the lifted code keeps each 6502 instruction's flag
+    # formula, and CMP #$00 is "C = A >= 0", always true for a uint8_t.
+    target_compile_options(MightyFinalFight PRIVATE -Wall -Wextra -Wno-type-limits)
 endif()
 
 if(MFF_SDL)
-    list(APPEND CMAKE_PREFIX_PATH "${MFF_SDL2_DIR}/cmake")
-    find_package(SDL2 REQUIRED)
+    if(MFF_SDL2_DIR)
+        list(APPEND CMAKE_PREFIX_PATH "${MFF_SDL2_DIR}/cmake" "${MFF_SDL2_DIR}")
+    endif()
+    # SDL2's own CMake package (the bundled copy, distributions' libsdl2-dev,
+    # Homebrew's sdl2); pkg-config where a system has only that
+    find_package(SDL2 CONFIG QUIET)
+    if(TARGET SDL2::SDL2)
+        set(MFF_SDL2_TARGET SDL2::SDL2)
+    else()
+        find_package(PkgConfig QUIET)
+        if(PkgConfig_FOUND)
+            pkg_check_modules(MFF_SDL2 IMPORTED_TARGET sdl2)
+        endif()
+        if(NOT TARGET PkgConfig::MFF_SDL2)
+            message(FATAL_ERROR "MFF_SDL: SDL2 not found. Install its development files (Debian/Ubuntu: "
+                                "libsdl2-dev, Fedora: SDL2-devel, macOS: brew install sdl2) or point "
+                                "MFF_SDL2_DIR at them.")
+        endif()
+        set(MFF_SDL2_TARGET PkgConfig::MFF_SDL2)
+    endif()
     target_compile_definitions(MightyFinalFight PRIVATE MFF_HAVE_SDL)
     # our own main(): SDL2 without SDL2main (video_sdl.c sets SDL_MAIN_HANDLED)
-    target_link_libraries(MightyFinalFight PRIVATE SDL2::SDL2)
+    target_link_libraries(MightyFinalFight PRIVATE ${MFF_SDL2_TARGET})
     if(WIN32 AND EXISTS "${MFF_SDL2_DIR}/lib/x64/SDL2.dll")
         add_custom_command(TARGET MightyFinalFight POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${MFF_SDL2_DIR}/lib/x64/SDL2.dll"
