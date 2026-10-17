@@ -294,10 +294,11 @@ its address (in a window the game reads 0 there and goes on).
 
 ## P4: every routine in port/src/game
 
-Every routine of the game now has a C body in `port/src/game/`: some written
-by hand (the scheduler and tasks, NMI and IRQ, VRAM uploads, the RNG, the
-pads, banking, and the systems tidied so far, such as the sound driver in
-`sound_*.c`) and the rest lifted (`lifted_*.c`). With the CMake option
+Every routine of the game now has a C body in `port/src/game/`, in files by
+system: some written by hand (the scheduler and tasks, NMI and IRQ, VRAM
+uploads, the RNG, the pads, banking), the rest produced by the lifter below
+and then tidied (names, comments citing ROM addresses, structured control
+flow), such as the sound driver in `sound_*.c`. With the CMake option
 `MFF_EJECTED` the port builds from `port/src/game`, `port/src/glue` and the
 runtime alone, no generated code at all, and plays the nine test routes
 identically to the original scaffold, without the runtime's interpreter ever
@@ -341,7 +342,9 @@ and `lift_structure.py` turns the simple goto shapes into if/else and loops.
 has no hand-written replacement; `--extra` adds entries the P0 map does not
 list but runs reach (find them with a stack-tracking build and
 `NESRECOMP_FUNC_COUNTS=FILE`), and `--into FILE` lifts just the listed
-entries the port lacks into one file (`lifted_late.c`).
+entries the port lacks into one file. Every lifted file has since been
+emptied into the system files; the lifter stays as the way that code was
+produced and the way to bring in a routine the port lacks.
 
 Two passes clean the output (`lift_opt.py`):
 

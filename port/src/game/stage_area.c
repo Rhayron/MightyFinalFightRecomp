@@ -2,7 +2,7 @@
  * stage_area.c - starting an area (docs/assets.md, "Area record")
  *
  * A round has three areas (sub_area $60, 0-2). When one starts, the code
- * at $DFE9-$E03A (lifted_d.c) draws the area's columns and the status bar
+ * at $DFE9-$E03A (player_round.c) draws the area's columns and the status bar
  * text (bank 0A $9C00), maps the round's bank and loads the area header
  * byte ($AE68, $AE98 or $AEC8 for sub_area 0, 1, 2); then area_start sets
  * the area up and enters the gameplay loop. Between rounds the round map
@@ -48,8 +48,9 @@ static const uint16_t k_area_cleared[] = {
  * with music $05 from round 2 on); the per-area state is cleared; the
  * scripted entrances get their game_action; then the gameplay loop.
  * Called by: the area setup at $DFE9-$E03A (JMP at $E02F and $E035; for
- * sub_area 2 it falls in at $E03B), lifted as func_DF50 and func_DFE9 in
- * lifted_d.c, which still carry their own copy of this code.
+ * sub_area 2 it falls in at $E03B), func_DF50 and func_DFE9 in
+ * player_round.c, which carry their own copy of this code (the scaffold
+ * made one function of each JMP target, and $DFE9 runs on into $E03B).
  */
 void func_E03B(void) {
     REGS_IN;
@@ -297,7 +298,7 @@ void func_E143(void) {
  * player (slot 0) from the round's start tables, by sub_area.
  * Out: $04-$07 = the round's table pointers, Y = sub_area, A = obj_x.
  * Called by: area_start, JSR at $E07A (also in the copies of area_start in
- * lifted_d.c's func_DF50 and func_DFE9).
+ * player_round.c's func_DF50 and func_DFE9).
  */
 void func_E16B(void) {
     REGS_IN;
