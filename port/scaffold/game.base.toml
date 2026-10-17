@@ -2011,28 +2011,28 @@ bank = 2
 addr = 0x8C00   # flow_screens.c
 [[replace_func]]
 bank = 2
-addr = 0x8D00   # lifted, lifted_b2.c
+addr = 0x8D00   # flow_round_map.c
 [[replace_func]]
 bank = 2
-addr = 0x8DD8   # lifted, lifted_b2.c
+addr = 0x8DD8   # flow_round_map.c
 [[replace_func]]
 bank = 2
-addr = 0x8DEC   # lifted, lifted_b2.c
+addr = 0x8DEC   # flow_round_map.c
 [[replace_func]]
 bank = 2
-addr = 0x8E56   # lifted, lifted_b2.c
+addr = 0x8E56   # flow_round_map.c
 [[replace_func]]
 bank = 2
-addr = 0x8E65   # lifted, lifted_b2.c
+addr = 0x8E65   # flow_round_map.c
 [[replace_func]]
 bank = 2
-addr = 0x8ED4   # lifted, lifted_b2.c
+addr = 0x8ED4   # flow_round_map.c
 [[replace_func]]
 bank = 2
-addr = 0x8EED   # lifted, lifted_b2.c
+addr = 0x8EED   # flow_round_map.c
 [[replace_func]]
 bank = 2
-addr = 0x8F07   # lifted, lifted_b2.c
+addr = 0x8F07   # flow_round_map.c
 [[replace_func]]
 bank = 2
 addr = 0x9000   # flow_screens.c
