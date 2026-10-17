@@ -43,8 +43,10 @@ MFF_EXE=build_mff/Release/MightyFinalFight.exe port/tests/run_routes.sh check
   frames, in `MFF_SHOT_DIR`), `MFF_PICDUMP=FILE` (the shown pictures as
   palette indices), `MFF_PRG_READS=FILE` (every PRG byte read),
   `MFF_WAV=FILE` (the sound, 16-bit mono at 48 kHz, as the oracle's
-  `--wav-out`) and `MFF_APU_LOG=FILE` (the APU writes, in the lines of the
-  oracle's capture).
+  `--wav-out`), `MFF_APU_LOG=FILE` (the APU writes, in the lines of the
+  oracle's capture) and `MFF_POKE=FILE` (RAM writes keyed like
+  `MFF_INPUT`, made where the oracle's save state of that frame is taken:
+  "Tours" below).
 
 ### The runtime (port/src/runtime)
 
@@ -68,18 +70,38 @@ implements that interface for this one game, so no routine changed:
 | `testhooks.c`, `png_write.c` | the scaffold's frame log, picture log and keyed input; screenshots |
 | `main.c`, `video_sdl.c` | command line (and the reset sequence's 7 cycles); the window and the audio device |
 
-What the game can see is reproduced exactly as the scaffold's runtime had
-it: the place the NMI lands (only at the scheduler's `$FEBD` while a task
-waits), the IRQ handlers running during the frame's scanline pass at the
-line the MMC3 counter fires (241 clocks a frame while the background is
-on), `$2002` with its sprite-0 bit, the coroutines' switching, the tail
-table. All 9 routes are identical to the baselines in RAM, OAM, palette and
-picture every frame. The cycle count is the scaffold's plus what the
-scaffold leaves out and the console spends: the reset sequence (7), the
-NMI's interrupt sequence (7) and `nmi_tail`'s own instructions around
-`sound_update` (52 and 26), so a picture's cycle stamp is 85 past the
-scaffold's; the game cannot see it (the NMI still lands only at `$FEBD`),
-and the sound needs it ("The sound").
+What the game can see is reproduced as the scaffold's runtime had it: the
+place the NMI lands (only at the scheduler's `$FEBD` while a task waits),
+the IRQ handlers running during the frame's scanline pass at the line the
+MMC3 counter fires (241 clocks a frame while the background is on),
+`$2002` with its sprite-0 bit, the coroutines' switching, the tail table.
+Where the scaffold's runtime is not the console's, the oracle decided:
+
+- **Cycles**: the scaffold's plus what it leaves out and the console
+  spends: the reset sequence (7), the NMI's interrupt sequence (7) and
+  `nmi_tail`'s own instructions around `sound_update` (52 and 26), so a
+  picture's cycle stamp is 85 past the scaffold's; the game cannot see it
+  (the NMI still lands only at `$FEBD`), and the sound needs it ("The
+  sound").
+- **`nmi_tail`'s stack**: it makes the console's pushes, the JSR's too.
+  The scaffold (`port/scaffold/extras.c`) calls `sound_update` without
+  the JSR's push, and its RTS pops two bytes: after every NMI S is `$01`
+  instead of `$FF`, and the raster IRQ's interrupt frame lands on `$0101`,
+  `$0100` and `$01FF`. `$0100-$0103` are `bg_pal_anim_on`: the background
+  palette animations of palettes 0 and 1 stop (round 3 area 2, palette 1,
+  is the one the routes reach). The oracle tours found it ("Tours").
+- **Nametable RAM at power-on**: the oracle's pattern of `$F0`/`$0F` runs,
+  not zeros. Round 4's elevator shakes the screen a line, and on the
+  frames the picture starts a line low the last line shows the other
+  nametable row, which the game never writes there.
+
+So against the scaffold's baselines the 3 round-1 routes and `cody_full`
+are identical in RAM, OAM, palette and picture every frame (the dead part
+of the stack apart), and the 3 tours and 2 alt games differ in exactly
+`palette_request`, `palette_buf+7`, `palette_base+7` and palette entry 7,
+420 to 1,287 frames each from round 3 area 2 on, where the baselines carry
+the scaffold's `nmi_tail` (the oracle's tours agree with the runtime).
+The scaffold needs the same `nmi_tail` and new baselines.
 
 ### The picture
 
@@ -112,7 +134,8 @@ banks). `render_frame.c` draws it in one of two ways (`render.h`):
   | `probe2` (game start, pause) | 5,993 | 5,993 | not before 6,000 frames |
 
   The `bot1_*` routes start from a saved state, which the port cannot
-  load; they are the second half of the `10_*` routes.
+  load; they are the second half of the `10_*` routes. The tours below go
+  further, to the final boss and the ending.
 - **scaffold**: as the scaffold's renderer drew it, which is what the test
   baselines hold: every sprite drawn, and a split restarting the vertical
   scroll from the Y the handler writes to `$2005` (so the playfield sits
@@ -132,6 +155,45 @@ py -3 -I port/tests/nmi_input.py inputs/10_cody_poweron.txt o.flog cody.keyed  #
 MFF_INPUT=cody.keyed MFF_FRAMELOG=p.flog MFF_PICDUMP=p.pix \
     build_mff/Release/MightyFinalFight.exe --smoke 7800
 py -3 -I port/tests/oracle_pictures.py o.flog p.flog p.pix
+```
+
+### Tours with the oracle (port/tests/oracle_tour.py)
+
+A power-on route reaches only round 1 before the oracle's first lag frame.
+`oracle_tour.py ROM ROUTE OUTDIR` plays the route on the oracle to
+`--start`, then walks right and punches (RIGHT, A every other 4 frames,
+which also answers the boss dialogs) in segments of `--seg` frames, saving
+a state after each and patching its RAM as `tools/bot.py --god` does
+(health and lives, the game's skip stage `$0030 = $0E` every
+`--skip-every` segments, the final area's fighters' life below 0). The
+port gets the same pad (`MFF_INPUT`) and the same writes (`MFF_POKE`, at
+the NMI count of the frame each state was saved after), so the two games
+stay together until the oracle lags; then the script compares the pictures
+and the RAM. With the runtime as it is now (the three power-on routes, from
+frame 5,000, 300-frame segments):
+
+| Tour | Skip every | Pictures identical | The games part (the oracle lags) |
+|---|---|---|---|
+| Guy | 4 segments | 24,171 of 24,171 | NMI 24,173, in the ending, after round 5's final boss |
+| Cody | 4 | 16,860 of 16,860 | NMI 16,862, loading round 4's second area |
+| Haggar | 4 | 16,860 of 16,860 | NMI 16,862, the same load |
+| Haggar | 5 | 15,011 of 15,011 | NMI 15,013, round 3 |
+| Guy | 3 | 13,787 of 13,787 | NMI 13,789, round 4 |
+| Cody | 3 | 8,653 of 8,653 | NMI 8,655, round 2 |
+
+(Rounds and areas counted from 1, as the game shows them; RAM `$61`/`$60`
+count from 0.)
+
+95,342 pictures, all identical; the RAM is the oracle's every frame up to
+the lag but the sound's `$C3` (the caller's Y). The tours found the
+`nmi_tail` stack bug (Cody's first tour parted at NMI 16,776 in round 3
+area 2: `palette_buf+7` `$35` on the oracle, `$15` on the port) and the
+power-on nametables (Guy's: 37-45 pixels on line 239 of every other
+picture in the elevator).
+
+```bash
+py -3 -I port/tests/oracle_tour.py ROM inputs/10_guy_poweron.txt runs/tour_guy \
+    --start 5000 --seg 300 --frames 45000 --skip-every 4 --port build_port/Release/MightyFinalFight.exe
 ```
 
 ### The sound

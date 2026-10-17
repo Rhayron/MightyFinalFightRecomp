@@ -100,18 +100,33 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   `extract_assets.py --only runtime`): `chr.bin` e `prg.bin`, este sem os 46.368 bytes que o mapa da
   P0 classifica como código, menos 297 que o jogo também lê como dado (as telas que a lista de cada
   área nomeia depois do fim, lidas quando a câmera para, e um byte de tabela lido além do fim; ler um
-  byte que falta para a execução e diz qual). As 9 rotas ficam idênticas às bases em RAM, OAM, paleta
-  e imagem a cada frame, com a ROM fora do alcance. Os ciclos são os do andaime mais o que ele deixa
-  de fora e o console gasta (a sequência de reset, a entrada da NMI e as instruções do `nmi_tail`:
-  85 por frame), que o jogo não vê (a NMI continua entrando só em `$FEBD`) e o som precisa. A janela
+  byte que falta para a execução e diz qual). Onde o runtime do andaime não é o console, o oráculo
+  decidiu: os ciclos incluem o que o andaime deixa de fora e o console gasta (a sequência de reset, a
+  entrada da NMI e as instruções do `nmi_tail`: 85 por frame), que o jogo não vê (a NMI continua
+  entrando só em `$FEBD`) e o som precisa; o `nmi_tail` faz os pushes do console, o do JSR também (o
+  `extras.c` do andaime chama `sound_update` sem o push e o RTS dele tira dois bytes: depois de toda
+  NMI o S fica em `$01`, o frame de interrupção da IRQ de raster cai em `$0101/$0100/$01FF` e zera
+  `bg_pal_anim_on` das paletas 0 e 1, e a animação de paleta do round 3 área 2 parava); a RAM de
+  nametable começa com o padrão de power-on do oráculo (o elevador do round 4 mostra a outra linha
+  de nametable, que o jogo nunca escreve, na última linha da tela). Contra as bases do andaime, as 3
+  rotas do round 1 e a `cody_full` ficam idênticas em RAM, OAM, paleta e imagem a cada frame, e os 3
+  tours e os 2 jogos alt diferem exatamente em `palette_request`, `palette_buf+7`, `palette_base+7` e
+  na cor 7 da paleta (420 a 1.287 frames cada, do round 3 área 2 em diante), onde as bases têm o bug
+  do `nmi_tail` do andaime: **o `extras.c` precisa do mesmo `nmi_tail` e as bases, de nova geração.**
+  A janela
   mostra a imagem como a PPU desenha (`--picture console`: 8 sprites por linha, a posição vertical
   seguindo pelos splits) e toca o som (abaixo, P6). **Imagem (17/10):** em todas as rotas de
   `inputs/` que partem do power-on (as três `10_*`, as três `01_*_s1`, `probe` e `probe2`), do
   power-on até o primeiro lag do oráculo, as 57.175 imagens são idênticas às do oráculo pixel a
   pixel (`port/tests/oracle_pictures.py`). O log de imagem das rotas continua com a do renderizador
-  do andaime, que é o que as bases têm. **Falta para o critério da P5:** comparar depois do primeiro
-  lag (os jogos se separam ali: o lag fiel é da P7) e nos rounds 2-5, chefes e final, que nenhuma
-  rota do power-on alcança antes de um lag. Compilar e jogar:
+  do andaime, que é o que as bases têm. **Tours com o oráculo** (`port/tests/oracle_tour.py`): o
+  oráculo joga em segmentos com save state, RAM remendada como no `bot.py --god` (vida, skip stage)
+  e o mesmo remendo no port por `MFF_POKE`, na mesma contagem de NMI; seis tours (os três
+  personagens, dois ritmos de skip) passam pelos rounds 1-5, o chefe final e entram no final: as
+  95.342 imagens até o primeiro lag de cada uma são idênticas, RAM igual (menos o `$C3` do som). Foi
+  assim que apareceram o bug do `nmi_tail` e o da nametable de power-on. **Falta para o critério da
+  P5:** comparar depois do primeiro lag de cada rota (os jogos se separam ali: o lag fiel é da P7),
+  o que inclui o resto do final e os créditos. Compilar e jogar:
 
   ```bash
   cmake -S port -B build_mff -A x64 -DMFF_ROM="rom/Mighty Final Fight (USA).nes" -DMFF_SDL=ON
