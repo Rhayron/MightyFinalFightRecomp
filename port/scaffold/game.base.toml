@@ -1330,9 +1330,9 @@ addr = 0xDBFD   # player_hurt.c
 [[replace_func]]
 addr = 0xDC29   # player_hurt.c
 [[replace_func]]
-addr = 0xDC6C   # lifted, lifted_d.c
+addr = 0xDC6C   # player_states.c
 [[replace_func]]
-addr = 0xDCDD   # lifted, lifted_d.c
+addr = 0xDCDD   # player_states.c
 [[replace_func]]
 addr = 0xDD6A   # player_attack.c
 [[replace_func]]
@@ -1354,13 +1354,13 @@ addr = 0xDDFF   # player_attack.c
 [[replace_func]]
 addr = 0xDE0E   # player_attack.c
 [[replace_func]]
-addr = 0xDE33   # lifted, lifted_d.c
+addr = 0xDE33   # player_states.c
 [[replace_func]]
-addr = 0xDE5E   # lifted, lifted_d.c
+addr = 0xDE5E   # player_round.c
 [[replace_func]]
-addr = 0xDF50   # lifted, lifted_d.c
+addr = 0xDF50   # player_round.c
 [[replace_func]]
-addr = 0xDFE9   # lifted, lifted_d.c
+addr = 0xDFE9   # player_round.c
 [[replace_func]]
 addr = 0xE03B   # lifted, lifted_e.c
 [[replace_func]]

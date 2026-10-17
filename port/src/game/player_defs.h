@@ -58,6 +58,10 @@
 /* a branch to another routine's entry: dispatched with no extra charge */
 #define BRANCH_TAIL(target) \
     do { SYNC_OUT; call_by_address_tail((uint16_t)(g_code_window_base + ((target) & 0x1FFF)), -1); return; } while (0)
+/* JSR into task_wait_frame or task_wait_frames: the scheduler's resume
+ * changes S across the yield, so (as the generator does) no balance check */
+#define JSR_YIELD(site, fn) \
+    do { SYNC_OUT; mff_call_fn(RP(site), fn, 0xE000); SYNC_IN; } while (0)
 /* the 6502 code runs on into the entry of another routine: the same code,
  * reached as a C call (no JSR, nothing pushed) */
 #define FALL_INTO(fn) do { SYNC_OUT; fn(); return; } while (0)
@@ -85,9 +89,12 @@
 #define ACT_GRAB       0x04   /* player_state_grab */
 #define ACT_HIT        0x05   /* player_state_hit */
 #define ACT_KNOCKDOWN  0x06   /* player_state_knockdown */
+#define ACT_SELECT     0x07   /* player_state_transition: continued, to the select screen */
+#define ACT_CONTINUE   0x09   /* player_state_continue: the continue screen */
 #define ACT_HOLD       0x0A   /* player_state_0A: a boss in bank $03 holds the player */
-#define ACT_CODY_THROW 0x0B   /* player_state_throw: Cody's throw */
+#define ACT_CODY_THROW 0x0B   /* player_state_throw: Cody's throw, and the death blink */
 #define ACT_HITPOS     0x0C   /* player_state_hitpos: after a combo hit */
+#define ACT_NEXT_AREA  0x0E   /* player_state_transition: the area is over */
 /* from here on handled in bank $00 (player_action_dispatch); names from Data
  * Crystal where the code agrees */
 #define ACT_HEADSMASHER   0x12   /* Haggar: A while holding an enemy */
@@ -97,6 +104,7 @@
 #define ACT_LYING         0x1F   /* down after a knockdown, getting up */
 #define ACT_GRAB_KNEE     0x21   /* Cody: B with no direction while holding */
 #define ACT_PIT_FALL      0x24   /* falling into a pit (player_pit_fall, $CFD1) */
+#define ACT_DROP_IN       0x25   /* a new life drops in */
 
 /* ---- background probe ($10 after obj_fall/obj_move_*) ---- */
 #define PROBE_PIT      0x40   /* attribute of a pit tile (and up) */
@@ -175,12 +183,16 @@ void func_F183(void);   /* obj_move_right: x += vx (slot X) */
 void func_F1A1(void);   /* obj_move_left: x -= vx (slot X) */
 void func_F288(void);   /* obj_set_anim: obj_anim[X] = A, frame and timer 0 */
 void func_F294(void);   /* player_set_anim: obj_anim[0] = A, frame and timer 0 */
+void func_F34A(void);   /* sound_queue_push: queue sound command A (music too) */
 void func_F34C(void);   /* sound_queue_push_sfx: queue sound A */
 void func_F428(void);   /* attack_start: attack_live $1E, attack_id 0, swing sound */
 void func_F430(void);   /* attack_swing_sound: sound $17 */
 void func_F436(void);   /* attack_end: attack_live = 0 */
 void func_F43B(void);   /* attack_begin: attack_live = $1E */
 void func_F440(void);   /* player_set_chr: chr_banks+2 = A (the player's sprite bank) */
+void func_FF2A(void);   /* task_wait_frames: X frames */
+void func_FF31(void);   /* task_wait_frame */
+void func_FF4D(void);   /* bank_switch: $8000/$A000 <- bank_request/+1 */
 
 /* ---- the player's routines (player_*.c) ---- */
 void func_D00E(void);
