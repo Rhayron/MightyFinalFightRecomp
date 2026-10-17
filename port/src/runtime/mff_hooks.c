@@ -19,8 +19,15 @@
  *    fakes a return to the interrupted PC ($A0/$A1 - 1), calls
  *    sound_update ($FF72) and RTSes back into the interrupted code. The
  *    runtime takes the NMI between instructions, not at a PC, so the tail
- *    does what matters to the game: sound_update, with A/X/Y/P kept, and
- *    the cycles its instructions take.
+ *    does it all but the jump: the same stack writes (sound_update's RTS
+ *    pops the JSR's return address, so the stack pointer comes back where
+ *    it was), sound_update, A/X/Y/P as they were, and the cycles. Calling
+ *    sound_update without the JSR's push, as the scaffold's extras.c does,
+ *    left S two bytes up after every NMI ($01 instead of $FF at the
+ *    scheduler), and the raster IRQ's interrupt frame then went to $0101,
+ *    $0100 and $01FF: it zeroed bg_pal_anim_on for background palettes 0
+ *    and 1, and round 3 area 2's palette animation (palette 1) stopped
+ *    where the oracle's runs.
  */
 #include "machine.h"
 #include <stdlib.h>
@@ -41,14 +48,45 @@ void mff_hooks_init(void) {
 
 void func_FF72(void);                   /* sound_update */
 
+static void push(uint8_t v) {
+    g_ram[0x100 + g_cpu.S] = v;
+    g_cpu.S--;
+}
+
+static uint8_t pull(void) {
+    g_cpu.S++;
+    return g_ram[0x100 + g_cpu.S];
+}
+
 void func_C119(void) {
     CPU6502State saved = g_cpu;
+    uint8_t p = (uint8_t)((g_cpu.N << 7) | (g_cpu.V << 6) | 0x30 | (g_cpu.D << 3) |
+                          (g_cpu.I << 2) | (g_cpu.Z << 1) | g_cpu.C);   /* as PHP pushes it */
+    uint16_t ret = (uint16_t)(((g_ram[0xA1] << 8) | g_ram[0xA0]) - 1);
+    uint8_t x;
+    push(p);                                    /* PHP x3: room for the return address, and P */
+    push(p);
+    push(p);
+    push(g_cpu.A);                              /* PHA, TXA/PHA, TYA/PHA */
+    push(g_cpu.X);
+    push(g_cpu.Y);
+    x = g_cpu.S;                                /* TSX; STA $0105,X / $0106,X */
+    g_ram[(0x105 + x) & 0x7FF] = (uint8_t)ret;
+    g_ram[(0x106 + x) & 0x7FF] = (uint8_t)(ret >> 8);
+    push(0xC1);                                 /* JSR $FF72: returns to $C134 */
+    push(0x33);
     /* the console's cycles: PHP x3, PHA/TXA/PHA/TYA/PHA, TSX, SEC, the
      * fake return (LDA zp, SBC #, STA abs,X twice) and the JSR; after it
      * PLA/TAY/PLA/TAX/PLA, PLP and RTS ($C119-$C13A) */
     maybe_trigger_vblank(52);
-    func_FF72();
+    func_FF72();                                /* its RTS pops $C133 */
     maybe_trigger_vblank(26);
+    (void)pull();                               /* PLA/TAY, PLA/TAX, PLA, PLP */
+    (void)pull();
+    (void)pull();
+    (void)pull();
+    (void)pull();                               /* RTS: the faked return address */
+    (void)pull();
     g_cpu.A = saved.A; g_cpu.X = saved.X; g_cpu.Y = saved.Y;
     g_cpu.N = saved.N; g_cpu.V = saved.V; g_cpu.D = saved.D;
     g_cpu.I = saved.I; g_cpu.Z = saved.Z; g_cpu.C = saved.C;
