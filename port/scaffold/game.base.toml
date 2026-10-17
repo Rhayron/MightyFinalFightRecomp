@@ -1591,43 +1591,43 @@ addr = 0xFF72   # lifted, lifted_f.c
 addr = 0xFF8E   # lifted, lifted_f.c
 [[replace_func]]
 bank = 0
-addr = 0x8000   # lifted, lifted_b0.c
+addr = 0x8000   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8065   # lifted, lifted_b0.c
+addr = 0x8065   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8066   # lifted, lifted_b0.c
+addr = 0x8066   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x807E   # lifted, lifted_b0.c
+addr = 0x807E   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8090   # lifted, lifted_b0.c
+addr = 0x8090   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8193   # lifted, lifted_b0.c
+addr = 0x8193   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x821D   # lifted, lifted_b0.c
+addr = 0x821D   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x82AF   # lifted, lifted_b0.c
+addr = 0x82AF   # player_actions.c
 [[replace_func]]
 bank = 0
-addr = 0x8300   # lifted, lifted_b0.c
+addr = 0x8300   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x83A1   # lifted, lifted_b0.c
+addr = 0x83A1   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x83DC   # lifted, lifted_b0.c
+addr = 0x83DC   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x8429   # lifted, lifted_b0.c
+addr = 0x8429   # player_specials.c
 [[replace_func]]
 bank = 0
-addr = 0x8479   # lifted, lifted_b0.c
+addr = 0x8479   # player_specials.c
 [[replace_func]]
 bank = 0
 addr = 0x8497   # lifted, lifted_b0.c

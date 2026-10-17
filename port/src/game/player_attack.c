@@ -542,7 +542,7 @@ void func_D4E6(void) {
     COMPARE(a, 4);
     if (!z) {
         mff_cycles(0xD4EB, 1);
-        BRANCH_TAIL(0xD4E5);                    /* RTS */
+        BRANCH_TAIL(0xD4E5, -1);                    /* RTS */
     }
     mff_cycles(0xD4ED, 2 + 3);
     a = 0x56;
@@ -569,14 +569,14 @@ void func_D4F2(void) {
     COMPARE(a, 1);
     if (!z) {
         mff_cycles(0xD504, 2);
-        BRANCH_TAIL(0xD4E5);                    /* RTS */
+        BRANCH_TAIL(0xD4E5, -1);                    /* RTS */
     }
     mff_cycles(0xD506, 4 + 2);
     a = RAM(OBJ_ANIM_TIMER);
     SET_NZ(a);
     if (!z) {
         mff_cycles(0xD509, 2);
-        BRANCH_TAIL(0xD4E5);                    /* RTS */
+        BRANCH_TAIL(0xD4E5, -1);                    /* RTS */
     }
     mff_cycles(0xD50B, 6);
     JSR_FN(0xD50B, func_F428);                  /* attack_start */
@@ -742,14 +742,14 @@ void func_D570(void) {
     COMPARE(a, 1);
     if (!z) {
         mff_cycles(0xD582, 1);
-        BRANCH_TAIL(0xD55D);                    /* RTS */
+        BRANCH_TAIL(0xD55D, -1);                    /* RTS */
     }
     mff_cycles(0xD584, 4 + 2);
     a = RAM(OBJ_ANIM_TIMER);
     SET_NZ(a);
     if (!z) {
         mff_cycles(0xD587, 1);
-        BRANCH_TAIL(0xD55D);                    /* RTS */
+        BRANCH_TAIL(0xD55D, -1);                    /* RTS */
     }
     mff_cycles(0xD589, 6);
     JSR_FN(0xD589, func_F428);                  /* attack_start */
@@ -798,7 +798,7 @@ void func_D58D(void) {
     COMPARE(a, 6);
     if (!z) {
         mff_cycles(0xD5B2, 1);
-        BRANCH_TAIL(0xD55D);                    /* RTS */
+        BRANCH_TAIL(0xD55D, -1);                    /* RTS */
     }
     mff_cycles(0xD5B4, 3);
     JMP_TAIL(0xD61F, -1);                       /* guy_combo_next */
@@ -1205,7 +1205,7 @@ void func_D6E0(void) {
     COMPARE(a, 7);
     if (!z) {
         mff_cycles(0xD705, 2);
-        BRANCH_TAIL(0xD6DF);                    /* RTS */
+        BRANCH_TAIL(0xD6DF, -1);                    /* RTS */
     }
     mff_cycles(0xD707, 3);
     JMP_TAIL(0xD777, -1);                       /* haggar_combo_next */
@@ -1539,7 +1539,7 @@ static void hitpos_wait(int dispatch_end) {
     if (z) {
         mff_cycles(0xDDC6, 1);
         if (dispatch_end)
-            BRANCH_TAIL(0xDDB7);                /* hitpos_end */
+            BRANCH_TAIL(0xDDB7, -1);                /* hitpos_end */
         FALL_INTO(func_DDB7);
     }
     mff_cycles(0xDDC8, 2 + 4 + 4 + 3 + 6);
@@ -1567,7 +1567,7 @@ void func_DDD3(void) {
         SET_NZ(a);
         if (!z) {
             mff_cycles(0xDDDB, 1);
-            BRANCH_TAIL(0xDDC1);                /* hitpos_combo_next */
+            BRANCH_TAIL(0xDDC1, -1);                /* hitpos_combo_next */
         }
         mff_cycles(0xDDDD, 2 + 3 + 6);
         a = ACT_ATTACK;
@@ -1580,7 +1580,7 @@ void func_DDD3(void) {
     SET_NZ(a);
     if (z) {
         mff_cycles(0xDDF2, 1);
-        BRANCH_TAIL(0xDDB7);                    /* hitpos_end */
+        BRANCH_TAIL(0xDDB7, -1);                    /* hitpos_end */
     }
     mff_cycles(0xDDF4, 5 + 3 + 2);
     RAM(ACTION_TIMER)--;
@@ -1605,7 +1605,7 @@ void func_DDE2(void) {
     COMPARE(a, 0x17);
     if (!z) {
         mff_cycles(0xDDE8, 2 + 1);
-        BRANCH_TAIL(0xDDC4);                    /* hitpos_wait */
+        BRANCH_TAIL(0xDDC4, -1);                    /* hitpos_wait */
     }
     mff_cycles(0xDDE6, 1 + 2 + 6);
     a = 0x0E;
@@ -1671,7 +1671,7 @@ static void haggar_hitpos_pose(int dispatch_wait) {
     if (!z) {
         mff_cycles(0xDE14, 2 + 2);
         if (dispatch_wait)
-            BRANCH_TAIL(0xDDC4);                /* hitpos_wait */
+            BRANCH_TAIL(0xDDC4, -1);                /* hitpos_wait */
         SYNC_OUT;
         hitpos_wait(0);
         return;

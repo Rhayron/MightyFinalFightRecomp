@@ -56,8 +56,8 @@
     do { uint16_t jt_; SYNC_OUT; jt_ = nes_read16zp(zp); nes_cpu_instruction_boundary(jt_, 2); \
          call_by_address_tail(jt_, -1); return; } while (0)
 /* a branch to another routine's entry: dispatched with no extra charge */
-#define BRANCH_TAIL(target) \
-    do { SYNC_OUT; call_by_address_tail((uint16_t)(g_code_window_base + ((target) & 0x1FFF)), -1); return; } while (0)
+#define BRANCH_TAIL(target, bank) \
+    do { SYNC_OUT; call_by_address_tail((uint16_t)(g_code_window_base + ((target) & 0x1FFF)), bank); return; } while (0)
 /* JSR into task_wait_frame or task_wait_frames: the scheduler's resume
  * changes S across the yield, so (as the generator does) no balance check */
 #define JSR_YIELD(site, fn) \
@@ -95,6 +95,7 @@
 #define ACT_CODY_THROW 0x0B   /* player_state_throw: Cody's throw, and the death blink */
 #define ACT_HITPOS     0x0C   /* player_state_hitpos: after a combo hit */
 #define ACT_NEXT_AREA  0x0E   /* player_state_transition: the area is over */
+#define ACT_EARTHQUAKE 0x0F   /* the HeadSmasher has landed: the screen shakes */
 /* from here on handled in bank $00 (player_action_dispatch); names from Data
  * Crystal where the code agrees */
 #define ACT_HEADSMASHER   0x12   /* Haggar: A while holding an enemy */
@@ -182,7 +183,9 @@ void func_F119(void);   /* obj_fall: slot X falls by obj_vy with gravity; C set
 void func_F183(void);   /* obj_move_right: x += vx (slot X) */
 void func_F1A1(void);   /* obj_move_left: x -= vx (slot X) */
 void func_F288(void);   /* obj_set_anim: obj_anim[X] = A, frame and timer 0 */
+void func_F26E(void);   /* the start of a fall: obj_vy = -$40/256 for the player */
 void func_F294(void);   /* player_set_anim: obj_anim[0] = A, frame and timer 0 */
+void func_F2A0(void);   /* obj_spawn: slot Y with animation A */
 void func_F34A(void);   /* sound_queue_push: queue sound command A (music too) */
 void func_F34C(void);   /* sound_queue_push_sfx: queue sound A */
 void func_F428(void);   /* attack_start: attack_live $1E, attack_id 0, swing sound */
@@ -269,5 +272,20 @@ void func_DE33(void);
 void func_DE5E(void);
 void func_DF50(void);
 void func_DFE9(void);
+
+/* bank $00 */
+void func_8000_b0(void);
+void func_8065_b0(void);
+void func_8066_b0(void);
+void func_807E_b0(void);
+void func_8090_b0(void);
+void func_8193_b0(void);
+void func_821D_b0(void);
+void func_82AF_b0(void);
+void func_8300_b0(void);
+void func_83A1_b0(void);
+void func_83DC_b0(void);
+void func_8429_b0(void);
+void func_8479_b0(void);
 
 #endif

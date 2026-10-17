@@ -13,7 +13,6 @@ void func_E139(void);
 void func_E143(void);
 void func_E16B(void);
 void func_E521(void);   /* the background column writer */
-void func_F26E(void);   /* the start of a fall: obj_vy -$40/256 for the player */
 
 /* per round (round 0-4) */
 #define ROUND_MAP_FUNCTION  0xE15C   /* 08 09 0A 0B 0C: bank $04 function of the round map */

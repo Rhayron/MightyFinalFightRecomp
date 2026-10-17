@@ -272,7 +272,7 @@ void func_D886(void) {
     COMPARE(a, PAD_B);
     if (!z) {
         mff_cycles(0xD88A, 1);
-        BRANCH_TAIL(0xD82E);                    /* grab_hold */
+        BRANCH_TAIL(0xD82E, -1);                    /* grab_hold */
     }
     FALL_INTO(func_D88C);
 }
@@ -391,7 +391,7 @@ void func_D8E5(void) {
     COMPARE(a, PAD_A);
     if (z) {
         mff_cycles(0xD8E9, 1);
-        BRANCH_TAIL(0xD8B7);                    /* haggar_headsmasher_start */
+        BRANCH_TAIL(0xD8B7, -1);                    /* haggar_headsmasher_start */
     }
     mff_cycles(0xD8EB, 3 + 2);
     a = RAM(GRAB_TIMER);
