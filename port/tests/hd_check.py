@@ -1,6 +1,6 @@
 """Stage 2's picture against stage 1's (PLAN_DECOMP.md P9, port/src/runtime/render_hd.h).
 
-    py -3 -I port/tests/hd_check.py EXE OUTDIR [ROUTE ...] [--jobs N] [--max-frames N]
+    py -3 -I port/tests/hd_check.py EXE OUTDIR [ROUTE ...] [--jobs N] [--max-frames N] [--wide [--no-flicker]]
 
 Plays each route (port/tests/routes/NAME.keyed or NAME.bot, or a path to a
 .keyed file, e.g. one made by nmi_input.py from a power-on route of inputs/)
@@ -18,6 +18,7 @@ Sources in the log (render_hd.c, hd_init):
              banks    the background banks are not the area's (between areas)
              drawing  the area's first columns are being drawn
              step     the scroll and the writer's columns disagree (area exits)
+             held     the same, and a wide picture keeps the last stage camera
              off      background off
   sprites    model    objects_draw's model built the very OAM page shown
              oam      the page shown is not the model's (a screen wrote OAM itself)
@@ -34,6 +35,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+WIDE = NO_FLICKER = False
 ROUTES = os.path.join(HERE, "routes")
 
 
@@ -60,6 +62,8 @@ def run(exe, outdir, spec, max_frames):
         frames = min(frames, max_frames)
     log = os.path.join(outdir, name + ".hd.txt")
     env = dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy", MFF_HDCHECK=log, **env_add)
+    if WIDE:
+        env.update(MFF_WIDE="1", MFF_NO_FLICKER="1" if NO_FLICKER else "0", MFF_PICTURE="hd")
     flags = 0x08000000 if os.name == "nt" else 0          # CREATE_NO_WINDOW
     r = subprocess.run([os.path.abspath(exe), "--smoke", str(frames)], env=env, capture_output=True, text=True,
                        creationflags=flags)
@@ -72,7 +76,7 @@ def summarize(name, log):
         for line in f:
             p = line.split()
             rows.append((int(p[0]), p[1], p[2], int(p[3]), int(p[4]), int(p[5]), int(p[6]), int(p[7]),
-                         int(p[8]), int(p[9]), int(p[10]), int(p[11])))
+                         int(p[8]), int(p[9]), int(p[10]), int(p[11]), int(p[12])))
     bg = collections.Counter(r[1] for r in rows)
     spr = collections.Counter(r[2] for r in rows)
     diff = [r for r in rows if r[4]]
@@ -92,6 +96,11 @@ def summarize(name, log):
     for (b, s, rnd, area), rs in sorted(classes.items(), key=lambda kv: -len(kv[1])):
         ex = ", ".join(f"{r[0]} ({r[4]} px from {r[5]},{r[6]})" for r in rs[:4])
         print(f"   DIFFER playfield {b}, sprites {s}, round {rnd} area {area}: {len(rs)} pictures, e.g. {ex}")
+    pops = [r for r in rows if r[12]]
+    if WIDE:
+        ex = ", ".join(f"{r[0]} (round {r[8]} area {r[9]})" for r in pops[:6])
+        print(f"   wide: objects that appeared in the margins: {sum(r[12] for r in pops)} in {len(pops)} pictures"
+              + (f", e.g. {ex}" if pops else ""))
     return len(rows), len(diff), bg, spr, len(over), len(full)
 
 
@@ -102,7 +111,11 @@ def main():
     ap.add_argument("routes", nargs="*")
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4)
     ap.add_argument("--max-frames", type=int, default=0)
+    ap.add_argument("--wide", action="store_true", help="also draw --wide and count objects appearing in its margins")
+    ap.add_argument("--no-flicker", action="store_true", help="with --wide: --no-flicker too")
     a = ap.parse_args()
+    global WIDE, NO_FLICKER
+    WIDE, NO_FLICKER = a.wide, a.no_flicker
     os.makedirs(a.outdir, exist_ok=True)
     names = a.routes or sorted(os.path.splitext(n)[0] for n in os.listdir(ROUTES)
                                if n.endswith((".keyed", ".bot")))

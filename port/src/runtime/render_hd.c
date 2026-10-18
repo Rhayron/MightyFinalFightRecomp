@@ -690,7 +690,10 @@ static int m_draw_sprites(Cpu *c, int x, int sx, Model *out, DrawCall *dc) {
     fi = (uint8_t)((MR(OBJ_ANIM_FRAME + x) & 0x7F) + 2);
     if (!(MR(OBJ_FLAGS + x) & 0x80)) {          /* near: animated, not drawn */
         fid = c_read(c, (uint16_t)(ptr + fi), &bad);
-        if (fid && dc) {
+        /* shown in a wide picture as the game would show it on its screen:
+         * not while hidden (bit 2) or blinking out */
+        if (fid && dc && !(MR(OBJ_FLAGS + x) & 0x04) &&
+            !((MR(OBJ_ANIM_TIMER + x) & 0x80) && (MR(FRAME_COUNTER) & 0x04))) {
             dc->kind = CALL_NEAR;
             frame_sprites(pair, fid, sx, MR(OBJ_Y + x), MR(OBJ_FLAGS + x), dc, &bad);
         }
@@ -886,13 +889,15 @@ typedef struct {
     int limited;                        /* counts toward the 8 per line */
     int clip_lo, clip_hi;               /* drawn only inside [clip_lo, clip_hi) */
     int unclipped;                      /* PPUMASK's left column does not apply */
+    int slot;                           /* the object it belongs to, -1 not known */
 } HdSprite;
 
 #define MAX_LIST (MAX_CALLS * FRAME_MAX_SPR + 64)
 static HdSprite s_list[MAX_LIST];
 static int s_nlist;
 
-static void list_add(int x, int y, uint8_t tile, uint8_t attr, int limited, int lo, int hi, int unclipped) {
+static void list_add(int x, int y, uint8_t tile, uint8_t attr, int limited, int lo, int hi, int unclipped,
+                     int slot) {
     HdSprite *s;
     if (s_nlist >= MAX_LIST) return;
     s = &s_list[s_nlist++];
@@ -904,6 +909,7 @@ static void list_add(int x, int y, uint8_t tile, uint8_t attr, int limited, int 
     s->clip_lo = lo;
     s->clip_hi = hi;
     s->unclipped = unclipped;
+    s->slot = slot;
 }
 
 /* reveal: an object is drawn outside the original 256 columns only once
@@ -914,14 +920,18 @@ static struct {
 
 static int revealed(int slot) { return slot <= 15 && s_rev[slot].revealed > 0; }
 
+static int s_unseen[16];                /* pictures since the object was last drawn (check) */
+
 static void reveal_update(const Model *m, const View *v) {
     int pic_lo = -v->view_x, pic_hi = v->w - v->view_x;     /* the picture in screen x */
     for (int s = 0; s < 16; s++) {
         int live = (g_ram[OBJ_STATE + s] & 0x80) != 0;
         int x = g_ram[OBJ_X_HI + s] << 8 | g_ram[OBJ_X + s];
         int spawn = g_ram[OBJ_SPAWN_INDEX + s];
-        if (live && (!s_rev[s].live || spawn != s_rev[s].spawn || abs(x - s_rev[s].x) > 64))
+        if (live && (!s_rev[s].live || spawn != s_rev[s].spawn || abs(x - s_rev[s].x) > 64)) {
             s_rev[s].revealed = -1;
+            s_unseen[s] = 1000;
+        }
         if (!live) s_rev[s].revealed = 0;
         s_rev[s].live = live;
         s_rev[s].spawn = spawn;
@@ -959,7 +969,7 @@ static void sprites_list(const FrameRecord *f, const View *v, int model_ok, cons
         /* OAM as the PPU has it, in the original screen */
         for (int s = 0; s < 64; s++)
             list_add(v->view_x + f->oam[s * 4 + 3], f->oam[s * 4], f->oam[s * 4 + 1], f->oam[s * 4 + 2],
-                     !v->no_flicker, lo0, hi0, 0);
+                     !v->no_flicker, lo0, hi0, 0, -1);
         return;
     }
     if (!v->no_flicker) {
@@ -972,7 +982,7 @@ static void sprites_list(const FrameRecord *f, const View *v, int model_ok, cons
         for (int s = 0; s < 64; s++) {
             int open = v->wide && slot_of[s] >= 0 && revealed(slot_of[s]);
             list_add(v->view_x + m->oam[s * 4 + 3], m->oam[s * 4], m->oam[s * 4 + 1], m->oam[s * 4 + 2], 1,
-                     open ? 0 : (v->wide ? lo0 : 0), open ? v->w : (v->wide ? hi0 : v->w), v->wide);
+                     open ? 0 : (v->wide ? lo0 : 0), open ? v->w : (v->wide ? hi0 : v->w), v->wide, slot_of[s]);
         }
         if (!v->wide) return;
         /* and, wide, what it left out of OAM: objects off its screen,
@@ -983,7 +993,8 @@ static void sprites_list(const FrameRecord *f, const View *v, int model_ok, cons
             for (int i = 0; i < dc->nspr; i++) {
                 const Spr *p = &dc->spr[i];
                 if (p->oam >= 0 || p->drop_y) continue;
-                list_add(v->view_x + p->x, p->y, p->tile, p->attr, 0, open ? 0 : lo0, open ? v->w : hi0, 1);
+                list_add(v->view_x + p->x, p->y, p->tile, p->attr, 0, open ? 0 : lo0, open ? v->w : hi0, 1,
+                         dc->slot);
             }
         }
         return;
@@ -1012,7 +1023,7 @@ static void sprites_list(const FrameRecord *f, const View *v, int model_ok, cons
                 const Spr *p = &dc->spr[k];
                 if (p->drop_y) continue;
                 list_add(v->view_x + p->x, p->y, p->tile, p->attr, 0, open ? 0 : lo0, open ? v->w : hi0,
-                         v->wide);
+                         v->wide, dc->slot);
             }
         }
     }
@@ -1057,6 +1068,31 @@ static void sprites_draw(const FrameRecord *f, const View *v, uint8_t *pix) {
     }
 }
 
+/* A pop-in (the check, wide): an object drawn outside the original 256
+ * columns that was not drawn in the last 4 pictures (or is a new object),
+ * without touching the picture's edges: it appeared in the margin. */
+static int popins(const View *v) {
+    int vis[16] = {0}, margin[16] = {0}, edge[16] = {0}, n = 0;
+    for (int i = 0; i < s_nlist; i++) {
+        const HdSprite *p = &s_list[i];
+        int lo = p->x, hi = p->x + 8;
+        if (p->slot < 0 || p->slot > 15 || p->y >= 0xEF) continue;
+        if (lo < p->clip_lo) lo = p->clip_lo;
+        if (hi > p->clip_hi) hi = p->clip_hi;
+        if (lo < 0) lo = 0;
+        if (hi > v->w) hi = v->w;
+        if (lo >= hi) continue;
+        vis[p->slot] = 1;
+        if (lo < v->view_x || hi > v->view_x + FRAME_W) margin[p->slot] = 1;
+        if (lo <= 0 || hi >= v->w) edge[p->slot] = 1;
+    }
+    for (int s = 0; s < 16; s++) {
+        if (vis[s] && margin[s] && !edge[s] && s_unseen[s] > 4) n++;
+        s_unseen[s] = vis[s] ? 0 : (s_unseen[s] < 1000 ? s_unseen[s] + 1 : 1000);
+    }
+    return n;
+}
+
 /* ---- one picture ---- */
 
 static uint8_t s_pix[FRAME_H * HD_MAX_W];
@@ -1085,7 +1121,8 @@ void hd_after_nmi(void) {
 void hd_picture(const FrameRecord *f, int shown) {
     Stage st;
     View v;
-    int model_seen, model_ok, map_lines = 0;
+    int model_seen, model_ok, map_lines = 0, wide_lines = 0;
+    int diff = 0, fx = -1, fy = -1, over = 0, pop = 0;
     if (s_model_seq != s_draw_seq) {
         m_objects_draw(s_draw_ram, &s_model);
         s_model_seq = s_draw_seq;
@@ -1096,7 +1133,6 @@ void hd_picture(const FrameRecord *f, int shown) {
     st = stage_of(f);
     if (s_check) {
         /* every option off, against the console picture */
-        int diff = 0, fx = -1, fy = -1, over = 0;
         render_frame(f, s_con, PICTURE_CONSOLE);
         if (f->mask0 & 0x10)                    /* sprites the 8 per line leave out */
             for (int line = 1; line < FRAME_H; line++) {
@@ -1117,21 +1153,24 @@ void hd_picture(const FrameRecord *f, int shown) {
         if (model_ok) s_sum.model_frames++;
         if (diff) s_sum.differ++;
         else s_sum.identical++;
-        if (s_check_log)
-            fprintf(s_check_log, "%llu %s %s %d %d %d %d %d %d %d %d %d\n", (unsigned long long)g_frame_count,
-                    st.ok ? "map" : st.why,
-                    model_ok ? "model" : (model_seen ? (s_model.bad ? "bad" : "oam") : "none"),
-                    map_lines, diff, fx, fy, s_ov_frame, g_ram[ROUND], g_ram[SUB_AREA], over,
-                    model_ok ? s_model.unplaced : 0);
     }
-    if (g_picture != PICTURE_HD) return;
-    view_of(&st, g_hd.wide, g_hd.no_flicker, &v);
-    if (v.wide && model_ok) reveal_update(&s_model, &v);
-    if (!shown) return;
-    draw(f, &st, &v, model_ok, s_pix, &map_lines);
-    s_w = v.w;
-    s_view_x = v.view_x;
-    for (int i = 0; i < s_w * FRAME_H; i++) s_rgb[i] = g_nes_rgb[s_pix[i] & 0x3F];
+    if (g_picture == PICTURE_HD) {
+        view_of(&st, g_hd.wide, g_hd.no_flicker, &v);
+        if (v.wide && model_ok) reveal_update(&s_model, &v);
+        if (shown || (s_check && v.wide)) {
+            draw(f, &st, &v, model_ok, s_pix, &wide_lines);
+            if (s_check && v.wide) pop = popins(&v);
+            s_w = v.w;
+            s_view_x = v.view_x;
+            for (int i = 0; i < s_w * FRAME_H; i++) s_rgb[i] = g_nes_rgb[s_pix[i] & 0x3F];
+        }
+    }
+    if (s_check && s_check_log)
+        fprintf(s_check_log, "%llu %s %s %d %d %d %d %d %d %d %d %d %d\n", (unsigned long long)g_frame_count,
+                st.ok ? "map" : (st.held ? "held" : st.why),
+                model_ok ? "model" : (model_seen ? (s_model.bad ? "bad" : "oam") : "none"),
+                map_lines, diff, fx, fy, s_ov_frame, g_ram[ROUND], g_ram[SUB_AREA], over,
+                model_ok ? s_model.unplaced : 0, pop);
 }
 
 void hd_shown(const uint32_t **rgb, const uint8_t **pix, int *w, int *view_x) {
@@ -1160,7 +1199,8 @@ void hd_exit(void) {
  * model's OAM is not the frame's, "none" before the first objects_draw),
  * lines drawn from the map, pixels differing, the first one's x y, the
  * overlay cells, round, area, the (line, sprite) pairs the 8 per line
- * leave out, the sprites past a full OAM. MFF_WIDE, MFF_NO_FLICKER: the
+ * leave out, the sprites past a full OAM, and with --wide the objects that
+ * appeared in the margins (popins). MFF_WIDE, MFF_NO_FLICKER: the
  * options. */
 void hd_init(void) {
     const char *p = getenv("MFF_HDCHECK");
