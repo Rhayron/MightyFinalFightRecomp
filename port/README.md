@@ -5,8 +5,9 @@ NESRecomp's legacy, function-level backend (one C function per 6502 routine),
 the **lockstep** check that compares it frame by frame with the
 cycle-accurate build in the repo root (the oracle), **P4**: every routine of
 the game in C in `port/src/game/`, building and running without the
-scaffold's generated code, and **P5**: the game on its own runtime, with no
-code from nesrecomp and no ROM at run time.
+scaffold's generated code, **P5**: the game on its own runtime, with no
+code from nesrecomp and no ROM at run time, and **P9** (begun): the picture
+drawn from the game's state, with 16:9 and no sprite flicker as options.
 
 ## P5: build and run
 
@@ -37,7 +38,8 @@ MFF_EXE=build_mff/Release/MightyFinalFight.exe port/tests/run_routes.sh check
   game; with no device the clock does ("The sound" below).
 - `--picture console` (the default) shows the picture as the PPU draws it;
   `--picture scaffold` as the scaffold's renderer drew it ("The picture"
-  below). `MFF_PICTURE` does the same.
+  below); `--picture hd` from the game's state, with `--wide` and
+  `--no-flicker` ("P9" below). `MFF_PICTURE` does the same.
 - The test hooks are the scaffold's: `MFF_FRAMELOG`, `MFF_PICLOG`,
   `MFF_INPUT`, `MFF_BOT`, plus `MFF_SHOTS=F1,F2,...` (PNG pictures of those
   frames, in `MFF_SHOT_DIR`), `MFF_PICDUMP=FILE` (the shown pictures as
@@ -63,6 +65,7 @@ implements that interface for this one game, so no routine changed:
 | `timing.c` | the cycle clock, the frame boundary (89,342 dots, one less on odd frames with rendering on), OAM DMA's 513/514 cycles, interrupt entry; each boundary closes the frame's sound |
 | `frame.c` | one frame: pads and test hooks, the NMI, the scanline pass with the raster IRQs, the picture |
 | `render_frame.c` | the 256x240 picture from the frame's record (`render.h`) |
+| `render_hd.c` | P9: the picture from the game's state, `--wide`, `--no-flicker` (`render_hd.h`) |
 | `dispatch_rt.c` | dispatch by address, JMP loops flattened, and a clear stop when a target has no routine (there is no interpreter) |
 | `coroutine.c` | the four tasks on C stacks of their own (fibers on Windows, ucontext elsewhere) |
 | `mff_hooks.c` | where the NMI may land, and `nmi_tail` (`$C119`): game rules the scaffold kept in `extras.c` |
@@ -294,6 +297,141 @@ with every byte, and `port/tools/prg_reads.py`, find such bytes: over the 9
 routes and 36 bot sessions of 100,000 frames, 45,973 PRG bytes were read and
 all are in `prg.bin`. A byte the data leaves out stops a headless run with
 its address (in a window the game reads 0 there and goes on).
+
+## P9: stage 2's picture (port/src/runtime/render_hd.c)
+
+`--picture hd` draws the picture from the game's state instead of the
+PPU's nametables and OAM, and adds the options of PLAN_DECOMP.md 2.6:
+
+```bash
+build_mff/Release/MightyFinalFight.exe --window --wide --no-flicker   # 16:9, no sprite limit
+build_mff/Release/MightyFinalFight.exe --window --picture hd          # options off: stage 1's picture
+py -3 -I port/tests/hd_check.py build_mff/Release/MightyFinalFight.exe OUTDIR [ROUTE...] [--wide [--no-flicker]]
+```
+
+| Option | Command line | Environment | `hd_option()` key |
+|---|---|---|---|
+| the HD picture | `--picture hd` | `MFF_PICTURE=hd` | `picture` = `hd` |
+| no sprite limit | `--no-flicker` | `MFF_NO_FLICKER=1` | `no_flicker` = 1 |
+| 16:9 | `--wide` (426 x 240), `--wide W` (256-512 columns) | `MFF_WIDE=1` or `W` | `wide` = 1 or W |
+
+Either option implies `--picture hd`. `hd_option(key, value)`
+(`render_hd.h`) is the hook for the config file P8 adds. The window
+(`video_sdl.c`) opens `hd_width()` columns wide and takes the picture's
+width with every frame; `MFF_SHOTS` writes PNGs that wide; `MFF_PICDUMP`
+keeps its 256 x 240 records (with `--wide`, the original screen's 256
+columns). The picture log, the sprite-0 hit and everything the game sees
+stay stage 1's: `run_routes.sh check` is identical on the 9 routes with
+the options off, with `--wide` and with `--wide --no-flicker` (pictures
+included: the log hashes the scaffold renderer's picture whatever is
+shown).
+
+### What it draws from
+
+- **The playfield** from the round's stage map (screens, metatiles,
+  blocks, palettes: docs/assets.md "Round backgrounds"), decoded once per
+  area from `prg.bin` (nothing new is extracted: the game reads those
+  bytes itself, so the runtime data already holds them). Which world
+  columns are on screen comes from the column writer's state: `N =
+  32 * bg_screen + bg_column` (one less while `vram_column_request` still
+  holds the column) is the newest world column sent, nametable column c
+  holds the world column equal to c mod 32 in N-31..N, rows 4 and 24 are
+  tile 0, and an attribute half belongs to the world column that last
+  wrote it (the newest column's lag, docs/assets.md step 4). The game's own
+  VRAM requests into the playfield (the `$19` write lists and `$64` strips
+  at `$0780`, saved before the NMI and applied when it uploads them: the
+  door at the start of round 1 area 2 is one) go over the map until the
+  writer sends that column again. The camera is `8 * (N - 32)` plus the
+  playfield's fine x; a frame is a stage frame only while the scroll and N
+  agree. Each line's vertical position (the splits, round 4's shakes) is
+  the PPU's, from the frame's record, as `render_frame.c` works it out.
+- **The sprites** from the object slots: when objects_draw (`$E9BC`)
+  starts, `timing.c` calls `hd_objects_draw_start`, which saves RAM; a
+  model of objects_draw, object_draw, object_draw_sprites, object_offscreen
+  and object_free (`port/src/game/stage_draw.c`, step by step, on a copy)
+  gives every call: slot, place (on the game's screen or off it but near),
+  frame, sprites, the OAM entries they got. When the OAM page the model
+  builds is the one the frame shows, byte for byte, the sprites come from
+  it; otherwise from OAM.
+- **From the PPU, as stage 1**: the status rows above and under the
+  playfield, and every screen that is not gameplay (title, story,
+  character select, round map, continue, the ending and credits).
+
+### The check (M1)
+
+`MFF_HDCHECK=FILE` draws, every frame, the console picture
+(`render_frame.c`) and the HD picture with every option off, compares them
+pixel for pixel and logs where each came from; `port/tests/hd_check.py`
+runs routes that way (in parallel) and lists every picture that differs by
+class. On the 9 routes and the 5 power-on routes of `inputs/` not among
+them (`01_*_s1`, `probe`, `probe2`, keyed with `nmi_input.py` from the
+oracle's frame log):
+
+| | Pictures |
+|---|---:|
+| compared | 427,520 |
+| identical to the console picture | 427,520 |
+| playfield from the stage map | 308,156 |
+| playfield from the PPU: not gameplay or between areas (CHR banks not the area's) | 118,653 |
+| playfield from the PPU: an area's first columns being drawn (black) | 320 |
+| playfield from the PPU: an area's exit (the scroll goes to 0 before the next area) | 391 |
+| sprites from the objects (the model's OAM is the frame's) | 417,089 |
+| sprites from OAM (screens that write OAM themselves, frames before the first objects_draw) | 10,431 |
+
+So there is no difference class to explain: where the state describes the
+picture, the picture drawn from it is stage 1's; where it does not (the
+classes above), stage 1's is used. A check that it is the map that draws:
+one map column changed made 3,027 of 7,970 pictures differ.
+
+### --no-flicker (M2)
+
+Each object once per frame (its last object_draw call: the effect slots
+14-15 that objects_draw visits twice show their final frame), every sprite
+of its frame, in a fixed order: the effects (slots 15, 14) in front, then
+the player and slots 1-13; no 8 per line, no 63-entry OAM. On the routes
+the 8 per line leave sprites out in 103,255 of the 427,520 pictures;
+objects_draw never filled OAM. Screens whose OAM is not the model's draw
+all 64 entries without the limit.
+
+### --wide (M3)
+
+The camera is the game's, held inside the area: the wide picture shows
+`cam - 85 .. cam + 341` of the stage map, moved right at an area's first
+screen and left at its last so the stage fills it; the one-screen rooms
+(round 3 area 3 and round 4 area 2, RAM rounds 2/3) sit in the middle with
+the backdrop around them (15,566 of the 308,156 stage pictures). Round 2
+areas 2-3's still sky stays still. The status rows and the screens are the
+original 256 columns in the middle with the backdrop around them. An
+area's exit keeps the last stage frame's camera through the fade.
+
+The game is unchanged, so its spawn points stay at the original screen's
+edges: the stage list puts enemies at x 255, the timed spawner at -16, -4
+and 276 (screen x). Drawn in a wide picture as they are they would pop
+into view in the margins. So an object is drawn outside the original 256
+columns only once it has been wholly inside them (or if it was first seen
+beyond the wide picture's edge), and until then only its part inside
+them: a new enemy comes in through the original screen's edge as on the
+console, and one that leaves it stays visible in the margin. Objects the
+game treats as far ($68 px or more off its screen, pulled back or freed by
+object_offscreen) are not drawn, nor hidden or blinking ones off it.
+`hd_check.py --wide` counts objects that appear in the margins without
+crossing the picture's edge: 0 on all 14 routes, with and without
+`--no-flicker`; with every object drawn as it is (the rule off), 10 on
+`guy_round1` and 23 on `cody_tour`, the spawns above.
+
+### What P9 still has to do
+
+- The status bar and the screens (title, story, select, round map,
+  continue, ending, credits) from the state: they are the nametables'
+  (centred in `--wide`). The message box under the playfield too.
+- The one-screen rooms have nothing to show beside them in `--wide`.
+- Lag frames (P7): if the NMI lands inside objects_draw, the frame's OAM is
+  not the model's and that picture's sprites come from OAM (the
+  wide picture then lacks the off-screen ones for a frame).
+- The scripted exits' patches (docs/assets.md, patches 1-3) go through the
+  same VRAM requests as the door, but no route reaches them.
+- The state free of the 2 KB overlay, texture packs, filters and integer
+  scaling (PLAN_DECOMP.md 2.6, P9).
 
 ## P4: every routine in port/src/game
 
