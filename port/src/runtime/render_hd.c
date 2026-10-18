@@ -618,7 +618,7 @@ static void m_offscreen(Cpu *c, int x) {
  * game would place it, without touching the state: for the objects it
  * animates off its screen and for the sprites past a full OAM */
 static void frame_sprites(int pair, int fid, int sx, int sy, uint8_t flags, DrawCall *dc, int *bad) {
-    Cpu tmp;
+    static Cpu tmp;                     /* only its banks are set: RAM reads see 0, never stack garbage */
     const Cpu *c = &tmp;
     uint16_t fp, lp;
     uint8_t head, li, flip = flags & 0x40, prio = flags & 0x20;

@@ -48,7 +48,7 @@ check_route() {
   for st in "$OUT/states_$name"/*.mffstate; do
     local f=${st##*state_}; f=${f%.mffstate}
     [ "$MFF_CHECK_SHOWN" = 1 ] && env[${#env[@]}-1]=MFF_PICDUMP="$OUTW/load_${name}_$f.pix"
-    env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "${env[@]}" \
+    env -u MFF_SAVE_AT -u MFF_LOAD_AT SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "${env[@]}" \
       MFF_FRAMELOG="$OUTW/load_${name}_$f.flog" MFF_PICLOG="$OUTW/load_${name}_$f.pic" \
       "$EXE" --headless --load "$OUTW/states_$name/state_$f.mffstate" --smoke "$frames" \
       > "$OUT/load_${name}_$f.log" 2>&1 &

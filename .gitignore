@@ -10,6 +10,8 @@ saves/
 *.sav
 *.state
 *.cycstate
+*.mffstate
+MightyFinalFight.ini
 config.ini
 keybinds.ini
 debug.ini
