@@ -166,6 +166,59 @@ const char *setup_find_assets(const char *given);   /* loaded (cart.c): the dir,
 const char *setup_first_run(const char *dump, int window);
 int setup_extract_cli(const char *dump, const char *out);
 
+/* ---- savestate.c (P8): save states ----
+ * Every part of the runtime with state writes and reads it in its
+ * *_state(StateIO *) function, field by field; a new static there must be
+ * added to it (port/tests/savestate_check.sh finds one that is not). */
+typedef struct StateIO StateIO;
+int st_loading(const StateIO *io);
+void st_bytes(StateIO *io, void *p, size_t n);
+void st_u8(StateIO *io, uint8_t *v);
+void st_u16(StateIO *io, uint16_t *v);
+void st_u32(StateIO *io, uint32_t *v);
+void st_u64(StateIO *io, uint64_t *v);
+void st_int(StateIO *io, int *v);           /* as 32 bits */
+void st_f64(StateIO *io, double *v);
+void st_u16s(StateIO *io, uint16_t *v, int n);
+void st_ints(StateIO *io, int *v, int n);
+void bus_state(StateIO *io);
+void ppu_state(StateIO *io);
+void mmc3_state(StateIO *io);
+void apu_state(StateIO *io);
+void timing_state(StateIO *io);
+void frame_state(StateIO *io);
+void dispatch_state(StateIO *io);
+void coroutine_state(StateIO *io);
+void hooks_state(StateIO *io);
+void savestate_init(void);
+void savestate_frame_begin(void);           /* frame.c, at the frame's start and end */
+void savestate_frame_end(void);
+void savestate_request_save(void);          /* the window's keys: the current slot */
+void savestate_request_load(void);
+void savestate_next_slot(void);
+const char *savestate_status(void);         /* "slot 2 saved" and such, for the title */
+/* main: the game from power-on, or from the state in load_path; never returns */
+void savestate_run(const char *load_path);
+/* what loading needs from the other parts */
+void timing_resume_at_scheduler(void);
+int dispatch_tail_count(void);
+uint16_t dispatch_tail_addr(int i);
+uint8_t dispatch_tail_s(int i);
+int dispatch_lap_pending(void);
+void dispatch_rebuild_tail(int inner, void (*resume)(void));
+int coroutine_on_scheduler(void);
+int coroutine_task_mask(void);              /* bit per task with a C stack */
+int coroutine_saved_task_mask(void);        /* the same, as the loaded state had it */
+void coroutine_drop_all(void);
+void coroutine_rebuild(int ch, void (*body)(void));
+void video_after_load(void);
+
+/* ---- config.c (P8): MightyFinalFight.ini ---- */
+void config_load(const char *path, int write_default);
+const char *config_get(const char *key);    /* "section.key", NULL if not set */
+int config_int(const char *key, int def);
+const char *config_path(void);
+
 /* ---- errors ---- */
 void mff_fatal(const char *fmt, ...);
 

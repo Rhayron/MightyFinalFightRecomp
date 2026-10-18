@@ -165,3 +165,60 @@ void apu_frame_boundary(uint32_t next_len) {
         }
     }
 }
+
+/* save states (savestate.c): the synthesizer field by field (its tables
+ * and the DMC's read callback are made by synth_init and stay) */
+static void env_state(StateIO *io, SynthEnvelope *e) {
+    st_u8(io, &e->start); st_u8(io, &e->divider); st_u8(io, &e->decay);
+}
+
+void apu_state(StateIO *io) {
+    Synth2A03 *s = &s_apu;
+    st_u64(io, &s->now); st_u64(io, &s->slow_at);
+    st_bytes(io, s->reg, sizeof s->reg);
+    for (int i = 0; i < 2; i++) {
+        SynthPulse *p = &s->pulse[i];
+        st_u16(io, &p->period); st_u16(io, &p->timer); st_u8(io, &p->step);
+        st_u8(io, &p->sweep_div); st_u8(io, &p->sweep_reload);
+        env_state(io, &p->env);
+    }
+    st_u16(io, &s->tri.period); st_u16(io, &s->tri.timer); st_u8(io, &s->tri.step);
+    st_u8(io, &s->tri.linear); st_u8(io, &s->tri.linear_reload); st_u8(io, &s->tri.out);
+    st_u16(io, &s->noise.period); st_u16(io, &s->noise.timer); st_u16(io, &s->noise.lfsr);
+    env_state(io, &s->noise.env);
+    st_u16(io, &s->dmc.rate); st_u16(io, &s->dmc.timer); st_u8(io, &s->dmc.level);
+    st_u8(io, &s->dmc.shifter); st_u8(io, &s->dmc.bits); st_u8(io, &s->dmc.silent);
+    st_u8(io, &s->dmc.buffer); st_u8(io, &s->dmc.buffer_full);
+    st_u8(io, &s->dmc.loop); st_u8(io, &s->dmc.irq_enable); st_u8(io, &s->dmc.irq);
+    st_u16(io, &s->dmc.start); st_u16(io, &s->dmc.length);
+    st_u16(io, &s->dmc.addr); st_u16(io, &s->dmc.remaining);
+    st_u64(io, &s->dmc.fetch_at);
+    for (int i = 0; i < 4; i++) {
+        SynthLength *l = &s->length[i];
+        st_u8(io, &l->count); st_u8(io, &l->enabled); st_u8(io, &l->halt);
+        st_u8(io, &l->pending); st_u8(io, &l->load);
+    }
+    st_u8(io, &s->fc.five_step); st_u8(io, &s->fc.inhibit); st_u8(io, &s->fc.irq);
+    st_u8(io, &s->fc.pending);
+    st_u64(io, &s->fc.one_at); st_u64(io, &s->fc.reset_at); st_u64(io, &s->fc.ack_at);
+    st_bytes(io, s->out, sizeof s->out);
+    st_bytes(io, s->live, sizeof s->live);
+    st_u8(io, &s->dirty);
+    st_f64(io, &s->level);
+    st_int(io, &s->sample_rate);
+    st_f64(io, &s->cycles_per_sample); st_f64(io, &s->phase); st_f64(io, &s->acc);
+    st_u32(io, &s->acc_cycles);
+    st_f64(io, &s->hp90_a); st_f64(io, &s->hp440_a); st_f64(io, &s->lp_a);
+    st_f64(io, &s->hp90_x); st_f64(io, &s->hp90_y); st_f64(io, &s->hp440_x); st_f64(io, &s->hp440_y);
+    st_f64(io, &s->lp_y);
+    for (uint32_t i = 0; i < SYNTH_RING; i++) {
+        uint16_t v = (uint16_t)s->ring[i];
+        st_u16(io, &v);
+        s->ring[i] = (int16_t)v;
+    }
+    st_u32(io, &s->head); st_u32(io, &s->tail); st_u32(io, &s->dropped);
+    st_u64(io, &s->samples);
+    st_u64(io, &s_frame_at);
+    st_u32(io, &s_frame_len);
+    st_u32(io, &s_boundaries);
+}

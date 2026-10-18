@@ -2,7 +2,7 @@
  * main.c - Mighty Final Fight, the port (PLAN_DECOMP.md P5, P8)
  *
  *   MightyFinalFight [DUMP] [--assets DIR] [--window | --headless | --smoke N] [--scale N]
- *                    [--picture console|scaffold] [--extract DUMP]
+ *                    [--picture console|scaffold] [--extract DUMP] [--load STATE] [--config FILE]
  *
  * Runs the game from power-on: the machine (runtime/) starts in its reset
  * state and the game's reset routine takes over; it never returns.
@@ -25,7 +25,10 @@
  *                   The default when the build has one and neither --smoke
  *                   nor --headless is given
  *   --headless      no window
- *   --scale N       window size, N times 256x240 (default 3)
+ *   --scale N       window size, N times 256x240 (default 3, or the config's)
+ *   --load STATE    start from a save state (savestate.c) instead of power-on
+ *   --config FILE   the settings (config.c; default MightyFinalFight.ini in
+ *                   the data directory, read only with a window)
  *   --picture P     console (default): the picture as the PPU draws it, 8
  *                   sprites per line; scaffold: as the scaffold's renderer
  *                   drew it (MFF_PICTURE=P too). The picture log
@@ -34,7 +37,7 @@
  * The port reads only the extracted data, never the ROM.
  * Environment for the tests: MFF_FRAMELOG, MFF_PICLOG, MFF_INPUT, MFF_BOT,
  * MFF_SHOTS, MFF_PICDUMP, MFF_PRG_READS (runtime/testhooks.c, mmc3.c),
- * MFF_LAG (runtime/mff_hooks.c).
+ * MFF_LAG (runtime/mff_hooks.c), MFF_SAVE_AT and MFF_SAVE_DIR (savestate.c).
  */
 #include "machine.h"
 #include <stdarg.h>
@@ -66,12 +69,15 @@ static void usage(FILE *f) {
             "  --window        play in a window (the default when this build has one)\n"
             "  --headless      no window; --smoke N: run N frames headless and exit\n"
             "  --scale N       window size, N x 256x240\n"
-            "  --picture P     console (default) or scaffold\n");
+            "  --picture P     console (default) or scaffold\n"
+            "  --load STATE    start from a save state (F5 saves, F7 loads in the window)\n"
+            "  --config FILE   settings (default MightyFinalFight.ini next to the game)\n");
 }
 
 int main(int argc, char **argv) {
     const char *assets = NULL, *dump = NULL, *extract = NULL, *picture = getenv("MFF_PICTURE");
-    int scale = 3, window = -1;
+    const char *load = NULL, *config = NULL;
+    int scale = 0, window = -1;
     for (int i = 1; i < argc; i++) {
         const char *a = argv[i];
         int more = i + 1 < argc;
@@ -83,6 +89,8 @@ int main(int argc, char **argv) {
         else if (!strcmp(a, "--scale") && more) scale = atoi(argv[++i]);
         else if (!strcmp(a, "--picture") && more) picture = argv[++i];
         else if (!strcmp(a, "--extract") && more) extract = argv[++i];
+        else if (!strcmp(a, "--load") && more) load = argv[++i];
+        else if (!strcmp(a, "--config") && more) config = argv[++i];
         else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             usage(stdout);
             return 0;
@@ -106,6 +114,8 @@ int main(int argc, char **argv) {
     if (extract) return setup_extract_cli(extract, assets);
     if (window < 0) window = video_available() && g_smoke_frames <= 0;
     g_window = window;
+    if (g_window || config) config_load(config, g_window && !config);
+    if (scale <= 0) scale = config_int("video.scale", 3);
 
     if (assets) {
         if (!setup_find_assets(assets)) {
@@ -124,12 +134,11 @@ int main(int argc, char **argv) {
     mmc3_power_on(g_cart.vertical_mirroring);
     hooks_init();
     mff_hooks_init();
+    savestate_init();
     if (g_window && video_open(scale)) mff_fatal("cannot open the window");
-    if (g_smoke_frames > 0) printf("[mff] headless: %ld frames\n", g_smoke_frames);
+    if (g_smoke_frames > 0) printf("[mff] %s%ld frames\n", g_window ? "" : "headless: ", g_smoke_frames);
     fflush(stdout);
 
-    maybe_trigger_vblank(7);            /* the 6502's reset sequence, before the first instruction */
-    func_RESET();
-    mff_fatal("the reset routine returned");
+    savestate_run(load);                /* reset (or the state), and the game; never returns */
     return 1;
 }

@@ -19,6 +19,11 @@
  *
  * Windows uses fibers; elsewhere ucontext (macOS still has it, deprecated,
  * behind _XOPEN_SOURCE).
+ *
+ * Save states (savestate.c) cannot write a C stack to a file. Loading one
+ * frees every task's stack (coroutine_drop_all) and gives task 0 a new one
+ * that starts in a function of savestate.c's choosing (coroutine_rebuild)
+ * the next time the scheduler resumes it.
  */
 #if defined(__APPLE__) && !defined(_XOPEN_SOURCE)
 #define _XOPEN_SOURCE 700
@@ -36,6 +41,16 @@ static int s_current = -1;              /* the task last started or resumed */
 static int s_finished = -1;             /* a task that returned without yielding */
 static int s_restart;                   /* a task jumped to the scheduler */
 static uint16_t s_entry;                /* a new task's entry point */
+static void (*s_body[COROUTINE_MAX_CHANNELS])(void);    /* a rebuilt task's start (save states) */
+static int s_saved_mask;                /* the tasks with a stack in the state loaded last */
+
+/* a task's stack starts here: its entry point, or a loaded state's rebuild */
+static void task_body(int ch) {
+    void (*body)(void) = s_body[ch];
+    s_body[ch] = NULL;
+    if (body) body();
+    else call_by_address(s_entry);
+}
 
 static void check_resumed_s(uint8_t before) {
     /* the scheduler's resume pulls Y and X and RTSes into the task: S is 4
@@ -54,7 +69,7 @@ static LPVOID s_task[COROUTINE_MAX_CHANNELS];
 
 static void CALLBACK task_main(LPVOID arg) {
     int ch = (int)(intptr_t)arg;
-    call_by_address(s_entry);
+    task_body(ch);
     for (;;) {                          /* finished: the scheduler frees this stack */
         s_finished = ch;
         SwitchToFiber(s_sched);
@@ -66,6 +81,20 @@ static void drop(int ch) {
         DeleteFiber(s_task[ch]);
         s_task[ch] = NULL;
     }
+    s_body[ch] = NULL;
+}
+
+int coroutine_on_scheduler(void) { return !s_sched || GetCurrentFiber() == s_sched; }
+static int has_stack(int ch) { return s_task[ch] != NULL; }
+
+void coroutine_rebuild(int ch, void (*body)(void)) {
+    if (!s_sched) s_sched = ConvertThreadToFiber(NULL);
+    if (!s_sched) mff_fatal("ConvertThreadToFiber failed (%lu)", (unsigned long)GetLastError());
+    s_running = 1;
+    drop(ch);
+    s_body[ch] = body;
+    s_task[ch] = CreateFiberEx(64 << 10, TASK_STACK, 0, task_main, (LPVOID)(intptr_t)ch);
+    if (!s_task[ch]) mff_fatal("CreateFiber failed (%lu)", (unsigned long)GetLastError());
 }
 
 int coroutine_scheduler_setjmp(void) {
@@ -145,7 +174,7 @@ static int s_in_task;
 
 static void task_main(void) {
     int ch = s_current;
-    call_by_address(s_entry);
+    task_body(ch);
     for (;;) {
         s_finished = ch;
         s_in_task = 0;
@@ -156,6 +185,24 @@ static void task_main(void) {
 static void drop(int ch) {
     free(s_stack[ch]);
     s_stack[ch] = NULL;
+    s_body[ch] = NULL;
+}
+
+int coroutine_on_scheduler(void) { return !s_in_task; }
+static int has_stack(int ch) { return s_stack[ch] != NULL; }
+
+void coroutine_rebuild(int ch, void (*body)(void)) {
+    s_running = 1;
+    s_in_task = 0;
+    drop(ch);
+    s_stack[ch] = malloc(TASK_STACK);
+    if (!s_stack[ch]) mff_fatal("no memory for a task stack");
+    getcontext(&s_ctx[ch]);
+    s_ctx[ch].uc_stack.ss_sp = s_stack[ch];
+    s_ctx[ch].uc_stack.ss_size = TASK_STACK;
+    s_ctx[ch].uc_link = NULL;
+    makecontext(&s_ctx[ch], task_main, 0);
+    s_body[ch] = body;
 }
 
 int coroutine_scheduler_setjmp(void) {
@@ -229,3 +276,31 @@ void coroutine_start(int ch, uint16_t addr) {
     enter(ch);
 }
 #endif
+
+/* ---- both ---- */
+
+int coroutine_task_mask(void) {
+    int mask = 0;
+    for (int ch = 0; ch < COROUTINE_MAX_CHANNELS; ch++)
+        if (has_stack(ch)) mask |= 1 << ch;
+    return mask;
+}
+
+int coroutine_saved_task_mask(void) { return s_saved_mask; }
+
+/* from the scheduler's stack: every task's stack goes */
+void coroutine_drop_all(void) {
+    for (int ch = 0; ch < COROUTINE_MAX_CHANNELS; ch++) drop(ch);
+}
+
+/* save states: the flags, and which tasks had a stack (rebuilt by savestate.c) */
+void coroutine_state(StateIO *io) {
+    int mask = coroutine_task_mask();
+    st_int(io, &s_running);
+    st_int(io, &s_current);
+    st_int(io, &s_finished);
+    st_int(io, &s_restart);
+    st_u16(io, &s_entry);
+    st_int(io, &mask);
+    if (st_loading(io)) s_saved_mask = mask;
+}

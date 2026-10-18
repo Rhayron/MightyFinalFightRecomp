@@ -321,3 +321,22 @@ void ppu_capture_end(FrameRecord *f) {
     memcpy(f->pal_end, P.pal, sizeof f->pal_end);
     mmc3_chr_map(f->chr_end);
 }
+
+/* save states (savestate.c) */
+void ppu_state(StateIO *io) {
+    st_u8(io, &P.ctrl); st_u8(io, &P.mask); st_u8(io, &P.status); st_u8(io, &P.oam_addr);
+    st_u8(io, &P.sx); st_u8(io, &P.sy);
+    st_u8(io, &P.hud_x); st_u8(io, &P.hud_y); st_u8(io, &P.hud_ctrl);
+    st_int(io, &P.split); st_int(io, &P.status_reads);
+    st_u16(io, &P.t); st_u16(io, &P.v); st_u16(io, &P.v_set);
+    st_u8(io, &P.fine_x);
+    st_int(io, &P.w);
+    st_u32(io, &P.v_writes);
+    st_int(io, &P.scroll_pair_last);
+    st_u8(io, &P.read_buf); st_u8(io, &P.io_latch);
+    st_u32(io, &P.vram_writes);
+    st_bytes(io, P.oam, sizeof P.oam);
+    st_bytes(io, P.pal, sizeof P.pal);
+    st_bytes(io, P.nt, sizeof P.nt);
+    st_u32(io, &s_copied_at);
+}

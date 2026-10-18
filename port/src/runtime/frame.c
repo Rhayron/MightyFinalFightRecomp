@@ -138,6 +138,7 @@ static void smoke_exit(void) {
 }
 
 void frame_run(void) {
+    savestate_frame_begin();
     ppu_frame_status();
     if (g_window) video_poll_input();
     g_controller2_buttons = 0;
@@ -147,5 +148,19 @@ void frame_run(void) {
     hooks_picture(s_rgb_test, s_rgb_show, s_pix_show);
     if (g_window) video_frame(s_rgb_show);
     g_frame_count++;
+    savestate_frame_end();              /* F5/F7 and MFF_SAVE_AT (savestate.c) */
     if (g_smoke_frames > 0 && (long)g_frame_count >= g_smoke_frames) smoke_exit();
+}
+
+/* save states (savestate.c): the pictures kept while rendering is off; the
+ * colours follow from the palette indices */
+void frame_state(StateIO *io) {
+    st_bytes(io, s_pix_test, sizeof s_pix_test);
+    st_bytes(io, s_pix_show, sizeof s_pix_show);
+    st_int(io, &s_split_last);
+    st_int(io, &s_split_hold);
+    if (st_loading(io)) {
+        picture_rgb(s_pix_test, s_rgb_test);
+        picture_rgb(s_pix_show, s_rgb_show);
+    }
 }

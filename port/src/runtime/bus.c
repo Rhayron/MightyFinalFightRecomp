@@ -104,3 +104,17 @@ void nes_write(uint16_t a, uint8_t v) {
 uint16_t nes_read16zp(uint8_t zp) {
     return (uint16_t)(g_ram[zp] | (g_ram[(uint8_t)(zp + 1)] << 8));
 }
+
+/* save states (savestate.c) */
+void bus_state(StateIO *io) {
+    st_u8(io, &g_cpu.A); st_u8(io, &g_cpu.X); st_u8(io, &g_cpu.Y); st_u8(io, &g_cpu.S);
+    st_u8(io, &g_cpu.P); st_u8(io, &g_cpu.N); st_u8(io, &g_cpu.V); st_u8(io, &g_cpu.D);
+    st_u8(io, &g_cpu.I); st_u8(io, &g_cpu.Z); st_u8(io, &g_cpu.C);
+    st_bytes(io, g_ram, sizeof g_ram);
+    st_bytes(io, g_sram, sizeof g_sram);
+    st_u8(io, &s_bus);
+    st_int(io, &s_strobe);
+    st_bytes(io, s_shift, sizeof s_shift);
+    st_u8(io, &g_controller1_buttons);
+    st_u8(io, &g_controller2_buttons);
+}
