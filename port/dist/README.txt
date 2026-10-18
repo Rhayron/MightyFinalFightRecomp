@@ -64,7 +64,8 @@ Settings: MightyFinalFight.ini
 ------------------------------
 
 Written on the first run; edit it with any text editor and start the game
-again. Window size (scale), full screen, sound on/off, every key and
+again. Window size (scale), full screen, the picture (wide, no_flicker),
+sound on/off, every key and
 controller button (SDL names: https://wiki.libsdl.org/SDL2/SDL_Keycode),
 and the slowdown option.
 
@@ -74,6 +75,8 @@ Command line
 
   MightyFinalFight --help        all options
   --scale N                      window size, N x 256x240
+  --wide                         16:9: the camera shows more of each stage
+  --no-flicker                   every sprite every frame (no NES flicker)
   --load FILE                    start from a save state
   --headless --smoke N           run N frames without a window (testing)
 
