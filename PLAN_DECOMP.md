@@ -492,7 +492,9 @@ opções desligadas igual à etapa 1.
   usuário.
 - **Atenção:** o **código C do `port/` é uma obra derivada do código da Capcom**, mesmo reescrito com
   nomes novos. Projetos como os decomps de *Super Mario 64* e *Zelda: A Link to the Past* publicam o
-  código assim e aceitam esse risco, mas a decisão é do dono do repo. **Até essa decisão, o `port/` não
-  vai para o GitHub público** (branch local, ou um repo privado).
+  código assim e aceitam esse risco, mas a decisão é do dono do repo. **Decisão do dono (17/10/2026):
+  o `port/` vai para o GitHub público**, com tudo menos a ROM e o que é gerado a partir dela (assets,
+  disassembly gerado, código recompilado, logs e states, que o `.gitignore` já deixa de fora). Antes
+  do push, nenhum blob dos commits continha uma sequência de 32 bytes do cartucho.
 - Binários distribuídos, se um dia houver, só com código: na primeira execução pedem o dump e extraem os
   assets.

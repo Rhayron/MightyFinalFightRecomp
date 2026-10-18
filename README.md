@@ -4,9 +4,11 @@
 
 # Mighty Final Fight Recomp
 
-**Capcom's 1993 NES brawler, translated instruction by instruction into C and built as a native Windows executable. No CPU emulation.**
+**Capcom's 1993 NES brawler, translated instruction by instruction into C and built as a native Windows executable. No CPU emulation. And now decompiled: every routine of the game as readable C, running on its own small runtime, with no ROM at run time.**
 
 ![platform](https://img.shields.io/badge/platform-Windows%20x64-0078d4?style=for-the-badge&logo=windows)
+![port](https://img.shields.io/badge/port-Windows%20%7C%20Linux%20%7C%20macOS-2ea44f?style=for-the-badge)
+![decomp](https://img.shields.io/badge/decompiled-1%2C168%20routines-ff6f00?style=for-the-badge)
 ![backend](https://img.shields.io/badge/backend-cycle--accurate-8a2be2?style=for-the-badge)
 ![native](https://img.shields.io/badge/native%20code-100%25-2ea44f?style=for-the-badge)
 ![oracle](https://img.shields.io/badge/TriCNES-bit%20exact-ffb000?style=for-the-badge)
@@ -56,6 +58,46 @@ flowchart LR
 ```
 
 Whenever an instruction runs on the interpreter, the executable writes down its bank and address (`--miss-log`). That list becomes the seed file, the seeds become compiled code on the next build, and the loop repeats until the list comes back empty.
+
+## The decompiled port (`port/`)
+
+The recompilation above is exact, but it is machine-translated 6502 running on a cycle-by-cycle model of the console. The port is the next step ([PLAN_DECOMP.md](PLAN_DECOMP.md), Portuguese): the game's logic as **readable, named C**, built against a small runtime written for this one game, with the recompiled build kept as the **oracle** every step is checked against.
+
+```text
+dump ─► CDL map ─► disassembly ─► scaffold (1 C function per routine) ─► lifted C ─► tidied C ─► own runtime
+ P0       P0          P1 (ca65, byte-exact)        P3 (lockstep)            P4          P4         P5 · P6 · P8 · P9
+```
+
+| | |
+|---|---|
+| Game code | **1,168 routines** in 74 C files and 14 headers (about 55,000 lines) in [`port/src/game`](port/src/game), by system: player, player states, enemies and their AI, bosses (Thrasher, Sodom, Abigail, Belger), objects, props, stage, flow and screens, the Capcom sound driver |
+| Names | [`disasm/labels.toml`](disasm/labels.toml): 864 labels with evidence; the generated disassembly reassembles byte for byte |
+| Runtime | [`port/src/runtime`](port/src/runtime), about 6,000 lines: RAM, the PPU registers and a once-a-frame renderer, the MMC3, the cycle clock, coroutines for the game's four tasks, and a 2A03 synthesizer for the sound. No 6502 CPU, no interpreter, nothing from nesrecomp |
+| At run time | no ROM: on the first run the executable extracts the graphics and data tables from **your** dump once (`assets/`); the code in the binary is all C |
+| Platforms | Windows (MSVC) and Linux (gcc, clang) checked; macOS written for, not built yet |
+| Docs | [objects](docs/objects.md) · [engine](docs/engine.md) · [RAM map](docs/ram_map.md) · [sound](docs/sound.md) · [assets](docs/assets.md) · [port/README.md](port/README.md) |
+
+**How it stays exact.** Every routine had to leave RAM, registers, flags and the cycle count exactly as the original did. Nine test routes (round 1 with each fighter, three 50,000-frame tours through every round, the final boss and the ending, and three 60,000-frame games) compare every frame's RAM, OAM, palette and picture, plus the cycle count, with the unrefactored scaffold. The runs fail if a single ROM instruction is ever interpreted. Paths no route reaches (bonus stage, Belger's death, high-level power moves) were checked by running the old and new code of each routine on millions of random machine states. Against the cycle-accurate oracle, the port's picture is pixel-identical on every power-on route up to the oracle's first lag frame. Its sound makes the same APU writes in the same order, a median of about 7 cycles apart.
+
+**Playing the port.**
+
+```bash
+cmake -S port -B build -DMFF_SDL=ON              # add -A x64 on Windows; Linux/macOS use the system's SDL2
+cmake --build build --config Release
+build/Release/MightyFinalFight.exe "Mighty Final Fight (USA).nes"   # once; later just run it
+```
+
+| Option | |
+|---|---|
+| `--no-flicker` | every sprite every frame, in a stable order (the console's 8-per-line limit made them blink) |
+| `--wide [W]` | 16:9 (426 columns): the stage drawn from its own map beyond the original 256 pixels; enemies still enter at the original edge |
+| `--picture console\|hd` | the PPU's picture, or one drawn from the game's state |
+| F5 / F7 / F6 | save state / load / next slot (4 slots) |
+| `MightyFinalFight.ini` | keys, controller, scale, full screen, sound, and the options above |
+
+Keys: arrows · `X` A (jump) · `Z` B (punch) · `Enter` Start · `Right Shift` Select · `Tab` fast · `F11` full screen · `Esc` quit. A+B is the special. `tools/make_port_release.ps1` builds a player zip (executable, SDL2, readme) and checks that it holds nothing from the cartridge.
+
+**Not done yet:** slowdown is not faithful yet. The port never lags where the console does; P7 is on it, with an option to turn slowdown off. Save states work during gameplay, not on screens and cutscenes. In `--wide`, the status bar and the menus are still the original 256 columns, centred. macOS has never been built.
 
 ## The bot that played it to the end (with all three)
 
@@ -173,7 +215,7 @@ mkdir rom; copy "<your dump>.nes" rom\
 
 ## Credits
 
-- **[NESRecomp](https://github.com/mstan/nesrecomp)** by mstan: the recompiler, the cycle-accurate runner and the TriCNES oracle. Pinned at `2b4fcdb`.
+- **[NESRecomp](https://github.com/mstan/nesrecomp)** by mstan: the recompiler, the cycle-accurate runner and the TriCNES oracle. The submodule is `2b4fcdb` plus five commits for this project (a CDL logger, an NMI hold hook for the scaffold, `replace_func` fixes), on branch `mff-scaffold` of [Rhayron/nesrecomp](https://github.com/Rhayron/nesrecomp).
 - **[recomp-ui](https://github.com/RetroPortingToolKit/recomp-ui)**: launcher and in-game menu (Dear ImGui).
 - **[MesenCE](https://github.com/nesdev-org/MesenCE)**: the third pair of eyes.
 - **[Data Crystal](https://datacrystal.tcrf.net/wiki/Mighty_Final_Fight/RAM_map)**: where the RAM map started.
@@ -181,6 +223,6 @@ mkdir rom; copy "<your dump>.nes" rom\
 
 ## Legal
 
-This repository contains **no ROM** and no code generated from one. The build produces everything locally from **your** dump. *Mighty Final Fight* is © Capcom. This is a preservation and research project with no affiliation with Capcom or Nintendo. The screenshots above were captured from the executable running the author's own dump.
+This repository contains **no ROM**, no extracted graphics or data, and no generated disassembly or recompiled code. The builds produce those locally from **your** dump. The C in `port/src/game` is a hand-made decompilation: it is a derivative work of Capcom's program code, published the way decompilation projects such as the *Super Mario 64* and *A Link to the Past* ones publish theirs. Neither the source nor the port's executable contains the cartridge's data; they need your dump to run. *Mighty Final Fight* is © Capcom. This is a preservation and research project with no affiliation with Capcom or Nintendo. The screenshots above were captured from the executable running the author's own dump.
 
-<div align="center"><sub>Working plans (Portuguese): <a href="PLAN_WINDOWS.md">PLAN_WINDOWS.md</a> · <a href="PLAN.md">PLAN.md</a> (macOS)</sub></div>
+<div align="center"><sub>Working plans (Portuguese): <a href="PLAN_DECOMP.md">PLAN_DECOMP.md</a> (the port) · <a href="PLAN_WINDOWS.md">PLAN_WINDOWS.md</a> · <a href="PLAN.md">PLAN.md</a> (macOS)</sub></div>
