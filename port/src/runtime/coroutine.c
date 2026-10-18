@@ -12,7 +12,10 @@
  * here the task's C stack is abandoned: coroutine_scheduler_setjmp, called
  * on a task's stack, switches to the scheduler for good, and the
  * scheduler's next pass through its loop top frees every task and clears
- * the interrupt depth.
+ * the interrupt depth and the JMP tails the abandoned frames had listed
+ * (dispatch_rt.c). Left listed, the new main_task's first JMP ($C5CE with
+ * S = $BF) matched the old one's as a lap and ended the task: the game
+ * froze when the title ran out (attract mode restarts the game this way).
  *
  * Windows uses fibers; elsewhere ucontext (macOS still has it, deprecated,
  * behind _XOPEN_SOURCE).
@@ -81,6 +84,7 @@ int coroutine_scheduler_setjmp(void) {
         for (int ch = 0; ch < COROUTINE_MAX_CHANNELS; ch++) drop(ch);
         s_current = -1;
         timing_reset_depth();
+        dispatch_reset_tails();
     }
     return 0;
 }
@@ -168,6 +172,7 @@ int coroutine_scheduler_setjmp(void) {
         for (int ch = 0; ch < COROUTINE_MAX_CHANNELS; ch++) drop(ch);
         s_current = -1;
         timing_reset_depth();
+        dispatch_reset_tails();
     }
     return 0;
 }

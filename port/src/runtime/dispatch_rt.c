@@ -76,6 +76,12 @@ int call_by_address_tail(uint16_t addr, int caller_bank) {
     return r;
 }
 
+void dispatch_reset_tails(void) {
+    s_ntails = 0;
+    s_lap_addr = -1;
+    s_lap_slot = -1;
+}
+
 static int no_routine(uint16_t cpu_addr, int bank) {
     uint8_t s = g_cpu.S;
     uint16_t ret = (uint16_t)(g_ram[0x100 + (uint8_t)(s + 1)] | (g_ram[0x100 + (uint8_t)(s + 2)] << 8));

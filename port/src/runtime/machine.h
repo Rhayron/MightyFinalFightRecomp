@@ -138,6 +138,10 @@ void mff_hooks_init(void);
 /* ---- coroutine.c ---- */
 void coroutine_power_on(void);
 
+/* ---- dispatch_rt.c ---- */
+/* the scheduler restarted (coroutine.c): forget the abandoned tasks' JMP tails */
+void dispatch_reset_tails(void);
+
 /* ---- video_sdl.c (with MFF_SDL) ---- */
 int video_open(int scale);
 void video_frame(const uint32_t *fb);       /* present and pace */

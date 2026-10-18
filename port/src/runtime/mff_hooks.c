@@ -33,6 +33,10 @@
 #include <stdlib.h>
 
 static int nmi_held(uint16_t pc) {
+    /* reset ($FE00-$FEB9) is never held: its vblank polling waits for the
+     * frame boundary, and after the title's JMP reset (attract mode) it runs
+     * on task 0's stack with task 0 still "running" until RAM is cleared */
+    if (pc >= 0xFE00 && pc < 0xFEBA) return 0;
     for (int t = 0; t < 4; t++)
         if (g_ram[0x80 + 4 * t] == 2) return 1;
     if (pc >= 0xFEBA && pc <= 0xFF01) return pc != 0xFEBD;     /* scheduler */
