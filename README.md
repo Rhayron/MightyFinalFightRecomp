@@ -61,7 +61,7 @@ Whenever an instruction runs on the interpreter, the executable writes down its 
 
 ## The decompiled port (`port/`)
 
-The recompilation above is exact, but it is machine-translated 6502 running on a cycle-by-cycle model of the console. The port is the next step ([PLAN_DECOMP.md](PLAN_DECOMP.md), Portuguese): the game's logic as **readable, named C**, built against a small runtime written for this one game, with the recompiled build kept as the **oracle** every step is checked against.
+The recompilation above is exact, but it is machine-translated 6502 running on a cycle-by-cycle model of the console. The port is the next step: the game's logic as **readable, named C**, built against a small runtime written for this one game, with the recompiled build kept as the **oracle** every step is checked against.
 
 ```text
 dump ─► CDL map ─► disassembly ─► scaffold (1 C function per routine) ─► lifted C ─► tidied C ─► own runtime
@@ -75,7 +75,6 @@ dump ─► CDL map ─► disassembly ─► scaffold (1 C function per routine
 | Runtime | [`port/src/runtime`](port/src/runtime), about 6,000 lines: RAM, the PPU registers and a once-a-frame renderer, the MMC3, the cycle clock, coroutines for the game's four tasks, and a 2A03 synthesizer for the sound. No 6502 CPU, no interpreter, nothing from nesrecomp |
 | At run time | no ROM: on the first run the executable extracts the graphics and data tables from **your** dump once (`assets/`); the code in the binary is all C |
 | Platforms | Windows (MSVC) and Linux (gcc, clang) checked; macOS written for, not built yet |
-| Docs | [objects](docs/objects.md) · [engine](docs/engine.md) · [RAM map](docs/ram_map.md) · [sound](docs/sound.md) · [assets](docs/assets.md) · [port/README.md](port/README.md) |
 
 **How it stays exact.** Every routine had to leave RAM, registers, flags and the cycle count exactly as the original did. Nine test routes (round 1 with each fighter, three 50,000-frame tours through every round, the final boss and the ending, and three 60,000-frame games) compare every frame's RAM, OAM, palette and picture, plus the cycle count, with the unrefactored scaffold. The runs fail if a single ROM instruction is ever interpreted. Paths no route reaches (bonus stage, Belger's death, high-level power moves) were checked by running the old and new code of each routine on millions of random machine states. Against the cycle-accurate oracle, the port's picture is pixel-identical on every power-on route up to the oracle's first lag frame. Its sound makes the same APU writes in the same order, a median of about 7 cycles apart.
 
@@ -218,7 +217,6 @@ mkdir rom; copy "<your dump>.nes" rom\
 | [`tools/gen_route.py`](tools/gen_route.py) | deterministic button-mash routes per character |
 | [`tools/contact_sheet.py`](tools/contact_sheet.py) | turn `--shot-every` output into a timeline |
 | [`tools/readme_assets.py`](tools/readme_assets.py) | rebuild every image in this README from your own dump |
-| [`docs/ram_map.md`](docs/ram_map.md) | Data Crystal's RAM map, corrected and checked against the running game |
 
 ## Numbers
 
@@ -241,5 +239,3 @@ mkdir rom; copy "<your dump>.nes" rom\
 ## Legal
 
 This repository contains **no ROM**, no extracted graphics or data, and no generated disassembly or recompiled code. The builds produce those locally from **your** dump. The C in `port/src/game` is a hand-made decompilation: it is a derivative work of Capcom's program code, published the way decompilation projects such as the *Super Mario 64* and *A Link to the Past* ones publish theirs. Neither the source nor the port's executable contains the cartridge's data; they need your dump to run. *Mighty Final Fight* is © Capcom. This is a preservation and research project with no affiliation with Capcom or Nintendo. The screenshots above were captured from the executable running the author's own dump.
-
-<div align="center"><sub>Working plans (Portuguese): <a href="PLAN_DECOMP.md">PLAN_DECOMP.md</a> (the port) · <a href="PLAN_WINDOWS.md">PLAN_WINDOWS.md</a> · <a href="PLAN.md">PLAN.md</a> (macOS)</sub></div>
