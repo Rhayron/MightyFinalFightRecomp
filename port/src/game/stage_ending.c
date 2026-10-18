@@ -123,10 +123,10 @@ void func_A700_b4(void) {
     SYNC_IN;
     mff_cycles(0xA703, 7);
     y = RAM(INTRO_PAGE);
-    a = prg_read((uint16_t)(K_TEXT_PAGE_LO + y));
+    a = prg_read_ix(K_TEXT_PAGE_LO, y);
     mff_cycles(0xA708, 7);
     RAM(TMP12) = a;
-    a = prg_read((uint16_t)(K_TEXT_PAGE_HI + y));
+    a = prg_read_ix(K_TEXT_PAGE_HI, y);
     mff_cycles(0xA70D, 8);
     RAM(TMP13) = a;
     a = 0x00;
@@ -169,10 +169,10 @@ void func_A71D_b4(void) {
     for (;;) {
         mff_cycles(0xA71D, 7);
         x = RAM(TMP16);
-        a = prg_read((uint16_t)(K_TEXT_LINE_HI + x));
+        a = prg_read_ix(K_TEXT_LINE_HI, x);
         mff_cycles(0xA722, 8);
         RAM(VRAM_BUFFER) = a;
-        a = prg_read((uint16_t)(K_TEXT_LINE_LO + x));
+        a = prg_read_ix(K_TEXT_LINE_LO, x);
         mff_cycles(0xA728, 28);
         c = 0;
         ADC_A(RAM(TMP17));
@@ -180,7 +180,7 @@ void func_A71D_b4(void) {
         RAM(VRAM_BUFFER + 2) = 0x00;            /* one byte */
         y = RAM(TMP14);
         RAM(TMP14)++;
-        a = mem_read((uint16_t)(RAM16(TMP12) + y));
+        a = mem_read_iy(TMP12, y);
         mff_cycles(0xA739, 4);
         SET_CMP(a, TEXT_END);
         if (z) {
@@ -361,10 +361,10 @@ void func_AB00_b4(void) {
     a = POSE_Y;
     RAM(OBJ_Y) = a;
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(K_POSE_LO + y));
+    a = prg_read_ix(K_POSE_LO, y);
     mff_cycles(0xAB24, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(K_POSE_HI + y));
+    a = prg_read_ix(K_POSE_HI, y);
     SET_NZ(a);
     mff_cycles(0xAB29, 8);
     RAM(TMP1) = a;

@@ -73,6 +73,9 @@ uint8_t apu_read_status(void);
 /* a frame boundary (timing.c, NMI on or off): the sound up to it to the
  * window and MFF_WAV; next_len is the new frame's length in cycles */
 void apu_frame_boundary(uint32_t next_len);
+/* the frame's length changed after its boundary (timing.c: the odd-frame
+ * dot, decided at the pre-render line) */
+void apu_frame_length(uint32_t len);
 
 /* ---- ppu_regs.c ---- */
 void ppu_power_on(void);
@@ -82,6 +85,7 @@ void ppu_oam_write(int index, uint8_t v);
 uint8_t ppu_ctrl(void);
 uint8_t ppu_mask(void);
 void ppu_set_status(uint8_t set, uint8_t clear);
+int ppu_vblank_flag(void);
 const uint8_t *ppu_oam(void);       /* 256 bytes */
 const uint8_t *ppu_palette(void);   /* 32 bytes as the PPU stores them */
 /* frame boundary: vblank flag on, sprite-0 hit off, scroll and splits reset */
@@ -98,6 +102,12 @@ void ppu_capture_region(FrameRecord *f, int first_line, int v_set);
 void ppu_capture_end(FrameRecord *f);
 
 /* ---- timing.c ---- */
+/* The clock (docs/timing.md): the console's, where the NMI lands wherever
+ * the vblank finds the game (lag frames included); the same with slowdown
+ * off (the NMI waits for a running task); the scaffold runtime's, which the
+ * P4 regression baselines hold. mff_hooks.c sets it. */
+enum { TIMING_CONSOLE, TIMING_NOLAG, TIMING_SCAFFOLD };
+extern int g_timing;
 /* Interrupt-depth values: 0 main code, 1 inside the frame boundary (the
  * callback, the scanline pass), 2 inside the NMI handler, POST_NMI_DEPTH
  * while the hijacked return runs (no frame boundary may start there). */
@@ -111,11 +121,29 @@ void timing_add_dma_stall(void);    /* OAM DMA: 513 or 514 cycles */
 uint32_t timing_frame_cycles(void); /* cycles into the current frame */
 uint16_t timing_pc(void);           /* where the last run of instructions began */
 int timing_in_irq(void);
+uint32_t timing_held_cycles(void);  /* cycles the NMI waited for a task (slowdown off) */
+/* an indexed read crossed a page (port/src/game/hw.h): a cycle on the console's clock */
+void nes_page_cross(void);
+/* a hardware access (bus.c): the vblank and the pre-render line up to now */
+void timing_sync(void);
+/* PPUCTRL turned the NMI on while the vblank flag is up */
+void timing_nmi_enabled(void);
+/* the game wrote PPUMASK (bus.c) */
+void timing_mask_write(void);
 /* run the game's IRQ handler as an interrupt of the code that was running */
 void timing_call_irq_handler(void);
 
 /* ---- frame.c ---- */
-void frame_run(void);               /* the frame boundary with NMI enabled */
+void frame_run(void);               /* the NMI landed (PPUCTRL enables it) */
+/* the console's timing (timing.c): dots count from the vblank's dot */
+void frame_vblank(void);            /* the vblank: the frame's picture is done */
+void frame_scanlines(int32_t dot);  /* the MMC3 counts the lines up to here */
+int frame_irq_due(int32_t dot, int32_t need);   /* its IRQ, raised `need` dots before */
+void frame_irq(int32_t dot);        /* take it, here */
+void frame_irq_blocked(void);       /* due, but the I flag or the NMI handler keeps it out */
+void frame_mask_write(int32_t dot); /* PPUMASK written here */
+void frame_nmi_done(void);          /* the NMI handler returned */
+void frame_objects_draw(void);      /* objects_draw starts (P9's render_hd) */
 extern long g_smoke_frames;         /* --smoke N: exit after N frames (0: run on) */
 extern int g_window;                /* a window is open (video_sdl.c) */
 extern int g_picture;               /* PICTURE_CONSOLE or PICTURE_SCAFFOLD (render.h): what is shown */
@@ -135,6 +163,8 @@ void hooks_exit_log(void);
 
 /* ---- mff_hooks.c ---- */
 void mff_hooks_init(void);
+/* --slowdown on|off, --timing console|scaffold: 1 taken, 0 a bad value */
+int mff_timing_option(const char *name, const char *value);
 
 /* ---- coroutine.c ---- */
 void coroutine_power_on(void);

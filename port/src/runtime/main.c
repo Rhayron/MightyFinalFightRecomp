@@ -42,10 +42,16 @@
  *   --config FILE   the settings (config.c; default MightyFinalFight.ini in
  *                   the data directory, read only with a window). The
  *                   command line and the environment win over it
+ *   --slowdown S    on (default): the console's timing, lag frames included;
+ *                   off: never a lag frame (MFF_SLOWDOWN=1/0 too, and [game]
+ *                   slowdown in the config)
+ *   --timing T      console (default) or scaffold: the timing the P4 test
+ *                   baselines were recorded with (MFF_TIMING=T; mff_hooks.c)
  * The port reads only the extracted data, never the ROM.
  * Environment for the tests: MFF_FRAMELOG, MFF_PICLOG, MFF_INPUT, MFF_BOT,
  * MFF_SHOTS, MFF_PICDUMP, MFF_PRG_READS (runtime/testhooks.c, mmc3.c),
- * MFF_LAG (runtime/mff_hooks.c), MFF_SAVE_AT and MFF_SAVE_DIR (savestate.c).
+ * MFF_LAG, MFF_TIMING, MFF_SLOWDOWN (runtime/mff_hooks.c), MFF_SAVE_AT and
+ * MFF_SAVE_DIR (savestate.c).
  */
 #include "machine.h"
 #include "render_hd.h"
@@ -72,6 +78,7 @@ static void usage(FILE *f) {
             "usage: MightyFinalFight [DUMP] [--assets DIR] [--window | --headless | --smoke N]\n"
             "                        [--scale N] [--picture console|scaffold|hd] [--wide [W]]\n"
             "                        [--no-flicker] [--extract DUMP] [--load STATE] [--config FILE]\n"
+            "                        [--slowdown on|off] [--timing console|scaffold]\n"
             "  DUMP            your Mighty Final Fight (USA) .nes (CRC32 15EB0BEE), needed once:\n"
             "                  the game's data is extracted from it into assets/\n"
             "  --extract DUMP  only extract the data (into --assets DIR or assets/) and exit\n"
@@ -83,7 +90,10 @@ static void usage(FILE *f) {
             "  --wide [W]      16:9 (426 columns, or W from 256 to 512); implies --picture hd\n"
             "  --no-flicker    every sprite every frame; implies --picture hd\n"
             "  --load STATE    start from a save state (F5 saves, F7 loads in the window)\n"
-            "  --config FILE   settings (default MightyFinalFight.ini next to the game)\n");
+            "  --config FILE   settings (default MightyFinalFight.ini next to the game)\n"
+            "  --slowdown S    on (default): the console's slowdown, lag frames included;\n"
+            "                  off: never a lag frame, the game always at full speed\n"
+            "  --timing T      console (default), or scaffold: the P4 tests' timing\n");
 }
 
 /* an HD option from the config file, unless the command line or the
@@ -117,6 +127,12 @@ int main(int argc, char **argv) {
         else if (!strcmp(a, "--headless")) window = 0;
         else if (!strcmp(a, "--scale") && more) scale = atoi(argv[++i]);
         else if (!strcmp(a, "--picture") && more) picture = argv[++i];
+        else if ((!strcmp(a, "--slowdown") || !strcmp(a, "--timing")) && more) {
+            if (!mff_timing_option(a + 2, argv[++i])) {     /* mff_hooks.c */
+                usage(stderr);
+                return 1;
+            }
+        }
         else if (!strcmp(a, "--wide"))
             wide = (more && argv[i + 1][0] >= '0' && argv[i + 1][0] <= '9') ? argv[++i] : "1";
         else if (!strcmp(a, "--no-flicker")) no_flicker = "1";

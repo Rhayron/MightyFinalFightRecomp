@@ -263,7 +263,7 @@ void func_DF50(void) {
         } else {
             mff_cycles(0xDF68, 1 + 3 + 4);
             y = RAM(ROUND);
-            a = prg_read((uint16_t)(ROUND_FIRST_AREA + y));
+            a = prg_read_ix(ROUND_FIRST_AREA, y);
             SET_NZ(a);
             mff_cycles(0xDF75, 3);
             RAM(AREA_INDEX) = a;
@@ -322,7 +322,7 @@ void func_DF50(void) {
         JSR_FN(0xDFBC, func_FF4D);              /* bank_switch: $04/$05 */
         mff_cycles(0xDFBF, 3 + 4);
         y = RAM(ROUND);
-        a = prg_read((uint16_t)(ROUND_MAP_FUNCTION + y));
+        a = prg_read_ix(ROUND_MAP_FUNCTION, y);
         mff_cycles(0xDFC4, 2 + 6);
         x = a;
         SET_NZ(x);
@@ -350,7 +350,7 @@ void func_DF50(void) {
     }
     mff_cycles(0xDFE2, 3 + 4);
     y = RAM(ROUND);
-    a = prg_read((uint16_t)(ROUND_TABLES_INDEX + y));
+    a = prg_read_ix(ROUND_TABLES_INDEX, y);
     mff_cycles(0xDFE7, 3);
     RAM(ROUND_TABLES) = a;
     FALL_INTO(func_DFE9);
@@ -377,7 +377,7 @@ void func_DFE9(void) {
 
     mff_cycles(0xDFE9, 3 + 4);
     y = RAM(ROUND);
-    a = prg_read((uint16_t)(ROUND_MUSIC + y));
+    a = prg_read_ix(ROUND_MUSIC, y);
     mff_cycles(0xDFEE, 3 + 2);
     COMPARE(a, RAM(MUSIC_CURRENT));
     if (!z) {
@@ -418,7 +418,7 @@ void func_DFE9(void) {
     JSR_AT(0xE015, 0x9C00, -1);
     mff_cycles(0xE018, 3 + 4);
     y = RAM(ROUND);
-    a = prg_read((uint16_t)(ROUND_BANK + y));
+    a = prg_read_ix(ROUND_BANK, y);
     SET_NZ(a);
     mff_cycles(0xE01D, 3 + 6);
     RAM(BANK_REQUEST + 1) = a;

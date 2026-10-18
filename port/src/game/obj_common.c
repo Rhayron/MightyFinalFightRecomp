@@ -19,10 +19,10 @@ void obj_phase_jump(uint16_t pc, uint16_t lo, uint16_t hi)
     mff_cycles(pc, 12);
     a = RAM(OBJ_STATE + x) & OBJ_PHASE;
     y = a;
-    a = prg_read((uint16_t)(lo + y));
+    a = prg_read_ix(lo, y);
     mff_cycles((uint16_t)(pc + 9), 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(hi + y));
+    a = prg_read_ix(hi, y);
     SET_NZ(a);
     mff_cycles((uint16_t)(pc + 14), 8);
     RAM(TMP1) = a;

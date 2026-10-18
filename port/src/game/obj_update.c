@@ -182,10 +182,10 @@ void func_800B_b6(void)
     /* JMP (obj_behavior_lo/hi[id]) with $805D pushed: its RTS lands on $805E */
     mff_cycles(0x8048, 8);
     y = RAM(OBJ_ID + x);
-    a = prg_read((uint16_t)(OBJ_BEHAVIOR_LO + y));
+    a = prg_read_ix(OBJ_BEHAVIOR_LO, y);
     mff_cycles(0x804E, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(OBJ_BEHAVIOR_HI + y));
+    a = prg_read_ix(OBJ_BEHAVIOR_HI, y);
     mff_cycles(0x8053, 18);
     RAM(TMP1) = a;
     mff_push(0x80);

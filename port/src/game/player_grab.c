@@ -40,10 +40,10 @@ void func_D7A3(void) {
 
     mff_cycles(0xD7A3, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(GRAB_HANDLER_LO + y));
+    a = prg_read_ix(GRAB_HANDLER_LO, y);
     mff_cycles(0xD7A8, 3 + 4);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(GRAB_HANDLER_HI + y));
+    a = prg_read_ix(GRAB_HANDLER_HI, y);
     SET_NZ(a);
     mff_cycles(0xD7AD, 3 + 5);
     RAM(TMP1) = a;
@@ -211,12 +211,12 @@ void func_D82E(void) {
     a = 0x04;
     RAM(OBJ_VY) = a;
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(ANIM_JUMP + y));
+    a = prg_read_ix(ANIM_JUMP, y);
     SET_NZ(a);
     mff_cycles(0xD85D, 6);
     JSR_FN(0xD85D, func_F294);                  /* player_set_anim */
     mff_cycles(0xD860, 4);
-    a = prg_read((uint16_t)(CHR_JUMP + y));
+    a = prg_read_ix(CHR_JUMP, y);
     SET_NZ(a);
     mff_cycles(0xD863, 6);
     JSR_FN(0xD863, func_F440);                  /* player_set_chr */

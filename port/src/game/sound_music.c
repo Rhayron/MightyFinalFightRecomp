@@ -152,7 +152,7 @@ void func_83CD_b3(void) {
     a = (uint8_t)(RAM(SND_SEQ_FLAGS + x) << 2);
     if (a & 0x80) {
         mff_cycles(0x83EA, 4);
-        a = prg_read((uint16_t)(SND_TBL_LEN_TRIPLET + y));
+        a = prg_read_ix(SND_TBL_LEN_TRIPLET, y);
         mff_cycles(0x83ED, 2);
         normal = a == 0;                        /* no triplet length is 0 */
         if (!normal)
@@ -164,7 +164,7 @@ void func_83CD_b3(void) {
     if (normal) {
         mff_cycles(0x83EF, 8);
         c = (a >> 6) & 1;                       /* the dot flag (ASL, ASL) */
-        a = prg_read((uint16_t)(SND_TBL_LEN_NORMAL + y));
+        a = prg_read_ix(SND_TBL_LEN_NORMAL, y);
         mff_cycles(0x83F4, 2);
         if (c) {
             mff_cycles(0x83F6, 24);
@@ -282,7 +282,7 @@ void func_83CD_b3(void) {
     mff_cycles(0x8466, 15);
     RAM(SND_ARG) = y;
     y = RAM(SND_SEQ_FLAGS + x) & 0x0F;
-    a = prg_read((uint16_t)(SND_TBL_OCTAVE_BASE + y));
+    a = prg_read_ix(SND_TBL_OCTAVE_BASE, y);
     mff_cycles(0x8471, 22);
     a = (uint8_t)(a + RAM(SND_ARG));
     a = (uint8_t)(a + RAM(SND_TRANSPOSE));

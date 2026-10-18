@@ -62,10 +62,10 @@ void func_9A00_b0(void) {
     JSR_AT(0x9A00, 0x9AC0, 0);                  /* story_text_clear */
     mff_cycles(0x9A03, 3 + 4);
     y = RAM(INTRO_PAGE);
-    a = prg_read((uint16_t)(STORY_PAGE_LO + y));
+    a = prg_read_ix(STORY_PAGE_LO, y);
     mff_cycles(0x9A08, 3 + 4);
     RAM(TEXT_PTR) = a;
-    a = prg_read((uint16_t)(STORY_PAGE_HI + y));
+    a = prg_read_ix(STORY_PAGE_HI, y);
     mff_cycles(0x9A0D, 3 + 2 + 3);
     RAM(TEXT_PTR + 1) = a;
     a = 0;
@@ -114,10 +114,10 @@ void func_9A1D_b0(void) {
         /* the write list's address: the line's start + the column */
         mff_cycles(0x9A23, 3 + 4);
         x = RAM(TEXT_LINE);
-        a = prg_read((uint16_t)(TEXT_LINE_HI + x));
+        a = prg_read_ix(TEXT_LINE_HI, x);
         mff_cycles(0x9A28, 4 + 4);
         RAM(VRAM_BUFFER) = a;
-        a = prg_read((uint16_t)(TEXT_LINE_LO + x));
+        a = prg_read_ix(TEXT_LINE_LO, x);
         mff_cycles(0x9A2E, 2 + 3 + 4 + 2 + 4 + 3 + 5 + 5);
         c = 0;
         m = RAM(TEXT_COLUMN);                   /* ADC: only V is read later */
@@ -129,7 +129,7 @@ void func_9A1D_b0(void) {
         RAM(VRAM_BUFFER + 2) = a;
         y = RAM(TEXT_INDEX);
         RAM(TEXT_INDEX)++;
-        a = mem_read((uint16_t)(RAM16(TEXT_PTR) + y));
+        a = mem_read_iy(TEXT_PTR, y);
         mff_cycles(0x9A3F, 2 + 2);
         COMPARE(a, TEXT_END);
         if (z) {

@@ -112,22 +112,22 @@ void func_8AEE_b6(void)
 
     mff_cycles(0x8B3A, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(PICKUP_ANIM + y));
+    a = prg_read_ix(PICKUP_ANIM, y);
     SET_NZ(a);
     mff_cycles(0x8B3F, 6);
     CALL_FIXED(0x8B3F, func_F294);
     mff_cycles(0x8B42, 4);
-    a = prg_read((uint16_t)(PICKUP_CHR + y));
+    a = prg_read_ix(PICKUP_CHR, y);
     SET_NZ(a);
     mff_cycles(0x8B45, 6);
     CALL_FIXED(0x8B45, func_F440);
     mff_cycles(0x8B48, 12);
     a = RAM(OBJ_ID + x) & 0x0F;
     y = a;
-    a = prg_read((uint16_t)(ITEM_ROUTINE_LO + y));
+    a = prg_read_ix(ITEM_ROUTINE_LO, y);
     mff_cycles(0x8B51, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(ITEM_ROUTINE_HI + y));
+    a = prg_read_ix(ITEM_ROUTINE_HI, y);
     SET_NZ(a);
     mff_cycles(0x8B56, 8);
     RAM(TMP1) = a;
@@ -153,15 +153,15 @@ void func_8B64_b6(void)
     CALL_FIXED(0x8B66, func_F34C);
     mff_cycles(0x8B69, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(LEVEL_HEALTH_LO + y));
+    a = prg_read_ix(LEVEL_HEALTH_LO, y);
     mff_cycles(0x8B6E, 7);
     RAM(TMP2) = a;
-    a = prg_read((uint16_t)(LEVEL_HEALTH_HI + y));
+    a = prg_read_ix(LEVEL_HEALTH_HI, y);
     mff_cycles(0x8B73, 14);
     RAM(TMP3) = a;
     y = RAM(PLAYER_LEVEL);
     a = RAM(HEALTH);
-    m = mem_read((uint16_t)(RAM16(TMP2) + y));
+    m = mem_read_iy(TMP2, y);
     mff_cycles(0x8B7B, 2);
     if (a != m) {
         mff_cycles(0x8B7D, 17);
@@ -169,11 +169,11 @@ void func_8B64_b6(void)
         y = a;
         a = RAM(HEALTH);
         c = 0;
-        ADC_A(prg_read((uint16_t)(FOOD_HEALTH + y)));
+        ADC_A(prg_read_ix(FOOD_HEALTH, y));
         mff_cycles(0x8B89, 11);
         RAM(HEALTH) = a;
         y = RAM(PLAYER_LEVEL);
-        a = mem_read((uint16_t)(RAM16(TMP2) + y));
+        a = mem_read_iy(TMP2, y);
         mff_cycles(0x8B8F, 5);
         CMP_FLAGS(a, RAM(HEALTH));
         if (c) {
@@ -190,7 +190,7 @@ void func_8B64_b6(void)
         c = 1;
         SBC_A(0x60);
         y = a;
-        a = prg_read((uint16_t)(FOOD_POINTS + y));
+        a = prg_read_ix(FOOD_POINTS, y);
         SET_NZ(a);
         mff_cycles(0x8BA1, 9);
         RAM(ATTACK_ID) = a;

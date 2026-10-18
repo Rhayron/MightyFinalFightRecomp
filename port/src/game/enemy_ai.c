@@ -262,13 +262,13 @@ void func_A0E8_b6(void)
     y = a;
     if (RAM(OBJ_AI_FLAG + x) == 0) {
         mff_cycles(0xA0F9, 4);
-        a = prg_read((uint16_t)(MANEUVER_MOVES_A + y));
+        a = prg_read_ix(MANEUVER_MOVES_A, y);
         mff_cycles(0xA0FC, 3);
         GOTO_BANK(0xA102);
     }
     mff_cycles(0xA0F7, 1);
     mff_cycles(0xA0FF, 4);
-    a = prg_read((uint16_t)(MANEUVER_MOVES_B + y));
+    a = prg_read_ix(MANEUVER_MOVES_B, y);
     FALL_INTO(func_A102_b6);
 }
 
@@ -297,7 +297,7 @@ void func_A102_b6(void)
         c = 0;
         ADC_A(RAM(TMP0));
         y = a;
-        a = prg_read((uint16_t)(MOVE_PICKS + y));
+        a = prg_read_ix(MOVE_PICKS, y);
         mff_cycles(0xA11C, 2);
         if (a != 0) {
             mff_cycles(0xA11E, 12);
@@ -309,7 +309,7 @@ void func_A102_b6(void)
             }
             mff_cycles(0xA126, 6);
             y = a;
-            a = prg_read((uint16_t)(MOVE_STATES + y));
+            a = prg_read_ix(MOVE_STATES, y);
             mff_cycles(0xA12A, 18);
             RAM(OBJ_STATE + x) = a;
             a = 0x00;
@@ -336,7 +336,7 @@ void func_A102_b6(void)
     }
     mff_cycles(0xA176, 12);
     y = RAM(OBJ_TIMER + x) & 0x0F;
-    a = prg_read((uint16_t)(DIR_FROM_INDEX + y));
+    a = prg_read_ix(DIR_FROM_INDEX, y);
     mff_cycles(0xA17F, 11);
     RAM(OBJ_DIR + x) = a;
     CALL_BANK(0xA182, 0xAC34);                  /* enemy_set_speed */
@@ -363,11 +363,11 @@ void func_A139_b6(void)
     y = RAM(OBJ_KIND + x);
     a = RAM(RNG + 1) & 0x0F;
     mff_cycles(0xA143, 2);
-    if (a >= prg_read((uint16_t)(WAIT_ODDS + y))) {
+    if (a >= prg_read_ix(WAIT_ODDS, y)) {
         mff_cycles(0xA143, 1);
     } else {
         mff_cycles(0xA145, 4);
-        a = prg_read((uint16_t)(WAIT_TIME + y));
+        a = prg_read_ix(WAIT_TIME, y);
         mff_cycles(0xA148, 2);
         wait = a != 0;
         if (wait)
@@ -383,7 +383,7 @@ void func_A139_b6(void)
     c = 1;
     SBC_A(ENEMY_ID_FIRST);
     y = a;
-    a = prg_read((uint16_t)(CLOSE_IN_TRIES + y));
+    a = prg_read_ix(CLOSE_IN_TRIES, y);
     mff_cycles(0xA159, 18);
     RAM(OBJ_AI_COUNT + x) = a;
     a = AI_CLOSE_IN;
@@ -542,10 +542,10 @@ void func_A210_b6(void)
     mff_cycles(0xA216, 1);
     mff_cycles(0xA21B, 8);
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(ATTACK_RANGE_X + y));
+    a = prg_read_ix(ATTACK_RANGE_X, y);
     mff_cycles(0xA221, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(ATTACK_RANGE_Y + y));
+    a = prg_read_ix(ATTACK_RANGE_Y, y);
     mff_cycles(0xA226, 11);
     y = a;
     a = RAM(TMP0);
@@ -584,7 +584,7 @@ void func_A210_b6(void)
     }
     mff_cycles(0xA24C, 9);
     a = RAM(RNG) & 0x0F;
-    c = a >= prg_read((uint16_t)(RETREAT_ODDS + y));
+    c = a >= prg_read_ix(RETREAT_ODDS, y);
     mff_cycles(0xA253, 2);
     if (!c) {
         mff_cycles(0xA253, 1);
@@ -598,7 +598,7 @@ void func_A210_b6(void)
     a = 0x00;
     RAM(OBJ_AI_COUNT + x) = a;
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(COMBO_HITS + y));
+    a = prg_read_ix(COMBO_HITS, y);
     mff_cycles(0xA260, 2);
     if (a != 0) {
         mff_cycles(0xA262, 7);
@@ -618,12 +618,12 @@ void func_A210_b6(void)
         mff_cycles(0xA26E, 11);
         RAM(TMP0) = a;
         y = RAM(OBJ_TIER + x);
-        a = prg_read((uint16_t)(TIER_INDEX + y));
+        a = prg_read_ix(TIER_INDEX, y);
         mff_cycles(0xA276, 11);
         c = 0;
         ADC_A(RAM(TMP0));
         y = a;
-        a = prg_read((uint16_t)(COMBO_ODDS + y));
+        a = prg_read_ix(COMBO_ODDS, y);
         mff_cycles(0xA27D, 13);
         RAM(TMP0) = a;
         a = RAM(RNG) & 0x0F;
@@ -742,7 +742,7 @@ void func_A2C3_b6(void)
     } else {
         mff_cycles(0xA2FE, 8);
         y = RAM(OBJ_KIND + x);
-        a = prg_read((uint16_t)(HIT_FRAME + y));
+        a = prg_read_ix(HIT_FRAME, y);
         mff_cycles(0xA304, 6);
         if (a == RAM(OBJ_ANIM_FRAME + x)) {
             mff_cycles(0xA307, 1);
@@ -758,14 +758,14 @@ void func_A2C3_b6(void)
                 if (RAM(OBJ_LAND_Y + x) != 0) {
                     mff_cycles(0xA335, 1);
                     mff_cycles(0xA33D, 4);
-                    a = prg_read((uint16_t)(HIT_DAMAGE + y));
+                    a = prg_read_ix(HIT_DAMAGE, y);
                     FALL_INTO(func_A340_b6);
                 }
             } else {
                 mff_cycles(0xA330, 1);
             }
             mff_cycles(0xA337, 4);
-            a = prg_read((uint16_t)(LAST_HIT_DAMAGE + y));
+            a = prg_read_ix(LAST_HIT_DAMAGE, y);
             mff_cycles(0xA33A, 3);
             GOTO_BANK(0xA340);
         }
@@ -825,10 +825,10 @@ static void attack_next_hit(void)
     mff_cycles(0xA350, 1);
     mff_cycles(0xA365, 8);
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(ATTACK_RANGE_X + y));
+    a = prg_read_ix(ATTACK_RANGE_X, y);
     mff_cycles(0xA36B, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(ATTACK_RANGE_Y + y));
+    a = prg_read_ix(ATTACK_RANGE_Y, y);
     mff_cycles(0xA370, 11);
     y = a;
     a = RAM(TMP0);
@@ -915,10 +915,10 @@ void func_A3F5_b6(void)
     CALL_FIXED(0xA3FA, func_FB5B);              /* direction index to the player */
     mff_cycles(0xA3FD, 6);
     y = a;
-    a = prg_read((uint16_t)(RETREAT_DIRS + y));
+    a = prg_read_ix(RETREAT_DIRS, y);
     mff_cycles(0xA401, 6);
     y = a;
-    a = prg_read((uint16_t)(DIR_FROM_INDEX + y));
+    a = prg_read_ix(DIR_FROM_INDEX, y);
     mff_cycles(0xA405, 11);
     RAM(OBJ_DIR + x) = a;
     CALL_BANK(0xA408, 0xAC34);                  /* enemy_set_speed */

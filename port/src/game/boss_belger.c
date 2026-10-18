@@ -276,7 +276,7 @@ void func_B696_b5(void)
                 RAM(GRAB_TIMER) = a;
                 RAM(GRAB_TIMER)--;
                 y = RAM(PLAYER_ID);
-                a = prg_read((uint16_t)(ESCAPE_PLAYER_CHR + y));
+                a = prg_read_ix(ESCAPE_PLAYER_CHR, y);
                 SET_NZ(a);
                 mff_cycles(0xB734, 6);
                 CALL_FIXED(0xB734, func_F440);          /* sprite bank R2 = A */
@@ -517,19 +517,19 @@ void func_B84B_b5(void)
     REGS_IN;
 
     mff_cycles(0xB84B, 4);
-    a = prg_read((uint16_t)(DIR_BY_INDEX + y));
+    a = prg_read_ix(DIR_BY_INDEX, y);
     mff_cycles(0xB84E, 9);
     RAM(OBJ_DIR + x) = a;
-    a = prg_read((uint16_t)(SPEED_VX_FRAC + y));
+    a = prg_read_ix(SPEED_VX_FRAC, y);
     mff_cycles(0xB854, 9);
     RAM(OBJ_VX_FRAC + x) = a;
-    a = prg_read((uint16_t)(SPEED_VX + y));
+    a = prg_read_ix(SPEED_VX, y);
     mff_cycles(0xB85A, 9);
     RAM(OBJ_VX + x) = a;
-    a = prg_read((uint16_t)(SPEED_VY_FRAC + y));
+    a = prg_read_ix(SPEED_VY_FRAC, y);
     mff_cycles(0xB860, 9);
     RAM(OBJ_VY_FRAC + x) = a;
-    a = prg_read((uint16_t)(SPEED_VY + y));
+    a = prg_read_ix(SPEED_VY, y);
     mff_cycles(0xB866, 11);
     RAM(OBJ_VY + x) = a;
     CALL_IN(0xB869, 0xBC6B, BANK_0B);
@@ -581,14 +581,14 @@ void func_B86F_b5(void)
     a = RAM(OBJ_AI_FLAG + x);
     if (a == 0) {
         mff_cycles(0xB883, 4);
-        a = prg_read((uint16_t)(CIRCLE_ONE_WAY + y));
+        a = prg_read_ix(CIRCLE_ONE_WAY, y);
         SET_NZ(a);
         mff_cycles(0xB886, 3);
         GO_IN(0xB88C, BANK_0B);
     }
     mff_cycles(0xB881, 1);
     mff_cycles(0xB889, 4);
-    a = prg_read((uint16_t)(CIRCLE_OTHER_WAY + y));
+    a = prg_read_ix(CIRCLE_OTHER_WAY, y);
     SET_NZ(a);
     SYNC_OUT;
     func_B88C_b5();
@@ -646,7 +646,7 @@ void func_B88C_b5(void)
     mff_cycles(0xB8AC, 12);
     a = RAM(OBJ_TIMER + x) & 0x0F;
     y = a;
-    a = prg_read((uint16_t)(CIRCLE_FRAMES + y));
+    a = prg_read_ix(CIRCLE_FRAMES, y);
     mff_cycles(0xB8B5, 5);
     RAM(OBJ_AI_TIMER + x) = a;
     SYNC_OUT;
@@ -1476,11 +1476,11 @@ void func_BBEC_b5(void)
     y = a;
     a = RAM(OBJ_X + x);
     c = 0;
-    ADC_A(prg_read((uint16_t)(SHOT_DX + y)));
+    ADC_A(prg_read_ix(SHOT_DX, y));
     mff_cycles(0xBC1C, 11);
     mff_push(a);
     a = RAM(OBJ_X_HI + x);
-    ADC_A(prg_read((uint16_t)(SHOT_DX_HI + y)));
+    ADC_A(prg_read_ix(SHOT_DX_HI, y));
     mff_cycles(0xBC23, 108);
     y = RAM(TMP0);
     RAM(OBJ_X_HI + y) = a;

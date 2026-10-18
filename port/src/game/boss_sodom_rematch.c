@@ -401,7 +401,7 @@ void func_AB93_b0(void)
     SET_NZ(y);
     CALL_B01(0xABA7, 0xA7E1);
     mff_cycles(0xABAA, 4);
-    a = prg_read((uint16_t)(DIR_PAD_BITS + y));
+    a = prg_read_ix(DIR_PAD_BITS, y);
     SET_NZ(a);
     mff_cycles(0xABAD, 11);
     RAM(OBJ_DIR + x) = a;
@@ -519,7 +519,7 @@ void func_ABB6_b0(void)
     }
     mff_cycles(0xAC16, 8);
     y = RAM(OBJ_DIR + x);
-    a = prg_read((uint16_t)(DIR_PAD_BITS + y));
+    a = prg_read_ix(DIR_PAD_BITS, y);
     mff_cycles(0xAC1C, 25);
     RAM(OBJ_DIR + x) = a;
     a = 0x64;
@@ -657,7 +657,7 @@ void func_AC4E_b0(void)
         mff_cycles(0xAC9A, 10);
         a = RAM(OBJ_X + x);
         c = 0;
-        ADC_A(prg_read((uint16_t)(CHARGE_SHAKE_X + y)));
+        ADC_A(prg_read_ix(CHARGE_SHAKE_X, y));
         mff_cycles(0xACA1, 19);
         RAM(OBJ_X + x) = a;
         a = RAM(OBJ_X_HI + x);
@@ -670,7 +670,7 @@ void func_AC4E_b0(void)
     mff_cycles(0xACAF, 10);
     a = RAM(OBJ_X + x);
     c = 1;
-    SBC_A(prg_read((uint16_t)(CHARGE_SHAKE_X + y)));
+    SBC_A(prg_read_ix(CHARGE_SHAKE_X, y));
     mff_cycles(0xACB6, 26);                     /* with $ACC1's first 10 */
     RAM(OBJ_X + x) = a;
     a = RAM(OBJ_X_HI + x);
@@ -707,18 +707,18 @@ static void charge_shake_y(void)
     a >>= 1;
     if (!c) {
         mff_cycles(0xACD0, 4);
-        a = prg_read((uint16_t)(CHARGE_SHAKE_Y_EVEN + y));
+        a = prg_read_ix(CHARGE_SHAKE_Y_EVEN, y);
         mff_cycles(0xACD3, 2);
         if (a != 0) {
             mff_cycles(0xACD3, 1);
         } else {
             mff_cycles(0xACD5, 4);
-            a = prg_read((uint16_t)(CHARGE_SHAKE_Y_ODD + y));
+            a = prg_read_ix(CHARGE_SHAKE_Y_ODD, y);
         }
     } else {
         mff_cycles(0xACCE, 1);
         mff_cycles(0xACD5, 4);
-        a = prg_read((uint16_t)(CHARGE_SHAKE_Y_ODD + y));
+        a = prg_read_ix(CHARGE_SHAKE_Y_ODD, y);
     }
     mff_cycles(0xACD8, 21);
     RAM(TMP1) = a;

@@ -175,9 +175,9 @@ void func_C5A3(void) {
     if (a == 0x08) {
         for (;;) {                                          /* X = $0F down to 0 */
             mff_cycles(0xC5BC, 4);
-            a = prg_read((uint16_t)(0xFFE0 + x));
+            a = prg_read_ix(0xFFE0, x);
             mff_cycles(0xC5BF, 4);
-            m = prg_read((uint16_t)(0xC8DD + x));
+            m = prg_read_ix(0xC8DD, x);
             c = a >= m;
             mff_cycles(0xC5C2, 2);
             if (a != m) {
@@ -707,7 +707,7 @@ static void title_start_game(void) {
     y = 0;
     RAM(AREA_INDEX) = y;
     RAM(ROUND_TABLES) = y;
-    a = prg_read((uint16_t)(ROUND_MUSIC_TABLE + y));
+    a = prg_read_ix(ROUND_MUSIC_TABLE, y);
     SET_NZ(a);
     mff_cycles(0xC75D, 6);
     SYNC_OUT;
@@ -752,7 +752,7 @@ static void title_start_game(void) {
     SYNC_IN;
     mff_cycles(0xC780, 7);
     y = RAM(ROUND_TABLES);
-    a = prg_read((uint16_t)(ROUND_BANK_TABLE + y));
+    a = prg_read_ix(ROUND_BANK_TABLE, y);
     SET_NZ(a);
     mff_cycles(0xC785, 9);
     RAM(BANK_REQUEST + 1) = a;
@@ -807,7 +807,7 @@ static void title_start_game(void) {
     SYNC_IN;
     mff_cycles(0xC7D0, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(START_HEALTH_TABLE + y));
+    a = prg_read_ix(START_HEALTH_TABLE, y);
     SET_NZ(a);
     mff_cycles(0xC7D5, 9);
     RAM(HEALTH) = a;

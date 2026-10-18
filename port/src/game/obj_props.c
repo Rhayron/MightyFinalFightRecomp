@@ -139,7 +139,7 @@ void func_A731_b2(void)
     mff_cycles(0xA74F, 11);
     y = RAM(PLAYER_ID);
     a = RAM(OBJ_ANIM);
-    m = prg_read((uint16_t)(ANIM_FIRST_PUNCH + y));
+    m = prg_read_ix(ANIM_FIRST_PUNCH, y);
     CMP_FLAGS(a, m);
     mff_cycles(0xA757, 2);
     if (!z) {
@@ -154,15 +154,15 @@ void func_A731_b2(void)
     CALL_FIXED(0xA75B, func_F34C);
     mff_cycles(0xA75E, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(FULL_HEALTH_LO + y));
+    a = prg_read_ix(FULL_HEALTH_LO, y);
     mff_cycles(0xA763, 7);
     RAM(TMP2) = a;
-    a = prg_read((uint16_t)(FULL_HEALTH_HI + y));
+    a = prg_read_ix(FULL_HEALTH_HI, y);
     mff_cycles(0xA768, 14);
     RAM(TMP3) = a;
     y = RAM(PLAYER_LEVEL);
     a = RAM(HEALTH);
-    m = mem_read((uint16_t)(RAM16(TMP2) + y));
+    m = mem_read_iy(TMP2, y);
     CMP_FLAGS(a, m);
     mff_cycles(0xA770, 2);
     if (!z) {
@@ -170,11 +170,11 @@ void func_A731_b2(void)
         y = HIDDEN_FOOD_KIND;
         a = RAM(HEALTH);
         c = 0;
-        ADC_A(prg_read((uint16_t)(FOOD_HEALTH + y)));
+        ADC_A(prg_read_ix(FOOD_HEALTH, y));
         mff_cycles(0xA77A, 11);
         RAM(HEALTH) = a;
         y = RAM(PLAYER_LEVEL);
-        a = mem_read((uint16_t)(RAM16(TMP2) + y));
+        a = mem_read_iy(TMP2, y);
         mff_cycles(0xA780, 5);
         CMP_FLAGS(a, RAM(HEALTH));
         if (!c) {                               /* past full: full */
@@ -387,7 +387,7 @@ void func_AC7D_b2(void)
         RAM(OBJ_FLAGS + y) = FACE_RIGHT_FLAGS;
         RAM(OBJ_Y + y) = LIGHT_START_Y;
         x = RAM(TMP0);
-        a = prg_read((uint16_t)(LIGHT_X + x));
+        a = prg_read_ix(LIGHT_X, x);
         mff_cycles(0xACD4, 15);
         RAM(OBJ_X + y) = a;
         x--;
@@ -790,12 +790,12 @@ void func_AB41_b2(void)
     RAM(PLAYER_DIR) = DIR_RIGHT;
     RAM(OBJ_FLAGS) = FACE_RIGHT_FLAGS;
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(PLAYER_HIT_ANIM + y));
+    a = prg_read_ix(PLAYER_HIT_ANIM, y);
     SET_NZ(a);
     mff_cycles(0xABBA, 6);
     CALL_FIXED(0xABBA, func_F294);              /* player_set_anim */
     mff_cycles(0xABBD, 4);
-    a = prg_read((uint16_t)(PLAYER_HIT_CHR + y));
+    a = prg_read_ix(PLAYER_HIT_CHR, y);
     SET_NZ(a);
     mff_cycles(0xABC0, 6);
     CALL_FIXED(0xABC0, func_F440);              /* chr_banks+2 = A */
@@ -870,12 +870,12 @@ void func_A9E4_b2(void)
     mff_cycles(0xAA18, 11);
     y = RAM(PLAYER_ID);
     a = RAM(OBJ_ANIM);
-    m = prg_read((uint16_t)(TALK_POSE_1 + y));
+    m = prg_read_ix(TALK_POSE_1, y);
     c = a >= m;
     mff_cycles(0xAA20, 2);
     if (a != m) {
         mff_cycles(0xAA22, 4);
-        m = prg_read((uint16_t)(TALK_POSE_2 + y));
+        m = prg_read_ix(TALK_POSE_2, y);
         CMP_FLAGS(a, m);
         mff_cycles(0xAA25, 2);
         if (!z)
@@ -893,24 +893,24 @@ void func_A9E4_b2(void)
         if (y == ROUND_5) {
             mff_cycles(0xAA35, 7);
             y = RAM(SUB_AREA);
-            a = prg_read((uint16_t)(TALK_BASE_R5 + y));
+            a = prg_read_ix(TALK_BASE_R5, y);
             mff_cycles(0xAA3A, 2);
             if (a != 0) {
                 mff_cycles(0xAA3A, 1);
             } else {                            /* never: no 0 in TALK_BASE_R5 */
                 mff_cycles(0xAA3C, 4);
-                a = prg_read((uint16_t)(TALK_BASE_ROUND + y));
+                a = prg_read_ix(TALK_BASE_ROUND, y);
             }
         } else {
             mff_cycles(0xAA33, 1);
             mff_cycles(0xAA3C, 4);
-            a = prg_read((uint16_t)(TALK_BASE_ROUND + y));
+            a = prg_read_ix(TALK_BASE_ROUND, y);
         }
         mff_cycles(0xAA3F, 11);
         c = 0;
         ADC_A(RAM(PLAYER_ID));
         y = a;
-        a = prg_read((uint16_t)(TALK_PAGES + y));
+        a = prg_read_ix(TALK_PAGES, y);
         mff_cycles(0xAA46, 10);
         RAM(SPECIAL_SCREEN_ID) = a;
         RAM(OBJ_STATE + x)++;

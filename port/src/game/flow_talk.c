@@ -137,10 +137,10 @@ void func_9800_b2(void) {
 
     mff_cycles(0x9800, 7);
     y = RAM(SPECIAL_SCREEN_STEP);
-    a = prg_read((uint16_t)(TALK_STEP_LO + y));
+    a = prg_read_ix(TALK_STEP_LO, y);
     mff_cycles(0x9805, 7);
     RAM(TMP12) = a;
-    a = prg_read((uint16_t)(TALK_STEP_HI + y));
+    a = prg_read_ix(TALK_STEP_HI, y);
     SET_NZ(a);
     mff_cycles(0x980A, 8);
     RAM(TMP13) = a;
@@ -223,7 +223,7 @@ static void talk_cmd_bonus_result(void) {
     CALL_04(0x988B, 0x9AA0);
     mff_cycles(0x988E, 9);
     y = RAM(BONUS_DRUM_COUNT);
-    a = prg_read((uint16_t)(BONUS_REWARD_TEXT + y));
+    a = prg_read_ix(BONUS_REWARD_TEXT, y);
     mff_cycles(0x9894, 8);
     y = a;
     SET_NZ(y);
@@ -407,7 +407,7 @@ void func_98DD_b2(void) {
         }
         if (table == 0) {
             mff_cycles(0x9900, 4);
-            a = prg_read((uint16_t)(FULL_HEALTH_HAGGAR + y));
+            a = prg_read_ix(FULL_HEALTH_HAGGAR, y);
             mff_cycles(0x9903, 2);
             table = a != 0 ? 3 : 1;
             if (table == 3)
@@ -415,7 +415,7 @@ void func_98DD_b2(void) {
         }
         if (table == 1) {
             mff_cycles(0x9905, 4);
-            a = prg_read((uint16_t)(FULL_HEALTH_CODY + y));
+            a = prg_read_ix(FULL_HEALTH_CODY, y);
             mff_cycles(0x9908, 2);
             table = a != 0 ? 3 : 2;
             if (table == 3)
@@ -423,13 +423,13 @@ void func_98DD_b2(void) {
         }
         if (table == 2) {
             mff_cycles(0x990A, 4);
-            a = prg_read((uint16_t)(FULL_HEALTH_GUY + y));
+            a = prg_read_ix(FULL_HEALTH_GUY, y);
         }
         mff_cycles(0x990D, 5);
         if (a == RAM(HEALTH)) {
             mff_cycles(0x9911, 7);
             y = RAM(PLAYER_ID);
-            a = prg_read((uint16_t)(PAGE_FULL_HEALTH + y));
+            a = prg_read_ix(PAGE_FULL_HEALTH, y);
             mff_cycles(0x9916, 3);
             RAM(SPECIAL_SCREEN_ID) = a;
         } else {
@@ -441,14 +441,14 @@ void func_98DD_b2(void) {
     mff_cycles(0x9918, 10);
     y = RAM(SPECIAL_SCREEN_ID);
     x = RAM(VRAM_BUFFER_LEN);
-    a = prg_read((uint16_t)(TALK_PAGE_LO + y));
+    a = prg_read_ix(TALK_PAGE_LO, y);
     mff_cycles(0x991F, 7);
     RAM(TMP12) = a;
-    a = prg_read((uint16_t)(TALK_PAGE_HI + y));
+    a = prg_read_ix(TALK_PAGE_HI, y);
     mff_cycles(0x9924, 21);
     RAM(TMP13) = a;
     y = (uint8_t)(RAM(TEXT_CURSOR) + PAGE_TEXT);
-    a = mem_read((uint16_t)(RAM16(TMP12) + y));
+    a = mem_read_iy(TMP12, y);
     for (i = 0; i < 7; i++) {
         uint16_t pc = (uint16_t)(0x992F + 7 * i);
 
@@ -466,7 +466,7 @@ void func_98DD_b2(void) {
     if (a != 0) {
         mff_cycles(0x9967, 7);
         y = PAGE_SOUND;
-        a = mem_read((uint16_t)(RAM16(TMP12) + y));
+        a = mem_read_iy(TMP12, y);
         SET_NZ(a);
         mff_cycles(0x996B, 6);
         CALL_0F(0x996B, func_F34C);             /* sound_queue_push_sfx */
@@ -548,14 +548,14 @@ void func_999B_b2(void) {
 
     mff_cycles(0x999B, 7);
     y = RAM(SPECIAL_SCREEN_ID);
-    a = prg_read((uint16_t)(TALK_PAGE_LO + y));
+    a = prg_read_ix(TALK_PAGE_LO, y);
     mff_cycles(0x99A0, 7);
     RAM(TMP12) = a;
-    a = prg_read((uint16_t)(TALK_PAGE_HI + y));
+    a = prg_read_ix(TALK_PAGE_HI, y);
     mff_cycles(0x99A5, 10);
     RAM(TMP13) = a;
     y = PAGE_KIND;
-    a = mem_read((uint16_t)(RAM16(TMP12) + y));
+    a = mem_read_iy(TMP12, y);
     mff_cycles(0x99AB, 2);
     if (a == KIND_PLAIN) {
         mff_cycles(0x99AD, 7);
@@ -647,7 +647,7 @@ void func_999B_b2(void) {
     mff_cycles(0x99F6, 2);                      /* BNE across a page */
     mff_cycles(0x9A56, 7);
     y = PAGE_KIND;
-    a = mem_read((uint16_t)(RAM16(TMP12) + y));
+    a = mem_read_iy(TMP12, y);
     mff_cycles(0x9A5A, 4);
     CMP_NZC(a, KIND_HURTS_BOSS);
     if (z) {
@@ -688,7 +688,7 @@ void func_99D6_b2(void) {
     CALL_04(0x99D6, 0x9A9E);
     mff_cycles(0x99D9, 12);
     y = (uint8_t)(RAM(PLAYER_ID) + PAGE_NEXT);
-    a = mem_read((uint16_t)(RAM16(TMP12) + y));
+    a = mem_read_iy(TMP12, y);
     SYNC_OUT;
     talk_goto();
 }
@@ -702,7 +702,7 @@ void func_99DD_b2(void) {
     REGS_IN;
 
     mff_cycles(0x99DD, 5);
-    a = mem_read((uint16_t)(RAM16(TMP12) + y));
+    a = mem_read_iy(TMP12, y);
     SYNC_OUT;
     talk_goto();
 }
@@ -719,7 +719,7 @@ void func_9A74_b2(void) {
 
     mff_cycles(0x9A74, 7);
     y = PAGE_ANSWER;
-    a = mem_read((uint16_t)(RAM16(TMP12) + y));
+    a = mem_read_iy(TMP12, y);
     mff_cycles(0x9A78, 5);
     CMP_NZC(a, RAM(DIALOGUE_CHOICE));
     if (!z) {
@@ -793,17 +793,17 @@ void func_9AA0_b2(void) {
     REGS_IN;
 
     mff_cycles(0x9AA0, 4);
-    a = prg_read((uint16_t)(TALK_TEXT_LO + y));
+    a = prg_read_ix(TALK_TEXT_LO, y);
     mff_cycles(0x9AA3, 7);
     RAM(TMP10) = a;
-    a = prg_read((uint16_t)(TALK_TEXT_HI + y));
+    a = prg_read_ix(TALK_TEXT_HI, y);
     mff_cycles(0x9AA8, 8);
     RAM(TMP11) = a;
     x = RAM(VRAM_BUFFER_LEN);
     y = 0x00;
     for (;;) {
         mff_cycles(0x9AAE, 5);
-        a = mem_read((uint16_t)(RAM16(TMP10) + y));
+        a = mem_read_iy(TMP10, y);
         mff_cycles(0x9AB0, 4);
         c = a >= 0xFF;
         if (a == 0xFF) {

@@ -88,6 +88,8 @@ const uint8_t *ppu_palette(void) { return P.pal; }
 uint8_t ppu_ctrl(void) { return P.ctrl; }
 uint8_t ppu_mask(void) { return P.mask; }
 
+int ppu_vblank_flag(void) { return (P.status & 0x80) != 0; }
+
 void ppu_set_status(uint8_t set, uint8_t clear) {
     P.status = (uint8_t)((P.status & ~clear) | set);
 }

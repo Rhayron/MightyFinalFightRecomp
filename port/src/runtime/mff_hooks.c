@@ -1,18 +1,28 @@
 /*
- * mff_hooks.c - two game rules the scaffold kept in port/scaffold/extras.c
+ * mff_hooks.c - two game rules the scaffold kept in port/scaffold/extras.c,
+ * and the choice of clock (--slowdown, --timing)
  *
- * Both belong with the game's code; they are here until port/src/game takes
- * them (port/src/game is being tidied on other branches).
+ * The rules belong with the game's code; they are here until port/src/game
+ * takes them.
  *
- * 1. Where the NMI may land (MFF_LAG=1 turns the rule off). Never while a
- *    task runs (state 2 in $80+4n): the tasks keep return addresses on
- *    their own parts of the stack, and an NMI in the middle of one (a lag
- *    frame) cannot be modelled on C stacks. Around the scheduler only at
- *    the top of its scan ($FEBD): the sound driver reads a register that
- *    nmi_tail never sets, so the place the NMI interrupts leaks into the
- *    driver's scratch; at $FEBD the registers are always the same. Not in
- *    task_wait_frame's tail or the IRQ handlers either. Elsewhere (reset's
- *    $2002 polling) it is not held.
+ * 1. Where the NMI may land, with the scaffold's timing only (--timing
+ *    scaffold; MFF_LAG=1 turns the rule off): never while a task runs
+ *    (state 2 in $80+4n), so no lag frame; around the scheduler only at the
+ *    top of its scan ($FEBD), where the registers are always the same (the
+ *    sound driver keeps the interrupted Y in $C3, and the place in the
+ *    scan followed cycle counts the scaffold only kept per block); not in
+ *    task_wait_frame's tail or the IRQ handlers either; elsewhere (reset's
+ *    $2002 polling) it is not held. The console's timing (timing.c) has no
+ *    such rule: the NMI lands where the vblank finds the game, in a task's
+ *    frame work too (a lag frame), and runs nested on that task's C stack,
+ *    as on the 6502 its frame goes on the task's part of the stack page.
+ *    The scaffold held it mid-task because "an NMI in the middle of a task
+ *    cannot be modelled on C stacks": what broke was the scaffold's
+ *    nmi_tail (2. below), whose RTS popped two bytes it never pushed. At
+ *    $FEBD the scheduler resets S anyway; inside a task the task then
+ *    returned through the wrong bytes (inputs/10_cody_poweron.txt, NMI
+ *    11,338: S = $01; this runtime with that nmi_tail and the console's
+ *    timing stops at the same frame with S = $01, docs/timing.md).
  *
  * 2. nmi_tail ($C119). The NMI rewrites its own return address so that RTI
  *    lands here outside the interrupt; on the console this pushes P/A/X/Y,
@@ -31,6 +41,7 @@
  */
 #include "machine.h"
 #include <stdlib.h>
+#include <string.h>
 
 static int nmi_held(uint16_t pc) {
     /* reset ($FE00-$FEB9) is never held: its vblank polling waits for the
@@ -45,9 +56,49 @@ static int nmi_held(uint16_t pc) {
     return 0;
 }
 
+/* The clock (timing.c, docs/timing.md). The command line wins over the
+ * environment:
+ *   --slowdown on   (MFF_SLOWDOWN=1, the default) the console's timing: the
+ *                   NMI lands where the console's does, and a frame whose
+ *                   work does not fit lags as on the console
+ *   --slowdown off  (MFF_SLOWDOWN=0) the same clock, but the NMI waits for a
+ *                   running task: no lag frames, the game always at full speed
+ *   --timing scaffold  (MFF_TIMING=scaffold) the scaffold runtime's timing,
+ *                   which the P4 regression baselines were recorded with
+ *                   (port/tests/run_routes.sh): no lag, the NMI only at the
+ *                   scheduler's $FEBD (rule 1 above); MFF_LAG=1 drops the rule
+ *   --timing console  the console's (as --slowdown on) */
+static int s_timing_set;
+
+static int timing_choice(const char *name, const char *value) {
+    int on = !strcmp(value, "on") || !strcmp(value, "1");
+    int off = !strcmp(value, "off") || !strcmp(value, "0");
+    if (!strcmp(name, "slowdown") && (on || off)) {
+        g_timing = on ? TIMING_CONSOLE : TIMING_NOLAG;
+        return 1;
+    }
+    if (!strcmp(name, "timing") && (!strcmp(value, "console") || !strcmp(value, "scaffold"))) {
+        g_timing = !strcmp(value, "console") ? TIMING_CONSOLE : TIMING_SCAFFOLD;
+        return 1;
+    }
+    return 0;
+}
+
+int mff_timing_option(const char *name, const char *value) {
+    if (!timing_choice(name, value)) return 0;
+    s_timing_set = 1;
+    return 1;
+}
+
 void mff_hooks_init(void) {
-    const char *lag = getenv("MFF_LAG");
-    g_nmi_veto = (lag && *lag == '1') ? NULL : nmi_held;
+    const char *lag = getenv("MFF_LAG"), *slowdown = getenv("MFF_SLOWDOWN"), *timing = getenv("MFF_TIMING");
+    if (!s_timing_set) {
+        if (timing && *timing && !timing_choice("timing", timing))
+            mff_fatal("MFF_TIMING=%s: console or scaffold", timing);
+        if (slowdown && *slowdown && !timing_choice("slowdown", slowdown))
+            mff_fatal("MFF_SLOWDOWN=%s: 1 (on) or 0 (off)", slowdown);
+    }
+    g_nmi_veto = (g_timing != TIMING_SCAFFOLD || (lag && *lag == '1')) ? NULL : nmi_held;
 }
 
 void func_FF72(void);                   /* sound_update */

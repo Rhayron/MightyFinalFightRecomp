@@ -46,13 +46,13 @@ void func_A000_b4(void) {
     a = (uint8_t)(a << 1);
     mff_push(a);
     x = a;
-    a = prg_read((uint16_t)(K_SET_CHR_R3 + x));
+    a = prg_read_ix(K_SET_CHR_R3, x);
     mff_cycles(0xA006, 7);
     RAM(CHR_BANKS + 3) = a;
-    a = prg_read((uint16_t)(K_SET_CHR_R4 + x));
+    a = prg_read_ix(K_SET_CHR_R4, x);
     mff_cycles(0xA00B, 7);
     RAM(CHR_BANKS + 4) = a;
-    a = prg_read((uint16_t)(K_SET_CHR_R5 + x));
+    a = prg_read_ix(K_SET_CHR_R5, x);
     mff_cycles(0xA010, 7);
     RAM(CHR_BANKS + 5) = a;
     a = mff_pull();
@@ -81,7 +81,7 @@ void func_A013_b4(void) {
     x = 0x00;
     for (;;) {
         mff_cycles(0xA022, 5);
-        a = mem_read((uint16_t)(RAM16(TMP0) + y));
+        a = mem_read_iy(TMP0, y);
         mff_cycles(0xA024, 18);
         RAM(PALETTE_BUF + 0x18 + x) = a;
         RAM(PALETTE_BASE + 0x18 + x) = a;
@@ -155,12 +155,12 @@ void func_A321_b4(void) {
 
     mff_cycles(0xA321, 8);
     y = RAM(BG_PAL_ANIM_SCRIPT + x);
-    a = prg_read((uint16_t)(K_ANIM_INDEX + y));
+    a = prg_read_ix(K_ANIM_INDEX, y);
     mff_cycles(0xA327, 17);
     record = y = a;
     a = RAM(BG_PAL_ANIM_TIMER + x);
     RAM(BG_PAL_ANIM_TIMER + x)++;
-    m = prg_read((uint16_t)(K_ANIM_PERIOD + record));
+    m = prg_read_ix(K_ANIM_PERIOD, record);
     SET_CMP(a, m);
     mff_cycles(0xA331, 2);
     if (!z) {
@@ -176,7 +176,7 @@ void func_A321_b4(void) {
     a = RAM(BG_PAL_ANIM_STEP + x);
     RAM(BG_PAL_ANIM_STEP + x)++;
     mff_cycles(0xA341, 2);
-    if (a == prg_read((uint16_t)(K_ANIM_RECORDS + record))) {   /* past the last step */
+    if (a == prg_read_ix(K_ANIM_RECORDS, record)) {   /* past the last step */
         mff_cycles(0xA343, 7);
         a = 0x00;
         RAM(BG_PAL_ANIM_STEP + x) = a;
@@ -187,20 +187,20 @@ void func_A321_b4(void) {
     /* its triplet: 3 colours at K_ANIM_COLOURS + 3 * triplet */
     mff_cycles(0xA348, 14);
     x = (uint8_t)(record + RAM(BG_PAL_ANIM_STEP + x));
-    a = prg_read((uint16_t)(K_ANIM_TRIPLETS + x));
+    a = prg_read_ix(K_ANIM_TRIPLETS, x);
     mff_cycles(0xA351, 6);
     c = a >> 7;
     a = (uint8_t)(a << 1);
-    ADC_A(prg_read((uint16_t)(K_ANIM_TRIPLETS + x)));
+    ADC_A(prg_read_ix(K_ANIM_TRIPLETS, x));
     mff_cycles(0xA355, 6);
     x = a;
-    a = prg_read((uint16_t)(K_ANIM_OFFSET + record));
+    a = prg_read_ix(K_ANIM_OFFSET, record);
     mff_cycles(0xA359, 7);
     y = a;
     RAM(TMP0) = 0x03;
     for (;;) {
         mff_cycles(0xA35E, 4);
-        a = prg_read((uint16_t)(K_ANIM_COLOURS + x));
+        a = prg_read_ix(K_ANIM_COLOURS, x);
         mff_cycles(0xA361, 21);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;

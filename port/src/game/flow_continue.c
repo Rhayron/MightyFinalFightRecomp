@@ -85,11 +85,11 @@ void func_9300_b2(void) {
     y = 0x0F;
     for (;;) {
         mff_cycles(0x9305, 4);
-        a = prg_read((uint16_t)(CONTINUE_PAL_BG + y));
+        a = prg_read_ix(CONTINUE_PAL_BG, y);
         mff_cycles(0x9308, 14);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
-        a = prg_read((uint16_t)(CONTINUE_PAL_SPR + y));
+        a = prg_read_ix(CONTINUE_PAL_SPR, y);
         mff_cycles(0x9311, 14);
         RAM(PALETTE_BUF + 16 + y) = a;
         RAM(PALETTE_BASE + 16 + y) = a;
@@ -341,7 +341,7 @@ void func_942A_b2(void) {
     RAM(VRAM_BUFFER + 1) = 0x7D;
     RAM(VRAM_BUFFER + 2) = 0x00;
     y = RAM(CREDITS);
-    a = prg_read((uint16_t)(CREDIT_DIGITS + y));
+    a = prg_read_ix(CREDIT_DIGITS, y);
     mff_cycles(0x943E, 19);
     RAM(VRAM_BUFFER + 3) = a;
     a = 0xFF;

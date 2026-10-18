@@ -77,10 +77,10 @@ static void screen_dispatch(uint16_t pc, uint16_t lo, uint16_t hi) {
 
     mff_cycles(pc, 7);
     y = RAM(SCROLL_X_HI);
-    a = prg_read((uint16_t)(lo + y));
+    a = prg_read_ix(lo, y);
     mff_cycles((uint16_t)(pc + 0x05), 7);
     RAM(TMP6) = a;
-    a = prg_read((uint16_t)(hi + y));
+    a = prg_read_ix(hi, y);
     SET_NZ(a);
     mff_cycles((uint16_t)(pc + 0x0A), 8);
     RAM(TMP7) = a;
@@ -99,7 +99,7 @@ static void quota_or_spawn(uint16_t pc, uint16_t quota) {
 
     mff_cycles(pc, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(quota + y));
+    m = prg_read_ix(quota, y);
     SET_CMP(a, m);
     mff_cycles((uint16_t)(pc + 0x05), 2);
     if (c) {
@@ -125,7 +125,7 @@ static void quota_when_empty(uint16_t pc, uint16_t quota) {
 
     mff_cycles(pc, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(quota + y));
+    m = prg_read_ix(quota, y);
     SET_CMP(a, m);
     mff_cycles((uint16_t)(pc + 0x05), 2);
     if (c) {
@@ -156,7 +156,7 @@ static void quota_when_empty_or_spawn(uint16_t pc, uint16_t quota) {
 
     mff_cycles(pc, 7);
     a = RAM(AREA_KILLS);
-    m = prg_read((uint16_t)(quota + y));
+    m = prg_read_ix(quota, y);
     SET_CMP(a, m);
     mff_cycles((uint16_t)(pc + 0x05), 2);
     if (c) {
@@ -206,7 +206,7 @@ static void sprite_set(uint16_t pc, uint16_t table) {
     REGS_IN;
 
     mff_cycles(pc, 4);
-    a = prg_read((uint16_t)(table + y));
+    a = prg_read_ix(table, y);
     SET_NZ(a);
     mff_cycles((uint16_t)(pc + 0x03), 6);
     SYNC_OUT;
@@ -233,20 +233,20 @@ static void area_dispatch(uint16_t pc, uint16_t round_lo, uint16_t round_hi,
 
     mff_cycles(pc, 7);
     y = RAM(ROUND);
-    a = prg_read((uint16_t)(round_lo + y));
+    a = prg_read_ix(round_lo, y);
     mff_cycles((uint16_t)(pc + 0x05), 7);
     RAM(TMP2) = a;
-    a = prg_read((uint16_t)(round_hi + y));
+    a = prg_read_ix(round_hi, y);
     mff_cycles((uint16_t)(pc + 0x0A), 11);
     RAM(TMP3) = a;
     y = RAM(SUB_AREA);
-    a = mem_read((uint16_t)(RAM16(TMP2) + y));
+    a = mem_read_iy(TMP2, y);
     mff_cycles((uint16_t)(pc + 0x10), 6);
     y = a;
-    a = prg_read((uint16_t)(lo + y));
+    a = prg_read_ix(lo, y);
     mff_cycles((uint16_t)(pc + 0x14), 7);
     RAM(TMP4) = a;
-    a = prg_read((uint16_t)(hi + y));
+    a = prg_read_ix(hi, y);
     SET_NZ(a);
     mff_cycles((uint16_t)(pc + 0x19), 8);
     RAM(TMP5) = a;

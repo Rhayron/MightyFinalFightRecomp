@@ -71,9 +71,9 @@ void func_D30F(void) {
                 mff_cycles(0xD321, 4 + 4);
                 a = RAM(OBJ_ANIM);
                 mff_cycles(0xD327, 2);
-                if (a != prg_read((uint16_t)(NO_SPECIAL_ANIM_1 + y))) {
+                if (a != prg_read_ix(NO_SPECIAL_ANIM_1, y)) {
                     mff_cycles(0xD329, 4);
-                    COMPARE(a, prg_read((uint16_t)(NO_SPECIAL_ANIM_2 + y)));
+                    COMPARE(a, prg_read_ix(NO_SPECIAL_ANIM_2, y));
                     mff_cycles(0xD32C, 2);
                     if (!z) {
                         mff_cycles(0xD32E, 3);
@@ -128,13 +128,13 @@ void func_D346(void) {
             y = RAM(PLAYER_ID);
             a = RAM(OBJ_ANIM);
             mff_cycles(0xD35E, 2);
-            if (a != prg_read((uint16_t)(NO_SPECIAL_ANIM_1 + y))) {
+            if (a != prg_read_ix(NO_SPECIAL_ANIM_1, y)) {
                 mff_cycles(0xD360, 4);
-                COMPARE(a, prg_read((uint16_t)(NO_SPECIAL_ANIM_2 + y)));
+                COMPARE(a, prg_read_ix(NO_SPECIAL_ANIM_2, y));
                 mff_cycles(0xD363, 2);
                 if (!z) {
                     mff_cycles(0xD365, 4);
-                    a = prg_read((uint16_t)(POWER_ACTION + y));
+                    a = prg_read_ix(POWER_ACTION, y);
                     mff_cycles(0xD368, 3 + 2 + 4 + 6);
                     RAM(GAME_ACTION) = a;
                     a = STATE_LIVE;
@@ -164,15 +164,15 @@ static void attack_turn(void) {
     mff_cycles(0xD373, 3 + 4 + 4);
     y = RAM(PLAYER_ID);
     a = RAM(OBJ_ANIM);
-    COMPARE(a, prg_read((uint16_t)(COMBO_FIRST_ANIM + y)));
+    COMPARE(a, prg_read_ix(COMBO_FIRST_ANIM, y));
     mff_cycles(0xD37B, 2);
     if (!z) {
         mff_cycles(0xD37D, 4);
-        COMPARE(a, prg_read((uint16_t)(TURN_ANIM_2 + y)));
+        COMPARE(a, prg_read_ix(TURN_ANIM_2, y));
         mff_cycles(0xD380, 2);
         if (!z) {
             mff_cycles(0xD382, 4);
-            COMPARE(a, prg_read((uint16_t)(TURN_ANIM_3 + y)));
+            COMPARE(a, prg_read_ix(TURN_ANIM_3, y));
             mff_cycles(0xD385, 2);
             if (!z) {
                 mff_cycles(0xD387, 3);
@@ -218,10 +218,10 @@ void func_D39E(void) {
 
     mff_cycles(0xD39E, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(ATTACK_HANDLER_LO + y));
+    a = prg_read_ix(ATTACK_HANDLER_LO, y);
     mff_cycles(0xD3A3, 3 + 4);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(ATTACK_HANDLER_HI + y));
+    a = prg_read_ix(ATTACK_HANDLER_HI, y);
     SET_NZ(a);
     mff_cycles(0xD3A8, 3 + 5);
     RAM(TMP1) = a;
@@ -1406,10 +1406,10 @@ void func_DD6A(void) {
 
     mff_cycles(0xDD6A, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(HITPOS_HANDLER_LO + y));
+    a = prg_read_ix(HITPOS_HANDLER_LO, y);
     mff_cycles(0xDD6F, 3 + 4);
     RAM(TMP4) = a;
-    a = prg_read((uint16_t)(HITPOS_HANDLER_HI + y));
+    a = prg_read_ix(HITPOS_HANDLER_HI, y);
     SET_NZ(a);
     mff_cycles(0xDD74, 3 + 5);
     RAM(TMP5) = a;

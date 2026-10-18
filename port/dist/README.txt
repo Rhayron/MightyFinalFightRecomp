@@ -78,6 +78,8 @@ Command line
   --wide                         16:9: the camera shows more of each stage
   --no-flicker                   every sprite every frame (no NES flicker)
   --load FILE                    start from a save state
+  --slowdown off                 never slow down (by default the game slows
+                                 down where the console did)
   --headless --smoke N           run N frames without a window (testing)
 
 

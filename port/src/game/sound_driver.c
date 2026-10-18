@@ -89,11 +89,11 @@ void func_8023_b3(void) {
     y++;
     RAM(SND_PTR) = mff_pull();          /* the return address: table - 1 */
     RAM(SND_PTR + 1) = mff_pull();
-    a = mem_read((uint16_t)(RAM16(SND_PTR) + y));
+    a = mem_read_iy(SND_PTR, y);
     mff_cycles(0x802E, 10);
     mff_push(a);
     y++;
-    a = mem_read((uint16_t)(RAM16(SND_PTR) + y));
+    a = mem_read_iy(SND_PTR, y);
     mff_cycles(0x8032, 15);
     RAM(SND_PTR + 1) = a;
     a = mff_pull();
@@ -415,16 +415,16 @@ void func_8118_b3(void) {
     c = a >> 7;
     a = (uint8_t)(a << 1);
     x = a;
-    y = prg_read((uint16_t)(SND_TBL_CMD_PTR_LO + x));
+    y = prg_read_ix(SND_TBL_CMD_PTR_LO, x);
     mff_cycles(0x811D, 6);
-    a = y | prg_read((uint16_t)(SND_TBL_CMD_PTR_HI + x));
+    a = y | prg_read_ix(SND_TBL_CMD_PTR_HI, x);
     NZ(a);
     mff_cycles(0x8121, 2);
     if (z) {
         mff_cycles(0x8121, 1);                  /* a null entry: nothing */
     } else {
         mff_cycles(0x8123, 4);
-        a = prg_read((uint16_t)(SND_TBL_CMD_PTR_HI + x));
+        a = prg_read_ix(SND_TBL_CMD_PTR_HI, x);
         NZ(a);
         mff_cycles(0x8126, 6);
         SYNC_OUT;

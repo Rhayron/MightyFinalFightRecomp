@@ -54,7 +54,7 @@ void func_C1DF(void) {
     if (a != 0x13) {
         mff_cycles(0xC1E9, 7);
         y = RAM(ROUND_TABLES);
-        a = prg_read((uint16_t)(ROUND_BANK_TABLE + y));
+        a = prg_read_ix(ROUND_BANK_TABLE, y);
         SET_NZ(a);
         mff_cycles(0xC1EE, 9);
         RAM(BANK_REQUEST + 1) = a;
@@ -95,7 +95,7 @@ void func_C3DD(void) {
 
     mff_cycles(0xC3DD, 7);
     y = RAM(ROUND_TABLES);
-    a = prg_read((uint16_t)(ROUND_BANK_TABLE + y));
+    a = prg_read_ix(ROUND_BANK_TABLE, y);
     SET_NZ(a);
     mff_cycles(0xC3E2, 9);
     RAM(BANK_REQUEST + 1) = a;
@@ -195,7 +195,7 @@ void func_C3DD(void) {
     pc = (uint16_t)(0xC425 + 15 * player);
     for (;;) {                              /* X = 7 down to 0 */
         mff_cycles(pc, 4);
-        a = prg_read((uint16_t)(PLAYER_PAL_TABLE + 8 * player + x));
+        a = prg_read_ix(PLAYER_PAL_TABLE + 8 * player, x);
         mff_cycles(pc + 3, 14);
         RAM(PALETTE_BUF + 16 + x) = a;
         RAM(PALETTE_BASE + 16 + x) = a;
@@ -257,10 +257,10 @@ void func_C44F(void) {
     /* the copies are 10 bytes apart from $C45F */
     pc = (uint16_t)(0xC45F + 10 * area);
     mff_cycles(pc, 4);
-    a = prg_read((uint16_t)(AREA_RECORD(area) + AREA_REC_SETS + x));
+    a = prg_read_ix(AREA_RECORD(area) + AREA_REC_SETS, x);
     mff_cycles(pc + 3, 7);
     mff_push(a);                            /* the sprite set */
-    a = prg_read((uint16_t)(AREA_RECORD(area) + AREA_REC_SETS + 1 + x));
+    a = prg_read_ix(AREA_RECORD(area) + AREA_REC_SETS + 1, x);
     SET_NZ(a);                              /* the palette set */
     mff_cycles(pc + 7, 3);                  /* JMP $C47D */
     SYNC_OUT;
@@ -280,7 +280,7 @@ static void area_copy_anim_slots(int area) {
 
     for (;;) {
         mff_cycles(pc, 4);
-        a = prg_read((uint16_t)(set_base + y));
+        a = prg_read_ix(set_base, y);
         mff_cycles(pc + 3, 41);
         mff_push(a);
         RAM(BG_PAL_ANIM_ON + x) = a & 0x80;
@@ -314,7 +314,7 @@ static void area_copy_bg_palette(int area) {
 
     for (;;) {
         mff_cycles(pc, 4);
-        a = prg_read((uint16_t)(set_base + y));
+        a = prg_read_ix(set_base, y);
         mff_cycles(pc + 3, 18);
         RAM(PALETTE_BUF + x) = a;
         RAM(PALETTE_BASE + x) = a;
@@ -466,13 +466,13 @@ void func_C8B4(void) {
     REGS_IN;
     mff_cycles(0xC8B4, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(PLAYER_PAL_END + y));
+    a = prg_read_ix(PLAYER_PAL_END, y);
     mff_cycles(0xC8B9, 4);
     x = a;
     y = 7;
     for (;;) {
         mff_cycles(0xC8BC, 4);
-        a = prg_read((uint16_t)(PLAYER_PAL_TABLE + x));
+        a = prg_read_ix(PLAYER_PAL_TABLE, x);
         mff_cycles(0xC8BF, 16);
         RAM(PALETTE_BUF + 16 + y) = a;
         RAM(PALETTE_BASE + 16 + y) = a;
@@ -484,14 +484,14 @@ void func_C8B4(void) {
     mff_cycles(0xC8C9, 10);
     RAM(PALETTE_REQUEST) = y;
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(PLAYER_ANIM_STAND + y));
+    a = prg_read_ix(PLAYER_ANIM_STAND, y);
     SET_NZ(a);
     mff_cycles(0xC8D0, 6);
     SYNC_OUT;
     if (!mff_call_fn(0x08D2, func_F294, 0xE000)) return;   /* player_set_anim */
     SYNC_IN;
     mff_cycles(0xC8D3, 4);
-    a = prg_read((uint16_t)(PLAYER_CHR_STAND + y));
+    a = prg_read_ix(PLAYER_CHR_STAND, y);
     SET_NZ(a);
     mff_cycles(0xC8D6, 6);
     SYNC_OUT;

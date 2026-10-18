@@ -48,11 +48,11 @@ static const uint8_t k_getting_up[] = { 0xFE, 0xFD };
         y = RAM(OBJ_DIR + x) & 0x02; \
         a = RAM(OBJ_X + x); \
         c = 0; \
-        ADC_A(prg_read((uint16_t)((table) + y))); \
+        ADC_A(prg_read_ix((table), y)); \
         mff_cycles((uint16_t)((pc) + 13), 11); \
         mff_push(a); \
         a = RAM(OBJ_X_HI + x); \
-        ADC_A(prg_read((uint16_t)((table) + 1 + y))); \
+        ADC_A(prg_read_ix((table) + 1, y)); \
         mff_cycles((uint16_t)((pc) + 20), 14); \
         RAM(OBJ_X_HI + x) = a; \
         a = mff_pull(); \
@@ -70,17 +70,17 @@ static const uint8_t k_getting_up[] = { 0xFE, 0xFD };
 #define SET_KIND_ANIM(pc, table) do { \
         mff_cycles(pc, 10); \
         y = RAM(OBJ_KIND + x); \
-        a = prg_read((uint16_t)((table) + y)); \
+        a = prg_read_ix((table), y); \
         mff_cycles((uint16_t)((pc) + 7), 5); \
         CMP_FLAGS(a, RAM(TMP0)); \
         if (!z) { \
             mff_cycles((uint16_t)((pc) + 11), 6); \
             CALL_FIXED((uint16_t)((pc) + 11), func_F288); \
             mff_cycles((uint16_t)((pc) + 14), 4); \
-            a = prg_read((uint16_t)(KIND_CHR_BANK + y)); \
+            a = prg_read_ix(KIND_CHR_BANK, y); \
             mff_cycles((uint16_t)((pc) + 17), 7); \
             RAM(TMP0) = a; \
-            a = prg_read((uint16_t)(KIND_CHR_SLOT + y)); \
+            a = prg_read_ix(KIND_CHR_SLOT, y); \
             mff_cycles((uint16_t)((pc) + 22), 10); \
             y = a; \
             a = RAM(TMP0); \
@@ -224,7 +224,7 @@ void func_8D00_b6(void)
     }
     mff_cycles(0x8D15, 10);
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(KIND_THROWN_ANIM2 + y));
+    a = prg_read_ix(KIND_THROWN_ANIM2, y);
     SET_NZ(a);
     mff_cycles(0x8D1C, 6);
     CALL_FIXED(0x8D1C, func_F288);
@@ -800,15 +800,15 @@ void func_90BA_b6(void)
         }
         mff_cycles(0x90D4, 10);
         y = RAM(OBJ_KIND + x);
-        a = prg_read((uint16_t)(KIND_THROWN_ANIM2 + y));
+        a = prg_read_ix(KIND_THROWN_ANIM2, y);
         SET_NZ(a);
         mff_cycles(0x90DB, 6);
         CALL_FIXED(0x90DB, func_F288);
         mff_cycles(0x90DE, 4);
-        a = prg_read((uint16_t)(KIND_CHR_BANK + y));
+        a = prg_read_ix(KIND_CHR_BANK, y);
         mff_cycles(0x90E1, 7);
         RAM(TMP0) = a;
-        a = prg_read((uint16_t)(KIND_CHR_SLOT + y));
+        a = prg_read_ix(KIND_CHR_SLOT, y);
         mff_cycles(0x90E6, 10);
         y = a;
         a = RAM(TMP0);
@@ -1009,17 +1009,17 @@ void func_91B7_b6(void)
             mff_cycles(0x91CA, 17);
             RAM(OBJ_TIMER3 + x) = 0x08;
             y = RAM(OBJ_KIND + x);
-            a = prg_read((uint16_t)(KIND_HELD_ANIM + y));
+            a = prg_read_ix(KIND_HELD_ANIM, y);
             mff_cycles(0x91D6, 6);
             CMP_FLAGS(a, RAM(OBJ_ANIM + x));
             if (!z) {
                 mff_cycles(0x91DB, 6);
                 CALL_FIXED(0x91DB, func_F288);
                 mff_cycles(0x91DE, 4);
-                a = prg_read((uint16_t)(KIND_HELD_CHR + y));
+                a = prg_read_ix(KIND_HELD_CHR, y);
                 mff_cycles(0x91E1, 7);
                 RAM(TMP0) = a;
-                a = prg_read((uint16_t)(KIND_CHR_SLOT + y));
+                a = prg_read_ix(KIND_CHR_SLOT, y);
                 mff_cycles(0x91E6, 24);
                 y = a;
                 a = RAM(TMP0);

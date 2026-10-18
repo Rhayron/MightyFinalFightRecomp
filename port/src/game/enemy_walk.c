@@ -77,7 +77,7 @@ void func_A088_b6(void)
 
     mff_cycles(0xA088, 6);
     y = a;
-    a = prg_read((uint16_t)(DIR_FROM_INDEX + y));
+    a = prg_read_ix(DIR_FROM_INDEX, y);
     mff_cycles(0xA08C, 11);
     RAM(OBJ_DIR + x) = a;
     CALL_BANK(0xA08F, 0xAC34);                  /* enemy_set_speed */
@@ -516,14 +516,14 @@ void func_AA60_b6(void)
         }
     }
     mff_cycles(0xAA6A, 4);
-    a = prg_read((uint16_t)(KIND_HURT_ANIM + y));
+    a = prg_read_ix(KIND_HURT_ANIM, y);
     mff_cycles(0xAA6D, 6);
     CALL_FIXED(0xAA6D, func_F288);              /* obj_set_anim */
     mff_cycles(0xAA70, 4);
-    a = prg_read((uint16_t)(KIND_HURT_CHR + y));
+    a = prg_read_ix(KIND_HURT_CHR, y);
     mff_cycles(0xAA73, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(KIND_CHR_SLOT + y));
+    a = prg_read_ix(KIND_CHR_SLOT, y);
     mff_cycles(0xAA78, 16);
     y = a;
     a = RAM(TMP0);
@@ -545,7 +545,7 @@ void func_AAA0_b6(void)
     c = 1;
     SBC_A(ENEMY_ID_FIRST);
     y = a;
-    a = prg_read((uint16_t)(HIT_PAUSES + y));
+    a = prg_read_ix(HIT_PAUSES, y);
     mff_cycles(0xAAAA, 11);
     RAM(OBJ_AI_TIMER + x) = a;
     RTS_RETURN();
@@ -562,7 +562,7 @@ static void set_kind_anim(uint16_t pc, uint16_t anims, uint16_t chrs)
 
     mff_cycles(pc, 8);
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(anims + y));
+    a = prg_read_ix(anims, y);
     mff_cycles((uint16_t)(pc + 0x06), 6);
     c = a >= RAM(OBJ_ANIM + x);
     if (a != RAM(OBJ_ANIM + x)) {
@@ -572,10 +572,10 @@ static void set_kind_anim(uint16_t pc, uint16_t anims, uint16_t chrs)
         mff_cycles((uint16_t)(pc + 0x09), 1);
     }
     mff_cycles((uint16_t)(pc + 0x0E), 4);
-    a = prg_read((uint16_t)(chrs + y));
+    a = prg_read_ix(chrs, y);
     mff_cycles((uint16_t)(pc + 0x11), 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(KIND_CHR_SLOT + y));
+    a = prg_read_ix(KIND_CHR_SLOT, y);
     mff_cycles((uint16_t)(pc + 0x16), 16);
     y = a;
     a = RAM(TMP0);
@@ -629,10 +629,10 @@ void func_AC34_b6(void)
     CALL_BANK(0xAC36, 0xAAD7);                  /* enemy_anim_walk */
     mff_cycles(0xAC39, 8);
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(SPEED_FN_LO + y));
+    a = prg_read_ix(SPEED_FN_LO, y);
     mff_cycles(0xAC3F, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(SPEED_FN_HI + y));
+    a = prg_read_ix(SPEED_FN_HI, y);
     mff_cycles(0xAC44, 11);
     RAM(TMP1) = a;
     y = RAM(TMP2);
@@ -651,10 +651,10 @@ void func_AC4B_b6(void)
     REGS_IN;
 
     mff_cycles(0xAC4B, 4);
-    a = prg_read((uint16_t)(SPEED08_X + y));
+    a = prg_read_ix(SPEED08_X, y);
     mff_cycles(0xAC4E, 9);
     RAM(OBJ_VX_FRAC + x) = a;
-    a = prg_read((uint16_t)(SPEED08_Y + y));
+    a = prg_read_ix(SPEED08_Y, y);
     mff_cycles(0xAC54, 23);
     RAM(OBJ_VY_FRAC + x) = a;
     a = 0x00;
@@ -669,10 +669,10 @@ void func_AC60_b6(void)
     REGS_IN;
 
     mff_cycles(0xAC60, 4);
-    a = prg_read((uint16_t)(SPEED09_X + y));
+    a = prg_read_ix(SPEED09_X, y);
     mff_cycles(0xAC63, 9);
     RAM(OBJ_VX_FRAC + x) = a;
-    a = prg_read((uint16_t)(SPEED09_Y + y));
+    a = prg_read_ix(SPEED09_Y, y);
     mff_cycles(0xAC69, 23);
     RAM(OBJ_VY_FRAC + x) = a;
     a = 0x00;
@@ -687,16 +687,16 @@ void func_AC75_b6(void)
     REGS_IN;
 
     mff_cycles(0xAC75, 4);
-    a = prg_read((uint16_t)(SPEED12_X + y));
+    a = prg_read_ix(SPEED12_X, y);
     mff_cycles(0xAC78, 9);
     RAM(OBJ_VX_FRAC + x) = a;
-    a = prg_read((uint16_t)(SPEED_HI_X + y));
+    a = prg_read_ix(SPEED_HI_X, y);
     mff_cycles(0xAC7E, 9);
     RAM(OBJ_VX + x) = a;
-    a = prg_read((uint16_t)(SPEED12_Y + y));
+    a = prg_read_ix(SPEED12_Y, y);
     mff_cycles(0xAC84, 9);
     RAM(OBJ_VY_FRAC + x) = a;
-    a = prg_read((uint16_t)(SPEED_HI_Y + y));
+    a = prg_read_ix(SPEED_HI_Y, y);
     mff_cycles(0xAC8A, 11);
     RAM(OBJ_VY + x) = a;
     RTS_RETURN();
@@ -708,16 +708,16 @@ void func_AC8E_b6(void)
     REGS_IN;
 
     mff_cycles(0xAC8E, 4);
-    a = prg_read((uint16_t)(SPEED14_X + y));
+    a = prg_read_ix(SPEED14_X, y);
     mff_cycles(0xAC91, 9);
     RAM(OBJ_VX_FRAC + x) = a;
-    a = prg_read((uint16_t)(SPEED_HI_X + y));
+    a = prg_read_ix(SPEED_HI_X, y);
     mff_cycles(0xAC97, 9);
     RAM(OBJ_VX + x) = a;
-    a = prg_read((uint16_t)(SPEED14_Y + y));
+    a = prg_read_ix(SPEED14_Y, y);
     mff_cycles(0xAC9D, 9);
     RAM(OBJ_VY_FRAC + x) = a;
-    a = prg_read((uint16_t)(SPEED_HI_Y + y));
+    a = prg_read_ix(SPEED_HI_Y, y);
     mff_cycles(0xACA3, 11);
     RAM(OBJ_VY + x) = a;
     RTS_RETURN();
@@ -738,7 +738,7 @@ void func_ACB3_b6(void)
     c = 0;
     ADC_A(RAM(TMP15));
     y = a;
-    a = prg_read((uint16_t)(WALK_TIMES + y));
+    a = prg_read_ix(WALK_TIMES, y);
     mff_cycles(0xACC3, 9);
     y = RAM(TMP15);
     RTS_RETURN();

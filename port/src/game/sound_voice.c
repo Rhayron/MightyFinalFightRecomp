@@ -176,10 +176,10 @@ void func_85DE_b3(void) {
     c = RAM(SND_ARG) >> 7;
     RAM(SND_ARG) <<= 1;
     y = RAM(SND_ARG);
-    a = prg_read((uint16_t)(SND_TBL_PERIOD_LO + y));
+    a = prg_read_ix(SND_TBL_PERIOD_LO, y);
     mff_cycles(0x8631, 7);
     RAM(SND_ARG) = a;
-    a = prg_read((uint16_t)(SND_TBL_PERIOD_HI + y));
+    a = prg_read_ix(SND_TBL_PERIOD_HI, y);
     SYNC_OUT;
     func_8636_b3();
 }
@@ -197,7 +197,7 @@ void func_8636_b3(void) {
     a = RAM(SND_ARG);
     RAM(SND_PITCH_LO + x) = a;
     y = SND_INS_LFO;
-    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read_iy(SND_INSTR_PTR, y);
     mff_cycles(0x8642, 2);
     SYNC_OUT;
     if (a & 0x80) {

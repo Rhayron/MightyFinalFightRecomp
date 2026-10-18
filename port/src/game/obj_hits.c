@@ -114,11 +114,11 @@ void func_84F0_b6(void)
         mff_cycles(0x8512, 1);
         mff_cycles(0x851C, 8);
         y = RAM(OBJ_TIER + x);
-        a = prg_read((uint16_t)(TIER_INDEX + y));
+        a = prg_read_ix(TIER_INDEX, y);
         mff_cycles(0x8522, 11);
         y = a;
         a = RAM(RNG) & 0x0F;
-        m = prg_read((uint16_t)(AXL_BLOCK_ODDS + y));
+        m = prg_read_ix(AXL_BLOCK_ODDS, y);
         c = a >= m;
         mff_cycles(0x852A, 2);
         if (c) {
@@ -244,10 +244,10 @@ void func_8593_b6(void)
     CALL_FIXED(0x85B6, func_FB09);
     mff_cycles(0x85B9, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(DAMAGE_BY_PLAYER_LO + y));
+    a = prg_read_ix(DAMAGE_BY_PLAYER_LO, y);
     mff_cycles(0x85BE, 7);
     RAM(TMP2) = a;
-    a = prg_read((uint16_t)(DAMAGE_BY_PLAYER_HI + y));
+    a = prg_read_ix(DAMAGE_BY_PLAYER_HI, y);
     SET_NZ(a);
     mff_cycles(0x85C3, 8);
     RAM(TMP3) = a;
@@ -265,10 +265,10 @@ static void damage_by_level(uint16_t pc, uint16_t lo, uint16_t hi)
 
     mff_cycles(pc, 7);
     y = RAM(PLAYER_LEVEL);
-    a = prg_read((uint16_t)(lo + y));
+    a = prg_read_ix(lo, y);
     mff_cycles((uint16_t)(pc + 5), 7);
     RAM(TMP4) = a;
-    a = prg_read((uint16_t)(hi + y));
+    a = prg_read_ix(hi, y);
     mff_cycles((uint16_t)(pc + 10), 11);
     RAM(TMP5) = a;
     y = RAM(ATTACK_ID);
@@ -425,7 +425,7 @@ static void damage_lookup(int entry)
         uint16_t pc = (uint16_t)(DAMAGE_LOOKUP + 5 * i);
 
         mff_cycles(pc, 4);
-        a = prg_read((uint16_t)(k_damage_tables[i] + y));
+        a = prg_read_ix(k_damage_tables[i], y);
         if (i == DAMAGE_ENTRIES - 1)
             break;                              /* $8683 falls into $8686 */
         mff_cycles((uint16_t)(pc + 3), 2);
@@ -527,7 +527,7 @@ static void damage_apply(void)
         mff_cycles(0x86D2, 9);
         a = RAM(TMP0);
         c = 1;
-        SBC_A(prg_read((uint16_t)(BOSS_DAMAGE_CUT + y)));
+        SBC_A(prg_read_ix(BOSS_DAMAGE_CUT, y));
         SET_NZ(a);
         mff_cycles(0x86D8, 5);
         RAM(TMP0) = a;
@@ -620,7 +620,7 @@ static void sodom_pieces(void)
         mff_cycles(0x8718, 13);
         RAM(OBJ_STATE) = OBJ_LIVE;              /* slot 0, the player */
         y = RAM(PLAYER_ID);
-        a = prg_read((uint16_t)(0xE288 + y));
+        a = prg_read_ix(0xE288, y);
         SET_NZ(a);
         mff_cycles(0x8722, 9);
         RAM(PLAYER_STAND_ANIM) = a;
@@ -635,10 +635,10 @@ static void sodom_pieces(void)
     y = 0x00;                                   /* the piece's offsets */
     for (;;) {
         mff_cycles(0x8733, 4);
-        a = prg_read((uint16_t)(SODOM_PIECES + y));
+        a = prg_read_ix(SODOM_PIECES, y);
         mff_cycles(0x8736, 7);
         RAM(TMP1) = a;
-        a = prg_read((uint16_t)(SODOM_PIECES + 1 + y));
+        a = prg_read_ix(SODOM_PIECES + 1, y);
         mff_cycles(0x873B, 55);
         RAM(TMP2) = a;
         y = RAM(TMP0);
@@ -723,10 +723,10 @@ void func_89E3_b6(void)
 
     mff_cycles(0x89E3, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(EXP_CHECK_LO + y));
+    a = prg_read_ix(EXP_CHECK_LO, y);
     mff_cycles(0x89E8, 7);
     RAM(TMP3) = a;
-    a = prg_read((uint16_t)(EXP_CHECK_HI + y));
+    a = prg_read_ix(EXP_CHECK_HI, y);
     SET_NZ(a);
     mff_cycles(0x89ED, 8);
     RAM(TMP4) = a;
@@ -754,10 +754,10 @@ static void exp_check_level(uint16_t pc, uint8_t top, uint16_t lo, uint16_t hi, 
     mff_cycles((uint16_t)(pc + 4), 1);
     mff_cycles((uint16_t)(pc + 7), 7);
     y = RAM(PLAYER_LEVEL);
-    a = prg_read((uint16_t)(lo + y));
+    a = prg_read_ix(lo, y);
     mff_cycles((uint16_t)(pc + 12), 7);
     RAM(TMP8) = a;
-    a = prg_read((uint16_t)(hi + y));
+    a = prg_read_ix(hi, y);
     SET_NZ(a);
     mff_cycles((uint16_t)(pc + 17), 3);
     RAM(TMP9) = a;
@@ -847,12 +847,12 @@ void func_8A31_b6(void)
     }
     if (!special) {
         mff_cycles(0x8A56, 4);
-        a = prg_read((uint16_t)(EXP_POINTS + y)) & 0x0F;
+        a = prg_read_ix(EXP_POINTS, y) & 0x0F;
         mff_cycles(0x8A59, 5);
         RAM(TMP10) = a;
     }
     mff_cycles(0x8A5D, 4);
-    a = prg_read((uint16_t)(EXP_POINTS + y)) & 0xF0;
+    a = prg_read_ix(EXP_POINTS, y) & 0xF0;
     mff_cycles(0x8A60, 20);
     RAM(TMP11) = a;
 
@@ -919,14 +919,14 @@ void func_8A31_b6(void)
         mff_cycles(0x8AA2, 12);
         RAM(PLAYER_LEVEL) = (uint8_t)(RAM(PLAYER_LEVEL) + 1);
         y = RAM(PLAYER_ID);
-        a = prg_read((uint16_t)(LEVEL_HEALTH_LO + y));
+        a = prg_read_ix(LEVEL_HEALTH_LO, y);
         mff_cycles(0x8AA9, 7);
         RAM(TMP12) = a;
-        a = prg_read((uint16_t)(LEVEL_HEALTH_HI + y));
+        a = prg_read_ix(LEVEL_HEALTH_HI, y);
         mff_cycles(0x8AAE, 11);
         RAM(TMP13) = a;
         y = RAM(PLAYER_LEVEL);
-        a = mem_read((uint16_t)(RAM16(TMP12) + y));
+        a = mem_read_iy(TMP12, y);
         mff_cycles(0x8AB4, 11);
         RAM(HEALTH) = a;
         a = SFX_LEVEL_UP;

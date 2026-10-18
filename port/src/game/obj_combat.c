@@ -199,11 +199,11 @@ void func_F4E1(void)
     mff_cycles(0xF4EC, 10);
     a = RAM(OBJ_X);
     c = 0;
-    ADC_A(prg_read((uint16_t)(SPARK_DX_SIDE + y)));
+    ADC_A(prg_read_ix(SPARK_DX_SIDE, y));
     mff_cycles(0xF4F3, 11);
     mff_push(a);
     a = RAM(OBJ_X_HI);
-    ADC_A(prg_read((uint16_t)(SPARK_DX_SIDE + 1 + y)));
+    ADC_A(prg_read_ix(SPARK_DX_SIDE + 1, y));
     mff_cycles(0xF4FA, 20);
     y = RAM(TMP15);
     RAM(OBJ_X_HI + y) = a;
@@ -280,11 +280,11 @@ void func_F455(void)
         y = RAM(PLAYER_DIR) & DIR_LEFT;
         a = RAM(OBJ_X);
         c = 0;
-        ADC_A(prg_read((uint16_t)(SPARK_DX_HAGGAR + y)));
+        ADC_A(prg_read_ix(SPARK_DX_HAGGAR, y));
         mff_cycles(0xF4C4, 11);
         mff_push(a);
         a = RAM(OBJ_X_HI);
-        ADC_A(prg_read((uint16_t)(SPARK_DX_HAGGAR + 1 + y)));
+        ADC_A(prg_read_ix(SPARK_DX_HAGGAR + 1, y));
         mff_cycles(0xF4CB, 20);
         y = RAM(TMP15);
         RAM(OBJ_X_HI + y) = a;
@@ -306,11 +306,11 @@ void func_F455(void)
     y = RAM(PLAYER_DIR) & DIR_LEFT;
     a = RAM(OBJ_X);
     c = 0;
-    ADC_A(prg_read((uint16_t)(SPARK_DX + y)));
+    ADC_A(prg_read_ix(SPARK_DX, y));
     mff_cycles(0xF512, 11);
     mff_push(a);
     a = RAM(OBJ_X_HI);
-    ADC_A(prg_read((uint16_t)(SPARK_DX + 1 + y)));
+    ADC_A(prg_read_ix(SPARK_DX + 1, y));
     mff_cycles(0xF519, 24);
     y = RAM(TMP15);
     RAM(OBJ_X_HI + y) = a;
@@ -438,7 +438,7 @@ void func_F8D5(void)
     y = RAM(OBJ_ATTACK_DAMAGE + x);
     a = RAM(HEALTH);
     c = 1;
-    SBC_A(prg_read((uint16_t)(DAMAGE_HEALTH + y)));
+    SBC_A(prg_read_ix(DAMAGE_HEALTH, y));
     mff_cycles(0xF92B, 5);
     RAM(HEALTH) = a;
     if (a & 0x80) {
@@ -446,7 +446,7 @@ void func_F8D5(void)
         knockback = 1;
     } else {
         mff_cycles(0xF92F, 4);
-        knockback = prg_read((uint16_t)(DAMAGE_KNOCKS_DOWN + y)) != 0;
+        knockback = prg_read_ix(DAMAGE_KNOCKS_DOWN, y) != 0;
         mff_cycles(0xF932, 2);
         if (knockback)
             mff_cycles(0xF932, 1);
@@ -455,12 +455,12 @@ void func_F8D5(void)
     if (!knockback) {                           /* hurt */
         mff_cycles(0xF934, 7);
         y = RAM(PLAYER_ID);
-        a = prg_read((uint16_t)(PLAYER_ANIM_HURT + y));
+        a = prg_read_ix(PLAYER_ANIM_HURT, y);
         SET_NZ(a);
         mff_cycles(0xF939, 6);
         CALL_FIXED(0xF939, func_F294);          /* player_set_anim */
         mff_cycles(0xF93C, 4);
-        a = prg_read((uint16_t)(PLAYER_CHR_HURT + y));
+        a = prg_read_ix(PLAYER_CHR_HURT, y);
         SET_NZ(a);
         mff_cycles(0xF93F, 6);
         CALL_FIXED(0xF93F, func_F440);          /* set_chr_bank2 */
@@ -558,12 +558,12 @@ static void knocked_back(int left)
     mff_cycles(0xF9B9, 10);
     RAM(PLAYER_DIR) = a;
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(PLAYER_ANIM_KNOCKBACK + y));
+    a = prg_read_ix(PLAYER_ANIM_KNOCKBACK, y);
     SET_NZ(a);
     mff_cycles(0xF9C0, 6);
     CALL_FIXED(0xF9C0, func_F294);              /* player_set_anim */
     mff_cycles(0xF9C3, 4);
-    a = prg_read((uint16_t)(PLAYER_CHR_KNOCKBACK + y));
+    a = prg_read_ix(PLAYER_CHR_KNOCKBACK, y);
     SET_NZ(a);
     mff_cycles(0xF9C6, 6);
     CALL_FIXED(0xF9C6, func_F440);              /* set_chr_bank2 */
@@ -605,7 +605,7 @@ void func_FAC4(void)
     RAM(OBJ_X_HI + SLOT_WEAPON) = RAM(OBJ_X_HI);
     RAM(OBJ_Y_HI + SLOT_WEAPON) = RAM(OBJ_Y_HI);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(DROPPED_WEAPON_ANIM + y));
+    a = prg_read_ix(DROPPED_WEAPON_ANIM, y);
     mff_cycles(0xFAEB, 39);
     RAM(OBJ_ANIM + SLOT_WEAPON) = a;
     RAM(OBJ_ANIM_TIMER + SLOT_WEAPON) = 0x00;
@@ -630,7 +630,7 @@ void func_FB09(void)
 
     mff_cycles(0xFB09, 7);
     y = RAM(ATTACK_ID);
-    a = prg_read((uint16_t)(HIT_COOLDOWN + y));
+    a = prg_read_ix(HIT_COOLDOWN, y);
     mff_cycles(0xFB0E, 18);
     RAM(OBJ_HIT_COOLDOWN + x) = a;
     a = HIT_TIMER_START;

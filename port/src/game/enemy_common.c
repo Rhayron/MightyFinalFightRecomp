@@ -84,7 +84,7 @@ static void enemy_common(uint16_t pc, int cycles, uint8_t tier)
     c = 1;
     SBC_A(ENEMY_ID_FIRST);
     y = a;
-    a = prg_read((uint16_t)(KIND_BY_ID + y));
+    a = prg_read_ix(KIND_BY_ID, y);
     SET_NZ(a);
     mff_cycles(0x9D1C, 11);
     RAM(OBJ_KIND + x) = a;
@@ -243,7 +243,7 @@ void func_9FF6_b6(void)
 
     y = area_band();
     mff_cycles(0xA02D, 4);
-    a = prg_read((uint16_t)(BAND_TOP + y));
+    a = prg_read_ix(BAND_TOP, y);
     mff_cycles(0xA030, 6);
     c = a >= RAM(OBJ_Y + x);
     if (c) {
@@ -254,7 +254,7 @@ void func_9FF6_b6(void)
         mff_cycles(0xA033, 1);                  /* BCC $A03A */
     }
     mff_cycles(0xA03A, 4);
-    a = prg_read((uint16_t)(BAND_BOTTOM + y));
+    a = prg_read_ix(BAND_BOTTOM, y);
     mff_cycles(0xA03D, 6);
     CMP_FLAGS(a, RAM(OBJ_Y + x));
     if (!c) {

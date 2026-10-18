@@ -76,7 +76,7 @@ dump ─► CDL map ─► disassembly ─► scaffold (1 C function per routine
 | At run time | no ROM: on the first run the executable extracts the graphics and data tables from **your** dump once (`assets/`); the code in the binary is all C |
 | Platforms | Windows (MSVC) and Linux (gcc, clang) checked; macOS written for, not built yet |
 
-**How it stays exact.** Every routine had to leave RAM, registers, flags and the cycle count exactly as the original did. Nine test routes (round 1 with each fighter, three 50,000-frame tours through every round, the final boss and the ending, and three 60,000-frame games) compare every frame's RAM, OAM, palette and picture, plus the cycle count, with the unrefactored scaffold. The runs fail if a single ROM instruction is ever interpreted. Paths no route reaches (bonus stage, Belger's death, high-level power moves) were checked by running the old and new code of each routine on millions of random machine states. Against the cycle-accurate oracle, the port's picture is pixel-identical on every power-on route up to the oracle's first lag frame. Its sound makes the same APU writes in the same order, a median of about 7 cycles apart.
+**How it stays exact.** Every routine had to leave RAM, registers, flags and the cycle count exactly as the original did. Nine test routes (round 1 with each fighter, three 50,000-frame tours through every round, the final boss and the ending, and three 60,000-frame games) compare every frame's RAM, OAM, palette and picture, plus the cycle count, with the unrefactored scaffold. The runs fail if a single ROM instruction is ever interpreted. Paths no route reaches (bonus stage, Belger's death, high-level power moves) were checked by running the old and new code of each routine on millions of random machine states. Against the cycle-accurate oracle, the port runs on the console's clock: it slows down exactly where the console does (every lag frame of the oracle, and no other, on the power-on routes and on six tours through the whole game), and on every power-on route its RAM, its picture (pixel for pixel) and its sound (the APU writes on the oracle's cycles, the WAV sample for sample) are the oracle's on every frame.
 
 **Playing the port.** It needs CMake 3.20+, a C compiler and SDL2. It does not need Python or the submodules; on Windows the SDL2 copy inside the `nesrecomp` submodule is used, so clone with `--recursive` there.
 
@@ -108,12 +108,13 @@ The first run checks the dump's CRC32 (`15EB0BEE`) and extracts the game's data 
 | `--no-flicker` | every sprite every frame, in a stable order (the console's 8-per-line limit made them blink) |
 | `--wide [W]` | 16:9 (426 columns): the stage drawn from its own map beyond the original 256 pixels; enemies still enter at the original edge |
 | `--picture console\|hd` | the PPU's picture, or one drawn from the game's state |
+| `--slowdown off` | never slow down (the console's slowdown, where the game's frame does not fit, is the default) |
 | F5 / F7 / F6 | save state / load / next slot (4 slots) |
 | `MightyFinalFight.ini` | keys, controller, scale, full screen, sound, and the options above |
 
 Keys: arrows · `X` A (jump) · `Z` B (punch) · `Enter` Start · `Right Shift` Select · `Tab` fast · `F11` full screen · `Esc` quit. A+B is the special. `tools/make_port_release.ps1` builds a player zip (executable, SDL2, readme) and checks that it holds nothing from the cartridge.
 
-**Not done yet:** slowdown is not faithful yet. The port never lags where the console does; P7 is on it, with an option to turn slowdown off. Save states work during gameplay, not on screens and cutscenes. In `--wide`, the status bar and the menus are still the original 256 columns, centred. macOS has never been built.
+**Not done yet:** Save states work during gameplay, not on screens and cutscenes. In `--wide`, the status bar and the menus are still the original 256 columns, centred. macOS has never been built.
 
 ## The bot that played it to the end (with all three)
 

@@ -261,13 +261,20 @@ void func_C13B(void) {
     g_cpu.A = g_cpu.Y;
     mff_nz(g_cpu.A);
     mff_push(g_cpu.A);
-    mff_cycles(0xC141, 13);
+    mff_cycles(0xC141, 4);
     hw_write(MMC3_IRQ_DISABLE, g_cpu.A);
+    mff_cycles(0xC144, 4);
     hw_write(MMC3_IRQ_ENABLE, g_cpu.A);
+    mff_cycles(0xC147, 5);                      /* JMP ($009C) */
     h = (uint16_t)(RAM(IRQ_HANDLER) | RAM(IRQ_HANDLER + 1) << 8);
     nes_cpu_instruction_boundary(h, 2);
     call_by_address_tail(h, -1);
 }
+
+/* The raster handlers end a run at each hardware access, so that each one
+ * happens at its own cycle: the console's timing clocks the MMC3's
+ * scanlines as the cycles go by (port/src/runtime/frame.c), and the latch
+ * must be written before the next line counts, as on the console. */
 
 /* the handlers' common end, $C1D8 */
 static void irq_return(void) {
@@ -296,20 +303,28 @@ void func_C14A(void) {
     }
     mff_cycles(0xC14A, c);
     if (special) {
-        mff_cycles(0xC15A, 32);
+        mff_cycles(0xC15A, 4);
         hw_read(PPU_STATUS);
+        mff_cycles(0xC15D, 2 + 4);
         hw_write(PPU_SCROLL, 0);
+        mff_cycles(0xC162, 2 + 4);
         hw_write(PPU_SCROLL, 0x22);
+        mff_cycles(0xC167, 2 + 4);
         hw_write(MMC3_IRQ_LATCH, 0x4A);
+        mff_cycles(0xC16C, 2 + 3 + 2 + 3);
         RAM(IRQ_HANDLER) = 0x94;
         RAM(IRQ_HANDLER + 1) = 0xC1;
         g_cpu.A = 0xC1;
     } else {
-        mff_cycles(0xC177, 33);
+        mff_cycles(0xC177, 4);
         hw_read(PPU_STATUS);
+        mff_cycles(0xC17A, 3 + 4);
         hw_write(PPU_SCROLL, RAM(IRQ_SCROLL + 1));
+        mff_cycles(0xC17F, 2 + 4);
         hw_write(PPU_SCROLL, 0x22);
+        mff_cycles(0xC184, 2 + 4);
         hw_write(MMC3_IRQ_LATCH, 0xA1);
+        mff_cycles(0xC189, 2 + 3 + 2 + 3);
         RAM(IRQ_HANDLER) = 0xB1;
         RAM(IRQ_HANDLER + 1) = 0xC1;
         g_cpu.A = 0xC1;
@@ -321,11 +336,15 @@ void func_C14A(void) {
 
 /* $C194: the second split of those areas, back to scroll_x. */
 void func_C194(void) {
-    mff_cycles(0xC194, 33);
+    mff_cycles(0xC194, 4);
     hw_read(PPU_STATUS);
+    mff_cycles(0xC197, 3 + 4);
     hw_write(PPU_SCROLL, RAM(IRQ_SCROLL + 1));
+    mff_cycles(0xC19C, 2 + 4);
     hw_write(PPU_SCROLL, 0x22);
+    mff_cycles(0xC1A1, 2 + 4);
     hw_write(MMC3_IRQ_LATCH, 0x57);
+    mff_cycles(0xC1A6, 2 + 3 + 2 + 3);
     RAM(IRQ_HANDLER) = 0xB1;
     RAM(IRQ_HANDLER + 1) = 0xC1;
     g_cpu.A = 0xC1;
@@ -336,16 +355,24 @@ void func_C194(void) {
 
 /* $C1B1: the status bar itself: scroll 0, CHR R0/R1 = $78/$7A, IRQ off. */
 void func_C1B1(void) {
-    mff_cycles(0xC1B1, 49);
+    mff_cycles(0xC1B1, 4);
     hw_read(PPU_STATUS);
+    mff_cycles(0xC1B4, 2 + 4);
     hw_write(PPU_SCROLL, 0);
+    mff_cycles(0xC1B9, 4);
     hw_write(PPU_SCROLL, 0);
+    mff_cycles(0xC1BC, 2 + 4);
     hw_write(MMC3_BANK_SELECT, 0);
+    mff_cycles(0xC1C1, 2 + 4);
     hw_write(MMC3_BANK_DATA, 0x78);
+    mff_cycles(0xC1C6, 2 + 4);
     hw_write(MMC3_BANK_SELECT, 1);
+    mff_cycles(0xC1CB, 2 + 4);
     hw_write(MMC3_BANK_DATA, 0x7A);
+    mff_cycles(0xC1D0, 3 + 4);
     g_cpu.A = RAM(MMC3_SELECT);
     hw_write(MMC3_BANK_SELECT, g_cpu.A);
+    mff_cycles(0xC1D5, 4);
     hw_write(MMC3_IRQ_DISABLE, g_cpu.A);
     irq_return();
 }

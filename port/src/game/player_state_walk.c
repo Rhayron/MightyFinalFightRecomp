@@ -68,14 +68,14 @@ void func_CCB5(void) {
     if (a == 0) {
         mff_cycles(0xCCBB, 4 + 4);
         a = RAM(OBJ_ANIM);
-        COMPARE(a, prg_read((uint16_t)(IS_WALK + y)));
+        COMPARE(a, prg_read_ix(IS_WALK, y));
         mff_cycles(0xCCC1, 2);
         if (z) {
             mff_cycles(0xCCC1, 1);
             FALL_INTO(func_CCDA);
         }
         mff_cycles(0xCCC3, 4);
-        a = prg_read((uint16_t)(ANIM_WALK + y));
+        a = prg_read_ix(ANIM_WALK, y);
         SET_NZ(a);
         mff_cycles(0xCCC6, 6);
         JSR_FN(0xCCC6, func_F294);              /* player_set_anim */
@@ -84,11 +84,11 @@ void func_CCB5(void) {
     }
     mff_cycles(0xCCB9, 1 + 4 + 4);
     a = RAM(OBJ_ANIM);
-    COMPARE(a, prg_read((uint16_t)(IS_WEAPON_WALK + y)));
+    COMPARE(a, prg_read_ix(IS_WEAPON_WALK, y));
     mff_cycles(0xCCD2, 2);
     if (!z) {
         mff_cycles(0xCCD4, 4);
-        a = prg_read((uint16_t)(ANIM_WEAPON_WALK + y));
+        a = prg_read_ix(ANIM_WEAPON_WALK, y);
         SET_NZ(a);
         mff_cycles(0xCCD7, 6);
         JSR_FN(0xCCD7, func_F294);              /* player_set_anim */
@@ -179,10 +179,10 @@ void func_CCFA(void) {
     }
     mff_cycles(0xCD02, 1 + 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(WALK_UP_VY_FRAC + y));
+    a = prg_read_ix(WALK_UP_VY_FRAC, y);
     mff_cycles(0xCD1F, 4 + 4);
     RAM(OBJ_VY_FRAC) = a;
-    a = prg_read((uint16_t)(WALK_UP_VY + y));
+    a = prg_read_ix(WALK_UP_VY, y);
     mff_cycles(0xCD25, 4 + 3 + 2 + 2);
     RAM(OBJ_VY) = a;
     a = RAM(PLAYER_ID);
@@ -403,11 +403,11 @@ static void grab_take(void) {
     y = a;
     a = RAM(OBJ_X);
     c = 0;
-    ADC(prg_read((uint16_t)(GRAB_OFFSET_LO + y)));
+    ADC(prg_read_ix(GRAB_OFFSET_LO, y));
     mff_cycles(0xCE56, 3 + 4 + 4);
     mff_push(a);
     a = RAM(OBJ_X_HI);
-    ADC(prg_read((uint16_t)(GRAB_OFFSET_HI + y)));
+    ADC(prg_read_ix(GRAB_OFFSET_HI, y));
     mff_cycles(0xCE5D, 3 + 5 + 4 + 5 + 3 + 2 + 2);
     y = RAM(GRAB_SLOT);
     RAM(OBJ_X_HI + y) = a;
@@ -442,12 +442,12 @@ static void grab_take(void) {
     a = 0;
     RAM(OBJ_ATTACK + y) = a;
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(GRAB_ANIM + y));
+    a = prg_read_ix(GRAB_ANIM, y);
     SET_NZ(a);
     mff_cycles(0xCE9A, 6);
     JSR_FN(0xCE9A, func_F294);                  /* player_set_anim */
     mff_cycles(0xCE9D, 4);
-    a = prg_read((uint16_t)(GRAB_CHR + y));
+    a = prg_read_ix(GRAB_CHR, y);
     SET_NZ(a);
     mff_cycles(0xCEA0, 6);
     JSR_FN(0xCEA0, func_F440);                  /* player_set_chr */
@@ -624,12 +624,12 @@ void func_CEAA(void) {
     if (a == 0) {
         mff_cycles(0xCEB3, 3 + 4);
         y = RAM(PLAYER_ID);
-        a = prg_read((uint16_t)(ANIM_STAND + y));
+        a = prg_read_ix(ANIM_STAND, y);
         SET_NZ(a);
         mff_cycles(0xCEB8, 6);
         JSR_FN(0xCEB8, func_F294);              /* player_set_anim */
         mff_cycles(0xCEBB, 4);
-        a = prg_read((uint16_t)(CHR_STAND + y));
+        a = prg_read_ix(CHR_STAND, y);
         SET_NZ(a);
         mff_cycles(0xCEBE, 6);
         JSR_FN(0xCEBE, func_F440);              /* player_set_chr */
@@ -638,12 +638,12 @@ void func_CEAA(void) {
     }
     mff_cycles(0xCEB1, 1 + 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(ANIM_WEAPON_STAND + y));
+    a = prg_read_ix(ANIM_WEAPON_STAND, y);
     SET_NZ(a);
     mff_cycles(0xCEC7, 6);
     JSR_FN(0xCEC7, func_F294);                  /* player_set_anim */
     mff_cycles(0xCECA, 4);
-    a = prg_read((uint16_t)(CHR_WEAPON_STAND + y));
+    a = prg_read_ix(CHR_WEAPON_STAND, y);
     SET_NZ(a);
     mff_cycles(0xCECD, 6);
     JSR_FN(0xCECD, func_F440);                  /* player_set_chr */

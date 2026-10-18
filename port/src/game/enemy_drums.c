@@ -196,17 +196,17 @@ static void drum_place(uint16_t pc, uint16_t ytab, uint16_t xtab, uint16_t dtab)
     REGS_IN;
 
     mff_cycles(pc, 4);
-    a = prg_read((uint16_t)(ytab + y));
+    a = prg_read_ix(ytab, y);
     mff_cycles((uint16_t)(pc + 0x03), 15);
     y = RAM(TMP0);
     RAM(OBJ_Y + y) = a;
     y = RAM(TMP1);
-    a = prg_read((uint16_t)(xtab + y));
+    a = prg_read_ix(xtab, y);
     mff_cycles((uint16_t)(pc + 0x0D), 15);
     y = RAM(TMP0);
     RAM(OBJ_X + y) = a;
     y = RAM(TMP1);
-    a = prg_read((uint16_t)(dtab + y));
+    a = prg_read_ix(dtab, y);
     mff_cycles((uint16_t)(pc + 0x17), 14);
     y = RAM(TMP0);
     RAM(OBJ_DIR + y) = a;
@@ -335,7 +335,7 @@ void func_BBCB_b1(void)
     a &= 0x07;
     y = a;
     RAM(TMP1) = y;
-    a = prg_read((uint16_t)(DRUM_WAITS + y));
+    a = prg_read_ix(DRUM_WAITS, y);
     mff_cycles(0xBC67, 10);
     RAM(OBJ_TIMER + x) = a;
     a = RAM(ROUND);
@@ -676,7 +676,7 @@ void func_BDCE_b1(void)
     a &= 0x0F;
     y = a;
     RAM(TMP1) = y;
-    a = prg_read((uint16_t)(ITEM_IDS + y));
+    a = prg_read_ix(ITEM_IDS, y);
     mff_cycles(0xBE52, 12);
     y = RAM(TMP0);
     RAM(OBJ_ID + y) = a;
@@ -684,7 +684,7 @@ void func_BDCE_b1(void)
     if (a == OBJ_WEAPON) {                      /* never executed */
         mff_cycles(0xBE5B, 7);
         y = RAM(PLAYER_ID);
-        a = prg_read((uint16_t)(WEAPON_ANIMS + y));
+        a = prg_read_ix(WEAPON_ANIMS, y);
         mff_cycles(0xBE60, 9);
         y = RAM(TMP0);
         CALL_FIXED(0xBE62, func_F2A0);
@@ -694,7 +694,7 @@ void func_BDCE_b1(void)
     mff_cycles(0xBE59, 1);
     mff_cycles(0xBE68, 7);
     y = RAM(TMP1);
-    a = prg_read((uint16_t)(ITEM_ANIMS + y));
+    a = prg_read_ix(ITEM_ANIMS, y);
     mff_cycles(0xBE6D, 9);
     y = RAM(TMP0);
     CALL_FIXED(0xBE6F, func_F2A0);
@@ -906,7 +906,7 @@ static void bonus_result(void)
         a = ITEM_ATTACK;
         RAM(OBJ_ATTACK + BONUS_PRIZE_SLOT) = a;
         y = RAM(BONUS_DRUM_COUNT);
-        a = prg_read((uint16_t)(PRIZE_ANIMS + y));
+        a = prg_read_ix(PRIZE_ANIMS, y);
         mff_cycles(0xB3C7, 11);
         RAM(OBJ_ANIM + BONUS_PRIZE_SLOT) = a;
         a = RAM(BONUS_DRUM_COUNT);
@@ -918,7 +918,7 @@ static void bonus_result(void)
             mff_cycles(0xB3CE, 1);
         }
         mff_cycles(0xB3D4, 4);
-        a = prg_read((uint16_t)(PRIZE_IDS + y));
+        a = prg_read_ix(PRIZE_IDS, y);
         mff_cycles(0xB3D7, 34);
         RAM(OBJ_ID + BONUS_PRIZE_SLOT) = a;
         a = RAM(OBJ_FLAGS + BONUS_PRIZE_SLOT) | OBJF_HIDDEN;
@@ -1008,26 +1008,26 @@ void func_B411_b5(void)
     a = BONUS_PRIZE_Y;
     RAM(OBJ_Y + BONUS_PRIZE_SLOT) = a;
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(PLAYER_WIN_ANIM + y));
+    a = prg_read_ix(PLAYER_WIN_ANIM, y);
     mff_cycles(0xB42B, 6);
     CALL_FIXED(0xB42B, func_F294);              /* player_set_anim */
     mff_cycles(0xB42E, 4);
-    a = prg_read((uint16_t)(PLAYER_WIN_CHR + y));
+    a = prg_read_ix(PLAYER_WIN_CHR, y);
     SET_NZ(a);
     mff_cycles(0xB431, 6);
     CALL_FIXED(0xB431, func_F440);              /* sprite bank R2 = A */
     mff_cycles(0xB434, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(PLAYER_WIN_VX_FRAC + y));
+    a = prg_read_ix(PLAYER_WIN_VX_FRAC, y);
     mff_cycles(0xB439, 8);
     RAM(OBJ_VX_FRAC) = a;
-    a = prg_read((uint16_t)(PLAYER_WIN_VX + y));
+    a = prg_read_ix(PLAYER_WIN_VX, y);
     mff_cycles(0xB43F, 8);
     RAM(OBJ_VX) = a;
-    a = prg_read((uint16_t)(PLAYER_WIN_VY_FRAC + y));
+    a = prg_read_ix(PLAYER_WIN_VY_FRAC, y);
     mff_cycles(0xB445, 8);
     RAM(OBJ_VY_FRAC) = a;
-    a = prg_read((uint16_t)(PLAYER_WIN_VY + y));
+    a = prg_read_ix(PLAYER_WIN_VY, y);
     mff_cycles(0xB44B, 21);
     RAM(OBJ_VY) = a;
     a = 0x80;
@@ -1106,7 +1106,7 @@ void func_B46F_b5(void)
     a = (uint8_t)(a >> 1 | c << 7);             /* ROR */
     a &= 0x07;
     y = a;
-    a = prg_read((uint16_t)(BDRUM_FAST + y));
+    a = prg_read_ix(BDRUM_FAST, y);
     mff_cycles(0xB4CC, 2);
     if (a != 0) {
         mff_cycles(0xB4CE, 10);
@@ -1141,7 +1141,7 @@ void func_B46F_b5(void)
                         mff_cycles(0xB505, 15);
                         a = (RAM(RNG + 1) ^ RAM(OBJ_Y)) & 0x01;
                         y = a;
-                        a = prg_read((uint16_t)(BDRUM_PATTERNS_HIGH + y));
+                        a = prg_read_ix(BDRUM_PATTERNS_HIGH, y);
                         mff_cycles(0xB510, 3);
                         RAM(TMP3) = a;
                         SYNC_OUT;
@@ -1164,7 +1164,7 @@ void func_B46F_b5(void)
     mff_cycles(0xB4F5, 15);
     a = (RAM(RNG + 1) ^ RAM(OBJ_Y)) & 0x03;
     y = a;
-    a = prg_read((uint16_t)(BDRUM_PATTERNS + y));
+    a = prg_read_ix(BDRUM_PATTERNS, y);
     mff_cycles(0xB500, 6);
     RAM(TMP3) = a;
     GO_IN(0xB512, BANK_0B);
@@ -1367,7 +1367,7 @@ void func_B5AF_b5(void)
     ADC_A(RAM(SPAWN_TIMER));
     a &= 0x07;
     y = a;
-    a = prg_read((uint16_t)(BDRUM_BOUNCES + y));
+    a = prg_read_ix(BDRUM_BOUNCES, y);
     mff_cycles(0xB5B9, 2);
     if (a != 0) {
         mff_cycles(0xB5BB, 38);

@@ -73,7 +73,7 @@ void func_F090(void)
     REGS_IN;
 
     mff_cycles(0xF090, 17);
-    a = (uint8_t)(RAM(OBJ_FLAGS + x) | OBJF_FACE_RIGHT);
+    a = (uint8_t)(ram_ix(OBJ_FLAGS, x) | OBJF_FACE_RIGHT);
     RAM(OBJ_FLAGS + x) = a;
     RTS_RETURN();
 }
@@ -88,7 +88,7 @@ void func_F099(void)
     REGS_IN;
 
     mff_cycles(0xF099, 17);
-    a = (uint8_t)(RAM(OBJ_FLAGS + x) & ~OBJF_FACE_RIGHT);
+    a = (uint8_t)(ram_ix(OBJ_FLAGS, x) & ~OBJF_FACE_RIGHT);
     RAM(OBJ_FLAGS + x) = a;
     RTS_RETURN();
 }
@@ -106,16 +106,16 @@ void func_F183(void)
     REGS_IN;
 
     mff_cycles(0xF183, 30);
-    a = RAM(OBJ_X_FRAC + x);
+    a = ram_ix(OBJ_X_FRAC, x);
     c = 0;
-    ADC_A(RAM(OBJ_VX_FRAC + x));
+    ADC_A(ram_ix(OBJ_VX_FRAC, x));
     RAM(OBJ_X_FRAC + x) = a;
-    a = RAM(OBJ_X + x);
-    ADC_A(RAM(OBJ_VX + x));
+    a = ram_ix(OBJ_X, x);
+    ADC_A(ram_ix(OBJ_VX, x));
     RAM(OBJ_X + x) = a;
     if (c) {
         mff_cycles(0xF198, 11);
-        a = RAM(OBJ_X_HI + x);
+        a = ram_ix(OBJ_X_HI, x);
         ADC_A(0);
         RAM(OBJ_X_HI + x) = a;
     } else {
@@ -135,16 +135,16 @@ void func_F1A1(void)
     REGS_IN;
 
     mff_cycles(0xF1A1, 30);
-    a = RAM(OBJ_X_FRAC + x);
+    a = ram_ix(OBJ_X_FRAC, x);
     c = 1;
-    SBC_A(RAM(OBJ_VX_FRAC + x));
+    SBC_A(ram_ix(OBJ_VX_FRAC, x));
     RAM(OBJ_X_FRAC + x) = a;
-    a = RAM(OBJ_X + x);
-    SBC_A(RAM(OBJ_VX + x));
+    a = ram_ix(OBJ_X, x);
+    SBC_A(ram_ix(OBJ_VX, x));
     RAM(OBJ_X + x) = a;
     if (!c) {
         mff_cycles(0xF1B6, 11);
-        a = RAM(OBJ_X_HI + x);
+        a = ram_ix(OBJ_X_HI, x);
         SBC_A(0);
         RAM(OBJ_X_HI + x) = a;
     } else {
@@ -166,12 +166,12 @@ void func_F1BF(void)
     REGS_IN;
 
     mff_cycles(0xF1BF, 32);
-    a = RAM(OBJ_Y_FRAC + x);
+    a = ram_ix(OBJ_Y_FRAC, x);
     c = 0;
-    ADC_A(RAM(OBJ_VY_FRAC + x));
+    ADC_A(ram_ix(OBJ_VY_FRAC, x));
     RAM(OBJ_Y_FRAC + x) = a;
-    a = RAM(OBJ_Y + x);
-    ADC_A(RAM(OBJ_VY + x));
+    a = ram_ix(OBJ_Y, x);
+    ADC_A(ram_ix(OBJ_VY, x));
     RAM(OBJ_Y + x) = a;
     c = a >= 0xF0;
     if (c) {                                    /* never executed */
@@ -196,12 +196,12 @@ static void move_up(uint16_t pc)
     REGS_IN;
 
     mff_cycles(pc, 30);
-    a = RAM(OBJ_Y_FRAC + x);
+    a = ram_ix(OBJ_Y_FRAC, x);
     c = 1;
-    SBC_A(RAM(OBJ_VY_FRAC + x));
+    SBC_A(ram_ix(OBJ_VY_FRAC, x));
     RAM(OBJ_Y_FRAC + x) = a;
-    a = RAM(OBJ_Y + x);
-    SBC_A(RAM(OBJ_VY + x));
+    a = ram_ix(OBJ_Y, x);
+    SBC_A(ram_ix(OBJ_VY, x));
     RAM(OBJ_Y + x) = a;
     if (!c) {                                   /* never executed */
         mff_cycles((uint16_t)(pc + 0x15), 14);
@@ -238,7 +238,7 @@ void func_F1FD(void)
     REGS_IN;
 
     mff_cycles(0xF1FD, 6);
-    if (RAM(OBJ_VY + x) & 0x80) {               /* going down */
+    if (ram_ix(OBJ_VY, x) & 0x80) {               /* going down */
         mff_cycles(0xF202, 6);
         CALL_FIXED(0xF202, func_F20E);
         JMP_FIXED(0xF205, 0xF24C, func_F24C);
@@ -260,12 +260,12 @@ void func_F20E(void)
     REGS_IN;
 
     mff_cycles(0xF20E, 32);
-    a = RAM(OBJ_Y_FRAC + x);
+    a = ram_ix(OBJ_Y_FRAC, x);
     c = 1;
-    SBC_A(RAM(OBJ_VY_FRAC + x));
+    SBC_A(ram_ix(OBJ_VY_FRAC, x));
     RAM(OBJ_Y_FRAC + x) = a;
-    a = RAM(OBJ_Y + x);
-    SBC_A(RAM(OBJ_VY + x));
+    a = ram_ix(OBJ_Y, x);
+    SBC_A(ram_ix(OBJ_VY, x));
     RAM(OBJ_Y + x) = a;
     c = a >= 0xF0;
     if (c) {                                    /* never executed */
@@ -302,11 +302,11 @@ void func_F24C(void)
     REGS_IN;
 
     mff_cycles(0xF24C, 27);
-    a = RAM(OBJ_VY_FRAC + x);
+    a = ram_ix(OBJ_VY_FRAC, x);
     c = 1;
     SBC_A(RAM(GRAVITY));
     RAM(OBJ_VY_FRAC + x) = a;
-    a = RAM(OBJ_VY + x);
+    a = ram_ix(OBJ_VY, x);
     SBC_A(0);
     RAM(OBJ_VY + x) = a;
     if (a & 0x80) {
@@ -367,10 +367,10 @@ void func_F314(void)
 
     mff_cycles(0xF314, 27);
     RAM(OBJ_DIR + x) = DIR_RIGHT;
-    a = RAM(OBJ_X + x);
+    a = ram_ix(OBJ_X, x);
     c = 1;
     SBC_A(RAM(OBJ_X));                          /* only the borrow is kept */
-    a = RAM(OBJ_X_HI + x);
+    a = ram_ix(OBJ_X_HI, x);
     SBC_A(RAM(OBJ_X_HI));
     if (c) {
         mff_cycles(0xF328, 7);
@@ -394,10 +394,10 @@ void func_F32E(void)
     REGS_IN;
 
     mff_cycles(0xF32E, 35);
-    a = RAM(OBJ_DIR + x);
+    a = ram_ix(OBJ_DIR, x);
     c = (a >> 2) & 1;
     RAM(TMP0) = (uint8_t)((a & DIR_RIGHT) << 6);
-    a = (uint8_t)((RAM(OBJ_FLAGS + x) & ~OBJF_FACE_RIGHT) | RAM(TMP0));
+    a = (uint8_t)((ram_ix(OBJ_FLAGS, x) & ~OBJF_FACE_RIGHT) | RAM(TMP0));
     RAM(OBJ_FLAGS + x) = a;
     RTS_RETURN();
 }
@@ -434,7 +434,7 @@ void func_F365(void)
     mff_cycles(0xF365, 12);
     a = RAM(OBJ_Y);
     c = 1;
-    SBC_A(RAM(OBJ_Y + x));
+    SBC_A(ram_ix(OBJ_Y, x));
     if (!c) {
         mff_cycles(0xF36E, 6);
         a ^= 0xFF;
@@ -463,10 +463,10 @@ void func_F374(void)
     mff_cycles(0xF374, 27);
     a = RAM(OBJ_X);
     c = 1;
-    SBC_A(RAM(OBJ_X + x));
+    SBC_A(ram_ix(OBJ_X, x));
     mff_push(a);
     a = RAM(OBJ_X_HI);
-    SBC_A(RAM(OBJ_X_HI + x));
+    SBC_A(ram_ix(OBJ_X_HI, x));
     a = mff_pull();
     if (!c) {
         mff_cycles(0xF385, 6);
@@ -498,7 +498,7 @@ void func_F38B(void)
     mff_cycles(0xF38B, 16);
     a = RAM(OBJ_Y);
     c = 1;
-    SBC_A(RAM(OBJ_Y + x));
+    SBC_A(ram_ix(OBJ_Y, x));
     y = 0x00;
     if (!c) {                                   /* the player is above */
         mff_cycles(0xF398, 6);
@@ -511,10 +511,10 @@ void func_F38B(void)
     RAM(TMP0) = a;
     a = RAM(OBJ_X);
     c = 1;
-    SBC_A(RAM(OBJ_X + x));
+    SBC_A(ram_ix(OBJ_X, x));
     mff_push(a);
     a = RAM(OBJ_X_HI);
-    SBC_A(RAM(OBJ_X_HI + x));
+    SBC_A(ram_ix(OBJ_X_HI, x));
     a = mff_pull();
     if (!c) {                                   /* the player is to the left */
         mff_cycles(0xF3B1, 8);
@@ -555,7 +555,7 @@ void func_F38B(void)
     c = 0;
     ADC_A(RAM(TMP2));
     y = a;
-    a = prg_read((uint16_t)(DIR_INDEX_TABLE + y));
+    a = prg_read_ix(DIR_INDEX_TABLE, y);
     mff_cycles(0xF3E5, 6);
     RTS_RETURN();
 }
@@ -639,14 +639,14 @@ void func_FB72(void)
     RAM(TMP15) = RAM(OBJ_Y);
     RAM(TMP14) = RAM(OBJ_X);
     RAM(TMP13) = RAM(OBJ_X_HI);
-    y = RAM(OBJ_KIND + x);
+    y = ram_ix(OBJ_KIND, x);
     CALL_FIXED(0xFB84, func_F374);
     mff_cycles(0xFB87, 2);
     if (!c) {                                   /* the player is to the left */
         mff_cycles(0xFB89, 10);
         a = RAM(OBJ_X);
         c = 0;
-        ADC_A(prg_read((uint16_t)(KIND_REACH_X + y)));
+        ADC_A(prg_read_ix(KIND_REACH_X, y));
         mff_cycles(0xFB90, 17);
         RAM(OBJ_X) = a;
         a = RAM(OBJ_X_HI);
@@ -658,7 +658,7 @@ void func_FB72(void)
     mff_cycles(0xFB9E, 10);
     a = RAM(OBJ_X);
     c = 1;
-    SBC_A(prg_read((uint16_t)(KIND_REACH_X + y)));
+    SBC_A(prg_read_ix(KIND_REACH_X, y));
     mff_cycles(0xFBA5, 27);
     RAM(OBJ_X) = a;
     a = RAM(OBJ_X_HI);

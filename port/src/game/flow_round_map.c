@@ -88,7 +88,7 @@ void func_8D00_b2(void) {
     pc = (uint16_t)(0x8D13 + 0x10 * player);
     for (;;) {
         mff_cycles(pc, 4);
-        a = prg_read((uint16_t)(MAP_PALETTES + 0x10 * player + y));
+        a = prg_read_ix(MAP_PALETTES + 0x10 * player, y);
         mff_cycles(pc + 3, 14);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
@@ -114,13 +114,13 @@ void func_8D00_b2(void) {
     a = 0x3C;
     RAM(CHR_BANKS + 3) = a;
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(PLAYER_PAL_END + y));
+    a = prg_read_ix(PLAYER_PAL_END, y);
     mff_cycles(0x8D52, 4);
     x = a;
     y = 7;
     for (;;) {
         mff_cycles(0x8D55, 4);
-        a = prg_read((uint16_t)(PLAYER_PAL_TABLE + x));
+        a = prg_read_ix(PLAYER_PAL_TABLE, x);
         mff_cycles(0x8D58, 16);
         RAM(PALETTE_BUF + 16 + y) = a;
         RAM(PALETTE_BASE + 16 + y) = a;
@@ -156,10 +156,10 @@ void func_8D00_b2(void) {
     a = 0x32;
     RAM(OBJ_Y) = a;
     y = RAM(ROUND);
-    a = prg_read((uint16_t)(MAP_MARKER_X + y));
+    a = prg_read_ix(MAP_MARKER_X, y);
     mff_cycles(0x8DA9, 8);
     RAM(OBJ_X + 2) = a;
-    a = prg_read((uint16_t)(MAP_MARKER_Y + y));
+    a = prg_read_ix(MAP_MARKER_Y, y);
     mff_cycles(0x8DAF, 14);
     RAM(OBJ_Y + 2) = a;
     x = 2;
@@ -170,10 +170,10 @@ void func_8D00_b2(void) {
     SYNC_IN;
     mff_cycles(0x8DB9, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(MAP_SCENES_LO + y));
+    a = prg_read_ix(MAP_SCENES_LO, y);
     mff_cycles(0x8DBE, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(MAP_SCENES_HI + y));
+    a = prg_read_ix(MAP_SCENES_HI, y);
     SET_NZ(a);
     mff_cycles(0x8DC3, 8);
     RAM(TMP1) = a;

@@ -53,16 +53,16 @@ void func_D9FA(void) {
     }
     mff_cycles(0xDA09, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(WALK_VX_FRAC + y));
+    a = prg_read_ix(WALK_VX_FRAC, y);
     mff_cycles(0xDA0E, 4 + 4);
     RAM(OBJ_VX_FRAC) = a;
-    a = prg_read((uint16_t)(WALK_VX + y));
+    a = prg_read_ix(WALK_VX, y);
     mff_cycles(0xDA14, 4 + 4);
     RAM(OBJ_VX) = a;
-    a = prg_read((uint16_t)(WALK_VY_FRAC + y));
+    a = prg_read_ix(WALK_VY_FRAC, y);
     mff_cycles(0xDA1A, 4 + 4);
     RAM(OBJ_VY_FRAC) = a;
-    a = prg_read((uint16_t)(WALK_VY + y));
+    a = prg_read_ix(WALK_VY, y);
     mff_cycles(0xDA20, 4 + 2 + 6 * 3 + 6);
     RAM(OBJ_VY) = a;
     a = 0;
@@ -76,7 +76,7 @@ void func_D9FA(void) {
     JSR_AT(0xDA31, 0xCEAA, -1);                 /* player_stand */
     mff_cycles(0xDA34, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+    a = prg_read_ix(COMBO_FIRST_ANIM, y);
     SET_NZ(a);
     mff_cycles(0xDA39, 3 + 6);
     RAM(PLAYER_STAND_ANIM) = a;
@@ -318,12 +318,12 @@ void func_DB2C(void) {
     }
     mff_cycles(0xDB5D, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(ANIM_KNOCKED_DOWN + y));
+    a = prg_read_ix(ANIM_KNOCKED_DOWN, y);
     SET_NZ(a);
     mff_cycles(0xDB62, 6);
     JSR_FN(0xDB62, func_F294);                  /* player_set_anim */
     mff_cycles(0xDB65, 4);
-    a = prg_read((uint16_t)(CHR_KNOCKED_DOWN + y));
+    a = prg_read_ix(CHR_KNOCKED_DOWN, y);
     SET_NZ(a);
     mff_cycles(0xDB68, 6);
     JSR_FN(0xDB68, func_F440);                  /* player_set_chr */
@@ -479,12 +479,12 @@ void func_DBFD(void) {
 
     mff_cycles(0xDBFD, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(ANIM_KNOCKED_DOWN + y));
+    a = prg_read_ix(ANIM_KNOCKED_DOWN, y);
     SET_NZ(a);
     mff_cycles(0xDC02, 6);
     JSR_FN(0xDC02, func_F294);                  /* player_set_anim */
     mff_cycles(0xDC05, 4);
-    a = prg_read((uint16_t)(CHR_KNOCKED_DOWN + y));
+    a = prg_read_ix(CHR_KNOCKED_DOWN, y);
     SET_NZ(a);
     mff_cycles(0xDC08, 6);
     JSR_FN(0xDC08, func_F440);                  /* player_set_chr */
@@ -520,15 +520,15 @@ void func_DC29(void) {
 
     mff_cycles(0xDC29, 3 + 4);
     y = RAM(ROUND);
-    a = prg_read((uint16_t)(BAND_TOP_LO + y));
+    a = prg_read_ix(BAND_TOP_LO, y);
     mff_cycles(0xDC2E, 3 + 4);
     RAM(TMP4) = a;
-    a = prg_read((uint16_t)(BAND_TOP_HI + y));
+    a = prg_read_ix(BAND_TOP_HI, y);
     mff_cycles(0xDC33, 3 + 3 + 4 + 5);
     RAM(TMP5) = a;
     y = RAM(SUB_AREA);
     a = RAM(OBJ_Y);
-    COMPARE(a, mem_read((uint16_t)(RAM16(TMP4) + y)));
+    COMPARE(a, mem_read_iy(TMP4, y));
     mff_cycles(0xDC3C, 2);
     if (z) {
         mff_cycles(0xDC3C, 1);
@@ -540,7 +540,7 @@ void func_DC29(void) {
         }
     }
     mff_cycles(0xDC40, 5);
-    a = mem_read((uint16_t)(RAM16(TMP4) + y));
+    a = mem_read_iy(TMP4, y);
     mff_cycles(0xDC42, 4 + 3 + 3 + 2 + 2);
     RAM(OBJ_Y) = a;
     RAM(PLAYER_GROUND_Y) = a;

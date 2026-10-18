@@ -694,7 +694,7 @@ void func_86FF_b0(void) {
     mff_cycles(0x8728, 4 + 2 + 4);
     a = RAM(OBJ_ANIM_FRAME);
     y = a;
-    a = prg_read((uint16_t)(LARIAT_ATTACK_ID + y));
+    a = prg_read_ix(LARIAT_ATTACK_ID, y);
     SET_NZ(a);
     mff_cycles(0x872F, 3 + 6);
     RAM(ATTACK_ID) = a;
@@ -736,7 +736,7 @@ void func_86FF_b0(void) {
             a = STATE_LIVE;
             RAM(OBJ_STATE) = a;
             y = RAM(PLAYER_ID);
-            a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+            a = prg_read_ix(COMBO_FIRST_ANIM, y);
             SET_NZ(a);
             mff_cycles(0x876D, 3 + 6);
             RAM(PLAYER_STAND_ANIM) = a;
@@ -877,10 +877,10 @@ void func_87E2_b0(void) {
 
     mff_cycles(0x87E2, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(SPECIAL_HANDLER_LO + y));
+    a = prg_read_ix(SPECIAL_HANDLER_LO, y);
     mff_cycles(0x87E7, 3 + 4);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(SPECIAL_HANDLER_HI + y));
+    a = prg_read_ix(SPECIAL_HANDLER_HI, y);
     SET_NZ(a);
     mff_cycles(0x87EC, 3 + 5);
     RAM(TMP1) = a;
@@ -900,7 +900,7 @@ void func_87F7_b0(void) {
     mff_cycles(0x87F7, 4 + 2 + 4);
     a = RAM(OBJ_ANIM_FRAME);
     y = a;
-    a = prg_read((uint16_t)(SPECIAL_ATTACK_ID + y));
+    a = prg_read_ix(SPECIAL_ATTACK_ID, y);
     SET_NZ(a);
     mff_cycles(0x87FE, 3 + 6);
     RAM(ATTACK_ID) = a;
@@ -971,7 +971,7 @@ void func_8832_b0(void) {
     a = 0xFF;
     RAM(OBJ_VY) = a;
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+    a = prg_read_ix(COMBO_FIRST_ANIM, y);
     SET_NZ(a);
     mff_cycles(0x8849, 3 + 6);
     RAM(PLAYER_STAND_ANIM) = a;
@@ -1019,7 +1019,7 @@ void func_8864_b0(void) {
     mff_cycles(0x8864, 4 + 2 + 4);
     a = RAM(OBJ_ANIM_FRAME);
     y = a;
-    a = prg_read((uint16_t)(SPECIAL_ATTACK_ID + y));
+    a = prg_read_ix(SPECIAL_ATTACK_ID, y);
     SET_NZ(a);
     mff_cycles(0x886B, 3 + 6);
     RAM(ATTACK_ID) = a;
@@ -1127,7 +1127,7 @@ void func_88AA_b0(void) {
     mff_cycles(0x88D5, 4 + 2 + 4);
     a = RAM(OBJ_ANIM_FRAME);
     y = a;
-    a = prg_read((uint16_t)(LARIAT_ATTACK_ID + y));
+    a = prg_read_ix(LARIAT_ATTACK_ID, y);
     SET_NZ(a);
     mff_cycles(0x88DC, 3 + 6);
     RAM(ATTACK_ID) = a;

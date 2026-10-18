@@ -37,14 +37,14 @@ static int jump_attack_start(uint16_t pc, uint16_t anim, uint16_t chr, int down)
 
     mff_cycles(pc, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(anim + y));
+    a = prg_read_ix(anim, y);
     SET_NZ(a);
     mff_cycles((uint16_t)(pc + 5), 6);
     SYNC_OUT;
     if (!mff_call_fn(RP(pc + 5), func_F294, 0xE000)) return 0;  /* player_set_anim */
     SYNC_IN;
     mff_cycles((uint16_t)(pc + 8), 4);
-    a = prg_read((uint16_t)(chr + y));
+    a = prg_read_ix(chr, y);
     SET_NZ(a);
     mff_cycles((uint16_t)(pc + 11), 6);
     SYNC_OUT;
@@ -201,7 +201,7 @@ down:
     mff_cycles(0xD0DC, 1 + 3 + 4 + 4);
     y = RAM(PLAYER_ID);
     a = RAM(OBJ_ANIM);
-    COMPARE(a, prg_read((uint16_t)(IS_JUMP_KICK + y)));
+    COMPARE(a, prg_read_ix(IS_JUMP_KICK, y));
     mff_cycles(0xD0E9, 2);
     if (z) {
         mff_cycles(0xD0EB, 3);
@@ -209,7 +209,7 @@ down:
     }
     mff_cycles(0xD0E9, 1 + 4 + 4);
     a = RAM(OBJ_ANIM);
-    COMPARE(a, prg_read((uint16_t)(IS_JUMP_KICK_MOVING2 + y)));
+    COMPARE(a, prg_read_ix(IS_JUMP_KICK_MOVING2, y));
     mff_cycles(0xD0F4, 2);
     if (z) {                                    /* (never executed) */
         mff_cycles(0xD0F6, 3);
@@ -338,14 +338,14 @@ void func_CF88(void) {
     }
     mff_cycles(0xCF8F, 1 + 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(IS_JUMP_KICK + y));
+    a = prg_read_ix(IS_JUMP_KICK, y);
     mff_cycles(0xCF99, 4 + 2);
     if (a == RAM(OBJ_ANIM)) {
         mff_cycles(0xCF9C, 1);
         goto pit_check;
     }
     mff_cycles(0xCF9E, 4);
-    a = prg_read((uint16_t)(IS_JUMP_KICK_MOVING2 + y));
+    a = prg_read_ix(IS_JUMP_KICK_MOVING2, y);
     mff_cycles(0xCFA1, 4 + 2);
     if (a == RAM(OBJ_ANIM)) {
         mff_cycles(0xCFA4, 1);
@@ -359,21 +359,21 @@ void func_CF88(void) {
     }
     mff_cycles(0xCFAB, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(IS_JUMP_MOVING + y));
+    a = prg_read_ix(IS_JUMP_MOVING, y);
     mff_cycles(0xCFB0, 4 + 2);
     if (a == RAM(OBJ_ANIM)) {
         mff_cycles(0xCFB3, 1);
         goto pit_drop;
     }
     mff_cycles(0xCFB5, 4);
-    a = prg_read((uint16_t)(IS_JUMP_BACK + y));
+    a = prg_read_ix(IS_JUMP_BACK, y);
     mff_cycles(0xCFB8, 4 + 2);
     if (a == RAM(OBJ_ANIM)) {
         mff_cycles(0xCFBB, 1);
         goto pit_drop;
     }
     mff_cycles(0xCFBD, 4);
-    a = prg_read((uint16_t)(IS_JUMP + y));
+    a = prg_read_ix(IS_JUMP, y);
     mff_cycles(0xCFC0, 4 + 2);
     COMPARE(a, RAM(OBJ_ANIM));
     if (z) {
@@ -403,7 +403,7 @@ pit_drop:
 fall_anim:
     mff_cycles(0xCFE6, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(ANIM_FALL + y));
+    a = prg_read_ix(ANIM_FALL, y);
     SET_NZ(a);
     mff_cycles(0xCFEB, 6);
     JSR_FN(0xCFEB, func_F294);                  /* player_set_anim */
@@ -591,7 +591,7 @@ void func_D18E(void) {
     mff_cycles(0xD197, 3 + 4 + 4);
     y = RAM(PLAYER_ID);
     a = RAM(OBJ_ANIM);
-    COMPARE(a, prg_read((uint16_t)(IS_JUMP_KICK + y)));
+    COMPARE(a, prg_read_ix(IS_JUMP_KICK, y));
     mff_cycles(0xD19F, 2);
     if (z) {                                    /* kicking */
         mff_cycles(0xD19F, 1 + 6);
@@ -613,17 +613,17 @@ void func_D18E(void) {
         mff_cycles(0xD1AF, 3 + 4 + 4);
         y = RAM(PLAYER_ID);
         a = RAM(OBJ_ANIM);
-        COMPARE(a, prg_read((uint16_t)(IS_JUMP_MOVING + y)));
+        COMPARE(a, prg_read_ix(IS_JUMP_MOVING, y));
         mff_cycles(0xD1B7, 2);
         if (!z) {                               /* not the moving jump yet */
             mff_cycles(0xD1B9, 3 + 4);
             y = RAM(PLAYER_ID);
-            a = prg_read((uint16_t)(ANIM_JUMP_MOVING + y));
+            a = prg_read_ix(ANIM_JUMP_MOVING, y);
             SET_NZ(a);
             mff_cycles(0xD1BE, 6);
             JSR_FN(0xD1BE, func_F294);          /* player_set_anim */
             mff_cycles(0xD1C1, 4);
-            a = prg_read((uint16_t)(CHR_JUMP + y));
+            a = prg_read_ix(CHR_JUMP, y);
             SET_NZ(a);
             mff_cycles(0xD1C4, 6);
             JSR_FN(0xD1C4, func_F440);          /* player_set_chr */
@@ -651,15 +651,15 @@ void func_D18E(void) {
         if (!z) {                               /* facing right: backwards */
             mff_cycles(0xD228, 3 + 4);
             y = RAM(PLAYER_ID);
-            a = prg_read((uint16_t)(ANIM_JUMP_BACK + y));
+            a = prg_read_ix(ANIM_JUMP_BACK, y);
             SET_NZ(a);
             mff_cycles(0xD22D, 6);
             JSR_FN(0xD22D, func_F294);          /* player_set_anim */
             mff_cycles(0xD230, 4);
-            a = prg_read((uint16_t)(JUMP_BACK_VX_FRAC + y));
+            a = prg_read_ix(JUMP_BACK_VX_FRAC, y);
             mff_cycles(0xD233, 4 + 4);
             RAM(OBJ_VX_FRAC) = a;
-            a = prg_read((uint16_t)(JUMP_BACK_VX + y));
+            a = prg_read_ix(JUMP_BACK_VX, y);
             mff_cycles(0xD239, 4 + 2 + 4);
             RAM(OBJ_VX) = a;
             a = FLAGS_FACING_RIGHT;
@@ -712,15 +712,15 @@ void func_D18E(void) {
     }
     mff_cycles(0xD202, 3 + 4);                  /* facing left: backwards */
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(ANIM_JUMP_BACK + y));
+    a = prg_read_ix(ANIM_JUMP_BACK, y);
     SET_NZ(a);
     mff_cycles(0xD207, 6);
     JSR_FN(0xD207, func_F294);                  /* player_set_anim */
     mff_cycles(0xD20A, 4);
-    a = prg_read((uint16_t)(JUMP_BACK_VX_FRAC + y));
+    a = prg_read_ix(JUMP_BACK_VX_FRAC, y);
     mff_cycles(0xD20D, 4 + 4);
     RAM(OBJ_VX_FRAC) = a;
-    a = prg_read((uint16_t)(JUMP_BACK_VX + y));
+    a = prg_read_ix(JUMP_BACK_VX, y);
     mff_cycles(0xD213, 4 + 2 + 4 + 6);
     RAM(OBJ_VX) = a;
     a = FLAGS_FACING_LEFT;
@@ -747,20 +747,20 @@ void func_D242(void) {
     y = RAM(PLAYER_ID);
     a = RAM(OBJ_ANIM);
     mff_cycles(0xD24A, 2);
-    if (a != prg_read((uint16_t)(IS_JUMP_MOVING + y))) {
+    if (a != prg_read_ix(IS_JUMP_MOVING, y)) {
         mff_cycles(0xD24C, 4 + 2);
-        if (a == prg_read((uint16_t)(IS_JUMP + y))) {
+        if (a == prg_read_ix(IS_JUMP, y)) {
             mff_cycles(0xD251, 4 + 2 + 2);
             a = RAM(OBJ_ANIM_TIMER);
             COMPARE(a, 4);
             if (z) {                            /* the standing jump's 4th frame */
                 mff_cycles(0xD258, 4);
-                a = prg_read((uint16_t)(ANIM_JUMP_MOVING + y));
+                a = prg_read_ix(ANIM_JUMP_MOVING, y);
                 SET_NZ(a);
                 mff_cycles(0xD25B, 6);
                 JSR_FN(0xD25B, func_F294);      /* player_set_anim */
                 mff_cycles(0xD25E, 4);
-                a = prg_read((uint16_t)(CHR_JUMP + y));
+                a = prg_read_ix(CHR_JUMP, y);
                 SET_NZ(a);
                 mff_cycles(0xD261, 6);
                 JSR_FN(0xD261, func_F440);      /* player_set_chr */
@@ -777,7 +777,7 @@ void func_D242(void) {
     mff_cycles(0xD264, 3 + 4 + 4);
     y = RAM(PLAYER_ID);
     a = RAM(OBJ_ANIM);
-    COMPARE(a, prg_read((uint16_t)(IS_JUMP_KICK_MOVING + y)));
+    COMPARE(a, prg_read_ix(IS_JUMP_KICK_MOVING, y));
     mff_cycles(0xD26C, 2);
     if (z) {                                    /* the moving jump kick */
         mff_cycles(0xD26E, 3 + 2 + 2);
@@ -793,12 +793,12 @@ void func_D242(void) {
         if (z) {
             mff_cycles(0xD27B, 3 + 4);
             y = RAM(PLAYER_ID);
-            a = prg_read((uint16_t)(ANIM_JUMP_KICK + y));
+            a = prg_read_ix(ANIM_JUMP_KICK, y);
             SET_NZ(a);
             mff_cycles(0xD280, 6);
             JSR_FN(0xD280, func_F294);          /* player_set_anim */
             mff_cycles(0xD283, 4);
-            a = prg_read((uint16_t)(CHR_JUMP_KICK + y));
+            a = prg_read_ix(CHR_JUMP_KICK, y);
             SET_NZ(a);
             mff_cycles(0xD286, 6);
             JSR_FN(0xD286, func_F440);          /* player_set_chr */

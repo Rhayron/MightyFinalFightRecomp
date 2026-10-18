@@ -55,7 +55,7 @@ void func_80C5_b0(void) {
         a = 0x18;
         RAM(OBJ_TIMER) = a;
         y = RAM(PLAYER_LEVEL);
-        a = prg_read((uint16_t)(HAGGAR_DASH_FRAMES + y));
+        a = prg_read_ix(HAGGAR_DASH_FRAMES, y);
         mff_cycles(0x80DA, 4 + 2 + 4 + 2);
         RAM(OBJ_TIMER + 1) = a;
         a = ANIM_HAGGAR_WINDUP;
@@ -669,7 +669,7 @@ void func_8AD3_b0(void) {
     JSR_AT(0x8AF5, 0xCEAA, 0);                  /* player_stand */
     mff_cycles(0x8AF8, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+    a = prg_read_ix(COMBO_FIRST_ANIM, y);
     SET_NZ(a);
     mff_cycles(0x8AFD, 3 + 6);
     RAM(PLAYER_STAND_ANIM) = a;
@@ -787,14 +787,14 @@ void func_8CC4_b0(void) {
             y = a;
             a = RAM(OBJ_X);
             c = 0;
-            m = prg_read((uint16_t)(CODY_BLADE_DX + y));
+            m = prg_read_ix(CODY_BLADE_DX, y);
             w = a + m + c;                      /* ADC: only C is read */
             c = w > 0xFF;
             a = (uint8_t)w;
             mff_cycles(0x8D35, 3 + 4 + 4);
             mff_push(a);
             a = RAM(OBJ_X_HI);
-            m = prg_read((uint16_t)(CODY_BLADE_DX + 1 + y));
+            m = prg_read_ix(CODY_BLADE_DX + 1, y);
             w = a + m + c;
             a = (uint8_t)w;
             mff_cycles(0x8D3C, 3 + 5 + 4 + 5 + 4 + 2 + 2 + 5 + 4 + 5 + 2 + 6);
@@ -841,7 +841,7 @@ void func_8CC4_b0(void) {
         RAM(GUY_JUMP_WINDOW) = a;
         RAM(JUMP_MOVING) = a;
         y = RAM(PLAYER_ID);
-        a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+        a = prg_read_ix(COMBO_FIRST_ANIM, y);
         SET_NZ(a);
         mff_cycles(0x8D83, 3 + 6);
         RAM(PLAYER_STAND_ANIM) = a;
@@ -1023,13 +1023,13 @@ void func_8F82_b0(void) {
     a = STATE_LIVE;
     RAM(OBJ_STATE) = a;
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+    a = prg_read_ix(COMBO_FIRST_ANIM, y);
     mff_cycles(0x8F9D, 3 + 4);
     RAM(PLAYER_STAND_ANIM) = a;
-    a = prg_read((uint16_t)(WALK_VX_FRAC + y));
+    a = prg_read_ix(WALK_VX_FRAC, y);
     mff_cycles(0x8FA2, 4 + 4);
     RAM(OBJ_VX_FRAC) = a;
-    a = prg_read((uint16_t)(WALK_VX + y));
+    a = prg_read_ix(WALK_VX, y);
     SET_NZ(a);
     mff_cycles(0x8FA8, 4 + 6);
     RAM(OBJ_VX) = a;

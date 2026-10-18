@@ -112,7 +112,7 @@ void func_8000_b4(void) {
     x = RAM(AREA_INDEX);
     for (i = 0; i < N_OF(k_list_ptrs); i++) {
         mff_cycles((uint16_t)(0x8002 + 5 * i), 4);
-        a = prg_read((uint16_t)(k_list_ptrs[i].table + x));
+        a = prg_read_ix(k_list_ptrs[i].table, x);
         mff_cycles((uint16_t)(0x8005 + 5 * i), 3);
         RAM(k_list_ptrs[i].ptr) = a;
     }
@@ -138,15 +138,15 @@ void func_8038_b4(void) {
     y = 0x00;
     for (;;) {
         mff_cycles(0x803A, 5);
-        a = mem_read((uint16_t)(RAM16(SPAWN_LIST_Y_HI) + y));
+        a = mem_read_iy(SPAWN_LIST_Y_HI, y);
         mff_cycles(0x803C, 5);
         c = a >= RAM(SCROLL_Y_HI);
         if (a == RAM(SCROLL_Y_HI)) {
             mff_cycles(0x8040, 5);
-            a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X) + y));
+            a = mem_read_iy(SPAWN_LIST_X, y);
             mff_cycles(0x8042, 10);
             c = a >= RAM(SCROLL_X);
-            a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X_HI) + y));
+            a = mem_read_iy(SPAWN_LIST_X_HI, y);
             mff_cycles(0x8047, 5);
             SBC_A(RAM(AREA_SCREEN));
             if (c) {
@@ -313,17 +313,17 @@ void func_80C2_b4(void) {
     REGS_IN;
 
     mff_cycles(0x80C2, 5);
-    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X) + y));
+    a = mem_read_iy(SPAWN_LIST_X, y);
     mff_cycles(0x80C4, 13);
     RAM(TMP0) = a;
     c = a >= RAM(SCROLL_X);
-    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_X_HI) + y));
+    a = mem_read_iy(SPAWN_LIST_X_HI, y);
     mff_cycles(0x80CB, 8);
     RAM(TMP1) = a;
     SBC_A(RAM(AREA_SCREEN));
     if (z) {
         mff_cycles(0x80D1, 5);
-        a = mem_read((uint16_t)(RAM16(SPAWN_LIST_Y) + y));
+        a = mem_read_iy(SPAWN_LIST_Y, y);
         mff_cycles(0x80D3, 10);
         RAM(TMP2) = a;
         c = a >= RAM(SCROLL_Y);
@@ -334,7 +334,7 @@ void func_80C2_b4(void) {
             mff_cycles(0x80D8, 1);
         }
         mff_cycles(0x80DD, 5);
-        a = mem_read((uint16_t)(RAM16(SPAWN_LIST_Y_HI) + y));
+        a = mem_read_iy(SPAWN_LIST_Y_HI, y);
         mff_cycles(0x80DF, 6);
         RAM(TMP3) = a;
         SBC_A(RAM(SCROLL_Y_HI));
@@ -429,26 +429,26 @@ void func_80E4_b4(void) {
     RAM(OBJ_Y_HI + x) = RAM(TMP3);
     RAM(TMP4) = K_TYPE_LOOK & 0xFF;
     RAM(TMP5) = K_TYPE_LOOK >> 8;
-    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_TYPE) + y));
+    a = mem_read_iy(SPAWN_LIST_TYPE, y);
     mff_cycles(0x8127, 22);
     RAM(TMP6) = y;
     c = (a >> 6) & 1;                           /* ASL, ASL: the type * 4 */
     y = (uint8_t)(a << 2);
     RAM(TMP5) = (uint8_t)(RAM(TMP5) + c);
-    a = mem_read((uint16_t)(RAM16(TMP4) + y));
+    a = mem_read_iy(TMP4, y);
     mff_cycles(0x8134, 12);
     RAM(OBJ_FLAGS + x) = a;
     y++;
-    a = mem_read((uint16_t)(RAM16(TMP4) + y));
+    a = mem_read_iy(TMP4, y);
     mff_cycles(0x813A, 17);
     RAM(OBJ_ID + x) = a;
     RAM(OBJ_SAVED_ID + x) = a;
     y++;
-    a = mem_read((uint16_t)(RAM16(TMP4) + y));
+    a = mem_read_iy(TMP4, y);
     mff_cycles(0x8143, 12);
     RAM(OBJ_ANIM + x) = a;
     y++;
-    a = mem_read((uint16_t)(RAM16(TMP4) + y));
+    a = mem_read_iy(TMP4, y);
 
     /* its stats */
     mff_cycles(0x8149, 23);
@@ -456,23 +456,23 @@ void func_80E4_b4(void) {
     y = RAM(TMP6);
     RAM(TMP7) = K_TYPE_STATS & 0xFF;
     RAM(TMP8) = K_TYPE_STATS >> 8;
-    a = mem_read((uint16_t)(RAM16(SPAWN_LIST_TYPE) + y));
+    a = mem_read_iy(SPAWN_LIST_TYPE, y);
     mff_cycles(0x8158, 19);
     c = (a >> 6) & 1;
     y = (uint8_t)(a << 2);
     a = RAM(TMP8);
     ADC_A(0);
     RAM(TMP8) = a;
-    a = mem_read((uint16_t)(RAM16(TMP7) + y));
+    a = mem_read_iy(TMP7, y);
     mff_cycles(0x8163, 17);
     RAM(OBJ_LIFE + x) = a;
     RAM(OBJ_LIFE_MAX + x) = a;
     y++;
-    a = mem_read((uint16_t)(RAM16(TMP7) + y));
+    a = mem_read_iy(TMP7, y);
     mff_cycles(0x816C, 12);
     RAM(OBJ_SPAWN_GROUP + x) = a;
     y++;
-    a = mem_read((uint16_t)(RAM16(TMP7) + y));
+    a = mem_read_iy(TMP7, y);
     mff_cycles(0x8172, 23);
     RAM(OBJ_KIND + x) = a;
     a = 0x80;
@@ -695,7 +695,7 @@ void func_9038_b4(void) {
     ADC_A(RAM(RNG + 1));
     RAM(RNG) = a;
     y = a & 0x0F;
-    a = prg_read((uint16_t)(K_SPAWN_DELAY + y));
+    a = prg_read_ix(K_SPAWN_DELAY, y);
     mff_cycles(0x9045, 10);
     RAM(SPAWN_TIMER) = a;
     a = RAM(ROUND);
@@ -742,14 +742,14 @@ void func_9038_b4(void) {
     a = (uint8_t)(a - RAM(RNG + 2));
     RAM(RNG + 1) = a;
     x = a & 0x1F;
-    a = prg_read((uint16_t)(K_DROP_X + x));
+    a = prg_read_ix(K_DROP_X, x);
     mff_cycles(0x90BB, 14);
     RAM(OBJ_X + y) = a;
     c = 0;
-    a = (uint8_t)(RAM(SCROLL_X_HI) + prg_read((uint16_t)(K_DROP_X_HI + x)));
+    a = (uint8_t)(RAM(SCROLL_X_HI) + prg_read_ix(K_DROP_X_HI, x));
     mff_cycles(0x90C4, 9);
     RAM(OBJ_X_HI + y) = a;
-    a = prg_read((uint16_t)(K_DROP_Y + x));
+    a = prg_read_ix(K_DROP_Y, x);
     mff_cycles(0x90CA, 10);
     RAM(OBJ_Y + y) = a;
 
@@ -775,7 +775,7 @@ void func_9038_b4(void) {
                 a = (uint8_t)(RAM(RNG + 2) + RAM(RNG + 1) + c);
                 RAM(RNG + 2) = a;
                 x = a & 0x07;
-                a = prg_read((uint16_t)(K_DROP_Y_R0A1 + x));
+                a = prg_read_ix(K_DROP_Y_R0A1, x);
                 mff_cycles(0x90EA, 7);
                 RAM(OBJ_Y + y) = a;
                 if (a != 0) {                   /* always: the table has no 0 */
@@ -798,7 +798,7 @@ void func_9038_b4(void) {
                 a = (uint8_t)(RAM(RNG + 2) + RAM(RNG + 1) + c);
                 RAM(RNG + 2) = a;
                 x = a & 0x07;
-                a = prg_read((uint16_t)(K_DROP_Y_R1A1 + x));
+                a = prg_read_ix(K_DROP_Y_R1A1, x);
                 mff_cycles(0x9107, 5);
                 RAM(OBJ_Y + y) = a;
             } else {
@@ -846,44 +846,44 @@ void func_9038_b4(void) {
     a = (uint8_t)(0x05 - RAM(TMP1));
     RAM(TMP1) = a;
     y = RAM(ROUND);
-    a = prg_read((uint16_t)(K_TYPES_LO + y));
+    a = prg_read_ix(K_TYPES_LO, y);
     mff_cycles(0x9187, 7);
     RAM(TMP2) = a;
-    a = prg_read((uint16_t)(K_TYPES_HI + y));
+    a = prg_read_ix(K_TYPES_HI, y);
     mff_cycles(0x918C, 11);
     RAM(TMP3) = a;
     y = RAM(SUB_AREA);
-    a = mem_read((uint16_t)(RAM16(TMP2) + y));
+    a = mem_read_iy(TMP2, y);
     mff_cycles(0x9192, 6);
     y = a;
-    a = prg_read((uint16_t)(K_AREA_TYPES_LO + y));
+    a = prg_read_ix(K_AREA_TYPES_LO, y);
     mff_cycles(0x9196, 7);
     RAM(TMP4) = a;
-    a = prg_read((uint16_t)(K_AREA_TYPES_HI + y));
+    a = prg_read_ix(K_AREA_TYPES_HI, y);
     mff_cycles(0x919B, 11);
     RAM(TMP5) = a;
     y = RAM(SCROLL_X_HI);
-    a = mem_read((uint16_t)(RAM16(TMP4) + y));
+    a = mem_read_iy(TMP4, y);
     mff_cycles(0x91A1, 14);
     c = 0;
     ADC_A(RAM(TMP1));
     x = a;
     y = RAM(SPAWN_SLOT);
-    a = prg_read((uint16_t)(K_TYPE_ANIM + x));
+    a = prg_read_ix(K_TYPE_ANIM, x);
     SET_NZ(a);
     mff_cycles(0x91AA, 6);
     SYNC_OUT;
     if (!mff_call_fn(0x11AC, func_F2A0, 0xE000)) return;
     SYNC_IN;
     mff_cycles(0x91AD, 4);
-    a = prg_read((uint16_t)(K_TYPE_ID + x));
+    a = prg_read_ix(K_TYPE_ID, x);
     mff_cycles(0x91B0, 14);
     RAM(OBJ_ID + y) = a;
     RAM(OBJ_SAVED_ID + y) = a;
-    a = prg_read((uint16_t)(K_TYPE_KIND + x));
+    a = prg_read_ix(K_TYPE_KIND, x);
     mff_cycles(0x91B9, 9);
     RAM(OBJ_KIND + y) = a;
-    a = prg_read((uint16_t)(K_TYPE_GROUP + x));
+    a = prg_read_ix(K_TYPE_GROUP, x);
 
     /* life: $B7's own table, or the round's, by a random 0-15 */
     mff_cycles(0x91BF, 31);
@@ -902,7 +902,7 @@ void func_9038_b4(void) {
         ADC_A(RAM(RNG + 1));
         RAM(RNG + 2) = a;
         x = a & 0x0F;
-        a = prg_read((uint16_t)(K_LIFE_B7 + x));
+        a = prg_read_ix(K_LIFE_B7, x);
         SET_NZ(a);
     } else {
         /* rounds past 4 read round 0's table; a 0 in a table would read
@@ -920,7 +920,7 @@ void func_9038_b4(void) {
         if (r == 5) r = 0;
         for (; r < 5; r++) {
             mff_cycles((uint16_t)(0x91EB + 5 * r), 4);
-            a = prg_read((uint16_t)(K_LIFE_ROUND0 + 16 * r + x));
+            a = prg_read_ix(K_LIFE_ROUND0 + 16 * r, x);
             SET_NZ(a);
             if (r == 4) break;
             mff_cycles((uint16_t)(0x91EE + 5 * r), 2);
@@ -972,7 +972,7 @@ void func_921C_b4(void) {
     a = (uint8_t)(RAM(RNG) + RAM(RNG + 1) + c);    /* ADC without CLC: C is 0 */
     RAM(RNG) = a;
     x = a & 0x07;
-    a = prg_read((uint16_t)(K_DROP_X_R3A1 + x));
+    a = prg_read_ix(K_DROP_X_R3A1, x);
     mff_cycles(0x927E, 19);
     RAM(OBJ_X + y) = a;
     RAM(OBJ_Y + y) = 0x30;
@@ -1021,7 +1021,7 @@ void func_921C_b4(void) {
             ADC_A(RAM(RNG + 2));
             RAM(RNG + 1) = a;
             x = a & 0x01;
-            a = prg_read((uint16_t)(K_R3A1_SET_B + x));
+            a = prg_read_ix(K_R3A1_SET_B, x);
             mff_cycles(0x931C, 2);
             x = a;
             SYNC_OUT;
@@ -1037,7 +1037,7 @@ void func_921C_b4(void) {
     ADC_A(RAM(RNG + 1));
     RAM(RNG) = a;
     x = a & 0x01;
-    a = prg_read((uint16_t)(K_R3A1_SET_A + x));
+    a = prg_read_ix(K_R3A1_SET_A, x);
     mff_cycles(0x930B, 5);
     x = a;
     SET_NZ(x);
@@ -1057,7 +1057,7 @@ void func_931D_b4(void) {
 
     mff_cycles(0x931D, 7);
     y = RAM(TMP0);
-    a = prg_read((uint16_t)(K_R3A1_ANIM + x));
+    a = prg_read_ix(K_R3A1_ANIM, x);
     SET_NZ(a);
     mff_cycles(0x9322, 6);
     SYNC_OUT;
@@ -1065,18 +1065,18 @@ void func_931D_b4(void) {
     SYNC_IN;
     mff_cycles(0x9325, 11);
     RAM(OBJ_FLAGS + y) = OBJF_ON_SCREEN | OBJF_FACE_RIGHT | OBJF_WORLD | OBJF_HIDDEN;
-    a = prg_read((uint16_t)(K_R3A1_ID + x));
+    a = prg_read_ix(K_R3A1_ID, x);
     mff_cycles(0x932D, 14);
     RAM(OBJ_ID + y) = a;
     RAM(OBJ_SAVED_ID + y) = a;
-    a = prg_read((uint16_t)(K_R3A1_KIND + x));
+    a = prg_read_ix(K_R3A1_KIND, x);
     mff_cycles(0x9336, 9);
     RAM(OBJ_KIND + y) = a;
-    a = prg_read((uint16_t)(K_R3A1_GROUP + x));
+    a = prg_read_ix(K_R3A1_GROUP, x);
     mff_cycles(0x933C, 12);
     RAM(OBJ_SPAWN_GROUP + y) = a;
     RAM(TMP2) = x;
-    a = prg_read((uint16_t)(K_R3A1_LIFE + x));
+    a = prg_read_ix(K_R3A1_LIFE, x);
     SET_NZ(a);
     mff_cycles(0x9344, 16);
     RAM(OBJ_LIFE + y) = a;

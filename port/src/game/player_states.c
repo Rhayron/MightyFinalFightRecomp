@@ -47,10 +47,10 @@ void func_C9B9(void) {
     mff_cycles(0xC9B9, 2 + 3 + 4);
     x = 0;
     y = RAM(GAME_ACTION);
-    a = prg_read((uint16_t)(STATE_TABLE_LO + y));
+    a = prg_read_ix(STATE_TABLE_LO, y);
     mff_cycles(0xC9C0, 3 + 4);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(STATE_TABLE_HI + y));
+    a = prg_read_ix(STATE_TABLE_HI, y);
     SET_NZ(a);
     mff_cycles(0xC9C5, 3 + 5);
     RAM(TMP1) = a;
@@ -119,7 +119,7 @@ void func_CED1(void) {
     if (!white) {
         mff_cycles(0xCEDB, 3 + 4);
         y = RAM(PLAYER_ID);
-        a = prg_read((uint16_t)(BLINK_COLOR + y));
+        a = prg_read_ix(BLINK_COLOR, y);
         mff_cycles(0xCEE0, 2);
         white = a == 0;                         /* never: no 0 in the table */
         if (!white)
@@ -127,7 +127,7 @@ void func_CED1(void) {
     }
     if (white) {
         mff_cycles(0xCEE2, 4);
-        a = prg_read((uint16_t)(BLINK_WHITE + y));
+        a = prg_read_ix(BLINK_WHITE, y);
     }
     mff_cycles(0xCEE5, 4 + 2 + 3 + 6);
     RAM(PALETTE_BUF + 23) = a;
@@ -140,7 +140,7 @@ no_hit:
     mff_cycles(0xCEFA, 3 + 4 + 4);
     y = RAM(PLAYER_ID);
     a = RAM(OBJ_ANIM);
-    COMPARE(a, prg_read((uint16_t)(KEEP_NO_HIT_ANIM + y)));
+    COMPARE(a, prg_read_ix(KEEP_NO_HIT_ANIM, y));
     mff_cycles(0xCF02, 2);
     if (z) {
         mff_cycles(0xCF02, 1);
@@ -227,10 +227,10 @@ void func_D2B7(void) {
             }
             mff_cycles(0xD2F5, 1 + 3 + 4);
             y = RAM(PLAYER_ID);
-            a = prg_read((uint16_t)(WINDOW_ACTION + y));
+            a = prg_read_ix(WINDOW_ACTION, y);
             mff_cycles(0xD2FD, 3 + 4);
             RAM(GAME_ACTION) = a;
-            a = prg_read((uint16_t)(WINDOW_NO_HIT + y));
+            a = prg_read_ix(WINDOW_NO_HIT, y);
             mff_cycles(0xD302, 3 + 2 + 4 + 4 + 3 + 6);
             RAM(PLAYER_NO_HIT) = a;
             a = STATE_LIVE;
@@ -258,7 +258,7 @@ void func_D2B7(void) {
     JSR_AT(0xD2DF, 0xCEAA, -1);                 /* player_stand */
     mff_cycles(0xD2E2, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+    a = prg_read_ix(COMBO_FIRST_ANIM, y);
     SET_NZ(a);
     mff_cycles(0xD2E7, 3 + 6);
     RAM(PLAYER_STAND_ANIM) = a;
@@ -470,7 +470,7 @@ void func_DCDD(void) {
         }
         mff_cycles(0xDD25, 3 + 4);
         y = RAM(PLAYER_ID);
-        a = prg_read((uint16_t)(COMBO_FIRST_ANIM + y));
+        a = prg_read_ix(COMBO_FIRST_ANIM, y);
         SET_NZ(a);
         mff_cycles(0xDD2A, 3 + 6);
         RAM(PLAYER_STAND_ANIM) = a;
@@ -536,14 +536,14 @@ void func_DE33(void) {
 
     mff_cycles(0xDE33, 3 + 4);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(HEALTH_TABLE_LO + y));
+    a = prg_read_ix(HEALTH_TABLE_LO, y);
     mff_cycles(0xDE38, 3 + 4);
     RAM(TMP2) = a;
-    a = prg_read((uint16_t)(HEALTH_TABLE_HI + y));
+    a = prg_read_ix(HEALTH_TABLE_HI, y);
     mff_cycles(0xDE3D, 3 + 3 + 5);
     RAM(TMP3) = a;
     y = RAM(PLAYER_LEVEL);
-    a = mem_read((uint16_t)(RAM16(TMP2) + y));
+    a = mem_read_iy(TMP2, y);
     SET_NZ(a);
     mff_cycles(0xDE43, 3 + 6);
     RAM(HEALTH) = a;

@@ -68,10 +68,15 @@ static const uint16_t k_free_fields[] = {
 void func_E9BC(void) {
     REGS_IN;
 
-    mff_cycles(0xE9BC, 8);
+    /* one charge per instruction (a 1 is a taken branch's extra cycle):
+     * a lag frame's NMI lands in the drawing, here, at the console's
+     * instruction (docs/timing.md) */
+    mff_cycles(0xE9BC, 2);
     x = 0x0F;
+    mff_cycles(0xE9BE, 4);
     a = RAM(OBJ_STATE + x);
     SET_NZ(a);
+    mff_cycles(0xE9C1, 2);
     if (n) {
         mff_cycles(0xE9C3, 6);
         SYNC_OUT;
@@ -80,10 +85,12 @@ void func_E9BC(void) {
     } else {
         mff_cycles(0xE9C1, 1);
     }
-    mff_cycles(0xE9C6, 8);
+    mff_cycles(0xE9C6, 2);
     x--;                                        /* object_draw's X, not 15 */
+    mff_cycles(0xE9C7, 4);
     a = RAM(OBJ_STATE + x);
     SET_NZ(a);
+    mff_cycles(0xE9CA, 2);
     if (n) {
         mff_cycles(0xE9CC, 6);
         SYNC_OUT;
@@ -93,17 +100,22 @@ void func_E9BC(void) {
         mff_cycles(0xE9CA, 1);
     }
 
-    mff_cycles(0xE9CF, 12);
+    mff_cycles(0xE9CF, 5);
     RAM(DRAW_PARITY)++;
+    mff_cycles(0xE9D1, 3);
+    mff_cycles(0xE9D3, 2);
     c = RAM(DRAW_PARITY) & 1;
+    mff_cycles(0xE9D4, 2);
     if (!c) {
-        mff_cycles(0xE9D6, 5);
+        mff_cycles(0xE9D6, 2);
         x = 0;
+        mff_cycles(0xE9D8, 3);
         RAM(DRAW_SLOT) = x;
         for (;;) {
-            mff_cycles(0xE9DA, 6);
+            mff_cycles(0xE9DA, 4);
             a = RAM(OBJ_STATE + x);
             SET_NZ(a);
+            mff_cycles(0xE9DD, 2);
             if (n) {
                 mff_cycles(0xE9DF, 6);
                 SYNC_OUT;
@@ -112,10 +124,13 @@ void func_E9BC(void) {
             } else {
                 mff_cycles(0xE9DD, 1);
             }
-            mff_cycles(0xE9E2, 12);
+            mff_cycles(0xE9E2, 5);
             RAM(DRAW_SLOT)++;
+            mff_cycles(0xE9E4, 3);
             x = RAM(DRAW_SLOT);
+            mff_cycles(0xE9E6, 2);
             SET_CMP(x, 0x10);
+            mff_cycles(0xE9E8, 2);
             if (z) break;
             mff_cycles(0xE9E8, 1);
         }
@@ -124,13 +139,16 @@ void func_E9BC(void) {
         mff_rts();
         return;
     }
-    mff_cycles(0xE9D4, 1 + 5);
+    mff_cycles(0xE9D4, 1);
+    mff_cycles(0xE9EB, 2);
     x = 0x0D;
+    mff_cycles(0xE9ED, 3);
     RAM(DRAW_SLOT) = x;
     for (;;) {
-        mff_cycles(0xE9EF, 6);
+        mff_cycles(0xE9EF, 4);
         a = RAM(OBJ_STATE + x);
         SET_NZ(a);
+        mff_cycles(0xE9F2, 2);
         if (n) {
             mff_cycles(0xE9F4, 6);
             SYNC_OUT;
@@ -139,10 +157,12 @@ void func_E9BC(void) {
         } else {
             mff_cycles(0xE9F2, 1);
         }
-        mff_cycles(0xE9F7, 10);
+        mff_cycles(0xE9F7, 5);
         RAM(DRAW_SLOT)--;
+        mff_cycles(0xE9F9, 3);
         x = RAM(DRAW_SLOT);
         SET_NZ(x);
+        mff_cycles(0xE9FB, 2);
         if (n) break;
         mff_cycles(0xE9FB, 1);
     }
@@ -305,7 +325,7 @@ void func_EA6F(void) {
 
     mff_cycles(0xEA6F, 8);
     y = RAM(OBJ_ID + x);
-    a = prg_read((uint16_t)(K_OBJ_SPRITE_BANK + y));
+    a = prg_read_ix(K_OBJ_SPRITE_BANK, y);
     mff_cycles(0xEA75, 19);
     RAM(BANK_REQUEST) = a;
     c = 0;
@@ -337,16 +357,16 @@ void func_EA6F(void) {
     mff_cycles(0xEA97, 8);
     a &= 0x7F;
     y = a;
-    a = prg_read((uint16_t)(ANIM_SCRIPT_LO + y));
+    a = prg_read_ix(ANIM_SCRIPT_LO, y);
     mff_cycles(0xEA9D, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(ANIM_SCRIPT_HI + y));
+    a = prg_read_ix(ANIM_SCRIPT_HI, y);
     mff_cycles(0xEAA2, 23);
     RAM(TMP1) = a;
     a = RAM(OBJ_ANIM_TIMER + x) & 0x7F;
     RAM(OBJ_ANIM_TIMER + x)++;
     y = 0x01;
-    m = mem_read((uint16_t)(RAM16(TMP0) + y));          /* the period */
+    m = mem_read_iy(TMP0, y);          /* the period */
     c = a >= m;
     mff_cycles(0xEAB0, 2);
     if (a == m) {
@@ -355,7 +375,7 @@ void func_EA6F(void) {
         a = RAM(OBJ_ANIM_FRAME + x) & 0x7F;
         RAM(OBJ_ANIM_FRAME + x)++;
         y--;
-        m = mem_read((uint16_t)(RAM16(TMP0) + y));      /* the last frame */
+        m = mem_read_iy(TMP0, y);      /* the last frame */
         c = a >= m;
         mff_cycles(0xEAC5, 2);
         if (a == m) {
@@ -401,7 +421,7 @@ void func_EA6F(void) {
     c = 0;
     ADC_A(2);
     y = a;
-    a = mem_read((uint16_t)(RAM16(TMP0) + y));
+    a = mem_read_iy(TMP0, y);
     SET_NZ(a);
     mff_cycles(0xEAE7, 2);
     if (a == 0) {
@@ -415,14 +435,14 @@ void func_EA6F(void) {
     /* the frame: its count, and its layout's bank at $A000 */
     mff_cycles(0xEAE7, 1 + 6);
     y = a;
-    a = prg_read((uint16_t)(FRAME_LO + y));
+    a = prg_read_ix(FRAME_LO, y);
     mff_cycles(0xEAF4, 7);
     RAM(TMP2) = a;
-    a = prg_read((uint16_t)(FRAME_HI + y));
+    a = prg_read_ix(FRAME_HI, y);
     mff_cycles(0xEAF9, 10);
     RAM(TMP3) = a;
     y = 0x00;
-    a = mem_read((uint16_t)(RAM16(TMP2) + y));
+    a = mem_read_iy(TMP2, y);
     mff_cycles(0xEAFF, 11);
     mff_push(a);
     y = 0x0B;
@@ -451,15 +471,15 @@ void func_EA6F(void) {
 
     /* $05/$06 = the layout - 2, so ($05),Y pairs with ($02),Y */
     y = 0x01;
-    a = mem_read((uint16_t)(RAM16(TMP2) + y));
+    a = mem_read_iy(TMP2, y);
     mff_cycles(0xEB1C, 6);
     x = a;
-    a = prg_read((uint16_t)(LAYOUT_LO + x));
+    a = prg_read_ix(LAYOUT_LO, x);
     mff_cycles(0xEB20, 11);
     c = 1;
     SBC_A(2);
     RAM(TMP5) = a;
-    a = prg_read((uint16_t)(LAYOUT_HI + x));
+    a = prg_read_ix(LAYOUT_HI, x);
     mff_cycles(0xEB28, 10);
     SBC_A(0);
     RAM(TMP6) = a;
@@ -472,34 +492,54 @@ void func_EA6F(void) {
         return;
     }
 
+    /* the sprites, one charge per instruction (a 1 is a taken branch's extra
+     * cycle): a lag frame's NMI lands in here more than anywhere, and the
+     * OAM DMA then copies the buffer as far as the console's had written
+     * it (docs/timing.md) */
     for (;;) {
         int visible;
 
         /* the tile, and y = $12 + dy */
-        mff_cycles(0xEB30, 12);
+        mff_cycles(0xEB30, 2);
+        mff_cycles(0xEB32, 3);
         RAM(TMP0) = SPRITE_Y_LIMIT;
+        mff_cycles(0xEB34, 2);
         y++;
-        a = mem_read((uint16_t)(RAM16(TMP2) + y));
-        mff_cycles(0xEB37, 15);
+        mff_cycles(0xEB35, 5);
+        a = mem_read_iy(TMP2, y);
+        mff_cycles(0xEB37, 5);
         RAM(OAM_BUFFER + 1 + x) = a;
+        mff_cycles(0xEB3A, 3);
         a = RAM(TMP18);
+        mff_cycles(0xEB3C, 2);
         c = 0;
-        ADC_A(mem_read((uint16_t)(RAM16(TMP5) + y)));
-        mff_cycles(0xEB3F, 10);
+        mff_cycles(0xEB3D, 5);
+        ADC_A(mem_read_iy(TMP5, y));
+        mff_cycles(0xEB3F, 5);
         RAM(OAM_BUFFER + x) = a;
-        a = mem_read((uint16_t)(RAM16(TMP5) + y));
+        mff_cycles(0xEB42, 5);
+        a = mem_read_iy(TMP5, y);
+        mff_cycles(0xEB44, 2);                  /* BMI $EB4A */
         if (a & 0x80) {                         /* dy < 0: no carry means it wrapped */
-            mff_cycles(0xEB44, 2 + 1 + 2);
+            mff_cycles(0xEB44, 1);
+            mff_cycles(0xEB4A, 2);              /* BCC $EB8B */
             visible = c;
             if (!visible) mff_cycles(0xEB4A, 1);
         } else {                                /* dy >= 0: a carry means it wrapped */
-            mff_cycles(0xEB44, 2 + 2);
+            mff_cycles(0xEB46, 2);              /* BCC $EB4C */
             visible = !c;
-            mff_cycles(0xEB46, visible ? 1 : 2 + 1);
+            if (visible) {
+                mff_cycles(0xEB46, 1);
+            } else {
+                mff_cycles(0xEB48, 2);          /* BCS $EB8B */
+                mff_cycles(0xEB48, 1);
+            }
         }
         if (visible) {
-            mff_cycles(0xEB4C, 9);
+            mff_cycles(0xEB4C, 4);
+            mff_cycles(0xEB4F, 3);
             c = RAM(OAM_BUFFER + x) >= RAM(TMP0);
+            mff_cycles(0xEB51, 2);              /* BCS $EB8B */
             if (c) {
                 mff_cycles(0xEB51, 1);
                 visible = 0;
@@ -511,44 +551,71 @@ void func_EA6F(void) {
             y++;                                /* skip the attribute */
         } else {
             /* the attribute, and x = $13 + dx */
-            mff_cycles(0xEB53, 7);
+            mff_cycles(0xEB53, 2);
             y++;
-            a = mem_read((uint16_t)(RAM16(TMP2) + y));
-            mff_cycles(0xEB56, 16);
-            a = (uint8_t)((a ^ RAM(TMP16)) | RAM(TMP17));
+            mff_cycles(0xEB54, 5);
+            a = mem_read_iy(TMP2, y);
+            mff_cycles(0xEB56, 3);
+            a ^= RAM(TMP16);
+            mff_cycles(0xEB58, 3);
+            a |= RAM(TMP17);
+            mff_cycles(0xEB5A, 5);
             RAM(OAM_BUFFER + 2 + x) = a;
-            a = mem_read((uint16_t)(RAM16(TMP5) + y));
-            mff_cycles(0xEB5F, 8);
+            mff_cycles(0xEB5D, 5);
+            a = mem_read_iy(TMP5, y);
+            mff_cycles(0xEB5F, 3);
             RAM(TMP1) = a;
+            mff_cycles(0xEB61, 3);
+            mff_cycles(0xEB63, 2);              /* BEQ $EB6C */
             if (RAM(TMP16) != 0) {              /* facing right: mirrored */
-                mff_cycles(0xEB65, 10);
+                mff_cycles(0xEB65, 2);
+                mff_cycles(0xEB67, 2);
+                mff_cycles(0xEB68, 3);
+                mff_cycles(0xEB6A, 3);
                 RAM(TMP1) = (uint8_t)(0xF8 - RAM(TMP1));
             } else {
                 mff_cycles(0xEB63, 1);
             }
-            mff_cycles(0xEB6C, 18);
+            mff_cycles(0xEB6C, 3);
             a = RAM(TMP19);
+            mff_cycles(0xEB6E, 2);
             c = 0;
+            mff_cycles(0xEB6F, 3);
             ADC_A(RAM(TMP1));
+            mff_cycles(0xEB71, 5);
             RAM(OAM_BUFFER + 3 + x) = a;
+            mff_cycles(0xEB74, 3);
             a = RAM(TMP1);
+            mff_cycles(0xEB76, 2);              /* BMI $EB7C */
             if (a & 0x80) {
-                mff_cycles(0xEB76, 1 + 2);
+                mff_cycles(0xEB76, 1);
+                mff_cycles(0xEB7C, 2);          /* BCC $EB8C */
                 visible = c;
                 if (!visible) mff_cycles(0xEB7C, 1);
             } else {
-                mff_cycles(0xEB78, 2);
+                mff_cycles(0xEB78, 2);          /* BCC $EB7E */
                 visible = !c;
-                mff_cycles(0xEB78, visible ? 1 : 2 + 1);
+                if (visible) {
+                    mff_cycles(0xEB78, 1);
+                } else {
+                    mff_cycles(0xEB7A, 2);      /* BCS $EB8C */
+                    mff_cycles(0xEB7A, 1);
+                }
             }
             if (visible) {
                 /* keep it: on to the next entry */
-                mff_cycles(0xEB7E, 13);
+                mff_cycles(0xEB7E, 2);
+                mff_cycles(0xEB7F, 2);
+                mff_cycles(0xEB80, 2);
+                mff_cycles(0xEB81, 2);
                 x = (uint8_t)(x + 4);
                 SET_NZ(x);
+                mff_cycles(0xEB82, 3);
                 RAM(OAM_INDEX) = x;
+                mff_cycles(0xEB84, 2);          /* BEQ $EB8A */
                 if (x == 0) {                   /* the buffer is full */
-                    mff_cycles(0xEB84, 1 + 6);
+                    mff_cycles(0xEB84, 1);
+                    mff_cycles(0xEB8A, 6);
                     SYNC_OUT;
                     mff_rts();
                     return;
@@ -557,15 +624,19 @@ void func_EA6F(void) {
         }
         if (!visible) {
             /* hide the entry; the next sprite reuses it (BNE always taken) */
-            mff_cycles(0xEB8C, 9 + 1);
+            mff_cycles(0xEB8C, 2);
             a = SPRITE_HIDDEN;
+            mff_cycles(0xEB8E, 5);
             RAM(OAM_BUFFER + x) = a;
+            mff_cycles(0xEB91, 2);
+            mff_cycles(0xEB91, 1);
         }
 
-        mff_cycles(0xEB86, 7);
+        mff_cycles(0xEB86, 5);
         t = (uint8_t)(RAM(TMP4) - 1);
         RAM(TMP4) = t;
         SET_NZ(t);
+        mff_cycles(0xEB88, 2);                  /* BPL $EB30 */
         if (n) break;
         mff_cycles(0xEB88, 1);
     }
@@ -607,7 +678,7 @@ void func_EC33(void) {
     y = 0x00;
     for (;;) {
         mff_cycles(0xEC43, 4);
-        a = prg_read((uint16_t)(K_OFFSCREEN_FREE + y));
+        a = prg_read_ix(K_OFFSCREEN_FREE, y);
         mff_cycles(0xEC46, 6);
         if (a == RAM(OBJ_ID + x)) {
             mff_cycles(0xEC49, 1);

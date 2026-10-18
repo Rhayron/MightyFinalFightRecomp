@@ -99,7 +99,7 @@ static void entrance_charge(uint16_t pc, int cycles, uint8_t tier, uint8_t id)
     CALL_FIXED(0x9DC2, func_FB5B);              /* direction index to the player */
     mff_cycles(0x9DC5, 6);
     y = a;
-    a = prg_read((uint16_t)(CHARGE_DIR + y));
+    a = prg_read_ix(CHARGE_DIR, y);
     mff_cycles(0x9DC9, 9);
     RAM(OBJ_DIR + x) = a;
     a &= 0x0C;
@@ -127,7 +127,7 @@ static void entrance_charge(uint16_t pc, int cycles, uint8_t tier, uint8_t id)
     CALL_FIXED(0x9DFC, func_F443);              /* obj_set_anim, chr_banks+3 = Y */
     mff_cycles(0x9DFF, 10);
     y = RAM(OBJ_TIER + x);
-    a = prg_read((uint16_t)(TIER_INDEX + y));
+    a = prg_read_ix(TIER_INDEX, y);
     mff_cycles(0x9E06, 43);
     c = 0;
     ADC_A(CHARGE_DAMAGE);
@@ -212,14 +212,14 @@ static void entrance_drop(void)
     RAM(OBJ_VX_FRAC + x) = a;
     RAM(OBJ_VX + x) = a;
     y = RAM(OBJ_TIER + x);
-    a = prg_read((uint16_t)(TIER_INDEX + y));
+    a = prg_read_ix(TIER_INDEX, y);
     mff_cycles(0x9E87, 10);
     c = 0;
     y = RAM(OBJ_KIND + x);
-    ADC_A(prg_read((uint16_t)(DROP_DAMAGE + y)));
+    ADC_A(prg_read_ix(DROP_DAMAGE, y));
     mff_cycles(0x9E8E, 9);
     RAM(OBJ_ATTACK_DAMAGE + x) = a;
-    a = prg_read((uint16_t)(DROP_ANIM + y));
+    a = prg_read_ix(DROP_ANIM, y);
     SET_NZ(a);
     mff_cycles(0x9E94, 6);
     CALL_FIXED(0x9E94, func_F288);              /* obj_set_anim */
@@ -232,10 +232,10 @@ static void entrance_drop(void)
         mff_cycles(0x9E98, 1);                  /* BNE $9E9F */
     }
     mff_cycles(0x9E9F, 4);
-    a = prg_read((uint16_t)(DROP_CHR + y));
+    a = prg_read_ix(DROP_CHR, y);
     mff_cycles(0x9EA2, 7);
     mff_push(a);
-    a = prg_read((uint16_t)(KIND_CHR_SLOT + y));
+    a = prg_read_ix(KIND_CHR_SLOT, y);
     mff_cycles(0x9EA6, 18);
     y = a;
     a = mff_pull();
@@ -292,7 +292,7 @@ static void entrance_stand(void)
     c = 1;
     SBC_A(ENTRANCE_ID_FIRST);
     y = a;
-    a = prg_read((uint16_t)(ENTRANCE_KIND + y));
+    a = prg_read_ix(ENTRANCE_KIND, y);
     mff_cycles(0x9EE1, 25);
     RAM(OBJ_KIND + x) = a;
     RAM(OBJ_AI_TIMER + x) = STAND_FRAMES;
@@ -343,7 +343,7 @@ static void entrance_sit(void)
     c = 1;
     SBC_A(ENTRANCE_ID_FIRST);
     y = a;
-    a = prg_read((uint16_t)(ENTRANCE_KIND + y));
+    a = prg_read_ix(ENTRANCE_KIND, y);
     mff_cycles(0x9F26, 20);
     RAM(OBJ_KIND + x) = a;
     RAM(OBJ_ATTACK + x) = 0;
@@ -361,11 +361,11 @@ static void entrance_sit(void)
         RAM(OBJ_ANIM_FRAME + x) = a;
         RAM(OBJ_ANIM + x) = ANIM_SITTING;
         RAM(OBJ_ANIM_TIMER + x) = 0;
-        a = prg_read((uint16_t)(SIT_CHR + y));
+        a = prg_read_ix(SIT_CHR, y);
         mff_cycles(0x9F50, 11);
         mff_push(a);
         y = RAM(OBJ_KIND + x);
-        a = prg_read((uint16_t)(KIND_CHR_SLOT + y));
+        a = prg_read_ix(KIND_CHR_SLOT, y);
         mff_cycles(0x9F57, 17);
         y = a;
         a = mff_pull();
@@ -453,7 +453,7 @@ void func_9FBB_b6(void)
     c = 1;
     SBC_A(ENTRANCE_ID_FIRST);
     y = a;
-    a = prg_read((uint16_t)(ENTRANCE_BECOMES + y));
+    a = prg_read_ix(ENTRANCE_BECOMES, y);
     SET_NZ(a);
     mff_cycles(0x9FC5, 16);
     RAM(OBJ_ID + x) = a;

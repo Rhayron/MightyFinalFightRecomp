@@ -391,7 +391,7 @@ static void circle_walk(void)
     SET_NZ(y);
     CALL_B01(0xA234, 0xA7E1);
     mff_cycles(0xA237, 4);
-    a = prg_read((uint16_t)(DIR_PAD_BITS + y));
+    a = prg_read_ix(DIR_PAD_BITS, y);
     SET_NZ(a);
     mff_cycles(0xA23A, 11);
     RAM(OBJ_DIR + x) = a;
@@ -767,7 +767,7 @@ static void swing_reach_far(void)
 
     mff_cycles(0xA36E, 8);
     y = RAM(BOSS_ATTACK_SET + x);
-    a = prg_read((uint16_t)(SWING_REACH_FAR + y));
+    a = prg_read_ix(SWING_REACH_FAR, y);
     mff_cycles(0xA374, 7);
     RAM(OBJ_ATTACK + x) = a;
     if (a == 0)
@@ -783,7 +783,7 @@ static void swing_reach_near(void)
 
     mff_cycles(0xA379, 8);
     y = RAM(BOSS_ATTACK_SET + x);
-    a = prg_read((uint16_t)(SWING_REACH_NEAR + y));
+    a = prg_read_ix(SWING_REACH_NEAR, y);
     mff_cycles(0xA37F, 5);
     RAM(OBJ_ATTACK + x) = a;
     RUN_ON(swing_damage);
@@ -849,7 +849,7 @@ static void swing_damage(void)
         } else {
             mff_cycles(0xA3A9, 8);
             y = RAM(BOSS_ATTACK_SET + x);
-            a = prg_read((uint16_t)(SWING_DAMAGE + y));
+            a = prg_read_ix(SWING_DAMAGE, y);
         }
     }
     mff_cycles(0xA3AF, 11);
@@ -1025,7 +1025,7 @@ void func_A417_b0(void)
         SET_NZ(y);
         CALL_B01(0xA44F, 0xA7E1);
         mff_cycles(0xA452, 4);
-        a = prg_read((uint16_t)(DIR_PAD_BITS + y));
+        a = prg_read_ix(DIR_PAD_BITS, y);
         mff_cycles(0xA455, 5);
         RAM(OBJ_DIR + x) = a;
     } else {

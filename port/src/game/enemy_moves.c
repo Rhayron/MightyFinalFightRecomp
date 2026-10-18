@@ -95,7 +95,7 @@ void func_A41D_b6(void)
         RAM(OBJ_VY_FRAC + x) = 0x00;
         RAM(OBJ_VY + x) = 0x04;
         y = RAM(OBJ_TIER + x);
-        a = prg_read((uint16_t)(TIER_INDEX + y));
+        a = prg_read_ix(TIER_INDEX, y);
         mff_cycles(0xA45C, 18);
         c = 0;
         ADC_A(0x36);
@@ -111,7 +111,7 @@ void func_A41D_b6(void)
         RAM(OBJ_VY_FRAC + x) = 0x80;
         RAM(OBJ_VY + x) = 0x03;
         y = RAM(OBJ_TIER + x);
-        a = prg_read((uint16_t)(TIER_INDEX + y));
+        a = prg_read_ix(TIER_INDEX, y);
         mff_cycles(0xA483, 16);
         c = 0;
         ADC_A(0x39);
@@ -470,12 +470,12 @@ void func_A5DA_b6(void)
     RAM(OBJ_DIR + y) = a;
     y = a & DIR_LEFT;                           /* 0 or 2: the offset's index */
     a = RAM(OBJ_X + x);
-    w = a + prg_read((uint16_t)(KNIFE_DX + y));
+    w = a + prg_read_ix(KNIFE_DX, y);
     c = w > 0xFF;
     a = (uint8_t)w;
     mff_cycles(0xA5FB, 11);
     mff_push(a);
-    a = (uint8_t)(RAM(OBJ_X_HI + x) + prg_read((uint16_t)(KNIFE_DX + 1 + y)) + c);
+    a = (uint8_t)(RAM(OBJ_X_HI + x) + prg_read_ix(KNIFE_DX + 1, y) + c);
     mff_cycles(0xA602, 73);
     y = RAM(TMP0);
     RAM(OBJ_X_HI + y) = a;
@@ -546,7 +546,7 @@ void func_A652_b6(void)
             mff_cycles(0xA69E, 13);
             RAM(OBJ_VX + x) = a;
             y = RAM(OBJ_TIER + x);
-            a = prg_read((uint16_t)(TIER_INDEX + y));
+            a = prg_read_ix(TIER_INDEX, y);
             mff_cycles(0xA6A7, 16);
             c = 0;
             ADC_A(0x30);
@@ -601,10 +601,10 @@ void func_A652_b6(void)
             }
             mff_cycles(0xA6DD, 8);
             y = RAM(OBJ_AI_COUNT + x);
-            a = prg_read((uint16_t)(SLIDE_VX_FRAC + y));
+            a = prg_read_ix(SLIDE_VX_FRAC, y);
             mff_cycles(0xA6E3, 9);
             RAM(OBJ_VX_FRAC + x) = a;
-            a = prg_read((uint16_t)(SLIDE_VX + y));
+            a = prg_read_ix(SLIDE_VX, y);
             mff_cycles(0xA6E9, 5);
             RAM(OBJ_VX + x) = a;
         }
@@ -656,10 +656,10 @@ void func_A73A_b6(void)
         mff_cycles(0xA73D, 1);
         mff_cycles(0xA76F, 10);
         y = (uint8_t)(RAM(OBJ_TIMER + x) - 1);
-        a = prg_read((uint16_t)(CHARGE_STEPS_LO + y));
+        a = prg_read_ix(CHARGE_STEPS_LO, y);
         mff_cycles(0xA776, 7);
         RAM(TMP0) = a;
-        a = prg_read((uint16_t)(CHARGE_STEPS_HI + y));
+        a = prg_read_ix(CHARGE_STEPS_HI, y);
         mff_cycles(0xA77B, 8);
         RAM(TMP1) = a;
         JMP_INDIRECT(0x0000);
@@ -682,16 +682,16 @@ void func_A73A_b6(void)
     CALL_BANK(0xA74F, 0xAC34);                  /* enemy_set_speed */
     mff_cycles(0xA752, 8);
     y = RAM(OBJ_TIER + x);
-    a = prg_read((uint16_t)(TIER_INDEX + y));
+    a = prg_read_ix(TIER_INDEX, y);
     mff_cycles(0xA758, 6);
     y = a;
-    a = prg_read((uint16_t)(CHARGE_TIME + y));
+    a = prg_read_ix(CHARGE_TIME, y);
     mff_cycles(0xA75C, 9);
     RAM(OBJ_AI_TIMER + x) = a;
-    a = prg_read((uint16_t)(CHARGE_STOP_MASK + y));
+    a = prg_read_ix(CHARGE_STOP_MASK, y);
     mff_cycles(0xA762, 9);
     RAM(OBJ_GROUND_Y + x) = a;
-    a = prg_read((uint16_t)(CHARGE_STOP_BELOW + y));
+    a = prg_read_ix(CHARGE_STOP_BELOW, y);
     mff_cycles(0xA768, 18);
     RAM(OBJ_AI_COUNT + x) = a;
     RAM(OBJ_TIMER + x) = (uint8_t)(RAM(OBJ_TIMER + x) + 1);
@@ -810,7 +810,7 @@ void func_A7AD_b6(void)
     CALL_FIXED(0xA7D7, func_FB5B);              /* direction index to the player */
     mff_cycles(0xA7DA, 6);
     y = a;
-    a = prg_read((uint16_t)(CHARGE_DIRS + y));
+    a = prg_read_ix(CHARGE_DIRS, y);
     mff_cycles(0xA7DE, 9);
     RAM(OBJ_DIR + x) = a;
     a &= DIR_UP | DIR_DOWN;
@@ -837,7 +837,7 @@ void func_A7AD_b6(void)
     CALL_FIXED(0xA811, func_F443);              /* obj_set_anim, chr_banks+3 */
     mff_cycles(0xA814, 8);
     y = RAM(OBJ_TIER + x);
-    a = prg_read((uint16_t)(TIER_INDEX + y));
+    a = prg_read_ix(TIER_INDEX, y);
     mff_cycles(0xA81A, 23);
     c = 0;
     ADC_A(0x33);
@@ -952,7 +952,7 @@ void func_A89C_b6(void)
 
     mff_cycles(0xA89C, 8);
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(DROP_ATTACK + y));
+    a = prg_read_ix(DROP_ATTACK, y);
     mff_cycles(0xA8A2, 11);
     RAM(OBJ_ATTACK + x) = a;
     CALL_FIXED(0xA8A5, func_F1FD);              /* obj_fall */

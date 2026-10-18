@@ -99,10 +99,10 @@ void func_E4DF(void) {
         a = RAM(TMP16);
         RAM(SCROLL_MODE) = a;
         x = a & 0x01;
-        a = prg_read((uint16_t)(K_TURN_SCROLL + x));
+        a = prg_read_ix(K_TURN_SCROLL, x);
         mff_cycles(0xE4FF, 7);
         RAM(SCROLL_X_PREV) = a;
-        a = prg_read((uint16_t)(K_TURN_COLUMN + x));
+        a = prg_read_ix(K_TURN_COLUMN, x);
         mff_cycles(0xE504, 3);
         RAM(BG_COLUMN) = a;
     } else {
@@ -163,7 +163,7 @@ static void bg_column_fetch(void) {
 
     mff_cycles(0xE547, 7);
     y = RAM(ROUND_TABLES);
-    a = prg_read((uint16_t)(ROUND_BANK_TABLE + y));
+    a = prg_read_ix(ROUND_BANK_TABLE, y);
     SET_NZ(a);
     mff_cycles(0xE54C, 9);
     RAM(BANK_REQUEST + 1) = a;
@@ -217,7 +217,7 @@ void func_E521(void) {
     mff_cycles(0xE52C, 1 + 9);
     a = RAM(BG_COLUMN);
     c = 0;
-    ADC_A(prg_read((uint16_t)(K_COLUMN_STEP + x)));
+    ADC_A(prg_read_ix(K_COLUMN_STEP, x));
     mff_cycles(0xE537, 9);
     c = a >= 0x20;                              /* off either end of the nametable */
     a &= 0x1F;
@@ -245,7 +245,7 @@ void func_E53F(void) {
     mff_cycles(0xE53F, 9);
     a = RAM(BG_SCREEN);
     c = 0;
-    ADC_A(prg_read((uint16_t)(K_COLUMN_STEP + x)));
+    ADC_A(prg_read_ix(K_COLUMN_STEP, x));
     mff_cycles(0xE545, 3);
     RAM(BG_SCREEN) = a;
     SYNC_OUT;
@@ -293,10 +293,10 @@ void func_E560(void) {
         mff_cycles(0xE58F, 7);
         if (RAM(BG_COLUMN) & 0x01) {
             mff_cycles(0xE595, 7);
-            a = RAM(TMP16) & prg_read((uint16_t)(K_ATTR_NEW_MASK + y));
+            a = RAM(TMP16) & prg_read_ix(K_ATTR_NEW_MASK, y);
             mff_cycles(0xE59A, 10);
             RAM(TMP16) = a;
-            a = RAM(TMP17) & prg_read((uint16_t)(K_ATTR_OLD_MASK + y));
+            a = RAM(TMP17) & prg_read_ix(K_ATTR_OLD_MASK, y);
             mff_cycles(0xE5A1, 43);
             a |= RAM(TMP16);
             RAM(VRAM_BUFFER + 27 + x) = a;
@@ -385,24 +385,24 @@ void func_E61A(void) {
     for (;;) {
         mff_cycles(0xE61A, 7);
         y = RAM(TMP2);
-        x = prg_read((uint16_t)(K_BLOCK_OFFSET + y));
+        x = prg_read_ix(K_BLOCK_OFFSET, y);
         mff_cycles(0xE61F, 5);
-        a = mem_read((uint16_t)(RAM16(TMP0) + y));      /* the block */
+        a = mem_read_iy(TMP0, y);      /* the block */
         mff_cycles(0xE621, 6);
         y = a;
-        a = prg_read((uint16_t)(BLOCK_TILE_TL + y));
+        a = prg_read_ix(BLOCK_TILE_TL, y);
         mff_cycles(0xE625, 9);
         RAM(TILE_BLOCK + x) = a;
-        a = prg_read((uint16_t)(BLOCK_TILE_TR + y));
+        a = prg_read_ix(BLOCK_TILE_TR, y);
         mff_cycles(0xE62B, 9);
         RAM(TILE_BLOCK + 1 + x) = a;
-        a = prg_read((uint16_t)(BLOCK_TILE_BL + y));
+        a = prg_read_ix(BLOCK_TILE_BL, y);
         mff_cycles(0xE631, 9);
         RAM(TILE_BLOCK + 4 + x) = a;
-        a = prg_read((uint16_t)(BLOCK_TILE_BR + y));
+        a = prg_read_ix(BLOCK_TILE_BR, y);
         mff_cycles(0xE637, 9);
         RAM(TILE_BLOCK + 5 + x) = a;
-        a = prg_read((uint16_t)(BLOCK_PALETTE + y));
+        a = prg_read_ix(BLOCK_PALETTE, y);
         mff_cycles(0xE63D, 15);
         a = (uint8_t)((a & 0x03) | RAM(TMP16));
         RAM(TMP16) = a;
@@ -438,7 +438,7 @@ void func_E653(void) {
     mff_cycles(0xE656, 13);
     RAM(TMP1) = 0x00;
     y = RAM(MAP_CELL);
-    metatile = mem_read((uint16_t)(RAM16(MAP_SCREEN_PTR) + y));
+    metatile = mem_read_iy(MAP_SCREEN_PTR, y);
     mff_cycles(0xE65E, 33);
     RAM(TMP1) = metatile >> 6;
     RAM(TMP0) = (uint8_t)(metatile << 2);
@@ -467,7 +467,7 @@ void func_E66E(void) {
         c = a >= 1;
         if (a == 1) {
             mff_cycles(0xE674, 1 + 4);
-            a = prg_read((uint16_t)(SCREEN_LIST_1 + y));
+            a = prg_read_ix(SCREEN_LIST_1, y);
             SET_NZ(a);
             mff_cycles(0xE683, 3);
             SYNC_OUT;
@@ -478,7 +478,7 @@ void func_E66E(void) {
         c = a >= 2;
         if (a == 2) {
             mff_cycles(0xE678, 1 + 4);
-            a = prg_read((uint16_t)(SCREEN_LIST_2 + y));
+            a = prg_read_ix(SCREEN_LIST_2, y);
             SYNC_OUT;
             func_E689();
             return;
@@ -487,7 +487,7 @@ void func_E66E(void) {
     } else {
         mff_cycles(0xE670, 1 + 4);
     }
-    a = prg_read((uint16_t)(SCREEN_LIST_0 + y));
+    a = prg_read_ix(SCREEN_LIST_0, y);
     SET_NZ(a);
     mff_cycles(0xE67D, 3);
     SYNC_OUT;

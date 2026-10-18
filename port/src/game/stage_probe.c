@@ -49,7 +49,7 @@ void func_ECCF(void) {
     int on_page;
 
     mff_cycles(0xECCF, 4);
-    a = prg_read((uint16_t)(K_PROBE_H_START + y));
+    a = prg_read_ix(K_PROBE_H_START, y);
     SET_NZ(a);
     mff_cycles(0xECD2, 9);
     RAM(PROBE_INDEX) = a;
@@ -58,11 +58,11 @@ void func_ECCF(void) {
     SYNC_IN;
     mff_cycles(0xECD7, 6);
     y = a;
-    a = prg_read((uint16_t)(K_PROBE_H + y));            /* points - 1 */
+    a = prg_read_ix(K_PROBE_H, y);            /* points - 1 */
     mff_cycles(0xECDB, 14);
     RAM(TMP2) = a;
     RAM(TMP3) = RAM(OBJ_Y_HI + x);
-    a = prg_read((uint16_t)(K_PROBE_H + 1 + y));        /* dy */
+    a = prg_read_ix(K_PROBE_H + 1, y);        /* dy */
     mff_cycles(0xECE5, 18);
     mff_push(a);
     c = 0;
@@ -120,7 +120,7 @@ void func_ECCF(void) {
     a = mff_pull();
     RAM(TMP3) = (a >> 1) & 0x02;
     RAM(TMP4) = 0x00;
-    a = prg_read((uint16_t)(K_PROBE_H + 2 + y));
+    a = prg_read_ix(K_PROBE_H + 2, y);
     mff_cycles(0xED25, 2);
     if (a & 0x80) {
         mff_cycles(0xED27, 5);
@@ -162,7 +162,7 @@ void func_ED49(void) {
             mff_cycles(0xED49, 10);
             RAM(TMP4) = x;
             y = RAM(ROUND_TABLES);
-            a = prg_read((uint16_t)(ROUND_BANK_TABLE + y));
+            a = prg_read_ix(ROUND_BANK_TABLE, y);
             SET_NZ(a);
             mff_cycles(0xED50, 9);
             RAM(BANK_REQUEST + 1) = a;
@@ -187,10 +187,10 @@ void func_ED49(void) {
         /* this point's block attribute */
         mff_cycles(0xED5F, 8);
         y = RAM(TMP3);
-        a = mem_read((uint16_t)(RAM16(TMP0) + y));
+        a = mem_read_iy(TMP0, y);
         mff_cycles(0xED63, 6);
         y = a;
-        a = prg_read((uint16_t)(BLOCK_ATTRIBUTE + y));
+        a = prg_read_ix(BLOCK_ATTRIBUTE, y);
         mff_cycles(0xED67, 15);
         a &= 0xF0;
         y = RAM(TMP2);
@@ -218,7 +218,7 @@ void func_ED49(void) {
         RAM(TMP4) = a & 0x10;
         a = mff_pull();
         c = 0;
-        ADC_A(prg_read((uint16_t)(K_PROBE_H + 2 + y)));
+        ADC_A(prg_read_ix(K_PROBE_H + 2, y));
         mff_cycles(0xED8C, 10);
         RAM(TMP18) = a;
         a &= 0x10;
@@ -280,7 +280,7 @@ void func_EDBA(void) {
     enum probe_fetch at;
 
     mff_cycles(0xEDBA, 4);
-    a = prg_read((uint16_t)(K_PROBE_V_START + y));
+    a = prg_read_ix(K_PROBE_V_START, y);
     SET_NZ(a);
     mff_cycles(0xEDBD, 9);
     RAM(PROBE_INDEX) = a;
@@ -289,11 +289,11 @@ void func_EDBA(void) {
     SYNC_IN;
     mff_cycles(0xEDC2, 6);
     y = a;
-    a = prg_read((uint16_t)(K_PROBE_V + y));            /* points - 1 */
+    a = prg_read_ix(K_PROBE_V, y);            /* points - 1 */
     mff_cycles(0xEDC6, 12);
     RAM(TMP2) = a;
     RAM(TMP4) = 0x00;
-    a = prg_read((uint16_t)(K_PROBE_V + 1 + y));        /* dx */
+    a = prg_read_ix(K_PROBE_V + 1, y);        /* dx */
     mff_cycles(0xEDCF, 2);
     if (a & 0x80) {
         mff_cycles(0xEDD1, 5);
@@ -329,10 +329,10 @@ void func_EDBA(void) {
         mff_cycles(0xEDF4, 2 + 10);
         a = RAM(OBJ_Y + x);
         c = 0;
-        ADC_A(prg_read((uint16_t)(K_PROBE_V + 2 + y)));
+        ADC_A(prg_read_ix(K_PROBE_V + 2, y));
         mff_cycles(0xEDFD, 7);
         RAM(TMP17) = a;
-        a = prg_read((uint16_t)(K_PROBE_V + 2 + y));
+        a = prg_read_ix(K_PROBE_V + 2, y);
         /* the branch ladder at $EE02-$EE10: a wrap clamps, else below $F0 */
         if (a & 0x80) {
             if (!c) {
@@ -378,7 +378,7 @@ void func_EDBA(void) {
     RAM(TMP3) = (uint8_t)(((a >> 1) & 0x02) | RAM(TMP3));
     RAM(TMP4) = x;
     y = RAM(ROUND_TABLES);
-    a = prg_read((uint16_t)(ROUND_BANK_TABLE + y));
+    a = prg_read_ix(ROUND_BANK_TABLE, y);
     SET_NZ(a);
     mff_cycles(0xEE5D, 9);
     RAM(BANK_REQUEST + 1) = a;
@@ -405,10 +405,10 @@ void func_EDBA(void) {
         /* this point's block attribute */
         mff_cycles(0xEE6C, 8);
         y = RAM(TMP3);
-        a = mem_read((uint16_t)(RAM16(TMP0) + y));
+        a = mem_read_iy(TMP0, y);
         mff_cycles(0xEE70, 6);
         y = a;
-        a = prg_read((uint16_t)(BLOCK_ATTRIBUTE + y));
+        a = prg_read_ix(BLOCK_ATTRIBUTE, y);
         mff_cycles(0xEE74, 15);
         a &= 0xF0;
         y = RAM(TMP2);
@@ -436,7 +436,7 @@ void func_EDBA(void) {
         RAM(TMP4) = a & 0x10;
         a = mff_pull();
         c = 0;
-        ADC_A(prg_read((uint16_t)(K_PROBE_V + 2 + y)));
+        ADC_A(prg_read_ix(K_PROBE_V + 2, y));
         mff_cycles(0xEE99, 10);
         RAM(TMP17) = a;
         a &= 0x10;
@@ -499,7 +499,7 @@ void func_EEC4(void) {
     RAM(PROBE_MAX) = a;
     RAM(PROBE_SAVED_BANK) = RAM(BANK_REQUEST + 1);
     y = RAM(ROUND_TABLES);
-    a = prg_read((uint16_t)(ROUND_BANK_TABLE + y));
+    a = prg_read_ix(ROUND_BANK_TABLE, y);
     SET_NZ(a);
     mff_cycles(0xEED6, 9);
     RAM(BANK_REQUEST + 1) = a;

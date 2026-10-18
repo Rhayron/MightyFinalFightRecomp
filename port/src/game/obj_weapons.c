@@ -124,12 +124,12 @@ void func_A7A5_b2(void)
     CALL_FIXED(0xA7F3, func_F34C);
     mff_cycles(0xA7F6, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(PICKUP_ANIM + y));
+    a = prg_read_ix(PICKUP_ANIM, y);
     SET_NZ(a);
     mff_cycles(0xA7FB, 6);
     CALL_FIXED(0xA7FB, func_F294);              /* player_set_anim */
     mff_cycles(0xA7FE, 4);
-    a = prg_read((uint16_t)(PICKUP_CHR + y));
+    a = prg_read_ix(PICKUP_CHR, y);
     SET_NZ(a);
     mff_cycles(0xA801, 6);
     CALL_FIXED(0xA801, func_F440);              /* chr_banks+2 = A */
@@ -256,7 +256,7 @@ void func_A851_b2(void)
     RAM(OBJ_X + y) = RAM(OBJ_X + x);
     RAM(OBJ_Y + y) = RAM(OBJ_Y + x);
     y = RAM(PLAYER_ID) & 0x01;
-    a = prg_read((uint16_t)(DROP_ANIM + y));
+    a = prg_read_ix(DROP_ANIM, y);
     mff_cycles(0xA87D, 9);
     y = RAM(TMP15);
     SET_NZ(y);
@@ -480,7 +480,7 @@ void func_A957_b2(void)
     }
     mff_cycles(0xA962, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(WEAPON_FLOOR_ANIM + y));
+    a = prg_read_ix(WEAPON_FLOOR_ANIM, y);
     SET_NZ(a);
     mff_cycles(0xA967, 6);
     CALL_FIXED(0xA967, func_F288);              /* obj_set_anim */

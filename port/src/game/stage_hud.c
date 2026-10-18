@@ -192,21 +192,21 @@ void func_E6DD(void) {
         }
         if (table == PLAYER_HAGGAR) {
             mff_cycles(0xE6EF, 4);
-            a = prg_read((uint16_t)(K_HEALTH_BAR_HAGGAR + y));
+            a = prg_read_ix(K_HEALTH_BAR_HAGGAR, y);
             mff_cycles(0xE6F2, 2);
             if (a != 0) mff_cycles(0xE6F2, 1);
             else table = PLAYER_GUY;
         }
         if (table == PLAYER_GUY) {
             mff_cycles(0xE6F4, 4);
-            a = prg_read((uint16_t)(K_HEALTH_BAR_GUY + y));
+            a = prg_read_ix(K_HEALTH_BAR_GUY, y);
             mff_cycles(0xE6F7, 2);
             if (a != 0) mff_cycles(0xE6F7, 1);
             else table = PLAYER_CODY;
         }
         if (table == PLAYER_CODY) {
             mff_cycles(0xE6F9, 4);
-            a = prg_read((uint16_t)(K_HEALTH_BAR_CODY + y));
+            a = prg_read_ix(K_HEALTH_BAR_CODY, y);
         }
 
         /* [count + 1, $20, $4A, the tiles, the right end] */
@@ -362,26 +362,26 @@ void func_E7F5(void) {
 
     /* $00/$01 = the character's table; entry level * 2 */
     mff_cycles(0xE81B, 4);
-    a = prg_read((uint16_t)(K_NEXT_LEVEL_LO + y));
+    a = prg_read_ix(K_NEXT_LEVEL_LO, y);
     mff_cycles(0xE81E, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(K_NEXT_LEVEL_HI + y));
+    a = prg_read_ix(K_NEXT_LEVEL_HI, y);
     mff_cycles(0xE823, 15);
     RAM(TMP1) = a;
     a = (uint8_t)(RAM(PLAYER_LEVEL) << 1);
     y = a;
-    a = mem_read((uint16_t)(RAM16(TMP0) + y));          /* hundreds */
+    a = mem_read_iy(TMP0, y);          /* hundreds */
     mff_cycles(0xE82B, 21);
     RAM(VRAM_BUFFER + x) = (uint8_t)(a + 1);
     x++;
     y++;
-    a = mem_read((uint16_t)(RAM16(TMP0) + y));          /* tens and ones */
+    a = mem_read_iy(TMP0, y);          /* tens and ones */
     mff_cycles(0xE835, 29);
     c = 0;                                      /* LSRs of a value & $F0 shift out zeros */
     a = (uint8_t)((a & 0xF0) >> 4);
     RAM(VRAM_BUFFER + x) = (uint8_t)(a + 1);
     x++;
-    a = mem_read((uint16_t)(RAM16(TMP0) + y));
+    a = mem_read_iy(TMP0, y);
     mff_cycles(0xE844, 19);
     a &= 0x0F;
     RAM(VRAM_BUFFER + x) = (uint8_t)(a + 1);
@@ -649,16 +649,16 @@ void func_E954(void) {
         mff_cycles(0xE96E, 1);
     }
     mff_cycles(0xE972, 4);
-    a = prg_read((uint16_t)(K_GAUGE_LO + y));
+    a = prg_read_ix(K_GAUGE_LO, y);
     mff_cycles(0xE975, 7);
     RAM(TMP0) = a;
-    a = prg_read((uint16_t)(K_GAUGE_HI + y));
+    a = prg_read_ix(K_GAUGE_HI, y);
     mff_cycles(0xE97A, 5);
     RAM(TMP1) = a;
     y = 0x00;
     for (;;) {
         mff_cycles(0xE97E, 5);
-        a = mem_read((uint16_t)(RAM16(TMP0) + y));
+        a = mem_read_iy(TMP0, y);
         mff_cycles(0xE980, 13);
         RAM(VRAM_BUFFER + x) = a;
         x++;
@@ -694,7 +694,7 @@ void func_9C00_b5(void) {
     y = 0x00;
     for (;;) {
         mff_cycles(0x9C04, 4);
-        a = prg_read((uint16_t)(K_HUD_TEXT + y));
+        a = prg_read_ix(K_HUD_TEXT, y);
         mff_cycles(0x9C07, 4);
         c = a >= 0xFF;
         if (a == 0xFF) {

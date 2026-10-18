@@ -81,10 +81,10 @@ void func_9733_b6(void)
             mff_cycles(0x9749, 1);
             mff_cycles(0x975C, 7);
             y = RAM(PLAYER_LEVEL);
-            a = prg_read((uint16_t)(LEVEL_VY_FRAC + y));
+            a = prg_read_ix(LEVEL_VY_FRAC, y);
             mff_cycles(0x9761, 9);
             RAM(OBJ_VY_FRAC + x) = a;
-            a = prg_read((uint16_t)(LEVEL_VY + y));
+            a = prg_read_ix(LEVEL_VY, y);
             SET_NZ(a);
             mff_cycles(0x9767, 5);
             RAM(OBJ_VY + x) = a;
@@ -451,10 +451,10 @@ void func_9962_b6(void)
         }
         mff_cycles(0x9986, 7);
         y = RAM(PLAYER_LEVEL);
-        a = prg_read((uint16_t)(LEVEL_VY_FRAC + y));
+        a = prg_read_ix(LEVEL_VY_FRAC, y);
         mff_cycles(0x998B, 9);
         RAM(OBJ_VY_FRAC + x) = a;
-        a = prg_read((uint16_t)(LEVEL_VY + y));
+        a = prg_read_ix(LEVEL_VY, y);
         SET_NZ(a);
         mff_cycles(0x9991, 11);
         RAM(OBJ_VY + x) = a;
@@ -1016,7 +1016,7 @@ void func_9C29_b6(void)
     RAM(OBJ_HELD + x) = a;
     RAM(OBJ_FLAGS + x) = RAM(OBJ_FLAGS + x) | OBJ_ON_SCREEN;
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(KIND_UP_INVULN + y));
+    a = prg_read_ix(KIND_UP_INVULN, y);
     SET_NZ(a);
     mff_cycles(0x9C51, 11);
     RAM(OBJ_INVULN + x) = a;
@@ -1035,7 +1035,7 @@ static void kind_anim_bank(uint16_t pc, uint16_t anim, uint16_t chr)
 
     mff_cycles(pc, 10);
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(anim + y));
+    a = prg_read_ix(anim, y);
     mff_cycles((uint16_t)(pc + 0x07), 6);
     CMP_FLAGS(a, RAM(OBJ_ANIM + x));
     if (z) {
@@ -1050,10 +1050,10 @@ static void kind_anim_bank(uint16_t pc, uint16_t anim, uint16_t chr)
             mff_cycles((uint16_t)(pc + 0x14), branch_taken((uint16_t)(pc + 0x14), (uint16_t)(pc + 0x24)));
         } else {
             mff_cycles((uint16_t)(pc + 0x16), 4);
-            a = prg_read((uint16_t)(chr + y));
+            a = prg_read_ix(chr, y);
             mff_cycles((uint16_t)(pc + 0x19), 7);
             RAM(TMP0) = a;
-            a = prg_read((uint16_t)(KIND_CHR_SLOT + y));
+            a = prg_read_ix(KIND_CHR_SLOT, y);
             mff_cycles((uint16_t)(pc + 0x1E), 10);
             y = a;
             a = RAM(TMP0);
@@ -1101,7 +1101,7 @@ void func_9CAD_b6(void)
 
     mff_cycles(0x9CAD, 10);
     y = RAM(OBJ_KIND + x);
-    a = prg_read((uint16_t)(KIND_UP_ANIM + y));
+    a = prg_read_ix(KIND_UP_ANIM, y);
     mff_cycles(0x9CB4, 6);
     CMP_FLAGS(a, RAM(OBJ_ANIM + x));
     if (z) {
@@ -1110,10 +1110,10 @@ void func_9CAD_b6(void)
         mff_cycles(0x9CB9, 6);
         CALL_FIXED(0x9CB9, func_F288);
         mff_cycles(0x9CBC, 4);
-        a = prg_read((uint16_t)(KIND_UP_CHR + y));
+        a = prg_read_ix(KIND_UP_CHR, y);
         mff_cycles(0x9CBF, 7);
         RAM(TMP0) = a;
-        a = prg_read((uint16_t)(KIND_CHR_SLOT + y));
+        a = prg_read_ix(KIND_CHR_SLOT, y);
         mff_cycles(0x9CC4, 10);
         y = a;
         a = RAM(OBJ_KIND + x);

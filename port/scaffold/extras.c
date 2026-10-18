@@ -253,6 +253,11 @@ void game_on_frame(uint64_t frame_count) {
 
 void game_post_nmi(uint64_t frame_count) { (void)frame_count; }
 
+/* port/src/game/hw.h: an indexed read crossed a page. The scaffold's cycle
+ * model has no such cycle (the port's runtime charges it on the console's
+ * clock, port/src/runtime/timing.c). */
+void nes_page_cross(void) {}
+
 int game_handle_arg(const char *key, const char *val) {
     if (strcmp(key, "--verify") == 0) {
         g_run_mode = RUN_MODE_VERIFY;

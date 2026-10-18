@@ -234,7 +234,7 @@ static void enemy_reach(int after_depth)
     if (front) {
         mff_cycles(0xF672, 7);
         a = RAM(TMP0);
-        c = a >= prg_read((uint16_t)(ENEMY_REACH_X_FRONT + y));
+        c = a >= prg_read_ix(ENEMY_REACH_X_FRONT, y);
         mff_cycles(0xF677, 2);
         if (c) {
             mff_cycles(0xF679, 3);
@@ -244,7 +244,7 @@ static void enemy_reach(int after_depth)
     } else {
         mff_cycles(0xF692, 7);
         a = RAM(TMP0);
-        c = a >= prg_read((uint16_t)(ENEMY_REACH_X_BACK + y));
+        c = a >= prg_read_ix(ENEMY_REACH_X_BACK, y);
         mff_cycles(0xF697, 2);
         if (c) {
             mff_cycles(0xF697, 1);
@@ -263,7 +263,7 @@ static void enemy_reach(int after_depth)
         mff_cycles(0xF6A0, 1);
     }
     mff_cycles(0xF6A6, 4);
-    c = a >= prg_read((uint16_t)(ENEMY_REACH_Y + y));
+    c = a >= prg_read_ix(ENEMY_REACH_Y, y);
     FALL_INTO(func_F6A9);
 }
 
@@ -472,7 +472,7 @@ void func_F84C(void)
         mff_cycles(0xF858, 1);
     }
     mff_cycles(0xF85E, 4);
-    c = a >= prg_read((uint16_t)(PLAYER_REACH_Y + y));
+    c = a >= prg_read_ix(PLAYER_REACH_Y, y);
     mff_cycles(0xF861, 6);
     RTS_RETURN();
 }
@@ -487,7 +487,7 @@ void func_F833(void)
 
     mff_cycles(0xF833, 7);
     a = RAM(TMP0);
-    c = a >= prg_read((uint16_t)(PLAYER_REACH_X_BACK + y));
+    c = a >= prg_read_ix(PLAYER_REACH_X_BACK, y);
     mff_cycles(0xF838, 2);
     if (!c) {
         mff_cycles(0xF83A, 3);
@@ -504,7 +504,7 @@ static void attack_reach_front(void)
 
     mff_cycles(0xF845, 7);
     a = RAM(TMP0);
-    m = prg_read((uint16_t)(PLAYER_REACH_X_FRONT + y));
+    m = prg_read_ix(PLAYER_REACH_X_FRONT, y);
     mff_cycles(0xF84A, 2);
     if (a < m)
         FALL_INTO(func_F84C);
@@ -805,7 +805,7 @@ void func_FA91(void)
         mff_cycles(0xFAA3, 1);
     }
     mff_cycles(0xFAA9, 4);
-    c = a >= prg_read((uint16_t)(CONTACT_REACH_X + y));
+    c = a >= prg_read_ix(CONTACT_REACH_X, y);
     mff_cycles(0xFAAC, 2);
     if (!c) {
         mff_cycles(0xFAAE, 11);
@@ -820,7 +820,7 @@ void func_FA91(void)
             mff_cycles(0xFAB4, 1);
         }
         mff_cycles(0xFABA, 4);
-        c = a >= prg_read((uint16_t)(CONTACT_REACH_Y + y));
+        c = a >= prg_read_ix(CONTACT_REACH_Y, y);
         mff_cycles(0xFABD, 2);
         if (!c)
             mff_cycles(0xFABD, 1);              /* BCC to the next instruction */

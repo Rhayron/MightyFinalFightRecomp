@@ -51,11 +51,11 @@ void func_86D1_b3(void) {
     REGS_IN;
     mff_cycles(0x86D1, 7);
     y = SND_INS_ATTACK;
-    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read_iy(SND_INSTR_PTR, y);
     mff_cycles(0x86D5, 11);
     y = a;
     a = RAM(SND_TMP + 3);
-    m = prg_read((uint16_t)(SND_TBL_RATE + y));
+    m = prg_read_ix(SND_TBL_RATE, y);
     w = a + m;
     v = (~(a ^ m) & (a ^ w) & 0x80) != 0;
     c = w > 0xFF;
@@ -87,7 +87,7 @@ void func_86E6_b3(void) {
     REGS_IN;
     mff_cycles(0x86E6, 7);
     y = SND_INS_DECAY;
-    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read_iy(SND_INSTR_PTR, y);
     mff_cycles(0x86EA, 2);
     if (a == 0) {
         mff_cycles(0x86EA, 1);
@@ -95,7 +95,7 @@ void func_86E6_b3(void) {
         mff_cycles(0x86EC, 11);
         y = a;
         a = RAM(SND_TMP + 3);
-        m = prg_read((uint16_t)(SND_TBL_RATE + y));
+        m = prg_read_ix(SND_TBL_RATE, y);
         w = a - m;
         v = ((a ^ m) & (a ^ w) & 0x80) != 0;
         c = w >= 0;
@@ -106,7 +106,7 @@ void func_86E6_b3(void) {
         } else {
             mff_cycles(0x86F5, 7);
             y = SND_INS_SUSTAIN;
-            m = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+            m = mem_read_iy(SND_INSTR_PTR, y);
             c = a >= m;
             mff_cycles(0x86F9, 2);
             if (c) {
@@ -119,7 +119,7 @@ void func_86E6_b3(void) {
     }
     mff_cycles(0x86FB, 7);
     y = SND_INS_SUSTAIN;
-    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read_iy(SND_INSTR_PTR, y);
     NZ(a);
     mff_cycles(0x86FF, 3);
     SYNC_OUT;
@@ -138,7 +138,7 @@ void func_8702_b3(void) {
     if (a != SND_X_TRIANGLE) {
         mff_cycles(0x8709, 7);
         y = SND_INS_RELEASE;
-        a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+        a = mem_read_iy(SND_INSTR_PTR, y);
         mff_cycles(0x870D, 2);
         if (a == 0) {
             mff_cycles(0x870D, 1);
@@ -149,7 +149,7 @@ void func_8702_b3(void) {
         mff_cycles(0x870F, 11);
         y = a;
         a = RAM(SND_TMP + 3);
-        m = prg_read((uint16_t)(SND_TBL_RATE + y));
+        m = prg_read_ix(SND_TBL_RATE, y);
         w = a - m;
         v = ((a ^ m) & (a ^ w) & 0x80) != 0;
         a = (uint8_t)w;
@@ -315,7 +315,7 @@ static void snd_output_volume(int load_level) {
     a = (uint8_t)((a >> 4) ^ 0x0F);
     RAM(SND_ARG) = a;
     y = SND_INS_TREMOLO;
-    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read_iy(SND_INSTR_PTR, y);
     mff_cycles(0x876F, 4);
     if (a < 5) {
         mff_cycles(0x8771, 1);
@@ -409,7 +409,7 @@ static void snd_output_regs(void) {
     } else {
         mff_cycles(0x87B8, 7);
         y = SND_INS_VIBRATO;
-        a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+        a = mem_read_iy(SND_INSTR_PTR, y);
         mff_cycles(0x87BC, 2);
         if (a == 0) {
             mff_cycles(0x87BC, 2);
@@ -562,7 +562,7 @@ static void snd_output_period(void) {
         mff_cycles(0x883A, 11);
         a = y & 0x0F;
         y = SND_INS_NOISE;
-        a |= mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+        a |= mem_read_iy(SND_INSTR_PTR, y);
         mff_cycles(0x8841, 10);
         RAM(PERIOD_LO) = a;
         a = 0;
@@ -577,7 +577,7 @@ static void snd_output_period(void) {
             mff_cycles(0x884C, 6);
             y--;
             mff_cycles(0x8850, 2);
-            if (a >= prg_read((uint16_t)(SND_TBL_OCT_THRESH + y)))
+            if (a >= prg_read_ix(SND_TBL_OCT_THRESH, y))
                 break;
             mff_cycles(0x884C, 1);
         }
@@ -715,12 +715,12 @@ void func_88A0_b3(void) {
             a = (uint8_t)(RAM(SND_TARGET + x) << 1);
             y = a;
             a = RAM(SND_PITCH_LO + x);
-            m = prg_read((uint16_t)(SND_TBL_PERIOD_LO + y));
+            m = prg_read_ix(SND_TBL_PERIOD_LO, y);
             w = a - m;
             c = w >= 0;
             mff_cycles(0x88D2, 10);
             a = RAM(SND_PITCH_HI + x) & 0x3F;
-            m = prg_read((uint16_t)(SND_TBL_PERIOD_HI + y));
+            m = prg_read_ix(SND_TBL_PERIOD_HI, y);
             w = a - m - !c;
             c = w >= 0;
             mff_cycles(0x88DA, 12);
@@ -743,10 +743,10 @@ void func_88A0_b3(void) {
                     stop = 0;
                 } else {
                     mff_cycles(0x88E6, 4);
-                    a = prg_read((uint16_t)(SND_TBL_PERIOD_LO + y));
+                    a = prg_read_ix(SND_TBL_PERIOD_LO, y);
                     mff_cycles(0x88E9, 9);
                     RAM(SND_PITCH_LO + x) = a;
-                    a = prg_read((uint16_t)(SND_TBL_PERIOD_HI + y));
+                    a = prg_read_ix(SND_TBL_PERIOD_HI, y);
                     mff_cycles(0x88EF, 5);
                     RAM(SND_PITCH_HI + x) = a;
                 }
@@ -764,7 +764,7 @@ void func_88A0_b3(void) {
     /* snd_lfo_step */
     mff_cycles(0x88FA, 7);
     y = SND_INS_LFO;
-    a = mem_read((uint16_t)(RAM16(SND_INSTR_PTR) + y));
+    a = mem_read_iy(SND_INSTR_PTR, y);
     mff_cycles(0x88FE, 4);
     a &= 0x7F;
     NZ(a);

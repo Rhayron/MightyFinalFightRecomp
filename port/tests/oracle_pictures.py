@@ -6,8 +6,10 @@ ORACLE.flog is the cycle-accurate build's --frame-log, PORT.flog and
 PORT.pix the port's MFF_FRAMELOG and MFF_PICDUMP of the same route (keyed
 input, port/tests/nmi_input.py). Frames pair by the game's NMI count, as
 port/tests/lockstep.py pairs RAM, and only pairs whose RAM matches (outside
-the stack page and the other bytes lockstep.py ignores) are compared: the
-port never lags, so after the oracle's first lag frame the games part.
+the stack page and the other bytes lockstep.py ignores) are compared. On
+the console's timing (P7, the default) the port lags where the oracle does
+and the games stay together; with --slowdown off or --timing scaffold it
+never lags, and the games part at the oracle's first lag frame.
 
 The oracle's record holds the picture of the frame that ended with it,
 drawn after the previous NMI; the port's picture k is drawn after its NMI
@@ -74,13 +76,14 @@ def main():
     pic_at = {frame: off for frame, _, off in oracle}
     pairs = pair([(f, r) for f, r, _ in oracle], read_port(a.port))
     pix_size = os.path.getsize(a.pix) // (4 + PIX)
-    compared = same = 0
+    compared = same = skipped = 0
     diff_lines = collections.Counter()
     shown = 0
     with open(a.oracle, "rb") as fo, open(a.pix, "rb") as fp:
         for (count, rep), (of, oram), (pf, pram) in pairs:
             if any(oram[i] != pram[i] for i in range(RAM) if i not in IGNORE):
-                break                       # the games parted (a lag frame on the oracle)
+                skipped += 1                # not the same game state (a lag frame's record)
+                continue
             k = pf + a.offset
             if not 0 <= k < pix_size:
                 continue
@@ -102,7 +105,8 @@ def main():
                 shown += 1
                 print(f"NMI {count}{'+' + str(rep) if rep else ''}: oracle frame {of}, port picture {k}: "
                       f"{len(bad)} pixels differ on lines {lines[0]}-{lines[-1]} ({len(lines)} lines)")
-    print(f"{len(pairs)} frames paired; {compared} pictures compared while RAM matched, {same} identical")
+    print(f"{len(pairs)} frames paired; {compared} pictures compared while RAM matched, {same} identical"
+          + (f"; {skipped} frames skipped, their RAM not the oracle's" if skipped else ""))
     if diff_lines:
         top = ", ".join(f"{y}:{n}" for y, n in sorted(diff_lines.items())[:40])
         print(f"lines that differed (line:frames): {top}")

@@ -54,4 +54,32 @@ static inline uint8_t prg_read(uint16_t addr) { return nes_read(addr); }
 static inline uint8_t mem_read(uint16_t addr) { return nes_read(addr); }
 static inline void mem_write(uint16_t addr, uint8_t v) { nes_write(addr, v); }
 
+/* Indexed reads (LDA, LDX, LDY, ADC, SBC, AND, ORA, EOR, CMP with abs,X,
+ * abs,Y or (zp),Y): the 6502 takes one cycle more when base + index crosses
+ * a page. The run's charge has the base cycles; nes_page_cross() adds the
+ * extra one on the console's clock (port/src/runtime/timing.c,
+ * docs/timing.md) and nothing on the scaffold's, whose model left it out
+ * (port/scaffold/extras.c). */
+void nes_page_cross(void);
+
+/* LDA base,X / base,Y: a table in PRG ROM (or a pointer kept in C) */
+static inline uint8_t prg_read_ix(uint16_t base, uint8_t i) {
+    if ((base & 0xFF) + i > 0xFF) nes_page_cross();
+    return nes_read((uint16_t)(base + i));
+}
+
+/* LDA base,X / base,Y on a RAM table (the slot tables read with a slot
+ * number above 15: the ending's pseudo-slot $FF crosses their pages) */
+static inline uint8_t ram_ix(uint16_t base, uint8_t i) {
+    if ((base & 0xFF) + i > 0xFF) nes_page_cross();
+    return g_ram[(uint16_t)(base + i) & 0x7FF];
+}
+
+/* LDA (zp),Y: the pointer in zero page (wrapping at $FF), plus Y */
+static inline uint8_t mem_read_iy(uint8_t zp, uint8_t y) {
+    uint16_t base = (uint16_t)(g_ram[zp] | g_ram[(uint8_t)(zp + 1)] << 8);
+    if ((base & 0xFF) + y > 0xFF) nes_page_cross();
+    return nes_read((uint16_t)(base + y));
+}
+
 #endif

@@ -57,7 +57,7 @@
 #include <string.h>
 
 #define STATE_MAGIC "MFFSTATE"
-#define STATE_VERSION 2u              /* 2: P9's HD picture */
+#define STATE_VERSION 3u              /* 2: P9's HD picture; 3: P7's console clock */
 #define SAVE_PATIENCE 600               /* frames a save waits for a place it can be made */
 #define SLOTS 4
 
@@ -424,7 +424,8 @@ void savestate_run(const char *load_path) {
     }
     s_main_jmp_set = 1;
     if (setjmp(s_main_jmp) == 0 && !s_loaded) {
-        maybe_trigger_vblank(7);        /* the 6502's reset sequence, before the first instruction */
+        if (g_timing != TIMING_SCAFFOLD) /* the 6502's reset sequence (the scaffold leaves it out) */
+            maybe_trigger_vblank(7);
         func_RESET();
         mff_fatal("the reset routine returned");
     }

@@ -3,8 +3,7 @@
     py -3 -I port/tests/oracle_tour.py ROM ROUTE.txt OUTDIR [--start 5000] [--seg 300]
         [--skip-every 4] [--frames 30000] [--oracle EXE] [--port EXE]
 
-A power-on route only reaches round 1 before the oracle's first lag frame,
-where the two games part (P7). This plays a route on the oracle up to
+A power-on route only reaches round 1. This plays a route on the oracle up to
 --start, then walks right punching (RIGHT, with A every other 4 frames: it
 also answers the boss dialogs, which wait for a fresh A) in segments of
 --seg frames, saving a state at the end of each, and patches RAM in it
@@ -14,26 +13,32 @@ segments while the player is alive and not already skipping, and in the
 final area (round 4, area 2+, where skipping runs past the end) every
 fighter's life set below 0. The same writes go to the port through
 MFF_POKE, keyed by the NMI count of the frame the state was saved after,
-and the same pad through MFF_INPUT, so the two games stay together for as
-long as the oracle does not lag.
+and the same pad through MFF_INPUT, so the two games stay together: on the
+port's default timing (the console's, docs/timing.md) through the lag
+frames too, which lag.txt counts.
 
 OUTDIR gets tour_input.txt (the oracle's --input), o.flog (the oracle's
 frame log, segments joined), tour.keyed
 (MFF_INPUT), tour.poke (MFF_POKE), p.flog and p.pix (the port's MFF_FRAMELOG
 and MFF_PICDUMP) and the reports of port/tests/oracle_pictures.py
-(pictures.txt) and port/tests/lockstep.py (lockstep.txt). The frame logs
+(pictures.txt), port/tests/lockstep.py (lockstep.txt) and
+port/tests/lag_check.py (lag.txt: lag frames and identical-RAM spans, from
+o.orec and p.prec, the logs cut to frame, cycles and RAM). The frame logs
 take ~135 KB (oracle) and ~63 KB (port) a frame: delete them after.
+--lag-only keeps only o.orec and p.prec and writes only lag.txt.
+--port-arg passes an argument to the port (e.g. --port-arg=--slowdown
+--port-arg=off); the port plays with its default timing, the console's
+(docs/timing.md), so it lags where the oracle does.
 """
 import argparse
 import os
-import struct
 import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 sys.path.insert(0, HERE)
-from lockstep import FRAME_COUNTER  # noqa: E402
+import lag_check  # noqa: E402
 
 STATE_RAM = os.path.join(ROOT, "tools", "state_ram.py")
 HIDDEN = 0x08000000 if os.name == "nt" else 0        # CREATE_NO_WINDOW
@@ -85,31 +90,6 @@ def decide(ram, seg_index, a, full_hp):
     return w
 
 
-def keys_of(flog):
-    """[(frame, (count, rep))] from an oracle frame log, as lockstep.pair keys them."""
-    rows = []
-    with open(flog, "rb") as f:
-        f.read(12)
-        while True:
-            head = f.read(36)
-            if len(head) < 36:
-                break
-            n = struct.unpack("<9I", head)
-            f.seek(32 + 256, 1)
-            ram = f.read(n[3])
-            f.seek(sum(n[4:9]), 1)
-            rows.append((n[0], ram[FRAME_COUNTER]))
-    start = next(k for k in range(len(rows) - 1) if rows[k][1] == 0 and rows[k + 1][1] == 1)
-    out, count, last, seen = [], 0, 0, {}
-    for frame, v in rows[start:]:
-        count += (v - last) & 0xFF
-        last = v
-        rep = seen.get(count, 0)
-        seen[count] = rep + 1
-        out.append((frame, (count, rep)))
-    return out
-
-
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("rom")
@@ -121,6 +101,8 @@ def main():
     ap.add_argument("--frames", type=int, default=30000)
     ap.add_argument("--oracle", default=os.path.join(ROOT, "build_headless", "Release", "MightyFinalFightRecomp.exe"))
     ap.add_argument("--port", default=os.path.join(ROOT, "build_mff", "Release", "MightyFinalFight.exe"))
+    ap.add_argument("--port-arg", action="append", default=[], help="an argument for the port (repeatable)")
+    ap.add_argument("--lag-only", action="store_true", help="no pictures: keep only the RAM records")
     a = ap.parse_args()
     a.oracle, a.port, a.out = os.path.abspath(a.oracle), os.path.abspath(a.port), os.path.abspath(a.out)
     os.makedirs(a.out, exist_ok=True)
@@ -134,7 +116,8 @@ def main():
         for frame in range(a.start, a.frames + 8, 8):
             f.write(f"{frame} RIGHT\n{frame + 4} RIGHT+A\n")
     a.route = o("tour_input.txt")
-    joined = open(o("o.flog"), "wb")
+    joined = None if a.lag_only else open(o("o.flog"), "wb")
+    open(o("o.orec"), "wb").close()
     patches = []                                    # (oracle frame, {addr: value})
     full_hp = 0
 
@@ -144,8 +127,10 @@ def main():
         if load:
             cmd += ["--load-state", load]
         run(cmd)
-        data = open(o(part), "rb").read()
-        joined.write(data if first == 0 else data[12:])
+        lag_check.reduce_oracle(o(part), o("o.orec"), append=True)
+        if joined:
+            data = open(o(part), "rb").read()
+            joined.write(data if first == 0 else data[12:])
         os.remove(o(part))
 
     segment(None, 0, a.start, "part.flog")
@@ -168,21 +153,32 @@ def main():
         segment(o("load.state"), frame + 1, frame + a.seg, "part.flog")
         frame += a.seg
         k += 1
-    joined.close()
+    if joined:
+        joined.close()
     for f in ("seg.state", "load.state"):
         if os.path.exists(o(f)):
             os.remove(o(f))
 
-    keys = dict(keys_of(o("o.flog")))
+    orows = lag_check.load(o("o.orec"))
+    keys = {frame: key for key, frame, _c, _r in lag_check.keyed(orows)}
     with open(o("tour.poke"), "w") as f:
         for fr, w in patches:
             count, rep = keys[fr]
             for addr, v in sorted(w.items()):
                 f.write(f"{count} {rep} {addr:04X} {v:02X}\n")
-    run([sys.executable, "-I", os.path.join(HERE, "nmi_input.py"), a.route, o("o.flog"), o("tour.keyed")])
-    env = dict(MFF_INPUT=o("tour.keyed"), MFF_POKE=o("tour.poke"), MFF_FRAMELOG=o("p.flog"), MFF_PICDUMP=o("p.pix"))
+    lag_check.keyed_input(a.route, orows, o("tour.keyed"))
+    env = dict(MFF_INPUT=o("tour.keyed"), MFF_POKE=o("tour.poke"), MFF_FRAMELOG=o("p.flog"))
+    if not a.lag_only:
+        env["MFF_PICDUMP"] = o("p.pix")
     os.environ.update(env)
-    run([a.port, "--smoke", str(a.frames + 100)])
+    run([a.port, "--smoke", str(a.frames + 100), *a.port_arg])
+    lag_check.reduce_port(o("p.flog"), o("p.prec"))
+    lines, _ = lag_check.compare(orows, lag_check.load(o("p.prec")), name=os.path.basename(a.out), listing=40)
+    open(o("lag.txt"), "w").write("\n".join(lines) + "\n")
+    print("== lag.txt\n" + "\n".join(lines[:4]))
+    if a.lag_only:
+        os.remove(o("p.flog"))
+        return
     for name, cmd in (("pictures.txt", [os.path.join(HERE, "oracle_pictures.py"), o("o.flog"), o("p.flog"),
                                         o("p.pix"), "--max", "40"]),
                       ("lockstep.txt", [os.path.join(HERE, "lockstep.py"), o("o.flog"), o("p.flog"), "--max", "5"])):

@@ -58,10 +58,10 @@ void func_8000_b2(void) {
     RAM(TMP5) = a;
     a = 0x01;
     RAM(RENDER_OFF_DEPTH) = a;
-    a = prg_read((uint16_t)(SCREEN_SCRIPT_LO + x));
+    a = prg_read_ix(SCREEN_SCRIPT_LO, x);
     mff_cycles(0x800B, 7);
     RAM(TMP14) = a;
-    a = prg_read((uint16_t)(SCREEN_SCRIPT_HI + x));
+    a = prg_read_ix(SCREEN_SCRIPT_HI, x);
     mff_cycles(0x8010, 37);                 /* to the first LDA ($0E),Y at $8027 */
     RAM(TMP15) = a;
     x = RAM(VRAM_BUFFER_LEN);
@@ -108,7 +108,7 @@ static void screen_draw_next(void) {
     a = (uint8_t)w;
     RAM(TMP15) = a;
     y = 0;
-    a = mem_read((uint16_t)(RAM16(TMP14) + y));
+    a = mem_read_iy(TMP14, y);
     mff_cycles(0x8029, 2);
     if (a == 0) {
         /* the end: send what is queued, put render_off_depth back */
@@ -175,7 +175,7 @@ static void screen_draw_next(void) {
     }
     if (more) {
         mff_cycles(0x8065, 5);
-        a = mem_read((uint16_t)(RAM16(TMP14) + y));
+        a = mem_read_iy(TMP14, y);
         mff_cycles(0x8067, 9);
         y++;
         RAM(TMP2) = a;
@@ -216,7 +216,7 @@ static void screen_draw_next(void) {
         RAM(TMP4) = a;
         RAM(VRAM_BUFFER + x) = a;
         x++;
-        a = mem_read((uint16_t)(RAM16(TMP14) + y));
+        a = mem_read_iy(TMP14, y);
         mff_cycles(0x8092, 12);
         y++;
         RAM(TMP3) = a;
@@ -249,7 +249,7 @@ static void screen_draw_next(void) {
         mff_cycles(0x80C7, 10);
         a &= 0x3F;
         RAM(TMP1) = a;
-        a = mem_read((uint16_t)(RAM16(TMP14) + y));
+        a = mem_read_iy(TMP14, y);
         mff_cycles(0x80CD, 4);
         y++;
         c = 0;
@@ -282,7 +282,7 @@ static void screen_draw_next(void) {
             /* one byte, repeated */
             mff_cycles(0x80B8, 1);
             mff_cycles(0x80DB, 5);
-            a = mem_read((uint16_t)(RAM16(TMP14) + y));
+            a = mem_read_iy(TMP14, y);
             mff_cycles(0x80DD, 2);
             y++;
             for (;;) {
@@ -298,7 +298,7 @@ static void screen_draw_next(void) {
             /* the bytes as they are */
             for (;;) {
                 mff_cycles(0x80BA, 5);
-                a = mem_read((uint16_t)(RAM16(TMP14) + y));
+                a = mem_read_iy(TMP14, y);
                 mff_cycles(0x80BC, 16);
                 y++;
                 RAM(VRAM_BUFFER + x) = a;
@@ -357,7 +357,7 @@ void func_8900_b2(void) {
     y = 0x0F;
     for (;;) {
         mff_cycles(0x8902, 4);
-        a = prg_read((uint16_t)(PAL_CAPCOM + y));
+        a = prg_read_ix(PAL_CAPCOM, y);
         mff_cycles(0x8905, 24);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
@@ -398,11 +398,11 @@ void func_8940_b2(void) {
     y = 0x0F;
     for (;;) {
         mff_cycles(0x8942, 4);
-        a = prg_read((uint16_t)(PAL_TITLE_BG + y));
+        a = prg_read_ix(PAL_TITLE_BG, y);
         mff_cycles(0x8945, 14);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
-        a = prg_read((uint16_t)(PAL_TITLE_SPRITES + y));
+        a = prg_read_ix(PAL_TITLE_SPRITES, y);
         mff_cycles(0x894E, 14);
         RAM(PALETTE_BUF + 16 + y) = a;
         RAM(PALETTE_BASE + 16 + y) = a;
@@ -451,7 +451,7 @@ void func_89C0_b2(void) {
     y = 0x0F;
     for (;;) {
         mff_cycles(0x89C2, 4);
-        a = prg_read((uint16_t)(PAL_TITLE_BG + y));
+        a = prg_read_ix(PAL_TITLE_BG, y);
         mff_cycles(0x89C5, 14);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
@@ -483,7 +483,7 @@ void func_8A40_b2(void) {
     y = 0x0F;
     for (;;) {
         mff_cycles(0x8A42, 4);
-        a = prg_read((uint16_t)(PAL_STORY_TEXT + y));
+        a = prg_read_ix(PAL_STORY_TEXT, y);
         mff_cycles(0x8A45, 14);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
@@ -517,11 +517,11 @@ void func_8AC0_b2(void) {
     y = 0x0F;
     for (;;) {
         mff_cycles(0x8AC2, 4);
-        a = prg_read((uint16_t)(PAL_STORY_2_BG + y));
+        a = prg_read_ix(PAL_STORY_2_BG, y);
         mff_cycles(0x8AC5, 14);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
-        a = prg_read((uint16_t)(PAL_STORY_2_SPRITES + y));
+        a = prg_read_ix(PAL_STORY_2_SPRITES, y);
         mff_cycles(0x8ACE, 14);
         RAM(PALETTE_BUF + 16 + y) = a;
         RAM(PALETTE_BASE + 16 + y) = a;
@@ -571,11 +571,11 @@ void func_8B40_b2(void) {
     y = 0x0F;
     for (;;) {
         mff_cycles(0x8B42, 4);
-        a = prg_read((uint16_t)(PAL_STORY_TEXT + y));
+        a = prg_read_ix(PAL_STORY_TEXT, y);
         mff_cycles(0x8B45, 14);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
-        a = prg_read((uint16_t)(PAL_FIGURE_SPRITES + y));
+        a = prg_read_ix(PAL_FIGURE_SPRITES, y);
         mff_cycles(0x8B4E, 14);
         RAM(PALETTE_BUF + 16 + y) = a;
         RAM(PALETTE_BASE + 16 + y) = a;
@@ -627,11 +627,11 @@ void func_8C00_b2(void) {
     y = 0x0F;
     for (;;) {
         mff_cycles(0x8C02, 4);
-        a = prg_read((uint16_t)(PAL_ENDING_BG + y));
+        a = prg_read_ix(PAL_ENDING_BG, y);
         mff_cycles(0x8C05, 14);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
-        a = prg_read((uint16_t)(PAL_ENDING_2_SPRITES + y));
+        a = prg_read_ix(PAL_ENDING_2_SPRITES, y);
         mff_cycles(0x8C0E, 14);
         RAM(PALETTE_BUF + 16 + y) = a;
         RAM(PALETTE_BASE + 16 + y) = a;
@@ -683,11 +683,11 @@ void func_9000_b2(void) {
     y = 0x0F;
     for (;;) {
         mff_cycles(0x9002, 4);
-        a = prg_read((uint16_t)(PAL_ENDING_BG + y));
+        a = prg_read_ix(PAL_ENDING_BG, y);
         mff_cycles(0x9005, 14);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
-        a = prg_read((uint16_t)(PAL_FIGURE_SPRITES + y));
+        a = prg_read_ix(PAL_FIGURE_SPRITES, y);
         mff_cycles(0x900E, 14);
         RAM(PALETTE_BUF + 16 + y) = a;
         RAM(PALETTE_BASE + 16 + y) = a;
@@ -748,7 +748,7 @@ void func_9600_b2(void) {
     y = 0x0F;
     for (;;) {
         mff_cycles(0x9602, 4);
-        a = prg_read((uint16_t)(PAL_CREDITS_BG + y));
+        a = prg_read_ix(PAL_CREDITS_BG, y);
         mff_cycles(0x9605, 14);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
@@ -758,13 +758,13 @@ void func_9600_b2(void) {
     }
     mff_cycles(0x960E, 7);
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(PLAYER_PAL_END + y));
+    a = prg_read_ix(PLAYER_PAL_END, y);
     mff_cycles(0x9613, 4);
     x = a;
     y = 0x07;
     for (;;) {
         mff_cycles(0x9616, 4);
-        a = prg_read((uint16_t)(PAL_CREDITS_PLAYERS + x));
+        a = prg_read_ix(PAL_CREDITS_PLAYERS, x);
         mff_cycles(0x9619, 16);
         RAM(PALETTE_BUF + 16 + y) = a;
         RAM(PALETTE_BASE + 16 + y) = a;
@@ -780,7 +780,7 @@ void func_9600_b2(void) {
     a = 0x7A;
     RAM(CHR_BANKS + 1) = a;
     y = RAM(LIVES);
-    a = prg_read((uint16_t)(CREDITS_MUSIC + y));
+    a = prg_read_ix(CREDITS_MUSIC, y);
     SET_NZ(a);
     mff_cycles(0x9632, 6);
     SYNC_OUT;

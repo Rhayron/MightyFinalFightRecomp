@@ -149,6 +149,8 @@ uint8_t apu_read_status(void) {
     return v;
 }
 
+void apu_frame_length(uint32_t len) { s_frame_len = len; }
+
 void apu_frame_boundary(uint32_t next_len) {
     int16_t pcm[4096];
     int n;

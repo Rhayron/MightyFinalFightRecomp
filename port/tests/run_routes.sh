@@ -14,8 +14,12 @@
 #   MFF_BASE  directory with the baselines base_ROUTE.flog/.pic (default runs/p4)
 #   MFF_OUT   where this run writes its logs (default runs/p4)
 #   MFF_NMI_CYCLES  cycles per NMI the candidate charges and the baseline
-#             does not (selfcheck.py --nmi-cycles): 7 for the port on its
-#             own runtime (MightyFinalFight[.exe]), 0 for the scaffold
+#             does not (selfcheck.py --nmi-cycles; default 0)
+# The port on its own runtime (MightyFinalFight.exe) plays the routes with
+# MFF_TIMING=scaffold (docs/timing.md): the scaffold runtime's clock, which
+# the baselines were recorded with, cycle for cycle (no lag frames, the NMI
+# only at the scheduler's $FEBD, no 7-cycle reset or NMI entry); the
+# scaffold ignores the variable.
 #   PY        the Python to run the checks with (default: py -3 if there is
 #             one, as on Windows, else python3)
 set -e
@@ -35,7 +39,7 @@ if [ "$MODE" = baseline ]; then
 else
   EXE=${MFF_EXE:-port/scaffold/build/Release/MffScaffold.exe}
 fi
-NMI_CYCLES=${MFF_NMI_CYCLES:-$(case "$(basename "$EXE")" in MightyFinalFight|MightyFinalFight.exe) echo 7;; *) echo 0;; esac)}
+NMI_CYCLES=${MFF_NMI_CYCLES:-0}
 ROM=${MFF_ROM:-"$(hostpwd)/rom/Mighty Final Fight (USA).nes"}
 mkdir -p "$OUT"
 OUTW=$(cd "$OUT" && hostpwd)
@@ -58,7 +62,7 @@ run_one() {
     env=(MFF_BOT="$bot")
   fi
   rm -f "${out%.flog}.interp.jsonl"
-  env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "${env[@]}" MFF_FRAMELOG="$out" \
+  env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy MFF_TIMING=scaffold "${env[@]}" MFF_FRAMELOG="$out" \
     MFF_PICLOG="${out%.flog}.pic" NESRECOMP_FALLBACK_LOG="${out%.flog}.interp.jsonl" \
     timeout --kill-after=10 600 "$EXE" "$ROM" --smoke "$frames" --smoke-interval 1000000 --smoke-output "$OUT" \
     > "$OUT/$name.log" 2>&1 || echo "$name: exit $?" >> "$OUT/$name.log"

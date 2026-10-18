@@ -260,16 +260,16 @@ void func_B39B_b1(void)
     REGS_IN;
 
     mff_cycles(0xB39B, 4);
-    a = prg_read((uint16_t)(WALK_VX_FRAC + y));
+    a = prg_read_ix(WALK_VX_FRAC, y);
     mff_cycles(0xB39E, 9);
     RAM(OBJ_VX_FRAC + x) = a;
-    a = prg_read((uint16_t)(WALK_VX + y));
+    a = prg_read_ix(WALK_VX, y);
     mff_cycles(0xB3A4, 9);
     RAM(OBJ_VX + x) = a;
-    a = prg_read((uint16_t)(WALK_VY_FRAC + y));
+    a = prg_read_ix(WALK_VY_FRAC, y);
     mff_cycles(0xB3AA, 9);
     RAM(OBJ_VY_FRAC + x) = a;
-    a = prg_read((uint16_t)(WALK_VY + y));
+    a = prg_read_ix(WALK_VY, y);
     mff_cycles(0xB3B0, 11);
     RAM(OBJ_VY + x) = a;
     RTS_RETURN();
@@ -801,7 +801,7 @@ void func_B615_b1(void)
     y = a;
     CALL_IN(0xB657, 0xB39B, BANK_03);
     mff_cycles(0xB65A, 4);
-    a = prg_read((uint16_t)(DIR_BY_INDEX + y));
+    a = prg_read_ix(DIR_BY_INDEX, y);
     mff_cycles(0xB65D, 5);
     RAM(OBJ_DIR + x) = a;
     SYNC_OUT;
@@ -928,7 +928,7 @@ void func_B666_b1(void)
     }
     mff_cycles(0xB6AD, 8);
     y = RAM(OBJ_DIR + x);
-    a = prg_read((uint16_t)(DIR_BY_INDEX + y));
+    a = prg_read_ix(DIR_BY_INDEX, y);
     mff_cycles(0xB6B3, 12);
     RAM(OBJ_DIR + x) = a;
     a = RAM(RNG + 1) & 0x07;
@@ -1489,11 +1489,11 @@ void func_B925_b1(void)
     if (a != 0x01) {
         mff_cycles(0xB92C, 7);
         y = RAM(PLAYER_ID);
-        a = prg_read((uint16_t)(PLAYER_HELD_ANIM + y));
+        a = prg_read_ix(PLAYER_HELD_ANIM, y);
         mff_cycles(0xB931, 6);
         CALL_FIXED(0xB931, func_F294);          /* player_set_anim */
         mff_cycles(0xB934, 4);
-        a = prg_read((uint16_t)(PLAYER_HELD_CHR + y));
+        a = prg_read_ix(PLAYER_HELD_CHR, y);
         SET_NZ(a);
         mff_cycles(0xB937, 6);
         CALL_FIXED(0xB937, func_F440);          /* sprite bank R2 = A */
@@ -1584,11 +1584,11 @@ void func_B977_b1(void)
         a = RAM(OBJ_TIMER2 + x);
         RAM(PLAYER_GROUND_Y) = a;
         y = RAM(PLAYER_ID);
-        a = prg_read((uint16_t)(PLAYER_THROWN_ANIM + y));
+        a = prg_read_ix(PLAYER_THROWN_ANIM, y);
         mff_cycles(0xB987, 6);
         CALL_FIXED(0xB987, func_F294);
         mff_cycles(0xB98A, 4);
-        a = prg_read((uint16_t)(PLAYER_THROWN_CHR + y));
+        a = prg_read_ix(PLAYER_THROWN_CHR, y);
         SET_NZ(a);
         mff_cycles(0xB98D, 6);
         CALL_FIXED(0xB98D, func_F440);
@@ -1646,7 +1646,7 @@ void func_B977_b1(void)
         mff_cycles(0xB9DA, 10);
         a = RAM(OBJ_X + x);
         c = 0;
-        ADC_A(prg_read((uint16_t)(HOLD_DX + y)));
+        ADC_A(prg_read_ix(HOLD_DX, y));
         mff_cycles(0xB9E1, 17);
         RAM(OBJ_X) = a;
         a = RAM(OBJ_X_HI + x);
@@ -1658,7 +1658,7 @@ void func_B977_b1(void)
     mff_cycles(0xB9EF, 10);
     a = RAM(OBJ_X + x);
     c = 1;
-    SBC_A(prg_read((uint16_t)(HOLD_DX + y)));
+    SBC_A(prg_read_ix(HOLD_DX, y));
     mff_cycles(0xB9F6, 24);
     RAM(OBJ_X) = a;
     a = RAM(OBJ_X_HI + x);
@@ -1666,7 +1666,7 @@ void func_B977_b1(void)
     RAM(OBJ_X_HI) = a;
     a = RAM(OBJ_Y + x);
     c = 1;
-    SBC_A(prg_read((uint16_t)(HOLD_DY + y)));
+    SBC_A(prg_read_ix(HOLD_DY, y));
     SYNC_OUT;
     hold_player_tail();
 }
@@ -1683,7 +1683,7 @@ void func_BA01_b1(void)
     mff_cycles(0xBA01, 10);
     a = RAM(OBJ_Y + x);
     c = 1;
-    SBC_A(prg_read((uint16_t)(HOLD_DY + y)));
+    SBC_A(prg_read_ix(HOLD_DY, y));
     SYNC_OUT;
     hold_player_tail();
 }
@@ -1869,16 +1869,16 @@ void func_BAD0_b1(void)
     REGS_IN;
 
     mff_cycles(0xBAD0, 4);
-    a = prg_read((uint16_t)(CHARGE_VX_FRAC + y));
+    a = prg_read_ix(CHARGE_VX_FRAC, y);
     mff_cycles(0xBAD3, 9);
     RAM(OBJ_VX_FRAC + x) = a;
-    a = prg_read((uint16_t)(CHARGE_VX + y));
+    a = prg_read_ix(CHARGE_VX, y);
     mff_cycles(0xBAD9, 9);
     RAM(OBJ_VX + x) = a;
-    a = prg_read((uint16_t)(CHARGE_VY_FRAC + y));
+    a = prg_read_ix(CHARGE_VY_FRAC, y);
     mff_cycles(0xBADF, 9);
     RAM(OBJ_VY_FRAC + x) = a;
-    a = prg_read((uint16_t)(CHARGE_VY + y));
+    a = prg_read_ix(CHARGE_VY, y);
     mff_cycles(0xBAE5, 11);
     RAM(OBJ_VY + x) = a;
     RTS_RETURN();
@@ -1940,12 +1940,12 @@ void func_BB29_b1(void)
     }
     if (steep) {
         mff_cycles(0xBB49, 4);
-        a = prg_read((uint16_t)(CHARGE_STEEP + y));
+        a = prg_read_ix(CHARGE_STEEP, y);
         mff_cycles(0xBB4C, 2);
         y = a;
     }
     mff_cycles(0xBB4D, 4);
-    a = prg_read((uint16_t)(DIR_BY_INDEX + y));
+    a = prg_read_ix(DIR_BY_INDEX, y);
     SET_NZ(a);
     mff_cycles(0xBB50, 11);
     RAM(OBJ_DIR + x) = a;

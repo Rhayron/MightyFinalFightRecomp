@@ -58,11 +58,11 @@ void func_9100_b2(void) {
     y = 0x0F;
     for (;;) {
         mff_cycles(0x9112, 4);
-        a = prg_read((uint16_t)(SELECT_PAL_BG + y));
+        a = prg_read_ix(SELECT_PAL_BG, y);
         mff_cycles(0x9115, 14);
         RAM(PALETTE_BUF + y) = a;
         RAM(PALETTE_BASE + y) = a;
-        a = prg_read((uint16_t)(SELECT_PAL_SPRITES + y));
+        a = prg_read_ix(SELECT_PAL_SPRITES, y);
         mff_cycles(0x911E, 14);
         RAM(PALETTE_BUF + 16 + y) = a;
         RAM(PALETTE_BASE + 16 + y) = a;
@@ -105,7 +105,7 @@ void func_9100_b2(void) {
     a = 0x16;
     RAM(OBJ_X) = a;
     y = RAM(PLAYER_ID);
-    a = prg_read((uint16_t)(SELECT_CURSOR_Y + y));
+    a = prg_read_ix(SELECT_CURSOR_Y, y);
     mff_cycles(0x9174, 12);
     RAM(OBJ_Y) = a;
     a = 0x6E;
@@ -187,7 +187,7 @@ void func_9181_b2(void) {
         SYNC_IN;
         mff_cycles(0x91EA, 7);
         y = RAM(PLAYER_ID);
-        a = prg_read((uint16_t)(SELECT_CURSOR_Y + y));
+        a = prg_read_ix(SELECT_CURSOR_Y, y);
         SET_NZ(a);
         mff_cycles(0x91EF, 4);
         RAM(OBJ_Y) = a;
@@ -237,7 +237,7 @@ static void select_pick(void) {
         if (a == 2) {
             mff_cycles(0x91AE, 1);
             mff_cycles(0x91BC, 4);
-            a = prg_read((uint16_t)(LEVEL_FROM_HAGGAR + y));
+            a = prg_read_ix(LEVEL_FROM_HAGGAR, y);
             SYNC_OUT;
             func_91BF_b2();
             return;
@@ -247,7 +247,7 @@ static void select_pick(void) {
         c = a >= 2;
         if (a == 2) {
             mff_cycles(0x91B6, 4);
-            a = prg_read((uint16_t)(LEVEL_TO_HAGGAR + y));
+            a = prg_read_ix(LEVEL_TO_HAGGAR, y);
             SET_NZ(a);
             mff_cycles(0x91B9, 3);          /* JMP $91BF */
             SYNC_OUT;

@@ -63,6 +63,7 @@ void pad_strobe(uint8_t v) {
 
 static uint8_t bus_read(uint16_t a) {
     if (a < 0x2000) return g_ram[a & 0x7FF];
+    if (a < 0x4020) timing_sync();      /* the PPU and APU see the clock up to now */
     if (a < 0x4000) return ppu_read((uint16_t)(0x2000 | (a & 7)));
     if (a < 0x4020) {
         if (a == 0x4015) return apu_read_status();
@@ -92,7 +93,14 @@ static void oam_dma(uint8_t page) {
 void nes_write(uint16_t a, uint8_t v) {
     s_bus = v;
     if (a < 0x2000) { g_ram[a & 0x7FF] = v; return; }
-    if (a < 0x4000) { ppu_write((uint16_t)(0x2000 | (a & 7)), v); return; }
+    if (a < 0x4020 || a >= 0x8000) timing_sync();
+    if (a < 0x4000) {
+        uint8_t nmi_was = ppu_ctrl() & 0x80;
+        ppu_write((uint16_t)(0x2000 | (a & 7)), v);
+        if (!nmi_was && (ppu_ctrl() & 0x80) && ppu_vblank_flag()) timing_nmi_enabled();
+        if ((a & 7) == 1) timing_mask_write();
+        return;
+    }
     if (a == 0x4014) { oam_dma(v); return; }
     if (a == 0x4016) { pad_strobe(v); return; }
     if (a < 0x4020) { apu_write(a, v); return; }
