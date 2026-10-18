@@ -1,7 +1,8 @@
 /*
  * main.c - Mighty Final Fight, the port (PLAN_DECOMP.md P5)
  *
- *   MightyFinalFight [--assets DIR] [--smoke N] [--window [--scale N]] [--picture console|scaffold]
+ *   MightyFinalFight [--assets DIR] [--smoke N] [--window [--scale N]] [--picture console|scaffold|hd]
+ *                    [--wide [W]] [--no-flicker]
  *
  * Runs the game from power-on: the machine (runtime/) starts in its reset
  * state and the game's reset routine takes over; it never returns.
@@ -18,7 +19,13 @@
  *                   sprites per line; scaffold: as the scaffold's renderer
  *                   drew it (MFF_PICTURE=P too). The picture log
  *                   (MFF_PICLOG) always holds the scaffold's, which is what
- *                   the test baselines have
+ *                   the test baselines have; hd: drawn from the game's
+ *                   state (render_hd.h), stage 1's console picture while
+ *                   its options are off
+ *   --wide [W]      16:9, 426 x 240 (or W columns, 256-512): the camera shows
+ *                   more of the stage on both sides (MFF_WIDE=1 or W)
+ *   --no-flicker    every sprite every frame, in a fixed order: no 8 per
+ *                   line limit (MFF_NO_FLICKER=1). Both imply --picture hd
  * A path given without an option (the test scripts pass the dump's) is
  * ignored: the port reads only the extracted data, never the ROM.
  * Environment for the tests: MFF_FRAMELOG, MFF_PICLOG, MFF_INPUT, MFF_BOT,
@@ -26,6 +33,7 @@
  * MFF_LAG (runtime/mff_hooks.c).
  */
 #include "machine.h"
+#include "render_hd.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,7 +60,7 @@ void mff_fatal(const char *fmt, ...) {
 
 static void usage(void) {
     fprintf(stderr, "usage: MightyFinalFight [--assets DIR] [--smoke N] [--window [--scale N]] "
-                    "[--sprite-limit]\n");
+                    "[--picture console|scaffold|hd] [--wide [W]] [--no-flicker]\n");
     exit(1);
 }
 
@@ -97,6 +105,7 @@ static const char *find_assets(const char *given, const char *argv0) {
 int main(int argc, char **argv) {
     const char *assets = NULL, *ignored = NULL, *picture = getenv("MFF_PICTURE");
     int scale = 3;
+    hd_init();
     for (int i = 1; i < argc; i++) {
         const char *a = argv[i];
         int more = i + 1 < argc;
@@ -106,6 +115,13 @@ int main(int argc, char **argv) {
         else if (!strcmp(a, "--window")) g_window = 1;
         else if (!strcmp(a, "--scale") && more) scale = atoi(argv[++i]);
         else if (!strcmp(a, "--picture") && more) picture = argv[++i];
+        else if (!strcmp(a, "--wide")) {
+            if (more && argv[i + 1][0] >= '0' && argv[i + 1][0] <= '9') {
+                if (hd_option("wide", argv[++i])) usage();
+            } else {
+                hd_option("wide", "1");
+            }
+        } else if (!strcmp(a, "--no-flicker")) hd_option("no_flicker", "1");
         else if (!strcmp(a, "--help") || !strcmp(a, "-h")) usage();
         else if (a[0] != '-' && !ignored) ignored = a;
         else {
@@ -113,11 +129,7 @@ int main(int argc, char **argv) {
             usage();
         }
     }
-    if (picture && *picture) {
-        if (!strcmp(picture, "console")) g_picture = PICTURE_CONSOLE;
-        else if (!strcmp(picture, "scaffold")) g_picture = PICTURE_SCAFFOLD;
-        else usage();
-    }
+    if (picture && *picture && hd_option("picture", picture)) usage();
     assets = find_assets(assets, argv[0]);
     if (!assets) {
         fprintf(stderr,
