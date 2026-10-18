@@ -153,6 +153,28 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   (o modelo de ciclos das rotinas convertidas, assunto da P7), inaudível (a fase do triângulo e a
   posição do registrador de ruído); `sound_wavcmp.py` põe as passagens no piso que a P6 mediu para a
   fase dos osciladores. **Falta:** o WAV aprovado no ouvido nas 5 fases, nos chefes e no final.
+- **P8 (17/10): três sistemas, primeira execução sem Python, config, save states, pacote.** O
+  `port/CMakeLists.txt` compila no Windows (MSVC, SDL2 do nesrecomp) e no Linux/macOS (gcc/clang,
+  SDL2 do sistema), `-Wall -Wextra` sem avisos; as 9 rotas dão frame log e picture log idênticos
+  byte a byte com MSVC, gcc 13 e clang 18 (Linux no Docker); o macOS não foi compilado aqui. O
+  executável extrai sozinho os dados do dump (`runtime/extract.c`: os mesmos `chr.bin`, `prg.bin` e
+  `manifest.json` do `extract_assets.py --only runtime`, byte a byte, `port/tests/extract_check.sh`)
+  na primeira execução: o dump vem da linha de comando (arrastar sobre o executável), de um `.nes`
+  ao lado dele ou de uma janela que pede o arquivo; o CMake não precisa mais de Python.
+  `MightyFinalFight.ini` (escala, tela cheia, som, teclas e botões, e o slowdown da P7 como
+  `MFF_SLOWDOWN`). **Save states** (F5/F7, 4 slots): o estado inteiro do runtime campo a campo; as
+  pilhas C das tarefas não vão para arquivo, então o estado só é tirado no fim de um frame de jogo
+  (fronteira no `$FEBD`, só a tarefa 0, esperando no `task_wait_frame` do `gameplay_frame_end`) e a
+  carga reconstrói a pilha (o resto do fim de frame, depois o laço do gameplay dentro do quadro da
+  última cauda de JMP); fora disso o save espera o jogo voltar (no final não há). Verificado: estados
+  a 10-90% das 9 rotas (41), carregados em processo novo, dão o resto do frame log e do picture log
+  (ciclos inclusive) idênticos à execução sem parar, no Windows e no Linux. Corrigido também o
+  modo attract: o título parado congelava o jogo no frame 5.112 (a RAM agora bate com o oráculo
+  depois do reinício). Pacote (`tools/make_port_release.ps1`): exe, SDL2.dll, README para jogadores
+  e a licença da SDL2, sem dados (`port/tools/release_check.py` procura trechos do dump nos
+  arquivos). CI como arquivo só (`port/ci/github-actions.yml`, fora de `.github/workflows`).
+  **Falta:** compilar e jogar no macOS; zerar o jogo nos três sistemas limpos (critério da P8);
+  save states fora do fim de frame de jogo (telas, cutscenes, o final).
 
 ---
 
