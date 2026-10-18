@@ -78,16 +78,11 @@ int hd_active(void) { return g_picture == PICTURE_HD || s_check; }
 
 /* ---- the data ---- */
 
-static int s_missing;                   /* reads of bytes prg.bin does not hold */
-
+/* a PRG byte; one prg.bin leaves out (code the game never reads) is 0.
+ * The game reads every byte the models below read when they match it */
 static uint8_t prg(int bank, uint16_t addr) {
     uint32_t off = (uint32_t)bank * 0x2000 + (addr & 0x1FFF);
-    if (off >= PRG_SIZE) {
-        s_missing++;
-        return 0;
-    }
-    if (!cart_has_prg(off)) s_missing++;
-    return g_cart.prg[off];
+    return off < PRG_SIZE ? g_cart.prg[off] : 0;
 }
 
 /* a CPU read at $A000-$FFFF with `bank` at $A000 (the column writer's view) */
@@ -118,7 +113,7 @@ static AreaMap s_map;
 
 static void area_load(int rnd, int area) {
     int bank = prg(0x0E, (uint16_t)(ROUND_BANKS + rnd)), rec = AREA_RECORDS + 0x30 * area;
-    int hdr, missing = s_missing;
+    int hdr;
     memset(&s_map, 0, sizeof s_map);
     s_map.round = rnd;
     s_map.area = area;
@@ -150,8 +145,7 @@ static void area_load(int rnd, int area) {
             }
         }
     }
-    s_missing = missing;                /* the screen past the list may read code: never shown */
-    s_map.valid = 1;
+    s_map.valid = 1;                    /* (the screen past the list may read code: never shown) */
 }
 
 /* the world column nametable column c holds when N is the newest one sent */
