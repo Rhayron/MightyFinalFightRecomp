@@ -58,7 +58,7 @@ typedef struct {
     uint8_t nt_copy[MAX_NT_COPIES][0x1000];
 } FrameRecord;
 
-enum { PICTURE_SCAFFOLD = 0, PICTURE_CONSOLE = 1 };
+enum { PICTURE_SCAFFOLD = 0, PICTURE_CONSOLE = 1, PICTURE_HD = 2 };   /* HD: render_hd.h */
 
 /* Draw `f` as 256x240 palette indices (0-63). Returns 1 if sprite 0 hit
  * the background.

@@ -24,6 +24,7 @@
  * route (MFF_INPUT) or the bot (MFF_BOT) still takes over the pad.
  */
 #include "machine.h"
+#include "render_hd.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,7 +36,7 @@ int video_open(int scale) {
     fprintf(stderr, "[mff] this build has no window (configure with -DMFF_SDL=ON)\n");
     return -1;
 }
-void video_frame(const uint32_t *fb) { (void)fb; }
+void video_frame(const uint32_t *fb, int w) { (void)fb; (void)w; }
 void video_poll_input(void) {}
 void video_audio(const int16_t *pcm, int n) { (void)pcm; (void)n; }
 int video_available(void) { return 0; }
@@ -62,6 +63,7 @@ static double s_next;                   /* when the next frame is due, in counte
 static int s_fast;
 static SDL_AudioDeviceID s_audio;
 static char s_title[300];
+static int s_tex_w = 256;               /* the picture's width: 256, or wide (render_hd.h) */
 #define AUDIO_RATE 48000
 #define AUDIO_AHEAD (AUDIO_RATE / 20 * 2)    /* bytes: 50 ms of 16-bit mono */
 
@@ -157,8 +159,9 @@ int video_open(int scale) {
     }
     load_controls();
     if (scale < 1) scale = 1;
+    s_tex_w = hd_width();
     s_win = SDL_CreateWindow("Mighty Final Fight", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                             256 * scale, 240 * scale, SDL_WINDOW_RESIZABLE);
+                             s_tex_w * scale, 240 * scale, SDL_WINDOW_RESIZABLE);
     if (!s_win) {
         fprintf(stderr, "[mff] SDL_CreateWindow: %s\n", SDL_GetError());
         return -1;
@@ -170,8 +173,8 @@ int video_open(int scale) {
         fprintf(stderr, "[mff] SDL_CreateRenderer: %s\n", SDL_GetError());
         return -1;
     }
-    SDL_RenderSetLogicalSize(s_ren, 256, 240);
-    s_tex = SDL_CreateTexture(s_ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 256, 240);
+    SDL_RenderSetLogicalSize(s_ren, s_tex_w, 240);
+    s_tex = SDL_CreateTexture(s_ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, s_tex_w, 240);
     if (!s_tex) {
         fprintf(stderr, "[mff] SDL_CreateTexture: %s\n", SDL_GetError());
         return -1;
@@ -322,7 +325,7 @@ void video_poll_input(void) {
     g_controller1_buttons = b;
 }
 
-void video_frame(const uint32_t *fb) {
+void video_frame(const uint32_t *fb, int w) {
     double freq = (double)SDL_GetPerformanceFrequency(), period = freq * FRAME_NUM / FRAME_DEN, now;
     char title[sizeof s_title];
     snprintf(title, sizeof title, "Mighty Final Fight - %s", savestate_status());
@@ -330,7 +333,13 @@ void video_frame(const uint32_t *fb) {
         memcpy(s_title, title, sizeof s_title);
         SDL_SetWindowTitle(s_win, s_title);
     }
-    SDL_UpdateTexture(s_tex, NULL, fb, 256 * (int)sizeof(uint32_t));
+    if (w != s_tex_w) {                         /* the picture changed width */
+        SDL_DestroyTexture(s_tex);
+        s_tex_w = w;
+        s_tex = SDL_CreateTexture(s_ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, w, 240);
+        SDL_RenderSetLogicalSize(s_ren, w, 240);
+    }
+    SDL_UpdateTexture(s_tex, NULL, fb, w * (int)sizeof(uint32_t));
     SDL_RenderClear(s_ren);
     SDL_RenderCopy(s_ren, s_tex, NULL, NULL);
     SDL_RenderPresent(s_ren);

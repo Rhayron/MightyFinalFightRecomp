@@ -27,6 +27,7 @@
  */
 #include "machine.h"
 #include "render.h"
+#include "render_hd.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -120,7 +121,8 @@ static void picture(void) {
     ppu_capture_end(f);
     if (render_frame(f, s_pix_test, PICTURE_SCAFFOLD)) ppu_set_status(0x40, 0);
     picture_rgb(s_pix_test, s_rgb_test);
-    if (g_picture != PICTURE_SCAFFOLD && (g_window || hooks_want_picture())) {
+    if (hd_active()) hd_picture(f, g_window || hooks_want_picture());     /* P9: render_hd.c */
+    if (g_picture == PICTURE_CONSOLE && (g_window || hooks_want_picture())) {
         render_frame(f, s_pix_show, g_picture);
         picture_rgb(s_pix_show, s_rgb_show);
     } else {
@@ -138,15 +140,21 @@ static void smoke_exit(void) {
 }
 
 void frame_run(void) {
+    const uint32_t *rgb = s_rgb_show;
+    const uint8_t *pix = s_pix_show;
+    int w = FRAME_W, view_x = 0;
     savestate_frame_begin();
     ppu_frame_status();
     if (g_window) video_poll_input();
     g_controller2_buttons = 0;
     hooks_frame_start(g_frame_count);
+    hd_frame_start();
     deliver_nmi();
+    hd_after_nmi();
     picture();
-    hooks_picture(s_rgb_test, s_rgb_show, s_pix_show);
-    if (g_window) video_frame(s_rgb_show);
+    if (g_picture == PICTURE_HD) hd_shown(&rgb, &pix, &w, &view_x);
+    hooks_picture(s_rgb_test, rgb, pix, w, view_x);
+    if (g_window) video_frame(rgb, w);
     g_frame_count++;
     savestate_frame_end();              /* F5/F7 and MFF_SAVE_AT (savestate.c) */
     if (g_smoke_frames > 0 && (long)g_frame_count >= g_smoke_frames) smoke_exit();

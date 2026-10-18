@@ -127,8 +127,9 @@ int png_write_argb(const char *path, const uint32_t *px, int w, int h);
 void hooks_init(void);
 void hooks_frame_start(uint64_t frame);     /* before the NMI */
 /* after the picture: the scaffold renderer's (the picture log), the one
- * shown, and the shown one as palette indices */
-void hooks_picture(const uint32_t *test, const uint32_t *shown, const uint8_t *shown_pix);
+ * shown, and the shown one as palette indices; its width, and where the
+ * original 256 columns are in it (render_hd.h) */
+void hooks_picture(const uint32_t *test, const uint32_t *shown, const uint8_t *shown_pix, int w, int view_x);
 int hooks_want_picture(void);                /* screenshots or a picture dump asked for */
 void hooks_exit_log(void);
 
@@ -143,8 +144,8 @@ void coroutine_power_on(void);
 void dispatch_reset_tails(void);
 
 /* ---- video_sdl.c (with MFF_SDL) ---- */
-int video_open(int scale);
-void video_frame(const uint32_t *fb);       /* present and pace */
+int video_open(int scale);                  /* the picture's width is hd_width() */
+void video_frame(const uint32_t *fb, int w);    /* present and pace */
 void video_poll_input(void);                /* pad 1 from keyboard/gamepad */
 void video_audio(const int16_t *pcm, int n);    /* 48 kHz mono samples to play */
 int video_available(void);                  /* 1 if this build has the window */
@@ -190,6 +191,7 @@ void frame_state(StateIO *io);
 void dispatch_state(StateIO *io);
 void coroutine_state(StateIO *io);
 void hooks_state(StateIO *io);
+void hd_state(StateIO *io);                 /* render_hd.c (P9) */
 void savestate_init(void);
 void savestate_frame_begin(void);           /* frame.c, at the frame's start and end */
 void savestate_frame_end(void);

@@ -1,19 +1,21 @@
 """A run loaded from a save state against the run that saved it.
 
-    py -3 -I port/tests/savestate_cmp.py FULL.flog FULL.pic LOADED.flog LOADED.pic
+    py -3 -I port/tests/savestate_cmp.py FULL.flog FULL.pic LOADED.flog LOADED.pic [FULL.pix LOADED.pix]
 
 FULL is the uninterrupted run (MFF_SAVE_AT saved the state on the way),
 LOADED the one started from the state with --load and the same route
 (port/tests/savestate_check.sh). The loaded run's first record is the frame
 after the save; from there to its end every frame log record (frame number,
 CPU RAM, OAM, palette) and every picture log record (frame number, the
-picture's hash and the cycle count) must be the full run's, byte for byte.
-Exit 0 only if they are.
+picture's hash and the cycle count) must be the full run's, byte for byte;
+with the two MFF_PICDUMP files, the shown picture too (the console's, or
+P9's HD picture with its options). Exit 0 only if they are.
 """
 import sys
 
 FLOG = 4 + 0x800 + 0x100 + 0x20
 PIC = 12
+PIX = 4 + 256 * 240
 
 
 def records(path, size):
@@ -44,6 +46,8 @@ def main():
     full_flog, full_pic, flog, pic = sys.argv[1:5]
     ok = compare(records(full_flog, FLOG), records(flog, FLOG), "frame log")
     ok &= compare(records(full_pic, PIC), records(pic, PIC), "picture log")
+    if len(sys.argv) > 6:
+        ok &= compare(records(sys.argv[5], PIX), records(sys.argv[6], PIX), "shown picture")
     sys.exit(0 if ok else 1)
 
 

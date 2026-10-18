@@ -6,7 +6,8 @@
  * RAM, cartridge RAM and the pads (bus.c), the PPU (ppu_regs.c), the MMC3,
  * the APU and the synthesizer (apu.c), the clock (timing.c), the last
  * pictures (frame.c), the dispatcher's JMP tails and code window
- * (dispatch_rt.c), the coroutines (coroutine.c) and the test hooks.
+ * (dispatch_rt.c), the coroutines (coroutine.c), the test hooks and P9's
+ * HD picture (render_hd.c).
  *
  * The tasks' C stacks. Each task of the game runs on a C stack of its own
  * (coroutine.c), and the chain of C frames on it cannot be written to a
@@ -56,7 +57,7 @@
 #include <string.h>
 
 #define STATE_MAGIC "MFFSTATE"
-#define STATE_VERSION 1u
+#define STATE_VERSION 2u              /* 2: P9's HD picture */
 #define SAVE_PATIENCE 600               /* frames a save waits for a place it can be made */
 #define SLOTS 4
 
@@ -154,6 +155,7 @@ static void all_state(StateIO *io) {
     dispatch_state(io);
     coroutine_state(io);
     hooks_state(io);
+    hd_state(io);
     mff_bot_state(bot_field, io);
 }
 

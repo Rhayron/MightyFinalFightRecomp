@@ -7,7 +7,9 @@
 # run's, byte for byte (savestate_cmp.py).
 #   MFF_EXE=build/MightyFinalFight port/tests/savestate_check.sh [ROUTE...]
 # Environment: MFF_EXE (required), MFF_OUT (default runs/savestate),
-# MFF_SAVE_AT (frames, comma-separated, instead of the five above), PY.
+# MFF_SAVE_AT (frames, comma-separated, instead of the five above), PY;
+# MFF_CHECK_SHOWN=1 compares the shown picture too (MFF_PICDUMP: the
+# console's, or with MFF_WIDE / MFF_NO_FLICKER set P9's HD picture).
 # The logs and states are from the dump: never commit MFF_OUT.
 set -e
 cd "$(dirname "$0")/../.."
@@ -39,11 +41,13 @@ check_route() {
   fi
   at=${MFF_SAVE_AT:-$((frames / 10)),$((frames * 3 / 10)),$((frames / 2)),$((frames * 7 / 10)),$((frames * 9 / 10))}
   rm -rf "$OUT/states_$name"; mkdir -p "$OUT/states_$name"
+  [ "$MFF_CHECK_SHOWN" = 1 ] && env+=(MFF_PICDUMP="$OUTW/full_$name.pix")
   env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "${env[@]}" MFF_SAVE_AT="$at" \
     MFF_SAVE_DIR="$OUTW/states_$name" MFF_FRAMELOG="$OUTW/full_$name.flog" MFF_PICLOG="$OUTW/full_$name.pic" \
     "$EXE" --headless --smoke "$frames" > "$OUT/full_$name.log" 2>&1
   for st in "$OUT/states_$name"/*.mffstate; do
     local f=${st##*state_}; f=${f%.mffstate}
+    [ "$MFF_CHECK_SHOWN" = 1 ] && env[${#env[@]}-1]=MFF_PICDUMP="$OUTW/load_${name}_$f.pix"
     env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "${env[@]}" \
       MFF_FRAMELOG="$OUTW/load_${name}_$f.flog" MFF_PICLOG="$OUTW/load_${name}_$f.pic" \
       "$EXE" --headless --load "$OUTW/states_$name/state_$f.mffstate" --smoke "$frames" \
@@ -62,9 +66,11 @@ for r in "${routes[@]}"; do
   for st in "$OUT/states_$name"/*.mffstate; do
     f=${st##*state_}; f=${f%.mffstate}
     echo "-- loaded at frame $f"
+    pix=()
+    [ "$MFF_CHECK_SHOWN" = 1 ] && pix=("$OUT/full_$name.pix" "$OUT/load_${name}_$f.pix")
     if $PY -I port/tests/savestate_cmp.py "$OUT/full_$name.flog" "$OUT/full_$name.pic" \
-         "$OUT/load_${name}_$f.flog" "$OUT/load_${name}_$f.pic"; then
-      rm -f "$OUT/load_${name}_$f.flog" "$OUT/load_${name}_$f.pic"
+         "$OUT/load_${name}_$f.flog" "$OUT/load_${name}_$f.pic" "${pix[@]}"; then
+      rm -f "$OUT/load_${name}_$f.flog" "$OUT/load_${name}_$f.pic" "$OUT/load_${name}_$f.pix"
     else
       status=1
       tail -3 "$OUT/load_${name}_$f.log"

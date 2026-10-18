@@ -27,6 +27,7 @@
  *                    two games together (port/tests/oracle_tour.py)
  */
 #include "machine.h"
+#include "render_hd.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -193,19 +194,26 @@ void hooks_frame_start(uint64_t frame) {
 
 int hooks_want_picture(void) { return s_nshots > 0 || s_picdump != NULL; }
 
-void hooks_picture(const uint32_t *test, const uint32_t *shown, const uint8_t *shown_pix) {
+void hooks_picture(const uint32_t *test, const uint32_t *shown, const uint8_t *shown_pix, int w, int view_x) {
     uint32_t rec[3], h = 2166136261u;
     for (int i = 0; i < s_nshots; i++) {
         if (s_shots[i] == (long)g_frame_count) {
             char path[1024];
             snprintf(path, sizeof path, "%s/frame_%06ld.png", s_shot_dir, s_shots[i]);
-            if (png_write_argb(path, shown, 256, 240)) fprintf(stderr, "[mff] cannot write %s\n", path);
+            if (png_write_argb(path, shown, w, 240)) fprintf(stderr, "[mff] cannot write %s\n", path);
         }
     }
-    if (s_picdump) {
+    if (s_picdump) {                    /* a wide picture: its original 256 columns */
         uint32_t fr = (uint32_t)g_frame_count;
         fwrite(&fr, 4, 1, s_picdump);
-        fwrite(shown_pix, 1, 256 * 240, s_picdump);
+        for (int y = 0; y < 240; y++) {
+            uint8_t row[256];
+            for (int x = 0; x < 256; x++) {
+                int px = view_x + x;
+                row[x] = (px >= 0 && px < w) ? shown_pix[y * w + px] : 0;
+            }
+            fwrite(row, 1, 256, s_picdump);
+        }
     }
     if (!s_piclog) return;
     for (int i = 0; i < 256 * 240; i++) {
@@ -221,6 +229,7 @@ void hooks_picture(const uint32_t *test, const uint32_t *shown, const uint8_t *s
 
 void hooks_exit_log(void) {
     mmc3_write_prg_reads();
+    hd_exit();
     if (s_interp_path) {
         FILE *f = fopen(s_interp_path, "a");
         if (f) {

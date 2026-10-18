@@ -8,7 +8,8 @@
  * tests) read no file unless given --config FILE, so a player's settings
  * never reach a route check.
  *
- *   [video]  scale (window size, N x 256x240), fullscreen (0/1)
+ *   [video]  scale (window size, N x 256x240), fullscreen (0/1), and P9's
+ *            picture, no_flicker and wide (render_hd.h's hd_option)
  *   [audio]  enabled (0/1)
  *   [game]   slowdown: empty keeps the game's own setting; anything else is
  *            given to the game as MFF_SLOWDOWN (the --slowdown option) when
@@ -45,6 +46,13 @@ static const char k_default[] =
     "[video]\n"
     "scale = 3\n"
     "fullscreen = 0\n"
+    "# picture: console (as the NES draws it), hd (drawn from the game's state;\n"
+    "# the two options below need it and turn it on) or scaffold\n"
+    "picture = console\n"
+    "# no_flicker: 1 draws every sprite every frame (the NES shows 8 per line)\n"
+    "no_flicker = 0\n"
+    "# wide: 0, 1 for 16:9 (426 x 240), or a width from 256 to 512\n"
+    "wide = 0\n"
     "\n"
     "[audio]\n"
     "enabled = 1\n"

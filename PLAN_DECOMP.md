@@ -161,8 +161,8 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   `manifest.json` do `extract_assets.py --only runtime`, byte a byte, `port/tests/extract_check.sh`)
   na primeira execução: o dump vem da linha de comando (arrastar sobre o executável), de um `.nes`
   ao lado dele ou de uma janela que pede o arquivo; o CMake não precisa mais de Python.
-  `MightyFinalFight.ini` (escala, tela cheia, som, teclas e botões, e o slowdown da P7 como
-  `MFF_SLOWDOWN`). **Save states** (F5/F7, 4 slots): o estado inteiro do runtime campo a campo; as
+  `MightyFinalFight.ini` (escala, tela cheia, as opções de imagem da P9, som, teclas e botões, e o
+  slowdown da P7 como `MFF_SLOWDOWN`). **Save states** (F5/F7, 4 slots): o estado inteiro do runtime campo a campo; as
   pilhas C das tarefas não vão para arquivo, então o estado só é tirado no fim de um frame de jogo
   (fronteira no `$FEBD`, só a tarefa 0, esperando no `task_wait_frame` do `gameplay_frame_end`) e a
   carga reconstrói a pilha (o resto do fim de frame, depois o laço do gameplay dentro do quadro da
@@ -175,6 +175,33 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   arquivos). CI como arquivo só (`port/ci/github-actions.yml`, fora de `.github/workflows`).
   **Falta:** compilar e jogar no macOS; zerar o jogo nos três sistemas limpos (critério da P8);
   save states fora do fim de frame de jogo (telas, cutscenes, o final).
+- **P9 (17/10, começada): a imagem da etapa 2.** `port/src/runtime/render_hd.c` (`--picture hd`)
+  desenha a partir do estado do jogo: o playfield do mapa da fase (telas, metatiles, blocos e paletas
+  decodificados por área do `prg.bin`, sem dado novo extraído), posto na tela pelo estado do escritor de
+  colunas (`N = 32*$29 + $24`, a coluna nametable c guarda a coluna do mundo ≡ c mod 32 em N-31..N, as
+  linhas 4 e 24 em branco, o atraso de atributo da coluna mais nova) mais os pedidos de VRAM do próprio
+  jogo sobre o playfield (as listas `$19` e as tiras `$64`, como a porta do round 1 área 2); os sprites dos
+  slots de objeto, por um modelo do objects_draw (`stage_draw.c` passo a passo) rodado sobre a RAM salva
+  quando ele começa (`$E9BC`, gancho no `timing.c`), usado quando a página de OAM que o modelo monta é a
+  do frame byte a byte. A barra de status e as telas que não são gameplay (título, história, seleção,
+  mapa, continue, final) continuam vindo das nametables/OAM. **M1:** `MFF_HDCHECK` compara a imagem HD
+  com tudo desligado com a do console a cada frame (`port/tests/hd_check.py`): nas 9 rotas e nas 5 rotas
+  de power-on de `inputs/` que não estão entre elas, 427.520 imagens, todas idênticas; playfield do mapa
+  em 308.156, sprites dos objetos em 417.089, e cada imagem que não vem do estado tem a sua classe (tela,
+  bancos de CHR de outra área, colunas sendo desenhadas, saída de área, OAM escrita por uma tela). **M2:**
+  `--no-flicker`: cada objeto uma vez por frame, todos os sprites, ordem fixa (efeitos, jogador, slots
+  1-13), sem 8 por linha nem limite de OAM (nas rotas o console perde sprites em 103.255 imagens).
+  **M3:** `--wide` (426x240, ou `--wide W`): a câmera do jogo presa dentro da área, o fundo do mapa
+  inteiro, a barra e as telas no meio com o backdrop em volta (as duas salas de uma tela também); os
+  objetos fora da tela original vêm do modelo (os "perto", a menos de `$68` px), e como os pontos de spawn
+  continuam na borda original (lista da fase em x 255, spawner temporizado em -16/-4 e 276), um objeto só
+  aparece fora das 256 colunas originais depois de ter estado inteiro dentro delas, e até lá só a parte
+  dentro: o inimigo entra pela borda original como no console. `hd_check.py --wide` conta objetos que
+  surgem nas margens: 0 nas 14 rotas (sem a regra, 10 no `guy_round1` e 23 no `cody_tour`). O estado do
+  jogo não muda: `run_routes.sh check` idêntico nas 9 rotas com as opções desligadas, `--wide` e `--wide
+  --no-flicker`. Detalhes no `port/README.md`, "P9". **Falta:** a barra de status e as telas a partir do
+  estado, o estado livre dos 2 KB, pacotes de textura, filtros e escala inteira, e o efeito dos lag
+  frames da P7 (NMI no meio do objects_draw: aquele frame usa a OAM).
 
 ---
 

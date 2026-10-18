@@ -25,6 +25,7 @@
  * stops if it happens.
  */
 #include "machine.h"
+#include "render_hd.h"
 #include <stdio.h>
 
 uint64_t g_nes_cycles;
@@ -99,6 +100,7 @@ void nes_cpu_instruction_boundary(uint16_t pc, int cycles) {
 void nes_instruction_boundary(uint16_t pc, int cycles) {
     if (pc >= 0x8000) pc = (uint16_t)(g_code_window_base | (pc & 0x1FFF));
     nes_cpu_instruction_boundary(pc, cycles);
+    if (pc == HD_OBJECTS_DRAW_PC) hd_objects_draw_start();     /* P9: render_hd.c's sprites */
 }
 
 void runtime_begin_post_nmi(void) {
