@@ -50,7 +50,43 @@ target_include_directories(MightyFinalFight PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio
+    ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
+
+# The executable's own extractor (runtime/extract.c) needs the PRG code list
+# that prg.bin leaves out: port/tools/prg_code.txt and prg_code_read.txt,
+# offsets only, compiled in as mff_prg_code.h (made again when they change).
+function(mff_ranges_to_c txt var)
+    file(READ "${txt}" text)
+    string(REPLACE ";" "," text "${text}")
+    string(REPLACE "\r" "" text "${text}")
+    string(REPLACE "\n" ";" lines "${text}")
+    set(out "")
+    foreach(line IN LISTS lines)
+        string(REGEX REPLACE "#.*" "" line "${line}")
+        string(STRIP "${line}" line)
+        if(line MATCHES "^([0-9A-Fa-f]+)[ \t]+([0-9A-Fa-f]+)[ \t]+([0-9A-Fa-f]+)")
+            string(APPEND out "    { 0x${CMAKE_MATCH_1}, 0x${CMAKE_MATCH_2}, 0x${CMAKE_MATCH_3} },\n")
+        endif()
+    endforeach()
+    set(${var} "${out}" PARENT_SCOPE)
+endfunction()
+set(mff_code_txt "${CMAKE_CURRENT_SOURCE_DIR}/tools/prg_code.txt")
+set(mff_code_read_txt "${CMAKE_CURRENT_SOURCE_DIR}/tools/prg_code_read.txt")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${mff_code_txt}" "${mff_code_read_txt}")
+mff_ranges_to_c("${mff_code_txt}" mff_code)
+mff_ranges_to_c("${mff_code_read_txt}" mff_code_read)
+file(CONFIGURE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/generated/mff_prg_code.h" CONTENT
+"/* Made by port/CMakeLists.txt from port/tools/prg_code.txt and
+ * prg_code_read.txt: bank (8 KiB), offset in the bank, length. */
+#define MFF_RANGES_END 0xFFFFFFFFu
+static const uint32_t k_prg_code[][3] = {
+@mff_code@    { MFF_RANGES_END, 0, 0 }
+};
+static const uint32_t k_prg_code_read[][3] = {
+@mff_code_read@    { MFF_RANGES_END, 0, 0 }
+};
+" @ONLY)
 # the synthesizer matches the oracle sample for sample only with strict
 # floating point: no reassociation, no fused multiply-add (synth_2a03.h)
 if(MSVC)
@@ -103,27 +139,27 @@ if(MFF_SDL)
     endif()
 endif()
 
-# ---- the game's data (port/tools/extract_assets.py, part "runtime") ----
-# Extracted when CMake configures with MFF_ROM set; the build itself never
-# reads the dump, so it can go away afterwards.
+# ---- the game's data (part "runtime" of port/tools/extract_assets.py) ----
+# With MFF_ROM set, the build runs the executable's own extractor on the
+# dump (MightyFinalFight --extract, the same files as extract_assets.py
+# --only runtime) into BUILD/assets, where the executable finds them; the
+# game never reads the dump, so it can go away afterwards.
 set(MFF_ASSETS_DIR "${CMAKE_BINARY_DIR}/assets")
-if(MFF_ROM AND EXISTS "${MFF_ROM}")
-    find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
-    execute_process(
-        COMMAND ${Python3_EXECUTABLE} -I "${CMAKE_CURRENT_SOURCE_DIR}/tools/extract_assets.py"
-                "${MFF_ROM}" --only runtime --out "${MFF_ASSETS_DIR}"
-        RESULT_VARIABLE mff_extract_result
-        OUTPUT_VARIABLE mff_extract_out
-        ERROR_VARIABLE mff_extract_out)
-    if(NOT mff_extract_result EQUAL 0)
-        message(FATAL_ERROR "Extracting the game's data from ${MFF_ROM} failed:\n${mff_extract_out}")
+if(MFF_ROM)
+    if(NOT EXISTS "${MFF_ROM}")
+        message(FATAL_ERROR "MFF_ROM: ${MFF_ROM} does not exist")
     endif()
-    message(STATUS "Game data extracted from ${MFF_ROM} into ${MFF_ASSETS_DIR}")
+    add_custom_command(
+        OUTPUT "${MFF_ASSETS_DIR}/prg.bin" "${MFF_ASSETS_DIR}/chr.bin" "${MFF_ASSETS_DIR}/manifest.json"
+        COMMAND MightyFinalFight --extract "${MFF_ROM}" --assets "${MFF_ASSETS_DIR}"
+        DEPENDS MightyFinalFight "${MFF_ROM}"
+        COMMENT "Extracting the game's data from ${MFF_ROM}"
+        VERBATIM)
+    add_custom_target(mff_assets ALL DEPENDS "${MFF_ASSETS_DIR}/prg.bin")
+    message(STATUS "Game data: extracted from ${MFF_ROM} into ${MFF_ASSETS_DIR} when building")
 elseif(EXISTS "${MFF_ASSETS_DIR}/prg.bin")
     message(STATUS "Game data: ${MFF_ASSETS_DIR}")
-elseif(MFF_ROM)
-    message(FATAL_ERROR "MFF_ROM: ${MFF_ROM} does not exist")
 else()
-    message(STATUS "No game data in ${MFF_ASSETS_DIR} yet: configure with -DMFF_ROM=<your dump> "
-                   "to extract it (the executable says the same when it starts without it)")
+    message(STATUS "No game data in ${MFF_ASSETS_DIR}: the executable asks for your dump when it starts "
+                   "(or configure with -DMFF_ROM=<your dump>)")
 endif()

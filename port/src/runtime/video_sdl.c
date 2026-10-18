@@ -34,6 +34,11 @@ int video_open(int scale) {
 void video_frame(const uint32_t *fb) { (void)fb; }
 void video_poll_input(void) {}
 void video_audio(const int16_t *pcm, int n) { (void)pcm; (void)n; }
+int video_available(void) { return 0; }
+int video_ask_for_dump(char *path, size_t cap, const char *why) {
+    (void)path; (void)cap; (void)why;
+    return -1;
+}
 
 #else
 
@@ -103,6 +108,60 @@ int video_open(int scale) {
     }
     s_next = (double)SDL_GetPerformanceCounter();
     return 0;
+}
+
+int video_available(void) { return 1; }
+
+/* The first run with no dump to be found: a message saying what is needed
+ * and a window to drop the dump on (SDL2 has no file dialog). */
+int video_ask_for_dump(char *path, size_t cap, const char *why) {
+    SDL_Window *w;
+    SDL_Renderer *r;
+    SDL_Event ev;
+    char msg[2048];
+    int got = -1, shown = 0;
+    SDL_SetMainReady();
+    if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
+        fprintf(stderr, "[mff] SDL_Init: %s\n", SDL_GetError());
+        return -1;
+    }
+    SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
+    w = SDL_CreateWindow("Mighty Final Fight - drop your dump on this window", SDL_WINDOWPOS_CENTERED,
+                         SDL_WINDOWPOS_CENTERED, 640, 240, 0);
+    if (!w) {
+        fprintf(stderr, "[mff] SDL_CreateWindow: %s\n", SDL_GetError());
+        return -1;
+    }
+    r = SDL_CreateRenderer(w, -1, 0);
+    snprintf(msg, sizeof msg,
+             "%s%sMighty Final Fight needs your dump of the game once: Mighty Final Fight (USA), "
+             "an iNES .nes file with CRC32 15EB0BEE.\n\n"
+             "Drop the file on this window (or on the executable), or put it next to the executable "
+             "and start the game again.\n\n"
+             "The game's data is extracted into %s/assets; the dump is not needed afterwards.",
+             why ? why : "", why ? "\n\n" : "", setup_data_dir());
+    while (got < 0) {
+        if (r) {
+            SDL_SetRenderDrawColor(r, 16, 16, 24, 255);
+            SDL_RenderClear(r);
+            SDL_RenderPresent(r);
+        }
+        if (!shown) {
+            shown = 1;
+            SDL_ShowSimpleMessageBox(why ? SDL_MESSAGEBOX_ERROR : SDL_MESSAGEBOX_INFORMATION,
+                                     "Mighty Final Fight", msg, w);
+        }
+        if (!SDL_WaitEvent(&ev)) break;
+        if (ev.type == SDL_QUIT || (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_ESCAPE)) break;
+        if (ev.type == SDL_DROPFILE) {
+            snprintf(path, cap, "%s", ev.drop.file);
+            SDL_free(ev.drop.file);
+            got = 0;
+        }
+    }
+    if (r) SDL_DestroyRenderer(r);
+    SDL_DestroyWindow(w);
+    return got;
 }
 
 void video_audio(const int16_t *pcm, int n) {

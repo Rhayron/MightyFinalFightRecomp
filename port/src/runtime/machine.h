@@ -147,6 +147,24 @@ int video_open(int scale);
 void video_frame(const uint32_t *fb);       /* present and pace */
 void video_poll_input(void);                /* pad 1 from keyboard/gamepad */
 void video_audio(const int16_t *pcm, int n);    /* 48 kHz mono samples to play */
+int video_available(void);                  /* 1 if this build has the window */
+/* no game data yet: a window asking for the dump (`why`: the last attempt's
+ * error, or NULL); 0 with the path of a file dropped on it, -1 if closed */
+int video_ask_for_dump(char *path, size_t cap, const char *why);
+
+/* ---- extract.c, setup.c (P8: the first run, without Python) ---- */
+uint32_t mff_crc32(const uint8_t *p, size_t n);
+int mff_is_dump(const char *path);          /* Mighty Final Fight (USA), CRC32 15EB0BEE */
+int mff_make_dirs(const char *path);
+/* extract_assets.py --only runtime: chr.bin, prg.bin, manifest.json in
+ * out_dir; 0, or -1 with the reason in err */
+int extract_runtime_assets(const char *rom, const char *out_dir, int check_crc, char *err, size_t errcap);
+void setup_init(const char *argv0);
+const char *setup_exe_dir(void);
+const char *setup_data_dir(void);           /* assets/, saves/, the config: writable */
+const char *setup_find_assets(const char *given);   /* loaded (cart.c): the dir, or NULL */
+const char *setup_first_run(const char *dump, int window);
+int setup_extract_cli(const char *dump, const char *out);
 
 /* ---- errors ---- */
 void mff_fatal(const char *fmt, ...);
