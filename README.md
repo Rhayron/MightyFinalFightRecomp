@@ -79,13 +79,30 @@ dump ─► CDL map ─► disassembly ─► scaffold (1 C function per routine
 
 **How it stays exact.** Every routine had to leave RAM, registers, flags and the cycle count exactly as the original did. Nine test routes (round 1 with each fighter, three 50,000-frame tours through every round, the final boss and the ending, and three 60,000-frame games) compare every frame's RAM, OAM, palette and picture, plus the cycle count, with the unrefactored scaffold. The runs fail if a single ROM instruction is ever interpreted. Paths no route reaches (bonus stage, Belger's death, high-level power moves) were checked by running the old and new code of each routine on millions of random machine states. Against the cycle-accurate oracle, the port's picture is pixel-identical on every power-on route up to the oracle's first lag frame. Its sound makes the same APU writes in the same order, a median of about 7 cycles apart.
 
-**Playing the port.**
+**Playing the port.** It needs CMake 3.20+, a C compiler and SDL2. It does not need Python or the submodules; on Windows the SDL2 copy inside the `nesrecomp` submodule is used, so clone with `--recursive` there.
+
+Windows (Visual Studio 2022):
+
+```powershell
+git clone --recursive https://github.com/Rhayron/MightyFinalFightRecomp.git
+cd MightyFinalFightRecomp
+cmake -S port -B build -A x64 -DMFF_SDL=ON
+cmake --build build --config Release
+build\Release\MightyFinalFight.exe "Mighty Final Fight (USA).nes"   # once; later just run it
+```
+
+Linux (checked on Ubuntu 24.04 with gcc 13 and clang 18) and macOS (not built yet):
 
 ```bash
-cmake -S port -B build -DMFF_SDL=ON              # add -A x64 on Windows; Linux/macOS use the system's SDL2
-cmake --build build --config Release
-build/Release/MightyFinalFight.exe "Mighty Final Fight (USA).nes"   # once; later just run it
+sudo apt install build-essential cmake git libsdl2-dev   # Fedora: gcc cmake git SDL2-devel · Arch: base-devel cmake git sdl2 · macOS: brew install cmake sdl2
+git clone https://github.com/Rhayron/MightyFinalFightRecomp.git
+cd MightyFinalFightRecomp
+cmake -S port -B build -DMFF_SDL=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
+./build/MightyFinalFight "/path/to/Mighty Final Fight (USA).nes"   # once; later just ./build/MightyFinalFight
 ```
+
+The first run checks the dump's CRC32 (`15EB0BEE`) and extracts the game's data once into `assets/`. That folder goes next to the executable, or into the user's data folder when that one can't be written (`%APPDATA%\MightyFinalFight`, `~/.local/share/MightyFinalFight`, `~/Library/Application Support/MightyFinalFight`). A `.nes` placed next to the executable is found too.
 
 | Option | |
 |---|---|
