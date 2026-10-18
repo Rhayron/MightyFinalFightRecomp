@@ -151,3 +151,25 @@ void timing_call_irq_handler(void) {
     g_cpu.S = s; g_cpu.A = a; g_cpu.X = x; g_cpu.Y = y;
     g_cpu.N = n; g_cpu.V = v; g_cpu.D = d; g_cpu.I = i; g_cpu.Z = z; g_cpu.C = c;
 }
+
+/* save states (savestate.c) */
+void timing_state(StateIO *io) {
+    st_u32(io, &s_ops); st_u32(io, &s_length);
+    st_int(io, &s_started); st_int(io, &s_odd); st_int(io, &s_dots);
+    st_int(io, &s_depth); st_int(io, &s_saved_depth); st_int(io, &s_pending);
+    st_int(io, &s_dma_stall);
+    st_u16(io, &s_pc);
+    st_u64(io, &s_epoch);
+    st_int(io, &s_in_irq);
+    st_u64(io, &g_nes_cycles);
+    st_u64(io, &g_frame_count);
+}
+
+/* A loaded state goes on from where it was taken, frame_run's return at the
+ * scheduler's $FEBD: frame_boundary's depth back down, and the 2 cycles of
+ * $FEBD's charge, which savestate.c makes again by entering func_FEBD. */
+void timing_resume_at_scheduler(void) {
+    s_depth--;
+    s_ops -= 2;
+    g_nes_cycles -= 2;
+}

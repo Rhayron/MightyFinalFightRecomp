@@ -6,16 +6,155 @@ the **lockstep** check that compares it frame by frame with the
 cycle-accurate build in the repo root (the oracle), **P4**: every routine of
 the game in C in `port/src/game/`, building and running without the
 scaffold's generated code, **P5**: the game on its own runtime, with no
-code from nesrecomp and no ROM at run time, and **P9** (begun): the picture
-drawn from the game's state, with 16:9 and no sprite flicker as options.
+code from nesrecomp and no ROM at run time, **P8**: Windows, Linux and
+macOS, a first run that needs only the player's dump, settings, save states
+and a package for players, and **P9** (begun): the picture drawn from the
+game's state, with 16:9 and no sprite flicker as options.
+
+## P8: three systems, the first run, settings, save states, the package
+
+**Building.** The same `port/CMakeLists.txt` on Windows (MSVC; SDL2 from
+nesrecomp's bundled copy) and on Linux and macOS (gcc or clang; SDL2 from
+the system: its CMake package, else pkg-config), `-Wall -Wextra` with no
+warnings (`-Wno-type-limits`: the lifted `CMP #$00` keeps its `A >= 0`).
+CMake no longer needs Python: with `-DMFF_ROM` the build runs the
+executable's own extractor into `BUILD/assets`.
+
+```bash
+cmake -S port -B build -DMFF_SDL=ON -DMFF_ROM="rom/Mighty Final Fight (USA).nes"   # -A x64 on Windows
+cmake --build build --config Release
+build/MightyFinalFight                       # build/Release/MightyFinalFight.exe on Windows: the window
+```
+
+Checked on Windows (MSVC 19.44) and Linux (Ubuntu 24.04 in Docker: gcc 13.3
+and clang 18, SDL2 2.30 from libsdl2-dev): the 9 routes give byte-identical
+frame logs and picture logs on all three compilers, identical to the
+baselines (`run_routes.sh check`, which now runs under plain bash too:
+`pwd -W` only on Git Bash, `python3` without the `py` launcher). macOS is
+written for (`_NSGetExecutablePath`, ucontext behind `_XOPEN_SOURCE`) but
+was not built here; the CI workflow below builds it.
+
+**The first run, without Python** (`runtime/extract.c`, `runtime/setup.c`).
+The executable carries nothing from the cartridge. When it finds no game
+data it takes the player's dump once (CRC32 `15EB0BEE` with the header)
+and writes `chr.bin`, `prg.bin` and `manifest.json`, byte for byte what
+`extract_assets.py --only runtime` writes (the code lists are compiled in
+from `port/tools/prg_code*.txt`, offsets only; `port/tests/extract_check.sh`
+compares the two extractors, into an empty directory and over a Python
+extraction of other parts). The dump comes from the command line (a path
+without an option: dropping the file on the executable), from a `.nes`
+with the right CRC next to the executable or in the current directory, or,
+in the window build, from a window asking for it (a message, then drop the
+file on it: SDL2 has no file dialog). `--extract DUMP [--assets DIR]` only
+extracts. Everything goes to the data directory: next to the executable
+when it can be written, else `%APPDATA%\MightyFinalFight`,
+`~/Library/Application Support/MightyFinalFight` or
+`~/.local/share/MightyFinalFight`. The window opens by default when the
+build has one; `--headless` or `--smoke N` do not.
+
+**Settings** (`runtime/config.c`): `MightyFinalFight.ini` in the data
+directory, written by the window's first run: `[video]` scale, full
+screen and P9's picture options (`picture`, `no_flicker`, `wide`, through
+`hd_option`), `[audio]` on/off, `[keys]` every NES button and the hotkeys (SDL key
+names, several each), `[pad]` the controller buttons, and `[game] slowdown`,
+a placeholder handed to the game as `MFF_SLOWDOWN` (P7's option) unless the
+command line or the environment sets it. Headless runs read no settings
+unless `--config FILE`, so a player's file never reaches a route check.
+
+**Save states** (`runtime/savestate.c`): F5 saves to the slot, F7 loads it,
+F6 picks the next of four (`saves/slotN.mffstate`; the window's title says
+what happened); `--load STATE` starts from one. A state is every part of
+the runtime, field by field (each runtime file with state has a
+`*_state(StateIO *)` function: a new static must go there too): CPU, RAM,
+cartridge RAM and pads, PPU, MMC3, APU and the synthesizer (doubles as
+their bits), the clock, the pictures kept while rendering is off, the JMP
+tails and code window, the coroutines' flags, the test hooks and the bot,
+and P9's HD picture (its overlay of the game's VRAM patches, the reveal
+state of `--wide`, the last objects_draw input and the last HD picture).
+About 330 KB.
+
+The tasks' C stacks cannot be written to a file portably, so a state is
+taken only at a frame whose stacks are known, and loading builds them
+again:
+
+- the frame boundary is at the scheduler's loop top (`$FEBD`) with no
+  interrupt running: the scheduler's stack is "about to scan", which
+  `func_FEBD` starts again, with the 2 cycles of `$FEBD`'s own charge taken
+  back (`timing_resume_at_scheduler`);
+- only task 0 has a stack (the game never starts another), waiting in
+  `gameplay_frame_end`'s `task_wait_frame` (`$C9B0` on its 6502 stack): the
+  end of a gameplay frame, which includes a pause, the continue screen and
+  the bosses' talk;
+- its C stack is then a chain of JMP tails, all listed in `dispatch_rt.c`
+  with target and S: the last gameplay loop (`$C8ED`) at
+  `task_wait_frame`'s S + 4, and above it only the frame end's own entries
+  (`$C93B`, `$C987`, `$C99D`, `$C9A7`) at that S. Below it are the loops of
+  the areas played before: each new area JMPs to gameplay from inside a
+  JSR, so the 6502 stack keeps 2 bytes and the C stack a few frames per
+  area (48 tails by the end of a tour), and nothing ever returns there.
+
+Loading frees the old stacks (for F7, `longjmp` back to `savestate_run`),
+gives task 0 a new stack that runs `gameplay_resume_frame_end`
+(`flow_gameplay.c`: what `gameplay_frame_end_work` does after
+`task_wait_frame` returns, then gameplay's own loop or its JMP back to it)
+inside a rebuilt frame for the last loop's tail, which then does what
+`call_by_address_tail`'s loop does (on each lap back, run gameplay again),
+and enters the scheduler. The older tails stay listed, without frames: a
+return into one, which no route makes, stops the game with a message
+instead of going on differently. A save asked for elsewhere (title, map,
+cutscenes, round changes, the ending) waits up to 600 frames for such a
+frame, then is dropped (the title says so).
+
+`port/tests/savestate_check.sh` plays each route once, saving at 10, 30,
+50, 70 and 90% (`MFF_SAVE_AT`, `MFF_SAVE_DIR`), loads every state in a new
+process and compares the rest of the frame log and the picture log (cycle
+counts included) with the uninterrupted run (`savestate_cmp.py`). On the 9
+routes, 41 states (the tours' requests that fall in the ending have none to
+take), Windows and Linux: all identical to the end of the route.
+`MFF_LOAD_AT=F:STATE` loads in the running process as F7 does; on
+`cody_round1` (back from 15,000 to 6,058) and `cody_tour` (from 45,000 to
+37,981, 48 tails deep) the rest is identical too.
+
+**Attract mode** (fixed here): left at the title, the game restarts by
+JMP reset and froze at frame 5,112: reset's vblank polling waited for frame
+boundaries the NMI rule held back (task 0 counts as running until reset
+clears RAM; reset's code is never held now), and the abandoned task's JMP
+tails stayed listed, so the new `main_task`'s first JMP matched an old one
+as a lap and ended the task (the scheduler's restart now clears them).
+20,000 idle frames go round the boot screens three times; against the
+oracle's frame log the RAM is identical in all 10,984 paired frames, 5,872
+after the first restart.
+
+**The package** (`tools/make_port_release.ps1`): builds with the window in
+a clean directory configured without a dump, runs the executable from the
+package folder (`--help`; a start without data must ask for the dump and
+leave nothing), and zips `release/MightyFinalFight-port-windows-x64.zip`:
+
+| File | |
+|---|---|
+| `MightyFinalFight/MightyFinalFight.exe` | the game, no data |
+| `MightyFinalFight/SDL2.dll` | SDL2 2.30 |
+| `MightyFinalFight/README.txt` | `port/dist/README.txt`: the dump, the files, controls, settings, saves |
+| `MightyFinalFight/SDL2-LICENSE.txt` | SDL2's zlib license |
+
+`port/tools/release_check.py ZIP [DUMP]` lists it, refuses any other name or
+data file, and with the dump searches every file for any 32-byte run of
+the dump's PRG and CHR (210,262 runs; counting runs, common to any program,
+skipped): none. **CI** (`port/ci/github-actions.yml`, files only): Windows,
+Linux and macOS, the window and headless builds,
+`port/tests/smoke_no_rom.sh` (help, asks for the dump, refuses a random
+file, another game and a wrong `.nes` next to it) and a package each. It
+sits outside `.github/workflows`, so GitHub does not run it, and `port/`
+is not pushed until the owner decides (PLAN_DECOMP.md section 6).
 
 ## P5: build and run
 
 `port/CMakeLists.txt` builds **MightyFinalFight** from `port/src/game`,
 `port/src/glue/dispatch.c`, `port/src/runtime` and P6's 2A03 synthesizer
 (`port/src/audio`). Point it at your dump
-once; CMake extracts the game's data into `BUILD/assets` while it
-configures, and from then on neither the build nor the game reads the ROM.
+once; the build extracts the game's data into `BUILD/assets` (with the
+executable's own extractor since P8; CMake configured with Python's
+before), and from then on neither the build nor the game reads the ROM.
 
 ```bash
 cmake -S port -B build_mff -A x64 -DMFF_ROM="rom/Mighty Final Fight (USA).nes" -DMFF_SDL=ON
@@ -26,10 +165,11 @@ MFF_EXE=build_mff/Release/MightyFinalFight.exe port/tests/run_routes.sh check
 ```
 
 - The dump must be Mighty Final Fight (USA), CRC32 `15EB0BEE` with the
-  header. Without CMake: `py -3 -I port/tools/extract_assets.py DUMP --only
-  runtime --out DIR` and run with `--assets DIR` (or `MFF_ASSETS=DIR`). The
-  executable looks in `assets/` next to itself and one level up, and says
-  how to make the data when it finds none.
+  header. Without CMake: `MightyFinalFight --extract DUMP --assets DIR` or
+  `py -3 -I port/tools/extract_assets.py DUMP --only runtime --out DIR`, and
+  run with `--assets DIR` (or `MFF_ASSETS=DIR`). The executable looks in
+  `assets/` next to itself, one level up and in the data directory, and
+  takes the dump when it finds none (P8).
 - `-DMFF_SDL=ON` adds the window (SDL2; `MFF_SDL2_DIR` defaults to the copy
   in `nesrecomp/runner/external/SDL2`). Keys: X = A, Z = B, Enter = Start,
   Right Shift = Select, arrows; a game controller works too (B/Y = A,
@@ -72,6 +212,8 @@ implements that interface for this one game, so no routine changed:
 | `cart.c` | loads `chr.bin` and `prg.bin`; a read of a PRG byte the data leaves out stops the run and names it |
 | `testhooks.c`, `png_write.c` | the scaffold's frame log, picture log and keyed input; screenshots |
 | `main.c`, `video_sdl.c` | command line (and the reset sequence's 7 cycles); the window and the audio device |
+| `setup.c`, `extract.c` | (P8) the data directory and the first run: the game's data from the dump, without Python |
+| `config.c`, `savestate.c` | (P8) `MightyFinalFight.ini`; save states |
 
 What the game can see is reproduced as the scaffold's runtime had it: the
 place the NMI lands (only at the scheduler's `$FEBD` while a task waits),

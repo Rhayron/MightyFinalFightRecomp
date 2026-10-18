@@ -214,3 +214,34 @@ void mff_bot_frame(uint64_t frame_count) {
         fprintf(stderr, "[mff] bot f=%ld act=%02X char=%d round=%d area=%d hp=%d lives=%d\n", frame,
                 g_ram[0x30], g_ram[0x34], g_ram[0x61], g_ram[0x60], g_ram[0x3A], g_ram[0x3E]);
 }
+
+/* Save states of the port (port/src/runtime/savestate.c): every static
+ * above, as bytes in this machine's order (a state is read back by the same
+ * build); field(ctx, p, n) writes or reads n bytes at p. */
+static void field_long(void (*field)(void *, void *, size_t), void *ctx, long *v) {
+    int64_t t = *v;
+    field(ctx, &t, sizeof t);
+    *v = (long)t;
+}
+
+void mff_bot_state(void (*field)(void *ctx, void *p, size_t n), void *ctx) {
+    field(ctx, &s_on, sizeof s_on);
+    field(ctx, &s_char, sizeof s_char);
+    field(ctx, &s_skip, sizeof s_skip);
+    field(ctx, &s_rng, sizeof s_rng);
+    field(ctx, s_steps, sizeof s_steps);
+    field(ctx, &s_nsteps, sizeof s_nsteps);
+    field(ctx, &s_mask, sizeof s_mask);
+    field_long(field, ctx, &s_tick);
+    field_long(field, ctx, &s_seg_start);
+    field(ctx, &s_hist_n, sizeof s_hist_n);
+    field(ctx, &s_unstick, sizeof s_unstick);
+    field(ctx, &s_walking, sizeof s_walking);
+    field(ctx, &s_target, sizeof s_target);
+    field(ctx, s_hist, sizeof s_hist);
+    field(ctx, s_banned, sizeof s_banned);
+    field(ctx, &s_full_hp, sizeof s_full_hp);
+    field(ctx, s_age, sizeof s_age);
+    field(ctx, s_mark, sizeof s_mark);
+    field_long(field, ctx, &s_mark_frame);
+}

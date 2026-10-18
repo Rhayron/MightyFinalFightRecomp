@@ -139,11 +139,87 @@ void mff_hooks_init(void);
 /* ---- coroutine.c ---- */
 void coroutine_power_on(void);
 
+/* ---- dispatch_rt.c ---- */
+/* the scheduler restarted (coroutine.c): forget the abandoned tasks' JMP tails */
+void dispatch_reset_tails(void);
+
 /* ---- video_sdl.c (with MFF_SDL) ---- */
 int video_open(int scale);                  /* the picture's width is hd_width() */
 void video_frame(const uint32_t *fb, int w);    /* present and pace */
 void video_poll_input(void);                /* pad 1 from keyboard/gamepad */
 void video_audio(const int16_t *pcm, int n);    /* 48 kHz mono samples to play */
+int video_available(void);                  /* 1 if this build has the window */
+/* no game data yet: a window asking for the dump (`why`: the last attempt's
+ * error, or NULL); 0 with the path of a file dropped on it, -1 if closed */
+int video_ask_for_dump(char *path, size_t cap, const char *why);
+
+/* ---- extract.c, setup.c (P8: the first run, without Python) ---- */
+uint32_t mff_crc32(const uint8_t *p, size_t n);
+int mff_is_dump(const char *path);          /* Mighty Final Fight (USA), CRC32 15EB0BEE */
+int mff_make_dirs(const char *path);
+/* extract_assets.py --only runtime: chr.bin, prg.bin, manifest.json in
+ * out_dir; 0, or -1 with the reason in err */
+int extract_runtime_assets(const char *rom, const char *out_dir, int check_crc, char *err, size_t errcap);
+void setup_init(const char *argv0);
+const char *setup_exe_dir(void);
+const char *setup_data_dir(void);           /* assets/, saves/, the config: writable */
+const char *setup_find_assets(const char *given);   /* loaded (cart.c): the dir, or NULL */
+const char *setup_first_run(const char *dump, int window);
+int setup_extract_cli(const char *dump, const char *out);
+
+/* ---- savestate.c (P8): save states ----
+ * Every part of the runtime with state writes and reads it in its
+ * *_state(StateIO *) function, field by field; a new static there must be
+ * added to it (port/tests/savestate_check.sh finds one that is not). */
+typedef struct StateIO StateIO;
+int st_loading(const StateIO *io);
+void st_bytes(StateIO *io, void *p, size_t n);
+void st_u8(StateIO *io, uint8_t *v);
+void st_u16(StateIO *io, uint16_t *v);
+void st_u32(StateIO *io, uint32_t *v);
+void st_u64(StateIO *io, uint64_t *v);
+void st_int(StateIO *io, int *v);           /* as 32 bits */
+void st_f64(StateIO *io, double *v);
+void st_u16s(StateIO *io, uint16_t *v, int n);
+void st_ints(StateIO *io, int *v, int n);
+void bus_state(StateIO *io);
+void ppu_state(StateIO *io);
+void mmc3_state(StateIO *io);
+void apu_state(StateIO *io);
+void timing_state(StateIO *io);
+void frame_state(StateIO *io);
+void dispatch_state(StateIO *io);
+void coroutine_state(StateIO *io);
+void hooks_state(StateIO *io);
+void hd_state(StateIO *io);                 /* render_hd.c (P9) */
+void savestate_init(void);
+void savestate_frame_begin(void);           /* frame.c, at the frame's start and end */
+void savestate_frame_end(void);
+void savestate_request_save(void);          /* the window's keys: the current slot */
+void savestate_request_load(void);
+void savestate_next_slot(void);
+const char *savestate_status(void);         /* "slot 2 saved" and such, for the title */
+/* main: the game from power-on, or from the state in load_path; never returns */
+void savestate_run(const char *load_path);
+/* what loading needs from the other parts */
+void timing_resume_at_scheduler(void);
+int dispatch_tail_count(void);
+uint16_t dispatch_tail_addr(int i);
+uint8_t dispatch_tail_s(int i);
+int dispatch_lap_pending(void);
+void dispatch_rebuild_tail(int inner, void (*resume)(void));
+int coroutine_on_scheduler(void);
+int coroutine_task_mask(void);              /* bit per task with a C stack */
+int coroutine_saved_task_mask(void);        /* the same, as the loaded state had it */
+void coroutine_drop_all(void);
+void coroutine_rebuild(int ch, void (*body)(void));
+void video_after_load(void);
+
+/* ---- config.c (P8): MightyFinalFight.ini ---- */
+void config_load(const char *path, int write_default);
+const char *config_get(const char *key);    /* "section.key", NULL if not set */
+int config_int(const char *key, int def);
+const char *config_path(void);
 
 /* ---- errors ---- */
 void mff_fatal(const char *fmt, ...);

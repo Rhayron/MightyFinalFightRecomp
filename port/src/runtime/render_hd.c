@@ -618,7 +618,7 @@ static void m_offscreen(Cpu *c, int x) {
  * game would place it, without touching the state: for the objects it
  * animates off its screen and for the sprites past a full OAM */
 static void frame_sprites(int pair, int fid, int sx, int sy, uint8_t flags, DrawCall *dc, int *bad) {
-    Cpu tmp;
+    static Cpu tmp;                     /* only its banks are set: RAM reads see 0, never stack garbage */
     const Cpu *c = &tmp;
     uint16_t fp, lp;
     uint8_t head, li, flip = flags & 0x40, prio = flags & 0x20;
@@ -1207,4 +1207,37 @@ void hd_init(void) {
         if (!s_check_log) mff_fatal("MFF_HDCHECK: cannot write %s", p);
     }
     overlay_clear();
+}
+
+/* Save states (savestate.c): what the HD picture carries from frame to
+ * frame. The area map is decoded again when needed, and the objects_draw
+ * model is run again from the saved input; the rest is per frame. */
+void hd_state(StateIO *io) {
+    long writes = s_ov_writes;
+    uint64_t w64 = (uint64_t)writes;
+    for (int r = 0; r < 21; r++) st_u16s(io, (uint16_t *)s_ov_tile[r], MAX_COLS);
+    for (int r = 0; r < 7; r++) st_u16s(io, (uint16_t *)s_ov_attr[r], MAX_COLS);
+    st_int(io, &s_ov_round);
+    st_int(io, &s_ov_area);
+    st_int(io, &s_ov_last_n);
+    st_u64(io, &w64);
+    st_bytes(io, s_draw_ram, sizeof s_draw_ram);
+    st_int(io, &s_draw_seq);
+    for (int i = 0; i < 16; i++) {
+        st_int(io, &s_rev[i].live);
+        st_int(io, &s_rev[i].spawn);
+        st_int(io, &s_rev[i].x);
+        st_int(io, &s_rev[i].revealed);
+    }
+    st_ints(io, s_unseen, 16);
+    st_bytes(io, s_pix, sizeof s_pix);
+    st_int(io, &s_w);
+    st_int(io, &s_view_x);
+    if (st_loading(io)) {
+        s_ov_writes = (long)w64;
+        s_model_seq = -1;
+        s_have_pre = 0;
+        if (s_w < FRAME_W || s_w > HD_MAX_W) s_w = FRAME_W;
+        for (int i = 0; i < s_w * FRAME_H; i++) s_rgb[i] = g_nes_rgb[s_pix[i] & 0x3F];
+    }
 }

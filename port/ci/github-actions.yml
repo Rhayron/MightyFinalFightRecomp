@@ -1,0 +1,88 @@
+# The port on Windows, Linux and macOS: build, then the checks that need no
+# ROM (port/tests/smoke_no_rom.sh), then a package with no game data.
+#
+# NOT ENABLED. GitHub runs only workflows in .github/workflows/, and port/
+# stays off the public repository until the owner decides (PLAN_DECOMP.md,
+# section 6). To enable it there, copy this file to .github/workflows/port.yml.
+# The checks against the oracle and the routes need the dump and stay local
+# (port/tests/run_routes.sh, savestate_check.sh, extract_check.sh).
+name: port
+
+on:
+  workflow_dispatch:
+  push:
+    paths: ["port/**", ".github/workflows/port.yml"]
+  pull_request:
+    paths: ["port/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            package: windows-x64
+          - os: ubuntu-24.04
+            package: linux-x64
+          - os: macos-14
+            package: macos-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: SDL2 (Windows, the copy bundled with nesrecomp)
+        if: runner.os == 'Windows'
+        run: git submodule update --init --depth 1 nesrecomp
+      - name: SDL2 (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev ninja-build
+      - name: SDL2 (macOS)
+        if: runner.os == 'macOS'
+        run: brew install sdl2 ninja
+
+      - name: Configure and build (window), no dump
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then gen=(-A x64); else gen=(-G Ninja -DCMAKE_BUILD_TYPE=Release); fi
+          cmake -S port -B build -DMFF_SDL=ON "${gen[@]}"
+          cmake --build build --config Release
+      - name: Configure and build (headless only)
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then gen=(-A x64); else gen=(-G Ninja -DCMAKE_BUILD_TYPE=Release); fi
+          cmake -S port -B build_headless -DMFF_SDL=OFF "${gen[@]}"
+          cmake --build build_headless --config Release
+
+      - name: Smoke test without the ROM
+        shell: bash
+        run: |
+          for b in build build_headless; do
+            exe=$(ls $b/Release/MightyFinalFight.exe $b/MightyFinalFight 2>/dev/null | head -1)
+            echo "== $exe"
+            bash port/tests/smoke_no_rom.sh "$exe"
+          done
+
+      - name: Package (the executable, SDL2 on Windows, README; no game data)
+        shell: bash
+        run: |
+          mkdir -p pkg/MightyFinalFight
+          if [ "$RUNNER_OS" = Windows ]; then
+            cp build/Release/MightyFinalFight.exe build/Release/SDL2.dll pkg/MightyFinalFight/
+            cp nesrecomp/runner/external/SDL2/COPYING.txt pkg/MightyFinalFight/SDL2-LICENSE.txt
+          else
+            cp build/MightyFinalFight pkg/MightyFinalFight/
+          fi
+          cp port/dist/README.txt pkg/MightyFinalFight/
+          cd pkg
+          if [ "$RUNNER_OS" = Windows ]; then 7z a ../MightyFinalFight-port-${{ matrix.package }}.zip MightyFinalFight
+          else tar czf ../MightyFinalFight-port-${{ matrix.package }}.tar.gz MightyFinalFight; fi
+          cd ..
+          if [ "$RUNNER_OS" = Windows ]; then python -I port/tools/release_check.py MightyFinalFight-port-${{ matrix.package }}.zip; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MightyFinalFight-port-${{ matrix.package }}
+          path: MightyFinalFight-port-${{ matrix.package }}.*

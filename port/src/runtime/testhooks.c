@@ -244,3 +244,18 @@ void hooks_exit_log(void) {
     if (s_piclog) fflush(s_piclog);
     if (s_picdump) fflush(s_picdump);
 }
+
+/* save states (savestate.c): where the keyed input and the pokes are */
+void hooks_state(StateIO *io) {
+    uint64_t at = s_at, poke_at = s_poke_at;
+    st_int(io, &s_started);
+    st_int(io, &s_prev);
+    st_u32(io, &s_count);
+    st_u16(io, &s_rep);
+    st_u64(io, &at);
+    st_u64(io, &poke_at);
+    if (st_loading(io)) {
+        s_at = (size_t)(at < s_nkeys ? at : s_nkeys);
+        s_poke_at = (size_t)(poke_at < s_npokes ? poke_at : s_npokes);
+    }
+}

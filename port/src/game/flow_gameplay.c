@@ -162,6 +162,20 @@ static int gameplay_draw_work(void) {
     return mff_call_fn(0x09A6, func_E9BC, 0xE000);         /* objects_draw */
 }
 
+/* $C9B1-$C9B3, what gameplay_frame_end does after task_wait_frame
+ * returns: render_off_depth back to 1. A function of its own because a
+ * loaded save state goes on from here (gameplay_resume_frame_end).
+ * Registers in and out through g_cpu. */
+int gameplay_frame_end_after_wait(void) {
+    REGS_IN;
+
+    mff_cycles(0xC9B1, 5 + 3);
+    RAM(RENDER_OFF_DEPTH)++;
+    SET_NZ(RAM(RENDER_OFF_DEPTH));
+    SYNC_OUT;
+    return 1;
+}
+
 /* $C9A7-$C9B3, the body of gameplay_frame_end: rng_step ($C3B4), then
  * render_off_depth 0 while task_wait_frame ($FF31) waits for the next
  * frame, back to 1 after it; the JMP gameplay that follows is charged
@@ -180,12 +194,7 @@ static int gameplay_frame_end_work(void) {
     RAM(RENDER_OFF_DEPTH) = a;
     SYNC_OUT;
     mff_call_fn(0x09B0, func_FF31, 0xE000);                 /* task_wait_frame */
-    SYNC_IN;
-    mff_cycles(0xC9B1, 5 + 3);
-    RAM(RENDER_OFF_DEPTH)++;
-    SET_NZ(RAM(RENDER_OFF_DEPTH));
-    SYNC_OUT;
-    return 1;
+    return gameplay_frame_end_after_wait();
 }
 
 /*
@@ -380,5 +389,29 @@ void func_C99D(void) {
 void func_C9A7(void) {
     if (!gameplay_frame_end_work())
         return;
+    nes_cpu_instruction_boundary(0xC8ED, 2); call_by_address_tail(0xC8ED, -1);
+}
+
+/*
+ * Save states (runtime/savestate.c) are taken while task 0 waits in
+ * gameplay_frame_end_work's task_wait_frame, and a loaded one gives task 0
+ * a new stack that starts here: what follows task_wait_frame's return, in
+ * the code window mff_call_fn gives back ($C000), then what the caller of
+ * gameplay_frame_end_work does next. inline_loop: gameplay's own loop
+ * (func_C8ED: round again from its top, which REGS_IN starts as SYNC_IN
+ * would); otherwise gameplay_frame_end (func_C9A7, reached through the
+ * JMPs to $C9A7/$C99D/$C987/$C93B): its JMP gameplay, a lap back to the
+ * gameplay loop's tail (savestate.c rebuilds that tail's frame). The
+ * routines between func_C9A7 and that tail return without doing anything
+ * more, so nothing else is left out. An edit to the frame end must keep
+ * this the same (port/tests/savestate_check.sh shows it if not).
+ */
+void gameplay_resume_frame_end(int inline_loop) {
+    g_code_window_base = 0xC000;
+    gameplay_frame_end_after_wait();
+    if (inline_loop) {
+        func_C8ED();
+        return;
+    }
     nes_cpu_instruction_boundary(0xC8ED, 2); call_by_address_tail(0xC8ED, -1);
 }

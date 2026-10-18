@@ -76,6 +76,73 @@ int call_by_address_tail(uint16_t addr, int caller_bank) {
     return r;
 }
 
+/* ---- save states (savestate.c) ---- */
+
+int dispatch_tail_count(void) { return s_ntails; }
+uint16_t dispatch_tail_addr(int i) { return s_tail[i].addr; }
+uint8_t dispatch_tail_s(int i) { return s_tail[i].s; }
+int dispatch_lap_pending(void) { return s_lap_addr >= 0; }
+
+/* dispatch.c's RTI and RTS registers */
+extern uint16_t g_rti_source, g_rts_target;
+extern int g_rti_bank;
+
+void dispatch_state(StateIO *io) {
+    st_u16(io, &g_code_window_base);
+    st_int(io, &s_ntails);
+    if (s_ntails < 0 || s_ntails > MAX_TAILS) s_ntails = 0;
+    for (int i = 0; i < s_ntails; i++) {
+        st_u16(io, &s_tail[i].addr);
+        st_u8(io, &s_tail[i].s);
+        st_u64(io, &s_tail[i].epoch);
+    }
+    {
+        int lap = (int)s_lap_addr;
+        st_int(io, &lap);
+        s_lap_addr = lap;
+    }
+    st_int(io, &s_lap_slot);
+    st_u16(io, &g_rti_target);
+    st_u16(io, &g_rti_source);
+    st_int(io, &g_rti_bank);
+    st_u16(io, &g_rts_target);
+}
+
+/* A loaded state's task 0, on a new C stack (savestate.c). Its last
+ * listed JMP tail, `inner`, gets a frame that does what
+ * call_by_address_tail's loop does for it: first `resume`, the rest of the
+ * routine that was waiting (the tails above `inner` belong to routines
+ * `resume` stands for, and would have left the list by the time it
+ * returns), then, on every lap back to it, its target again. The tails
+ * below stay listed for the laps they would catch, but have no frames: a
+ * return that is not a lap back to `inner` would go on into code the state
+ * does not rebuild, and stops the game instead. */
+void dispatch_rebuild_tail(int inner, void (*resume)(void)) {
+    for (int first = 1;; first = 0) {
+        if (first) {
+            resume();
+            s_ntails = inner + 1;
+        } else {
+            nes_dispatch_call(s_tail[inner].addr, -1);
+        }
+        if (s_lap_addr >= 0 && s_lap_slot == inner) {
+            s_lap_addr = -1;
+            s_lap_slot = -1;
+            continue;
+        }
+        break;
+    }
+    mff_fatal("after loading a state, the routine at $%04X returned%s into a part of task 0's stack the "
+              "state does not rebuild (frame %llu)", s_tail[inner].addr,
+              s_lap_addr >= 0 ? " (a JMP back to an earlier loop)" : "", (unsigned long long)g_frame_count);
+}
+
+void dispatch_reset_tails(void) {
+    s_ntails = 0;
+    s_lap_addr = -1;
+    s_lap_slot = -1;
+}
+
 static int no_routine(uint16_t cpu_addr, int bank) {
     uint8_t s = g_cpu.S;
     uint16_t ret = (uint16_t)(g_ram[0x100 + (uint8_t)(s + 1)] | (g_ram[0x100 + (uint8_t)(s + 2)] << 8));

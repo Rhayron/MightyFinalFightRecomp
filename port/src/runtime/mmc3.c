@@ -157,3 +157,14 @@ uint8_t mmc3_chr_read(uint16_t a) {
     a &= 0x1FFF;
     return g_cart.chr[(uint32_t)s_chr[a >> 10] * 0x400 + (a & 0x3FF)];
 }
+
+/* save states (savestate.c) */
+void mmc3_state(StateIO *io) {
+    st_u8(io, &s_select);
+    st_bytes(io, s_reg, sizeof s_reg);
+    st_u8(io, &s_latch); st_u8(io, &s_counter);
+    st_int(io, &s_reload); st_int(io, &s_irq_on);
+    st_int(io, &s_mirroring);
+    st_u16s(io, s_chr, 8);
+    st_ints(io, g_mmc3_win_bank8k, 4);
+}
