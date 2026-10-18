@@ -102,18 +102,18 @@ ondas são o próprio som do jogo, não um detalhe do hardware.
   P0 classifica como código, menos 297 que o jogo também lê como dado (as telas que a lista de cada
   área nomeia depois do fim, lidas quando a câmera para, e um byte de tabela lido além do fim; ler um
   byte que falta para a execução e diz qual). Onde o runtime do andaime não é o console, o oráculo
-  decidiu: os ciclos incluem o que o andaime deixa de fora e o console gasta (a sequência de reset, a
-  entrada da NMI e as instruções do `nmi_tail`: 85 por frame), que o jogo não vê (a NMI continua
-  entrando só em `$FEBD`) e o som precisa; o `nmi_tail` faz os pushes do console, o do JSR também (o
-  `extras.c` do andaime chama `sound_update` sem o push e o RTS dele tira dois bytes: depois de toda
-  NMI o S fica em `$01`, o frame de interrupção da IRQ de raster cai em `$0101/$0100/$01FF` e zera
-  `bg_pal_anim_on` das paletas 0 e 1, e a animação de paleta do round 3 área 2 parava); a RAM de
+  decidiu: os ciclos incluem o que o andaime deixa de fora e o console gasta (a sequência de reset e a
+  entrada da NMI, 7 cada; as instruções do `nmi_tail`, 52 + 26, o andaime também cobra desde 17/10),
+  que o jogo não vê (a NMI continua entrando só em `$FEBD`) e o som precisa (`selfcheck.py
+  --nmi-cycles` desconta os 7 por NMI e falha em qualquer outra diferença); o `nmi_tail` faz os pushes
+  do console, o do JSR também (o `extras.c` do andaime chamava `sound_update` sem o push e o RTS dele
+  tirava dois bytes: depois de toda NMI o S ficava em `$01`, o frame de interrupção da IRQ de raster
+  caía em `$0101/$0100/$01FF` e zerava `bg_pal_anim_on` das paletas 0 e 1, e a animação de paleta do
+  round 3 área 2 parava; corrigido no andaime em 17/10, com bases novas); a RAM de
   nametable começa com o padrão de power-on do oráculo (o elevador do round 4 mostra a outra linha
-  de nametable, que o jogo nunca escreve, na última linha da tela). Contra as bases do andaime, as 3
-  rotas do round 1 e a `cody_full` ficam idênticas em RAM, OAM, paleta e imagem a cada frame, e os 3
-  tours e os 2 jogos alt diferem exatamente em `palette_request`, `palette_buf+7`, `palette_base+7` e
-  na cor 7 da paleta (420 a 1.287 frames cada, do round 3 área 2 em diante), onde as bases têm o bug
-  do `nmi_tail` do andaime: **o `extras.c` precisa do mesmo `nmi_tail` e as bases, de nova geração.**
+  de nametable, que o jogo nunca escreve, na última linha da tela). Contra as bases novas do andaime
+  as 9 rotas ficam idênticas em RAM, OAM, paleta e imagem a cada frame, e em ciclos a menos das
+  entradas da NMI.
   A janela
   mostra a imagem como a PPU desenha (`--picture console`: 8 sprites por linha, a posição vertical
   seguindo pelos splits) e toca o som (abaixo, P6). **Imagem (17/10):** em todas as rotas de
