@@ -283,7 +283,16 @@ typedef struct {
     int n;                              /* newest world column sent */
     int cam;                            /* world x at the original screen's x = 0 */
     int cam_region;                     /* the playfield region with the camera's scroll */
+    int held;                           /* not a stage frame, but the wide picture keeps the
+                                         * last one's camera (an area's exit) */
 } Stage;
+
+/* the last stage frame, for the frames of an area's exit (the game puts the
+ * scroll back to 0 while the old area fades out) */
+static struct {
+    int valid, round, area, cam, n;
+    uint64_t frame;
+} s_last;
 
 static int region_ox(const PpuRegion *g) {
     return (((g->t & 0x1F) << 3) | g->fine_x) + ((g->t & 0x400) ? 256 : 0);
@@ -314,9 +323,23 @@ static Stage stage_of(const FrameRecord *f) {
     st.n = writer_n(g_ram);
     if (st.n < 32 || st.n >= s_map.ncols) { st.why = "drawing"; return st; }
     ox = region_ox(&f->region[st.cam_region]);
-    if (((ox >> 3) & 31) != (st.n & 31) || g_ram[SCROLL_MODE] == 2) { st.why = "step"; return st; }
+    if (((ox >> 3) & 31) != (st.n & 31) || g_ram[SCROLL_MODE] == 2) {
+        st.why = "step";
+        if (s_last.valid && s_last.round == rnd && s_last.area == area && g_frame_count - s_last.frame < 120) {
+            st.held = 1;
+            st.cam = s_last.cam;
+            st.n = s_last.n;
+        }
+        return st;
+    }
     st.cam = 8 * (st.n - 32) + (ox & 7);
     st.ok = 1;
+    s_last.valid = 1;
+    s_last.round = rnd;
+    s_last.area = area;
+    s_last.cam = st.cam;
+    s_last.n = st.n;
+    s_last.frame = g_frame_count;
     return st;
 }
 
@@ -414,8 +437,8 @@ static void map_cell(int X, int ty, int n, int lag, int *tile, int *pal) {
 
 enum { LINE_NT, LINE_STILL, LINE_CAM };
 
-static int line_kind(const Stage *st, const Line *L) {
-    if (!st->ok || L->row_nt != 0 || L->ty < 4 || L->ty > 24 || !area_banks(L->g)) return LINE_NT;
+static int line_kind(const Stage *st, const Line *L, int wide) {
+    if (!(st->ok || (wide && st->held)) || L->row_nt != 0 || L->ty < 4 || L->ty > 24 || !area_banks(L->g)) return LINE_NT;
     return L->region == st->cam_region ? LINE_CAM : LINE_STILL;
 }
 
@@ -499,7 +522,7 @@ static void background(const FrameRecord *f, const Stage *st, const View *v, int
     if (!(f->mask0 & 0x08)) return;
     for (int line = 0; line < FRAME_H; line++) {
         const Line *L = &s_line[line];
-        int kind = line_kind(st, L);
+        int kind = line_kind(st, L, v->wide);
         uint8_t lb = L->g->pal[0] & 0x3F;
         if (v->wide) {                  /* the margins of a line drawn from 256 columns */
             memset(s_bg[line], lb, (size_t)v->w);
@@ -551,6 +574,7 @@ typedef struct {
     DrawCall call[MAX_CALLS];
     uint8_t oam[256];
     int bad;                            /* the model read something it cannot */
+    int unplaced;                       /* sprites past a full OAM (the 63 entries) */
 } Model;
 
 typedef struct {
@@ -703,7 +727,7 @@ static int m_draw_sprites(Cpu *c, int x, int sx, Model *out, DrawCall *dc) {
     MR(TMP5) = (uint8_t)lp;
     MR(TMP6) = (uint8_t)(lp >> 8);
     xo = MR(OAM_INDEX);
-    if (!xo) { out->bad |= bad; return 0; }
+    if (!xo) { out->bad |= bad; out->unplaced += head + 1; return 0; }
     y = 1;
     for (i = 0;; i++) {
         uint8_t tile, dyb, yb, dxb, attr;
@@ -732,7 +756,7 @@ static int m_draw_sprites(Cpu *c, int x, int sx, Model *out, DrawCall *dc) {
                 if (dc && i < dc->nspr) dc->spr[i].oam = xo >> 2;
                 xo = (xo + 4) & 0xFF;
                 MR(OAM_INDEX) = (uint8_t)xo;
-                if (!xo) { out->bad |= bad; return 0; }
+                if (!xo) { out->bad |= bad; out->unplaced += MR(TMP4); return 0; }
             }
         }
         if (!vis) MR(OAM_BUFFER + xo) = 0xF8;
@@ -839,7 +863,7 @@ static void view_of(const Stage *st, int wide, int no_flicker, View *v) {
     v->no_flicker = no_flicker;
     if (!wide) return;
     v->hud_x = v->view_x = (v->w - FRAME_W) / 2;
-    if (st->ok) {
+    if (st->ok || st->held) {
         /* the game's camera, held inside the area: its first and last
          * screens fill the picture instead of the backdrop around them */
         int wmax = (s_map.last + 1) * 256, cw = st->cam - v->hud_x;
@@ -948,7 +972,7 @@ static void sprites_list(const FrameRecord *f, const View *v, int model_ok, cons
         for (int s = 0; s < 64; s++) {
             int open = v->wide && slot_of[s] >= 0 && revealed(slot_of[s]);
             list_add(v->view_x + m->oam[s * 4 + 3], m->oam[s * 4], m->oam[s * 4 + 1], m->oam[s * 4 + 2], 1,
-                     open ? 0 : (v->wide ? lo0 : 0), open ? v->w : (v->wide ? hi0 : v->w), 0);
+                     open ? 0 : (v->wide ? lo0 : 0), open ? v->w : (v->wide ? hi0 : v->w), v->wide);
         }
         if (!v->wide) return;
         /* and, wide, what it left out of OAM: objects off its screen,
@@ -1072,8 +1096,15 @@ void hd_picture(const FrameRecord *f, int shown) {
     st = stage_of(f);
     if (s_check) {
         /* every option off, against the console picture */
-        int diff = 0, fx = -1, fy = -1;
+        int diff = 0, fx = -1, fy = -1, over = 0;
         render_frame(f, s_con, PICTURE_CONSOLE);
+        if (f->mask0 & 0x10)                    /* sprites the 8 per line leave out */
+            for (int line = 1; line < FRAME_H; line++) {
+                int k = 0;
+                for (int i = 0; i < 64; i++)
+                    if (f->oam[i * 4] < 0xEF && line > f->oam[i * 4] && line <= f->oam[i * 4] + 8) k++;
+                if (k > 8) over += k - 8;
+            }
         view_of(&st, 0, 0, &v);
         draw(f, &st, &v, model_ok, s_tmp, &map_lines);
         for (int i = 0; i < FRAME_W * FRAME_H; i++)
@@ -1087,10 +1118,11 @@ void hd_picture(const FrameRecord *f, int shown) {
         if (diff) s_sum.differ++;
         else s_sum.identical++;
         if (s_check_log)
-            fprintf(s_check_log, "%llu %s %s %d %d %d %d %d %d %d\n", (unsigned long long)g_frame_count,
+            fprintf(s_check_log, "%llu %s %s %d %d %d %d %d %d %d %d %d\n", (unsigned long long)g_frame_count,
                     st.ok ? "map" : st.why,
                     model_ok ? "model" : (model_seen ? (s_model.bad ? "bad" : "oam") : "none"),
-                    map_lines, diff, fx, fy, s_ov_frame, g_ram[ROUND], g_ram[SUB_AREA]);
+                    map_lines, diff, fx, fy, s_ov_frame, g_ram[ROUND], g_ram[SUB_AREA], over,
+                    model_ok ? s_model.unplaced : 0);
     }
     if (g_picture != PICTURE_HD) return;
     view_of(&st, g_hd.wide, g_hd.no_flicker, &v);
@@ -1127,7 +1159,9 @@ void hd_exit(void) {
  * source ("map" or why not), sprite source ("model", "oam" when the
  * model's OAM is not the frame's, "none" before the first objects_draw),
  * lines drawn from the map, pixels differing, the first one's x y, the
- * overlay cells, round, area. MFF_WIDE, MFF_NO_FLICKER: the options. */
+ * overlay cells, round, area, the (line, sprite) pairs the 8 per line
+ * leave out, the sprites past a full OAM. MFF_WIDE, MFF_NO_FLICKER: the
+ * options. */
 void hd_init(void) {
     const char *p = getenv("MFF_HDCHECK");
     const char *wide = getenv("MFF_WIDE"), *nf = getenv("MFF_NO_FLICKER");

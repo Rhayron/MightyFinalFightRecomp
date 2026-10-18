@@ -22,6 +22,9 @@ Sources in the log (render_hd.c, hd_init):
   sprites    model    objects_draw's model built the very OAM page shown
              oam      the page shown is not the model's (a screen wrote OAM itself)
              none     objects_draw has not run yet
+The log also counts, per picture, the (line, sprite) pairs the console's 8
+sprites per line leave out and the sprites objects_draw could not place in a
+full OAM: what --no-flicker shows.
 """
 import argparse
 import collections
@@ -69,7 +72,7 @@ def summarize(name, log):
         for line in f:
             p = line.split()
             rows.append((int(p[0]), p[1], p[2], int(p[3]), int(p[4]), int(p[5]), int(p[6]), int(p[7]),
-                         int(p[8]), int(p[9])))
+                         int(p[8]), int(p[9]), int(p[10]), int(p[11])))
     bg = collections.Counter(r[1] for r in rows)
     spr = collections.Counter(r[2] for r in rows)
     diff = [r for r in rows if r[4]]
@@ -79,13 +82,17 @@ def summarize(name, log):
     print("   sprites:   " + ", ".join(f"{k} {v}" for k, v in spr.most_common()))
     if overlay:
         print(f"   playfield cells written by the game's VRAM requests: {overlay}")
+    over = [r for r in rows if r[10]]
+    full = [r for r in rows if r[11]]
+    print(f"   the 8 per line leave out {sum(r[10] for r in over)} (line, sprite) pairs in {len(over)} pictures; "
+          f"{sum(r[11] for r in full)} sprites past a full OAM in {len(full)} (--no-flicker draws them)")
     classes = collections.defaultdict(list)
     for r in diff:
         classes[(r[1], r[2], r[8], r[9])].append(r)
     for (b, s, rnd, area), rs in sorted(classes.items(), key=lambda kv: -len(kv[1])):
         ex = ", ".join(f"{r[0]} ({r[4]} px from {r[5]},{r[6]})" for r in rs[:4])
         print(f"   DIFFER playfield {b}, sprites {s}, round {rnd} area {area}: {len(rs)} pictures, e.g. {ex}")
-    return len(rows), len(diff), bg, spr
+    return len(rows), len(diff), bg, spr, len(over), len(full)
 
 
 def main():
@@ -102,7 +109,7 @@ def main():
     specs = [route_spec(n) for n in names]
     with ThreadPoolExecutor(a.jobs) as pool:
         results = list(pool.map(lambda s: run(a.exe, a.outdir, s, a.max_frames), specs))
-    total = differ = 0
+    total = differ = over_all = full_all = 0
     bg_all, spr_all = collections.Counter(), collections.Counter()
     status = 0
     for name, log, code, err in results:
@@ -110,13 +117,16 @@ def main():
             print(f"== {name}: exit {code}\n{err[-2000:]}")
             status = 1
             continue
-        n, d, bg, spr = summarize(name, log)
+        n, d, bg, spr, o, fu = summarize(name, log)
+        over_all += o
+        full_all += fu
         total += n
         differ += d
         bg_all.update(bg)
         spr_all.update(spr)
     print(f"== all: {total} pictures, {total - differ} identical, {differ} differ; playfield from the map "
-          f"{bg_all['map']}, sprites from the objects {spr_all['model']}")
+          f"{bg_all['map']}, sprites from the objects {spr_all['model']}; pictures where the console leaves "
+          f"sprites out: {over_all} (8 per line), {full_all} (full OAM)")
     if differ:
         status = 1
     sys.exit(status)
